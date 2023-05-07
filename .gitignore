@@ -1,0 +1,16 @@
+*.exe
+*.bak
+*.txt
+*.html
+ShowroomCGI
+ShowroomCGI_det
+workspace.code-workspace
+*.tar
+*.csh
+awk.in
+SC*
+go.mod
+go.sum
+*_cookies
+*.svg
+__debug_bin

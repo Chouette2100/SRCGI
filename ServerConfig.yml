@@ -1,0 +1,26 @@
+## WebServer nginxSakura, Apache2Ubuntu or None
+WebServer: None
+HTTPport: 8080
+#
+#
+# SSLに関する設定は環境変数で渡す。
+## CGIとして実行するときあるいはSSLを使用せずWebServerとして実行するときは設定しない。
+#SSLcrt: ${SSLCRT}
+#SSLkey: ${SSLKEY}
+#
+#
+## DBサーバーのホスト名、指定しなければlocalhost
+#Dbhost:
+# データベース名
+Dbname:	${DBNAME}
+#
+#
+# ログイン名とパスワードは環境変数で渡す
+Dbuser:	${DBUSER}
+Dbpw:	${DBPW}
+#
+# イベント一覧に表示するイベントの数
+NoEvent: 30
+
+
+
