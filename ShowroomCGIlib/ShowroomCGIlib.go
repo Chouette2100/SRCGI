@@ -80,10 +80,12 @@ import (
 	10AK00	ブロックランキングのイベント名にblockidを追加する。獲得ポイントの取得時刻の初期値を分散させる。
 	------------------------------------- 以下公開版 ----------------------------------------------
 	10AL00	イベント情報にieventid（本来のイベントID、5桁程度の整数）を追加する。
+	10AL01	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントデータを取得する設定とする。
+	10AL02	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントを表示する設定とする。
 
 */
 
-const Version = "10AL00"
+const Version = "10AL02"
 
 type Event_Inf struct {
 	Event_ID    string
@@ -228,7 +230,7 @@ type RoomInfo struct {
 
 type RoomInfoList []RoomInfo
 
-//	sort.Sort()のための関数三つ
+// sort.Sort()のための関数三つ
 func (r RoomInfoList) Len() int {
 	return len(r)
 }
@@ -244,7 +246,7 @@ func (r RoomInfoList) Choose(from, to int) (s RoomInfoList) {
 
 var SortByFollowers bool
 
-//	降順に並べる
+// 降順に並べる
 func (r RoomInfoList) Less(i, j int) bool {
 	//	return e[i].point < e[j].point
 	if SortByFollowers {
@@ -270,7 +272,7 @@ type Color struct {
 	Value string
 }
 
-//	https://www.fukushihoken.metro.tokyo.lg.jp/kiban/machizukuri/kanren/color.files/colorudguideline.pdf
+// https://www.fukushihoken.metro.tokyo.lg.jp/kiban/machizukuri/kanren/color.files/colorudguideline.pdf
 var Colorlist2 []Color = []Color{
 	{"red", "#FF2800"},
 	{"yellow", "#FAF500"},
@@ -534,9 +536,9 @@ func GetEventListByAPI(eventinflist *[]Event_Inf) (status int) {
 	return
 }
 
-//	idで指定した配信者さんの獲得ポイントを取得する。
-//	戻り値は 獲得ポイント、順位、上位とのポイント差（1位の場合は2位とのポイント差）、イベント名
-//	レベルイベントのときは順位、上位とのポイント差は0がセットされる。
+// idで指定した配信者さんの獲得ポイントを取得する。
+// 戻り値は 獲得ポイント、順位、上位とのポイント差（1位の場合は2位とのポイント差）、イベント名
+// レベルイベントのときは順位、上位とのポイント差は0がセットされる。
 func GetPointsByAPI(id string) (Point, Rank, Gap int, EventID string) {
 
 	//	獲得ポイントなどの配信者情報を得るURL（このURLについては記事参照）
@@ -616,7 +618,6 @@ func GetPointsByAPI(id string) (Point, Rank, Gap int, EventID string) {
 }
 
 /*
-
  */
 func GetIsOnliveByAPI(room_id string) (
 	isonlive bool, //	true:	配信中
@@ -1725,27 +1726,29 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 		}
 		defer stmt.Close()
 
-		if i < 10 {
-			_, err = stmt.Exec(
-				eventid,
-				userno,
-				"Y",
-				"Y",
-				Colorlist[i%len(Colorlist)].Name,
-				"N",
-				roominf.Point,
-			)
-		} else {
-			_, err = stmt.Exec(
-				eventid,
-				userno,
-				"N",
-				"N",
-				Colorlist[i%len(Colorlist)].Name,
-				"N",
-				roominf.Point,
-			)
-		}
+		//	if i < 10 {
+		_, err = stmt.Exec(
+			eventid,
+			userno,
+			"Y",
+			"Y",
+			Colorlist[i%len(Colorlist)].Name,
+			"N",
+			roominf.Point,
+		)
+		/*
+			} else {
+				_, err = stmt.Exec(
+					eventid,
+					userno,
+					"Y",	//	"N"から変更する＝順位に関わらず獲得ポイントデータを取得する。
+					"N",
+					Colorlist[i%len(Colorlist)].Name,
+					"N",
+					roominf.Point,
+				)
+			}
+		*/
 
 		if err != nil {
 			log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
@@ -1840,7 +1843,7 @@ func GetEventInfAndRoomList(
 	//	log.Printf(" eventid=%s\n", (*eventinfo).Event_ID)
 
 	cevent_id, exists := doc.Find("#eventDetail").Attr("data-event-id")
-	if ! exists {
+	if !exists {
 		log.Printf("data-event-id not found. Event_ID=%s\n", (*eventinfo).Event_ID)
 		status = -1
 		return
@@ -1855,7 +1858,7 @@ func GetEventInfAndRoomList(
 		return
 	}
 	(*eventinfo).Period = selector.Find(".info").Text()
-	eventinfo.Period = strings.Replace(eventinfo.Period,"\u202f", " ", -1)
+	eventinfo.Period = strings.Replace(eventinfo.Period, "\u202f", " ", -1)
 	period := strings.Split((*eventinfo).Period, " - ")
 	if inputmode == "url" {
 		(*eventinfo).Start_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[0]+" JST")
@@ -1998,7 +2001,7 @@ func GetEventInfAndRoomListBR(
 	//	log.Printf(" eventid=%s\n", (*eventinfo).Event_ID)
 
 	cevent_id, exists := doc.Find("#eventDetail").Attr("data-event-id")
-	if ! exists {
+	if !exists {
 		log.Printf("data-event-id not found. Event_ID=%s\n", (*eventinfo).Event_ID)
 		status = -1
 		return
@@ -2014,7 +2017,7 @@ func GetEventInfAndRoomListBR(
 		return
 	}
 	(*eventinfo).Period = selector.Find(".info").Text()
-	eventinfo.Period = strings.Replace(eventinfo.Period,"\u202f", " ", -1)
+	eventinfo.Period = strings.Replace(eventinfo.Period, "\u202f", " ", -1)
 	period := strings.Split((*eventinfo).Period, " - ")
 	if inputmode == "url" {
 		(*eventinfo).Start_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[0]+" JST")
@@ -2051,8 +2054,8 @@ func GetEventInfAndRoomListBR(
 	blockid, _ := strconv.Atoi(bia[1])
 
 	/*
-	event_id := 30030
-	event_id := 31947
+		event_id := 30030
+		event_id := 31947
 	*/
 
 	ebr, err := ghsrapi.GetEventBlockRanking(client, event_id, blockid, breg, ereg)
@@ -2061,7 +2064,7 @@ func GetEventInfAndRoomListBR(
 		status = 1
 		return
 	}
-	
+
 	ReplaceString := "/"
 
 	for _, br := range ebr.Block_ranking_list {
@@ -2175,7 +2178,7 @@ func GetEventInf(
 		return
 	}
 	(*eventinfo).Period = selector.Find(".info").Text()
-	eventinfo.Period = strings.Replace(eventinfo.Period,"\u202f", " ", -1)
+	eventinfo.Period = strings.Replace(eventinfo.Period, "\u202f", " ", -1)
 	period := strings.Split((*eventinfo).Period, " - ")
 	if inputmode == "url" {
 		(*eventinfo).Start_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[0]+" JST")
@@ -5105,23 +5108,23 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 /*
-		MakeSampleTime()
-		獲得ポイントを取得するタイミングをランダムに返す
+MakeSampleTime()
+獲得ポイントを取得するタイミングをランダムに返す
 
-		5分に一回を前提として、240秒±40秒のように設定する。
-
+5分に一回を前提として、240秒±40秒のように設定する。
 */
 func MakeSampleTime(
-	cval int,	// ex. 240
-	cvar int,	// ex. 40
-	) ( stm, sts int) {
-	
-	st := cval + int(time.Now().UnixNano() % int64(cvar * 2 )) - cvar
+	cval int, // ex. 240
+	cvar int, // ex. 40
+) (stm, sts int) {
+
+	st := cval + int(time.Now().UnixNano()%int64(cvar*2)) - cvar
 
 	stm = st / 60
 	sts = st % 60
-	
+
 	return stm, sts
 }
 func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
@@ -5150,8 +5153,8 @@ func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
 		"Noroom":    "",
 		"Msgcolor":  "blue",
 
-		"Stm":	fmt.Sprintf("%d", stm),
-		"Sts":	fmt.Sprintf("%d", sts),
+		"Stm": fmt.Sprintf("%d", stm),
+		"Sts": fmt.Sprintf("%d", sts),
 	}
 
 	var eventinf Event_Inf
