@@ -2,6 +2,7 @@
 *.bak
 *.txt
 *.html
+SRCGI
 ShowroomCGI
 ShowroomCGI_det
 workspace.code-workspace

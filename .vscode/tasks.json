@@ -15,8 +15,7 @@
             "args": [
                 "build",
                 "-v",
-                "ShowroomCGI.go"
-            //  "./..."
+                "./..."
             ],
             "problemMatcher": [],
             "group": {
