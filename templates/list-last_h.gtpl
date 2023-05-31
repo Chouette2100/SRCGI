@@ -14,7 +14,11 @@
 <p style="padding-left:4em">
 {{.NextTime}}
 <br>
+{{ if ne .NextTime "イベントは終了しています。" }}
 {{.ReloadTime}}
+{{ else }}
+<span style="color: red;">最終結果の反映はイベント終了日翌日の13時30分頃です。<span>
+{{ end }}
 </p>
 <table>
 <tr><td align="center"><a href="https://www.showroom-live.com/event/{{.Eventid}}">{{.EventName}}</a>（{{.Eventid}}）</td></tr>

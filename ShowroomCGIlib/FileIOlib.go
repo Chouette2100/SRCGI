@@ -2,7 +2,7 @@ package ShowroomCGIlib
 
 import (
 	//	"fmt"
-	"io/ioutil"
+	//	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -37,7 +37,7 @@ type DBConfig struct {
 //                      https://note.com/artefactnote/n/n8c22d1ac4b86
 //
 func LoadConfig(filePath string) (dbconfig *DBConfig, err error) {
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}

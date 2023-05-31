@@ -27,7 +27,7 @@
 <tr><td></td><td>レベル</td><td>{{.Level}}</td></tr>
 <tr><td></td><td>フォロワー数</td><td>{{.Followers}}</td></tr>
 <tr><td></td><td>表示名</td><td><input type="text" name="longname" value="{{.Longname}}" required >　グラフやリストに表示される配信者名です。</td></tr>
-<tr><td></td><td>短縮表示名</td><td><input type="text" name="shortname" value="{{.Shortname}}" required >　1文字かせいぜい2文字まで。</td></tr>
+<tr><td></td><td>短縮表示名</td><td><input type="text" name="shortname" value="{{.Shortname}}" required >　1文字かせいぜい2文字まで</td></tr>
 </table>
 <p style="color:{{.Msg2color}}">
 {{.Msg2}}
