@@ -15,7 +15,7 @@
             "args": [
                 "build",
                 "-v",
-                "./..."
+                "SRCGI.go"
             ],
             "problemMatcher": [],
             "group": {
