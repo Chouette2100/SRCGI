@@ -82,10 +82,11 @@ import (
 	10AL00	イベント情報にieventid（本来のイベントID、5桁程度の整数）を追加する。
 	10AL01	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントデータを取得する設定とする。
 	10AL02	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントを表示する設定とする。
+	10AM00	Room_url_keyから取り除く文字列を"/"から"/r/"に変更する。
 
 */
 
-const Version = "10AL02"
+const Version = "10AM00"
 
 type Event_Inf struct {
 	Event_ID    string
@@ -1927,9 +1928,10 @@ func GetEventInfAndRoomList(
 		if inputmode == "file" {
 			ReplaceString = "https://www.showroom-live.com/"
 		} else {
-			ReplaceString = "/"
+			ReplaceString = "/r/"
 		}
 		roominfo.Account = strings.Replace(account, ReplaceString, "", -1)
+		roominfo.Account = strings.Replace(roominfo.Account, ReplaceString, "/", -1)
 
 		roominfo.ID, _ = selection_c.Find(".js-follow-btn").Attr("data-room-id")
 		roominfo.Userno, _ = strconv.Atoi(roominfo.ID)
@@ -2065,7 +2067,7 @@ func GetEventInfAndRoomListBR(
 		return
 	}
 
-	ReplaceString := "/"
+	ReplaceString := "/r/"
 
 	for _, br := range ebr.Block_ranking_list {
 
@@ -2075,6 +2077,7 @@ func GetEventInfAndRoomListBR(
 		roominfo.Userno, _ = strconv.Atoi(roominfo.ID)
 
 		roominfo.Account = strings.Replace(br.Room_url_key, ReplaceString, "", -1)
+		roominfo.Account = strings.Replace(roominfo.Account,"/", "", -1)
 
 		roominfo.Name = br.Room_name
 
