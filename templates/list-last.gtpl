@@ -48,7 +48,7 @@
 		{{ if ne .Userno 0 }}
 			<a href="https://www.showroom-live.com/{{.Shorturl}}">LIVE</a>/
 			<a href="https://www.showroom-live.com/room/fan_club?room_id={{.Userno}}">FC</a>/
-			<a href="https://www.showroom-live.com/event/contribution/{{ .Eventid }}?room_id={{.Userno}}">Cnt1.</a>/
+			<a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Eventid }}?room_id={{.Userno}}">Cnt1.</a>/
 			{{ if .Bcntrb }}
 				<a href="list-cntrb?eventid={{.Eventid}}&userno={{.Userno}}">Cnt2.</a>
 			{{ else }}

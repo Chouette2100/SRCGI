@@ -83,10 +83,11 @@ import (
 	10AL01	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントデータを取得する設定とする。
 	10AL02	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントを表示する設定とする。
 	10AM00	Room_url_keyから取り除く文字列を"/"から"/r/"に変更する。
+	10AN00	ブロックランキングで貢献ポイントランキングへのリンクを作るときはイベントIDのからブロックIDを取り除く。
 
 */
 
-const Version = "10AM00"
+const Version = "10AN00"
 
 type Event_Inf struct {
 	Event_ID    string
@@ -2077,7 +2078,7 @@ func GetEventInfAndRoomListBR(
 		roominfo.Userno, _ = strconv.Atoi(roominfo.ID)
 
 		roominfo.Account = strings.Replace(br.Room_url_key, ReplaceString, "", -1)
-		roominfo.Account = strings.Replace(roominfo.Account,"/", "", -1)
+		roominfo.Account = strings.Replace(roominfo.Account, "/", "", -1)
 
 		roominfo.Name = br.Room_name
 
@@ -4562,7 +4563,21 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/list-last.gtpl", "templates/list-last_h.gtpl"))
+	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
+	funcMap := template.FuncMap{
+		//	3桁ごとに","を挿入する
+		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
+		//	イベントIDがブロックIDを含む場合はそれを取り除く。
+		"DelBlockID": func(eid string) string {
+			eia := strings.Split(eid, "?")
+			if len(eia) == 2 {
+				return eia[0]
+			} else {
+				return eid
+			}
+		},
+	}
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-last.gtpl", "templates/list-last_h.gtpl"))
 
 	eventid := req.FormValue("eventid")
 	userno := req.FormValue("userno")
