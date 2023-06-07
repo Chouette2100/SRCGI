@@ -25,17 +25,27 @@ type DBConfig struct {
 	SSLcrt    string `yaml:"SSLcrt"`
 	SSLkey    string `yaml:"SSLkey"`
 	Dbhost    string `yaml:"Dbhost"`
+	Dbport    string `yaml:"Dbport"`
 	Dbname    string `yaml:"Dbname"`
 	Dbuser    string `yaml:"Dbuser"`
 	Dbpw      string `yaml:"Dbpw"`
-	NoEvent   int    `yaml:"NoEvent"`	//	イベント一覧に表示するイベントの数
+	UseSSH    bool   `yaml:"UseSSH"`
+	NoEvent   int    `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
+}
+
+type SSHConfig struct {
+	Hostname   string `yaml:"Hostname"`
+	Port       int    `yaml:"Port"`
+	Username   string `yaml:"Username"`
+	Password   string `yaml:"Password"`
+	PrivateKey string `yaml:"PrivateKey"`
 }
 
 // 設定ファイルを読み込む
-//      以下の記事を参考にさせていただきました。
-//              【Go初学】設定ファイル、環境変数から設定情報を取得する
-//                      https://note.com/artefactnote/n/n8c22d1ac4b86
 //
+//	以下の記事を参考にさせていただきました。
+//	        【Go初学】設定ファイル、環境変数から設定情報を取得する
+//	                https://note.com/artefactnote/n/n8c22d1ac4b86
 func LoadConfig(filePath string) (dbconfig *DBConfig, err error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {

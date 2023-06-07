@@ -17,6 +17,8 @@ import (
 
 	//	"github.com/dustin/go-humanize"
 
+	"github.com/Chouette2100/exsrapi"
+
 	"SRCGI/ShowroomCGIlib"
 )
 
@@ -49,10 +51,11 @@ import (
 	0101G0	配信枠別貢献ポイントを実装する。
 	0101H0	配信枠別貢献ポイントを実装する。
 	0101J0	ファンダム王イベント参加者のファン数ランキングを作成する。 (Ver.1.0.0)
+	0101K0	DBサーバーに接続するときSSHの使用を可能にする。
 
 */
 
-const version = "0101J0"
+const version = "0101K0"
 
 // 入力内容の確認画面
 func main() {
@@ -69,50 +72,28 @@ func main() {
 	//	https://ssabcire.hatenablog.com/entry/2019/02/13/000722
 	//	https://konboi.hatenablog.com/entry/2016/04/12/100903
 
-	/*
-	crt := ""
-	key := ""
-	port := ""
-
-	file, err := os.OpenFile("WebServer.txt", os.O_RDONLY, 0644)
+	err = exsrapi.LoadConfig("ServerConfig.yml", &(ShowroomCGIlib.Dbconfig))
 	if err != nil {
-		log.Printf("Can't open WebServer.txt .\n")
-		return
-	} else {
-		fmt.Fscanln(file, &ShowroomCGIlib.WebServer, &port)
-		if ShowroomCGIlib.WebServer == "None" && port == "" {
-			log.Printf("No port specified.")
-			return
-		}
-		fmt.Fscanln(file, &crt)
-		fmt.Fscanln(file, &key)
-		fmt.Fscanln(file, &ShowroomCGIlib.Dbhost)
-		fmt.Fscanln(file, &ShowroomCGIlib.Dbname)
-		fmt.Fscanln(file, &ShowroomCGIlib.Dbuser)
-		fmt.Fscanln(file, &ShowroomCGIlib.Dbpw)
-		file.Close()
-	}
-	*/
-
-	/*
-	WebServer string `yaml:"WebServer"`
-	HTTPport  string `yaml:"HTTPport"`
-	SSLcrt    string `yaml:"SSLcrt"`
-	SSLkey    string `yaml:"SSLkey"`
-	Dbhost    string `yaml:"Dbhost"`
-	Dbname    string `yaml:"Dbname"`
-	Dbuser    string `yaml:"Dbuser"`
-	Dbpw      string `yaml:"Dbpw"`
-
-	*/
-	ShowroomCGIlib.Dbconfig, err = ShowroomCGIlib.LoadConfig("ServerConfig.yml")
-	if err != nil {
-			log.Printf("err=%s.\n", err.Error())
-			panic(err)
+		log.Printf("err=%s.\n", err.Error())
+		os.Exit(1)
 	}
 	dbconfig := ShowroomCGIlib.Dbconfig
+	if dbconfig.NoEvent == 0 {
+		dbconfig.NoEvent = 30
+	}
 
 	log.Printf("%+v\n", *dbconfig)
+
+	if dbconfig.UseSSH {
+		err = exsrapi.LoadConfig("SSHConfig.yml", &(ShowroomCGIlib.Sshconfig))
+		if err != nil {
+			log.Printf("err=%s.\n", err.Error())
+			os.Exit(2)
+		}
+		sshconfig := ShowroomCGIlib.Sshconfig
+		log.Printf("%+v\n", *sshconfig)
+
+	}
 
 	switch (*dbconfig).WebServer {
 	case "nginxSakura":
@@ -140,6 +121,10 @@ func main() {
 	if status != 0 {
 		log.Printf("Database error.\n")
 		return
+	}
+
+	if dbconfig.UseSSH {
+		defer ShowroomCGIlib.Dialer.Close()
 	}
 	defer ShowroomCGIlib.Db.Close()
 

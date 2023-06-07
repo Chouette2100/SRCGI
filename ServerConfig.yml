@@ -8,6 +8,9 @@ HTTPport: 8080
 #SSLcrt: ${SSLCRT}
 #SSLkey: ${SSLKEY}
 #
+# リモートと接続するときSSHを使うか？
+# 指定しなければ使用しない（false）
+#UseSSH: true
 #
 ## DBサーバーのホスト名、指定しなければlocalhost
 #Dbhost:

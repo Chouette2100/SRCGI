@@ -1,6 +1,7 @@
 package ShowroomCGIlib
 
 import (
+	//	"SRCGI/ShowroomCGIlib"
 	"bytes"
 	"fmt"
 	"log"
@@ -31,6 +32,9 @@ import (
 
 	"github.com/dustin/go-humanize"
 
+	"github.com/goark/sshql"
+	"github.com/goark/sshql/mysqldrv"
+
 	ghexsrapi "github.com/Chouette2100/exsrapi"
 	ghsrapi "github.com/Chouette2100/srapi"
 )
@@ -41,7 +45,7 @@ import (
 	0100M0	vscodeでの指摘箇所の修正
 	0101A0	LinuxとMySQL8.0に対応する。
 	0101B0	OSとWebサーバに応じた処理を行うようにする。アクセスログを作成する。
-	 0101B1	実行時パラメータをファイルから与えるように変更する。
+	0101B1	実行時パラメータをファイルから与えるように変更する。
 	0101C0	GetRoomInfoByAPI()に配信開始時刻の取得を追加する。
 	0101D0	詳細なランク情報の導入（Nrank）
 	0101D1	"Next Live"の表示を追加する。
@@ -84,10 +88,11 @@ import (
 	10AL02	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントを表示する設定とする。
 	10AM00	Room_url_keyから取り除く文字列を"/"から"/r/"に変更する。
 	10AN00	ブロックランキングで貢献ポイントランキングへのリンクを作るときはイベントIDのからブロックIDを取り除く。
+	10AP00	DBサーバーに接続するときSSHの使用を可能にする。
 
 */
 
-const Version = "10AN00"
+const Version = "10AP00"
 
 type Event_Inf struct {
 	Event_ID    string
@@ -259,6 +264,8 @@ func (r RoomInfoList) Less(i, j int) bool {
 }
 
 var Dbconfig *DBConfig
+var Sshconfig *SSHConfig
+var Dialer sshql.Dialer
 
 var Event_inf Event_Inf
 
@@ -2802,31 +2809,25 @@ func OpenDb() (status int) {
 
 	status = 0
 
-	//	https://leben.mobi/go/mysql-connect/practice/
-	//	OS := runtime.GOOS
-
-	//	https://ssabcire.hatenablog.com/entry/2019/02/13/000722
-	//	https://konboi.hatenablog.com/entry/2016/04/12/100903
-	/*
-		switch OS {
-		case "windows":
-			Db, Err = sql.Open("mysql", wuser+":"+wpw+"@/"+wdb+"?parseTime=true&loc=Asia%2FTokyo")
-		case "linux":
-			Db, Err = sql.Open("mysql", luser+":"+lpw+"@/"+ldb+"?parseTime=true&loc=Asia%2FTokyo")
-		case "freebsd":
-			//	https://leben.mobi/go/mysql-connect/practice/
-			Db, Err = sql.Open("mysql", buser+":"+bpw+"@tcp("+bhost+":3306)/"+bdb+"?parseTime=true&loc=Asia%2FTokyo")
-		default:
-			log.Printf("%s is not supported.\n", OS)
-			status = -2
-		}
-	*/
-
 	if (*Dbconfig).Dbhost == "" {
-		Db, Err = sql.Open("mysql", (*Dbconfig).Dbuser+":"+(*Dbconfig).Dbpw+"@/"+(*Dbconfig).Dbname+"?parseTime=true&loc=Asia%2FTokyo")
-	} else {
-		Db, Err = sql.Open("mysql", (*Dbconfig).Dbuser+":"+(*Dbconfig).Dbpw+"@tcp("+(*Dbconfig).Dbhost+":3306)/"+(*Dbconfig).Dbname+"?parseTime=true&loc=Asia%2FTokyo")
+		(*Dbconfig).Dbhost = "localhost"
 	}
+	if (*Dbconfig).Dbport == "" {
+		(*Dbconfig).Dbport = "3306"
+	}
+	cnc := "@tcp"
+	if Dbconfig.UseSSH {
+		Dialer.Hostname = Sshconfig.Hostname
+		Dialer.Port = Sshconfig.Port
+		Dialer.Username = Sshconfig.Username
+		Dialer.Password = Sshconfig.Password
+		Dialer.PrivateKey = Sshconfig.PrivateKey
+
+		mysqldrv.New(&Dialer).RegisterDial("ssh+tcp")
+		cnc = "@ssh+tcp"
+	}
+	cnc += "("+Dbconfig.Dbhost+":"+Dbconfig.Dbport+")"
+	Db, Err = sql.Open("mysql", Dbconfig.Dbuser+":"+Dbconfig.Dbpw+cnc+"/"+Dbconfig.Dbname+"?parseTime=true&loc=Asia%2FTokyo")
 
 	if Err != nil {
 		status = -1
