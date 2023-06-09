@@ -452,8 +452,10 @@ func GetWeightedCnt(pcl Pclist, nfr int) {
 				default:
 					continue
 			}
+			//	pcl[i].Cmp =  ((pcl[i].Pnt + 20) / 600) * 10 + cmp 
 			pcl[i].Cmp =  ((pcl[i].Pnt + 20) / 600) * 10 + cmp 
-			pcl[i].Wcnt = pcl[i].Cnt * pcl[i].Cmp
+			//	pcl[i].Wcnt = pcl[i].Cnt * pcl[i].Cmp
+			pcl[i].Wcnt = pcl[i].Cnt * 3 * pcl[i].Cmp
 		} else if pcl[i].Pnt == 0 {
 			pcl[i].Wcnt = 2
 		} else if pcl[i].Pnt == -1 {

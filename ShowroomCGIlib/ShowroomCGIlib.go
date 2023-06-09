@@ -89,10 +89,11 @@ import (
 	10AM00	Room_url_keyから取り除く文字列を"/"から"/r/"に変更する。
 	10AN00	ブロックランキングで貢献ポイントランキングへのリンクを作るときはイベントIDのからブロックIDを取り除く。
 	10AP00	DBサーバーに接続するときSSHの使用を可能にする。
+	10AQ00	GetWeightedCnt()で周回数の多い獲得ポイントの採用率が上がるように調整する。
 
 */
 
-const Version = "10AP00"
+const Version = "10AQ00"
 
 type Event_Inf struct {
 	Event_ID    string
