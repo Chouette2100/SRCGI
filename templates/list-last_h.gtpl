@@ -5,6 +5,7 @@
 {{ $detail := .Detail }}
 <html>
 <body>
+<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button><br><br>
 <button type="button" onclick="location.href='top?eventid={{.Eventid}}&userno={{.userno}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
 <br><br>
 <p>直近の獲得ポイント一覧）　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span></p>

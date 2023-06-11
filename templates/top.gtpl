@@ -16,23 +16,29 @@
 <p style="color:red;">現在システムの更新作業中です。しばらくお待ちください。</p>
 <p style="color:red;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！</p>
 */}}
-<p style="color:green;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！</p>
+<p style="color:green;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！
+サーバ移行のため<span style="color:red;">月曜日の早朝に1時間ほどサーバを停止</span>します。</p>
+<p style="color:green;">使用中にヘンな現象が発生したら<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/03187b">トラブルシューティング</a>をご覧ください！
 {{/*
 <p style="color:red;">
 『STU48 × 「naive（ナイーブ）」 PRアンバサダー決定オーディション』は獲得ポイントの時間推移が取得できないイベントです。結果は毎日一回イベントページに発表されています。</p>
-*/}}
 <p style="color:red;">
 2023-04-20「CGIの更新を行いました。今回のバージョンではブロックイベントへの暫定的な対応がされています。詳細は「<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>」をご覧ください。
 </p>
+*/}}
 
 <p style="color:blue;">
 特定のルームを獲得ポイント取得の対象とするときは『(DB登録済み)イベント参加ルーム一覧（確認・編集）』の下の方にある『一覧にないルームの追加』の機能を使います。<br>ユーザIDはプロフィールやファンルームのURLの最後にある５桁あるいは６桁の整数です。
 </p>
+{{/*
 <p style="color:blue;">『直近の獲得ポイント一覧』の画面の表にあるルームの配信画面へのリンク『LIVE』について正常に動作しないケースがありますがこれについてはじょじょに解決していく予定です。状況については随時<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>でお知らせします。</p>
-<p style="color:blue;">午前11時30分頃獲得ポイントが減る（＝増分がマイナスになる）ことがあります。これは『重複アカウントによる応援は禁止です。重複アカウントによる応援ポイント分は発覚次第、減算を行います。』という告知に該当するものと思われます。不審に思われる方がいらっしゃるかもしれないので念のため書いておきます。</p>
+<p style="color:blue;">午前11時30分頃獲得ポイントが減る（＝増分がマイナスになる）ことがあります。これは
+    <br>　　『重複アカウントによる応援は禁止です。重複アカウントによる応援ポイント分は発覚次第、減算を行います。』
+<br>という告知に該当するものと思われます。不審に思われる方がいらっしゃるかもしれないので念のため書いておきます。</p>
+*/}}
 
 <p style="color:blue;">
-このCGI/Webサーバと関連プログラムについてソースをはやめに公開するようにします。詳しくは<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/4fccae">『SHOWROOM イベント 獲得ポイント一覧』関連のソースの公開について(1)</a>をごらんください。
+このCGI/Webサーバに関するソースコードをGithubで公開しています。詳しくは<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/4fccae">『SHOWROOM イベント 獲得ポイント一覧』関連のソースの公開について(1)</a>をごらんください。
 </p>
 {{/*
 
@@ -53,7 +59,8 @@
         <td style="border-right-style:none;">開始</td>
         <td style="border-right-style:none;border-left-style:none;"> - </td>
         <td style="border-left-style:none;">終了</td>
-        <td style="border-right-style:none;">イベント名</td>
+        <td style="border-right-style:none;"> 　　　　　　 イベント名をクリックをクリックすると「SHOWROOMイベント結果表示」画面が表示されます。
+            <br> 　　　　　　 "一覧"、"グラフ"のリンクは「直近の獲得ポイントリスト」、「獲得ポイントの推移グラフ」へのショートカットです。</td>
         <td style="border-left-style:none;"></td>
         <td>ベース</td>
         <td>Mm</td>
@@ -65,7 +72,11 @@
         <td style="border-right-style:none;">{{ .S_start }}</td>
         <td style="border-right-style:none;border-left-style:none;"> - </td>
         <td style="border-left-style:none;">{{ .S_end }}</td>
-        <td style="border-right-style:none;"><a href="top?eventid={{ .EventID }}">{{ .EventName }}</a></td>
+        <td style="border-right-style:none;">
+            <a href="list-last?eventid={{ .EventID }}">一覧</a>
+            <a href="graph-total?eventid={{ .EventID }}">グラフ</a>
+            <a href="top?eventid={{ .EventID }}">{{ .EventName }}</a>
+        </td>
         <td style="border-left-style:none;"><a href="https://www.showroom-live.com/event/{{ .EventID }}">イベントページへ</a></td>
 
         <td>
