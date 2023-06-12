@@ -90,10 +90,11 @@ import (
 	10AN00	ブロックランキングで貢献ポイントランキングへのリンクを作るときはイベントIDのからブロックIDを取り除く。
 	10AP00	DBサーバーに接続するときSSHの使用を可能にする。
 	10AQ00	GetWeightedCnt()で周回数の多い獲得ポイントの採用率が上がるように調整する。
+	10AQ01	MakePointPerSlot()のperslotの変数宣言をループの中に入れる（毎回初期化されるように）
 
 */
 
-const Version = "10AQ00"
+const Version = "10AQ01"
 
 type Event_Inf struct {
 	Event_ID    string
@@ -2827,7 +2828,7 @@ func OpenDb() (status int) {
 		mysqldrv.New(&Dialer).RegisterDial("ssh+tcp")
 		cnc = "@ssh+tcp"
 	}
-	cnc += "("+Dbconfig.Dbhost+":"+Dbconfig.Dbport+")"
+	cnc += "(" + Dbconfig.Dbhost + ":" + Dbconfig.Dbport + ")"
 	Db, Err = sql.Open("mysql", Dbconfig.Dbuser+":"+Dbconfig.Dbpw+cnc+"/"+Dbconfig.Dbname+"?parseTime=true&loc=Asia%2FTokyo")
 
 	if Err != nil {
@@ -3242,13 +3243,13 @@ func MakePointPerSlot(eventid string) (perslotinflist []PerSlotInf, status int) 
 		return
 	}
 
-	var perslot PerSlot
-
 	for i := 0; i < len(roominfolist); i++ {
 
 		if roominfolist[i].Graph != "Checked" {
 			continue
 		}
+
+		var perslot PerSlot
 
 		userid := roominfolist[i].Userno
 
