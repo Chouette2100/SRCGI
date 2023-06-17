@@ -54,15 +54,16 @@ import (
 	0101J0	ファンダム王イベント参加者のファン数ランキングを作成する。 (Ver.1.0.0)
 	0101K0	DBサーバーに接続するときSSHの使用を可能にする。
 	0200A0	データベースへのアクセスをsrdblibに移行しつつある。
+	0200A1	バージョンの表記にsrdblibのバージョンを追加する。
 
 */
 
-const version = "0200A0"
+const version = "0200A1"
 
 // 入力内容の確認画面
 func main() {
 
-	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + time.Now().Format("20060102") + ".txt"
+	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
 	logfile, err := os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		panic("cannnot open logfile: " + logfilename + err.Error())
