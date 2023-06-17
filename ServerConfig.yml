@@ -1,28 +1,22 @@
+## CGIとして動作させるときのWebサーバを指定する。
 ## WebServer nginxSakura, Apache2Ubuntu or None
+## NoneはこのプログラムをWebサーバとして動作させる。
+## この設定はグラフを作るときSVGファイルをどこに置くかということに関係する。
+## グラフを出力しないケースではどのような設定にしても問題ないでしょう。
 WebServer: None
-HTTPport: 8080
+HTTPport: 8000
 #
 #
 # SSLに関する設定は環境変数で渡す。
 ## CGIとして実行するときあるいはSSLを使用せずWebServerとして実行するときは設定しない。
+## SSL証明書関連のファイルはふつうrootしか参照できない形でおかれているので
+## その対策が必要です。
+## 今は~/.letsencrypt にコピーしてきて使っていますが...
 #SSLcrt: ${SSLCRT}
 #SSLkey: ${SSLKEY}
 #
-# リモートと接続するときSSHを使うか？
-# 指定しなければ使用しない（false）
-#UseSSH: true
 #
-## DBサーバーのホスト名、指定しなければlocalhost
-#Dbhost:
-# データベース名
-Dbname:	${DBNAME}
-#
-#
-# ログイン名とパスワードは環境変数で渡す
-Dbuser:	${DBUSER}
-Dbpw:	${DBPW}
-#
-# イベント一覧に表示するイベントの数
+# イベント一覧に表示するイベントの数（緊急対応でここに）
 NoEvent: 30
 
 

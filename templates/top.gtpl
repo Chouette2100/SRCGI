@@ -74,7 +74,7 @@
         <td style="border-left-style:none;">{{ .S_end }}</td>
         <td style="border-right-style:none;">
             <a href="list-last?eventid={{ .EventID }}">一覧</a>
-            <a href="graph-total?eventid={{ .EventID }}">グラフ</a>
+            <a href="graph-total?eventid={{ .EventID }}&maxpoint={{ .Maxpoint }}&gscale={{.Gscale}}">グラフ</a>
             <a href="top?eventid={{ .EventID }}">{{ .EventName }}</a>
         </td>
         <td style="border-left-style:none;"><a href="https://www.showroom-live.com/event/{{ .EventID }}">イベントページへ</a></td>

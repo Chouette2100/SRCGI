@@ -26,6 +26,8 @@ import (
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/dustin/go-humanize"
+
+	"github.com/Chouette2100/srdblib"
 )
 
 type CntrbS_Header struct {
@@ -106,7 +108,7 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	//	log.Printf(" len(cntrbinflists)=%d\n", len(cntrbinflists))
 	
 
-	var eventinf Event_Inf
+	var eventinf srdblib.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
 	var cntrbs_header CntrbS_Header
@@ -121,10 +123,10 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 
 	var stime, etime time.Time
 	sql := "select stime, etime from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	Err = Db.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime)
-	if Err != nil {
+	srdblib.Dberr = srdblib.Db.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime)
+	if srdblib.Dberr != nil {
 		log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
-		log.Printf("err=[%s]\n", Err.Error())
+		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
 		status = -11
 		return
 	}
@@ -191,18 +193,18 @@ func SelectCntrbSingle(
 	} else {
 		sql += " where eventid = ? and userid =? and ts = ? order by norder"
 	}
-	stmt, Err = Db.Prepare(sql)
+	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
 
-	if Err != nil {
-		log.Printf("SelectCntrbSingle() (5) err=%s\n", Err.Error())
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbSingle() (5) err=%s\n", srdblib.Dberr.Error())
 		status = -5
 		return
 	}
 	defer stmt.Close()
 
-	rows, Err = stmt.Query(eventid, userno, ts)
-	if Err != nil {
-		log.Printf("SelectCntrbSingle() (6) err=%s\n", Err.Error())
+	rows, srdblib.Dberr = stmt.Query(eventid, userno, ts)
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbSingle() (6) err=%s\n", srdblib.Dberr.Error())
 		status = -6
 		return
 	}
@@ -213,17 +215,17 @@ func SelectCntrbSingle(
 
 	for rows.Next() {
 		//	Err = rows.Scan(&cntrbinf.Ranking, &tlsnid, &cntrbinf.Point, &cntrbinf.Incremental[0], &cntrbinf.ListenerName, &cntrbinf.LastName)
-		Err = rows.Scan(&cntrbinf.Ranking, &tlsnid, &cntrbinf.Point, &cntrbinf.Incremental, &cntrbinf.ListenerName, &cntrbinf.LastName)
-		if Err != nil {
-			log.Printf("SelectCntrbSingle() (7) err=%s\n", Err.Error())
+		srdblib.Dberr = rows.Scan(&cntrbinf.Ranking, &tlsnid, &cntrbinf.Point, &cntrbinf.Incremental, &cntrbinf.ListenerName, &cntrbinf.LastName)
+		if srdblib.Dberr != nil {
+			log.Printf("SelectCntrbSingle() (7) err=%s\n", srdblib.Dberr.Error())
 			status = -7
 			return
 		}
 		//	log.Printf("%+v\n", cntrbinf)
 		cntrbinflists = append(cntrbinflists, cntrbinf)
 	}
-	if Err = rows.Err(); Err != nil {
-		log.Printf("SelectCntrbSingle() (8) err=%s\n", Err.Error())
+	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
+		log.Printf("SelectCntrbSingle() (8) err=%s\n", srdblib.Dberr.Error())
 		status = -8
 		return
 	}

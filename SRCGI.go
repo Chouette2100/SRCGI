@@ -18,6 +18,7 @@ import (
 	//	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi"
+	"github.com/Chouette2100/srdblib"
 
 	"SRCGI/ShowroomCGIlib"
 )
@@ -52,10 +53,11 @@ import (
 	0101H0	配信枠別貢献ポイントを実装する。
 	0101J0	ファンダム王イベント参加者のファン数ランキングを作成する。 (Ver.1.0.0)
 	0101K0	DBサーバーに接続するときSSHの使用を可能にする。
+	0200A0	データベースへのアクセスをsrdblibに移行しつつある。
 
 */
 
-const version = "0101K0"
+const version = "0200A0"
 
 // 入力内容の確認画面
 func main() {
@@ -72,63 +74,59 @@ func main() {
 	//	https://ssabcire.hatenablog.com/entry/2019/02/13/000722
 	//	https://konboi.hatenablog.com/entry/2016/04/12/100903
 
-	err = exsrapi.LoadConfig("ServerConfig.yml", &(ShowroomCGIlib.Dbconfig))
+	svconfig := ShowroomCGIlib.ServerConfig{}
+	ShowroomCGIlib.Serverconfig = &svconfig
+	err = exsrapi.LoadConfig("ServerConfig.yml", ShowroomCGIlib.Serverconfig)
 	if err != nil {
 		log.Printf("err=%s.\n", err.Error())
 		os.Exit(1)
 	}
-	dbconfig := ShowroomCGIlib.Dbconfig
-	if dbconfig.NoEvent == 0 {
-		dbconfig.NoEvent = 30
+	if svconfig.NoEvent == 0 {
+		svconfig.NoEvent = 30
 	}
+	log.Printf("%+v\n", svconfig)
 
-	log.Printf("%+v\n", *dbconfig)
-
-	if dbconfig.UseSSH {
-		err = exsrapi.LoadConfig("SSHConfig.yml", &(ShowroomCGIlib.Sshconfig))
-		if err != nil {
-			log.Printf("err=%s.\n", err.Error())
-			os.Exit(2)
-		}
-		sshconfig := ShowroomCGIlib.Sshconfig
-		log.Printf("%+v\n", *sshconfig)
-
+	var dbconfig srdblib.DBConfig
+	err = exsrapi.LoadConfig("DBConfig.yml", &dbconfig)
+	if err != nil {
+		log.Printf("err=%s.\n", err.Error())
+		os.Exit(1)
 	}
+	log.Printf("%+v\n", dbconfig)
 
-	switch (*dbconfig).WebServer {
+	switch svconfig.WebServer {
 	case "nginxSakura":
 		fallthrough
 	case "Apache2Ubuntu":
 		fallthrough
 	case "None":
 	default:
-		log.Printf("Unknown WebServer = <%s> (must be nginxSakura, Apache2Ubuntu or None)\n", (*dbconfig).WebServer)
+		log.Printf("Unknown WebServer = <%s> (must be nginxSakura, Apache2Ubuntu or None)\n", svconfig.WebServer)
 		return
 	}
 
 	ShowroomCGIlib.OS = runtime.GOOS
 	rootPath := ""
-	if (*dbconfig).WebServer != "None" {
+	if svconfig.WebServer != "None" {
 		rootPath = os.Getenv("SCRIPT_NAME")
 	}
 	log.Printf("\n")
 	log.Printf("\n")
-	log.Printf("********** WevServer=<%s> port = <%s> OS = <%s> rootPath = <%s>\n", (*dbconfig).WebServer, (*dbconfig).HTTPport, ShowroomCGIlib.OS, rootPath)
-	log.Printf("********** crt=<%s> key = <%s>\n", dbconfig.SSLcrt, dbconfig.SSLkey)
-	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", (*dbconfig).Dbhost, (*dbconfig).Dbname, (*dbconfig).Dbuser, (*dbconfig).Dbpw)
+	log.Printf("********** WevServer=<%s> port = <%s> OS = <%s> rootPath = <%s>\n", svconfig.WebServer, svconfig.HTTPport, ShowroomCGIlib.OS, rootPath)
+	log.Printf("********** crt=<%s> key = <%s>\n", svconfig.SSLcrt, svconfig.SSLkey)
+	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.Dbhost, dbconfig.Dbname, dbconfig.Dbuser, dbconfig.Dbpw)
 
-	status := ShowroomCGIlib.OpenDb()
-	if status != 0 {
-		log.Printf("Database error.\n")
+	err = srdblib.OpenDb(&dbconfig)
+	if err != nil {
+		log.Printf("Database error. err = %v\n", err)
 		return
 	}
-
 	if dbconfig.UseSSH {
-		defer ShowroomCGIlib.Dialer.Close()
+		defer srdblib.Dialer.Close()
 	}
-	defer ShowroomCGIlib.Db.Close()
+	defer srdblib.Db.Close()
 
-	if (*dbconfig).WebServer == "None" {
+	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。
 		http.Handle("/", http.FileServer(http.Dir("public")))
 	}
@@ -191,7 +189,7 @@ func main() {
 
 	http.HandleFunc(rootPath+"/flranking", ShowroomCGIlib.HandlerFlRanking)
 
-	if (*dbconfig).WebServer == "None" {
+	if svconfig.WebServer == "None" {
 		//	Webサーバーとして起動
 		//	root権限のない（特権昇格ができない）ユーザーで起動した方が安全だと思います。
 		//	その場合80や443のポートはlistenできないので、
@@ -200,16 +198,16 @@ func main() {
 		//	# setcap cap_net_bind_service=+ep ShowroomCGI
 		//　（設置したあとこの操作を行うこと）
 		//
-		if dbconfig.SSLcrt != "" {
+		if svconfig.SSLcrt != "" {
 			//	証明書があればSSLを使う
 			log.Printf("           http.ListenAndServeTLS()\n")
-			err := http.ListenAndServeTLS(":"+dbconfig.HTTPport, dbconfig.SSLcrt, dbconfig.SSLkey, nil)
+			err := http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
 			if err != nil {
 				log.Printf("%s\n", err.Error())
 			}
 		} else {
 			log.Printf("           http.ListenAndServe()\n")
-			err := http.ListenAndServe(":"+dbconfig.HTTPport, nil)
+			err := http.ListenAndServe(":"+svconfig.HTTPport, nil)
 			if err != nil {
 				log.Printf("%s\n", err.Error())
 			}

@@ -29,8 +29,19 @@ SHOWROOMイベント結果表示
 
 <p style="padding-left:2em">獲得ポイントの推移</p>
 
-<p style="padding-left:4em"><input type="submit" value="グラフ" formaction="graph-total" formmethod="POST" style="background-color: khaki">
-<label>　　表示する最大ポイント　<input type="text" name="maxpoint" value="{{.Maxpoint}}" size="10" required pattern="[0-9]+"><label>（表示範囲を制限しない場合は"0"とする）</p>
+<p style="padding-left:4em">
+	<input type="submit" value="グラフ" formaction="graph-total" formmethod="POST" style="background-color: khaki">
+<label>　　表示する最大ポイント　
+	<input type="text" name="maxpoint" value="{{.Maxpoint}}" size="10" required pattern="[0-9]+"><label>（表示範囲を制限しない場合は"0"とする）
+
+<label>　　縮尺　
+	<input type="radio" name="gscale" value="100" {{ if eq .Gscale 100 }} checked {{end}}> 100%
+	<input type="radio" name="gscale" value="90" {{ if eq .Gscale 90 }} checked {{ end }}> 90%
+	<input type="radio" name="gscale" value="80" {{ if eq .Gscale 80 }} checked {{ end }}> 80%
+	<input type="radio" name="gscale" value="70" {{ if eq .Gscale 70 }} checked {{ end }}> 70%
+</p>
+
+			
 
 <p style="padding-left:4em"><input type="submit" value="CSV" formaction="csv-total" formmethod="POST" style="background-color: dimgray"></p>
 

@@ -27,6 +27,8 @@ import (
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	//	"github.com/dustin/go-humanize"
+
+	"github.com/Chouette2100/srdblib"
 )
 
 /*
@@ -105,7 +107,7 @@ func SelectFromNoOfFan(eventid string) (eventandrankinginf EventAndRankingInf, s
 
 	var maxts time.Time
 	sql := "select max(ts) from nooffan where eventid = ? "
-	Err := Db.QueryRow(sql, eventid).Scan(&maxts)
+	Err := srdblib.Db.QueryRow(sql, eventid).Scan(&maxts)
 	if Err != nil {
 		log.Printf("%s\n", sql)
 		log.Printf("** SelectFromNoOfFan() err=[%s]\n", Err.Error())
@@ -121,7 +123,7 @@ func SelectFromNoOfFan(eventid string) (eventandrankinginf EventAndRankingInf, s
 
 	eventandrankinginf.RankingInfList = make([]RankingInf, 0)
 
-	var eventinf Event_Inf
+	var eventinf srdblib.Event_Inf
 
 	status = GetEventInf(eventid, &eventinf)
 	log.Printf("eventinf = %+v\n", eventinf)
@@ -131,7 +133,7 @@ func SelectFromNoOfFan(eventid string) (eventandrankinginf EventAndRankingInf, s
 	eventandrankinginf.Period = eventinf.Period
 
 	sql = "select roomid, roomname, irank, srank, iorder, fans, fans_lst from nooffan where ts = ? and eventid = ? order by irank desc, fans desc"
-	stmt, Err = Db.Prepare(sql)
+	stmt, Err = srdblib.Db.Prepare(sql)
 	if Err != nil {
 		log.Printf("** SelectFromNoOfFan() err=[%s]\n", Err.Error())
 		status = -1

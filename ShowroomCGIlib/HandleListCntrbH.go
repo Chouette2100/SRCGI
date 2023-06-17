@@ -26,6 +26,8 @@ import (
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/dustin/go-humanize"
+	"github.com/Chouette2100/srdblib"
+
 )
 
 type CntrbH_Header struct {
@@ -107,7 +109,7 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 
 
 
-	var eventinf Event_Inf
+	var eventinf srdblib.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
 	var cntrbh_header	CntrbH_Header
@@ -166,18 +168,18 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	sql := "select norder, t_lsnid, listner from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, Err = Db.Prepare(sql)
+	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
 
-	if Err != nil {
-		log.Printf("SelectCntrbNow() (5) err=%s\n", Err.Error())
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbNow() (5) err=%s\n", srdblib.Dberr.Error())
 		status = -5
 		return
 	}
 	defer stmt.Close()
 
-	rows, Err = stmt.Query(eventid, userno, smplt)
-	if Err != nil {
-		log.Printf("SelectCntrbNow() (6) err=%s\n", Err.Error())
+	rows, srdblib.Dberr = stmt.Query(eventid, userno, smplt)
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbNow() (6) err=%s\n", srdblib.Dberr.Error())
 		status = -6
 		return
 	}
@@ -187,13 +189,13 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	for rows.Next() {
 		//	Err = rows.Scan(&cntrbinf.Ranking, &cntrbinf.Tlsnid, &cntrbinf.Point, &cntrbinf.Incremental[loc], &cntrbinf.ListenerName, &cntrbinf.LastName)
 		if found {
-			Err = rows.Scan(&tlsnidinflist[2].Norder, &tlsnidinflist[2].Tlsnid, &tlsnidinflist[2].Listener)
+			srdblib.Dberr = rows.Scan(&tlsnidinflist[2].Norder, &tlsnidinflist[2].Tlsnid, &tlsnidinflist[2].Listener)
 			break
 		} else {
-			Err = rows.Scan(&tlsnidinflist[1].Norder, &tlsnidinflist[1].Tlsnid, &tlsnidinflist[1].Listener)
+			srdblib.Dberr = rows.Scan(&tlsnidinflist[1].Norder, &tlsnidinflist[1].Tlsnid, &tlsnidinflist[1].Listener)
 		}
-		if Err != nil {
-			log.Printf("GetCurrentScore() (7) err=%s\n", Err.Error())
+		if srdblib.Dberr != nil {
+			log.Printf("GetCurrentScore() (7) err=%s\n", srdblib.Dberr.Error())
 			status = -7
 			return
 		}
@@ -205,8 +207,8 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 			tlsnidinflist[0].Listener = tlsnidinflist[1].Listener
 		}
 	}
-	if Err = rows.Err(); Err != nil {
-		log.Printf("GetCurrentScore() (8) err=%s\n", Err.Error())
+	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
+		log.Printf("GetCurrentScore() (8) err=%s\n", srdblib.Dberr.Error())
 		status = -8
 		return
 	}
@@ -228,9 +230,9 @@ func SelectCntrbHistory(
 
 	sql_tt := "select stime, etime, target from timetable "
 	sql_tt += " where eventid = ? and userid =? and sampletm2 = ? "
-	stmt_tt, Err = Db.Prepare(sql_tt)
-	if Err != nil {
-		log.Printf("SelectCntrbHistory() (5) err=%s\n", Err.Error())
+	stmt_tt, srdblib.Dberr = srdblib.Db.Prepare(sql_tt)
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbHistory() (5) err=%s\n", srdblib.Dberr.Error())
 		status = -5
 		return
 	}
@@ -238,9 +240,9 @@ func SelectCntrbHistory(
 
 	sql_no := "select count(*) from eventrank "
 	sql_no += " where eventid = ? and userid =? and t_lsnid = ? and ts = ? "
-	stmt_no, Err = Db.Prepare(sql_no)
-	if Err != nil {
-		log.Printf("SelectCntrbHistory() (5) err=%s\n", Err.Error())
+	stmt_no, srdblib.Dberr = srdblib.Db.Prepare(sql_no)
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbHistory() (5) err=%s\n", srdblib.Dberr.Error())
 		status = -5
 		return
 	}
@@ -248,9 +250,9 @@ func SelectCntrbHistory(
 
 	sql_er := "select point, increment, listner, lastname from eventrank "
 	sql_er += " where eventid = ? and userid =? and t_lsnid = ? and ts = ? "
-	stmt_er, Err = Db.Prepare(sql_er)
-	if Err != nil {
-		log.Printf("SelectCntrbHistory() (5) err=%s\n", Err.Error())
+	stmt_er, srdblib.Dberr = srdblib.Db.Prepare(sql_er)
+	if srdblib.Dberr != nil {
+		log.Printf("SelectCntrbHistory() (5) err=%s\n", srdblib.Dberr.Error())
 		status = -5
 		return
 	}
@@ -261,10 +263,10 @@ func SelectCntrbHistory(
 
 	for _, ts := range acqtimelist {
 
-		Err = stmt_tt.QueryRow(eventid, userno, ts).Scan(&stime, &etime, &chi.Target)
-		if Err != nil {
+		srdblib.Dberr = stmt_tt.QueryRow(eventid, userno, ts).Scan(&stime, &etime, &chi.Target)
+		if srdblib.Dberr != nil {
 			log.Printf("%s(%s, %d, %+v)\n", sql_tt, eventid, userno, ts)
-			log.Printf("err=[%s]\n", Err.Error())
+			log.Printf("err=[%s]\n", srdblib.Dberr.Error())
 			status = -11
 		}
 
@@ -277,19 +279,19 @@ func SelectCntrbHistory(
 		chi.S_etime = etime.Format("01/02 15:04")
 
 		no := 0
-		Err = stmt_no.QueryRow(eventid, userno, tlsnid, ts).Scan(&no)
-		if Err != nil {
+		srdblib.Dberr = stmt_no.QueryRow(eventid, userno, tlsnid, ts).Scan(&no)
+		if srdblib.Dberr != nil {
 			log.Printf("%s(%s, %d, %d, %+v)\n", sql_er, eventid, userno, tlsnid, ts)
-			log.Printf("err=[%s]\n", Err.Error())
+			log.Printf("err=[%s]\n", srdblib.Dberr.Error())
 			status = -11
 		}
 
 		if no != 0 {
 
-			Err = stmt_er.QueryRow(eventid, userno, tlsnid, ts).Scan(&chi.Point, &chi.Incremental, &chi.Listener, &chi.Lastname)
-			if Err != nil {
+			srdblib.Dberr = stmt_er.QueryRow(eventid, userno, tlsnid, ts).Scan(&chi.Point, &chi.Incremental, &chi.Listener, &chi.Lastname)
+			if srdblib.Dberr != nil {
 				log.Printf("%s(%s, %d, %d, %+v)\n", sql_er, eventid, userno, tlsnid, ts)
-				log.Printf("err=[%s]\n", Err.Error())
+				log.Printf("err=[%s]\n", srdblib.Dberr.Error())
 				status = -11
 			}
 			lnl := strings.Split(chi.Lastname,"[")
@@ -353,17 +355,17 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 	sql_tg := "select increment,count(*) from eventrank "
 	sql_tg += " where eventid = ? and userid = ? and ts = ? "
 	sql_tg += " group by increment order by count(*) desc;"
-	stmt_tg, Err = Db.Prepare(sql_tg)
-	if Err != nil {
-		log.Printf("InsertIntoTimtableTarget() (1) err=%s\n", Err.Error())
+	stmt_tg, srdblib.Dberr = srdblib.Db.Prepare(sql_tg)
+	if srdblib.Dberr != nil {
+		log.Printf("InsertIntoTimtableTarget() (1) err=%s\n", srdblib.Dberr.Error())
 		status = -1
 		return
 	}
 	defer stmt_tg.Close()
 	
-	rows, Err = stmt_tg.Query(eventid, userno, ts)
-	if Err != nil {
-		log.Printf("InsertIntoTimtableTarget() (2) err=%s\n", Err.Error())
+	rows, srdblib.Dberr = stmt_tg.Query(eventid, userno, ts)
+	if srdblib.Dberr != nil {
+		log.Printf("InsertIntoTimtableTarget() (2) err=%s\n", srdblib.Dberr.Error())
 		status = -2
 		return
 	}
@@ -374,9 +376,9 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 	var pc P_c
 	
 	for rows.Next() {
-		Err = rows.Scan(&pc.Pnt, &pc.Cnt)
-		if Err != nil {
-			log.Printf("InsertIntoTimtableTarget() (3) err=%s\n", Err.Error())
+		srdblib.Dberr = rows.Scan(&pc.Pnt, &pc.Cnt)
+		if srdblib.Dberr != nil {
+			log.Printf("InsertIntoTimtableTarget() (3) err=%s\n", srdblib.Dberr.Error())
 			status = -3
 			return
 		}
@@ -396,7 +398,7 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 
 	if target != -1 {
 		sql_ud := "update timetable set target = ? where eventid = ? and userid = ? and sampletm2 = ?"
-		stmt, err := Db.Prepare(sql_ud)
+		stmt, err := srdblib.Db.Prepare(sql_ud)
 		if err != nil {
 			log.Printf("InsertIntoTimtableTarget() Update/Prepare err=%s\n", err.Error())
 			status = -1
