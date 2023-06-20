@@ -19,5 +19,5 @@
 <input type="number" name="ereg" value="10" size="3" required min="1" max="200"><label>位まで</td></tr>
 <tr><td></td><td>獲得ポイントデータ取得のタイミング</td><td>毎時<input type="text" name="modmin" value="{{.Stm}}" size="2" required pattern="[0-9]+">分
 <input type="text" name="modsec" value="{{.Sts}}" size="2" required pattern="[0-9]+">秒から
-<input type="text" name="intervalmin" value="5" size="2" required pattern="[5]">分おきに取得する。</td></tr>
+<input type="text" name="intervalmin" value="5" size="2" required pattern="[0-9]+">分おきに取得する。</td></tr>
 <tr><td></td><td>日々の獲得ポイントのリセット時刻</td><td>毎日<input type="text" name="resethh" value="4" size="2" required pattern="[0-9]+">時<input type="text" name="resetmm" value="0" size="2" required pattern="[0-9]+">分</td></tr>

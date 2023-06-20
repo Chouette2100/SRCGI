@@ -93,10 +93,12 @@ import (
 	10AQ00	GetWeightedCnt()で周回数の多い獲得ポイントの採用率が上がるように調整する。
 	10AQ01	MakePointPerSlot()のperslotの変数宣言をループの中に入れる（毎回初期化されるように）
 	11AA0l	データベースへのアクセスをsrdblibに移行しつつある。グラフ表示で縮尺の設定を可能とする。
+	11AA02	intervalmin の値を5固定とする（異常終了に対する緊急対応）
+	11AA03	intervalminとintervalmin の適正でない入力を排除する。
 
 */
 
-const Version = "11AA01"
+const Version = "11AA03"
 
 /*
 type Event_Inf struct {
@@ -346,7 +348,7 @@ type Event struct {
 	Pbname    string
 	Selected  string
 	Maxpoint  int
-	Gscale  int
+	Gscale    int
 }
 
 type User struct {
@@ -1409,7 +1411,7 @@ func InsertEventInf(eventinf *srdblib.Event_Inf) (
 			(*eventinf).Maxdsp,
 			(*eventinf).Cmap,
 			(*eventinf).Target,
-			(*eventinf).Maxpoint + eventinf.Gscale,
+			(*eventinf).Maxpoint+eventinf.Gscale,
 		)
 
 		if err != nil {
@@ -1478,7 +1480,7 @@ func UpdateEventInf(eventinf *srdblib.Event_Inf) (
 			(*eventinf).Target,
 			(*eventinf).Maxdsp,
 			(*eventinf).Cmap,
-			(*eventinf).Maxpoint + eventinf.Gscale,
+			(*eventinf).Maxpoint+eventinf.Gscale,
 			(*eventinf).Event_ID,
 		)
 
@@ -4725,7 +4727,7 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 		"Period":          period,
 		"Detail":          list_last.Detail,
 		"Maxpoint":        fmt.Sprintf("%d", Event_inf.Maxpoint),
-		"Gscale":        fmt.Sprintf("%d", Event_inf.Gscale),
+		"Gscale":          fmt.Sprintf("%d", Event_inf.Gscale),
 	}
 
 	if time.Since(tdata) > 5*time.Minute {
@@ -4773,28 +4775,32 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 	//	maxpoint, _ := strconv.Atoi(req.FormValue("maxpoint"))
 	smaxpoint := req.FormValue("maxpoint")
 	maxpoint, _ := strconv.Atoi(smaxpoint)
+	if maxpoint < 10000 {
+		maxpoint = 0
+		smaxpoint = "0"
+	}
 	sgscale := req.FormValue("gscale")
 	if sgscale == "" || sgscale == "0" {
 		sgscale = "100"
 	}
 	gscale, _ := strconv.Atoi(sgscale)
 	/*
-	gschk100 := ""
-	gschk90 := ""
-	gschk80 := ""
-	gschk70 := ""
-	switch sgscale {
-	case "100":
-		gschk100 = "checked"
-	case "90":
-		gschk90 = "checked"
-	case "80":
-		gschk80 = "checked"
-	case "70":
-		gschk70 = "checked"
-	default:
-		gschk100 = "checked"
-	}
+		gschk100 := ""
+		gschk90 := ""
+		gschk80 := ""
+		gschk70 := ""
+		switch sgscale {
+		case "100":
+			gschk100 = "checked"
+		case "90":
+			gschk90 = "checked"
+		case "80":
+			gschk80 = "checked"
+		case "70":
+			gschk70 = "checked"
+		default:
+			gschk100 = "checked"
+		}
 	*/
 
 	log.Printf("      eventid=%s maxpoint=%d(%s)\n", eventid, maxpoint, smaxpoint)
@@ -5229,8 +5235,17 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		log.Println("***** HandlerAddEvent() Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
 		eventinf.Modsec, _ = strconv.Atoi(r.FormValue("modsec"))
-		eventinf.Intervalmin, _ = strconv.Atoi(r.FormValue("intervalmin"))
+
+		intervalmin, _ := strconv.Atoi(r.FormValue("intervalmin"))
+		switch intervalmin {
+		case 5, 6, 10, 15, 20, 30, 60:
+			eventinf.Intervalmin = intervalmin
+		default:
+			eventinf.Intervalmin = 5
+		}
 		eventinf.Modmin = eventinf.Modmin % eventinf.Intervalmin //	不適切な入力に対する修正
+		eventinf.Modsec = eventinf.Modsec % 60
+
 		eventinf.Resethh, _ = strconv.Atoi(r.FormValue("resethh"))
 		eventinf.Resetmm, _ = strconv.Atoi(r.FormValue("resetmm"))
 		eventinf.Nobasis, _ = strconv.Atoi(r.FormValue("nobasis"))
@@ -5453,9 +5468,18 @@ func HandlerParamEventC(w http.ResponseWriter, r *http.Request) {
 	eventinf.Fromorder, _ = strconv.Atoi(r.FormValue("fromorder"))
 	eventinf.Toorder, _ = strconv.Atoi(r.FormValue("toorder"))
 	eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
-	eventinf.Modmin = eventinf.Modmin % eventinf.Intervalmin
 	eventinf.Modsec, _ = strconv.Atoi(r.FormValue("modsec"))
-	eventinf.Intervalmin, _ = strconv.Atoi(r.FormValue("intervalmin"))
+
+	intervalmin, _ := strconv.Atoi(r.FormValue("intervalmin"))
+	switch intervalmin {
+	case 5, 6, 10, 15, 20, 30, 60:
+		eventinf.Intervalmin = intervalmin
+	default:
+		eventinf.Intervalmin = 5
+	}
+	eventinf.Modmin = eventinf.Modmin % eventinf.Intervalmin //	不適切な入力に対する修正
+	eventinf.Modsec = eventinf.Modsec % 60
+
 	eventinf.Resethh, _ = strconv.Atoi(r.FormValue("resethh"))
 	eventinf.Resetmm, _ = strconv.Atoi(r.FormValue("resetmm"))
 	eventinf.Nobasis, _ = strconv.Atoi(r.FormValue("nobasis"))
