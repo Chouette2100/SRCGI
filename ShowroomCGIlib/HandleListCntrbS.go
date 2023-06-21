@@ -27,6 +27,7 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/dustin/go-humanize"
 
+	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
 )
 
@@ -108,7 +109,7 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	//	log.Printf(" len(cntrbinflists)=%d\n", len(cntrbinflists))
 	
 
-	var eventinf srdblib.Event_Inf
+	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
 	var cntrbs_header CntrbS_Header

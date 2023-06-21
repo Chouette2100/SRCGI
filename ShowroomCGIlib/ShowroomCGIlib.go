@@ -35,8 +35,8 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	ghexsrapi "github.com/Chouette2100/exsrapi"
-	ghsrapi "github.com/Chouette2100/srapi"
+	"github.com/Chouette2100/srapi"
+	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
 )
 
@@ -95,10 +95,11 @@ import (
 	11AA0l	データベースへのアクセスをsrdblibに移行しつつある。グラフ表示で縮尺の設定を可能とする。
 	11AA02	intervalmin の値を5固定とする（異常終了に対する緊急対応）
 	11AA03	intervalminとintervalmin の適正でない入力を排除する。
+	11AB00	Event_Infの参照先をsrdblibからexsrapiに変更する。
 
 */
 
-const Version = "11AA03"
+const Version = "11AB00"
 
 /*
 type Event_Inf struct {
@@ -278,7 +279,7 @@ var Sshconfig *SSHConfig
 var Dialer sshql.Dialer
 */
 
-var Event_inf srdblib.Event_Inf
+var Event_inf exsrapi.Event_Inf
 
 /*
 var Db *sql.DB
@@ -465,7 +466,7 @@ func GetUserInfForHistory() (status int) {
 	return
 }
 
-func GetEventListByAPI(eventinflist *[]srdblib.Event_Inf) (status int) {
+func GetEventListByAPI(eventinflist *[]exsrapi.Event_Inf) (status int) {
 
 	status = 0
 
@@ -518,7 +519,7 @@ func GetEventListByAPI(eventinflist *[]srdblib.Event_Inf) (status int) {
 		}
 
 		for i := 0; i < noroom; i++ {
-			var eventinf srdblib.Event_Inf
+			var eventinf exsrapi.Event_Inf
 
 			tres := result.(map[string]interface{})["event_list"].([]interface{})[i]
 
@@ -1267,7 +1268,7 @@ func GetAndInsertEventRoomInfo(
 	eventid string,
 	breg int,
 	ereg int,
-	eventinfo *srdblib.Event_Inf,
+	eventinfo *exsrapi.Event_Inf,
 	roominfolist *RoomInfoList,
 ) (
 	starttimeafternow bool,
@@ -1373,7 +1374,7 @@ func GetAndInsertEventRoomInfo(
 	return
 }
 
-func InsertEventInf(eventinf *srdblib.Event_Inf) (
+func InsertEventInf(eventinf *exsrapi.Event_Inf) (
 	status int,
 ) {
 
@@ -1425,7 +1426,7 @@ func InsertEventInf(eventinf *srdblib.Event_Inf) (
 	return
 }
 
-func UpdateEventInf(eventinf *srdblib.Event_Inf) (
+func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 	status int,
 ) {
 
@@ -1811,7 +1812,7 @@ func GetEventInfAndRoomList(
 	eventid string,
 	breg int,
 	ereg int,
-	eventinfo *srdblib.Event_Inf,
+	eventinfo *exsrapi.Event_Inf,
 	roominfolist *RoomInfoList,
 ) (
 	status int,
@@ -2002,7 +2003,7 @@ func GetEventInfAndRoomListBR(
 	eventid string,
 	breg int,
 	ereg int,
-	eventinfo *srdblib.Event_Inf,
+	eventinfo *exsrapi.Event_Inf,
 	roominfolist *RoomInfoList,
 ) (
 	status int,
@@ -2106,7 +2107,7 @@ func GetEventInfAndRoomListBR(
 		event_id := 31947
 	*/
 
-	ebr, err := ghsrapi.GetEventBlockRanking(client, event_id, blockid, breg, ereg)
+	ebr, err := srapi.GetEventBlockRanking(client, event_id, blockid, breg, ereg)
 	if err != nil {
 		log.Printf("GetEventBlockRanking() err=%s\n", err.Error())
 		status = 1
@@ -2140,7 +2141,7 @@ func GetEventInfAndRoomListBR(
 
 func GetEventInf(
 	eventid string,
-	eventinfo *srdblib.Event_Inf,
+	eventinfo *exsrapi.Event_Inf,
 ) (
 	status int,
 ) {
@@ -5215,7 +5216,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		"templates/error.gtpl",
 	))
 
-	var eventinf srdblib.Event_Inf
+	var eventinf exsrapi.Event_Inf
 	var roominfolist RoomInfoList
 
 	eventid := r.FormValue("eventid")
@@ -5260,7 +5261,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	log.Println(eventinf)
 
 	//      cookiejarがセットされたHTTPクライアントを作る
-	client, jar, err := ghexsrapi.CreateNewClient("ShowroomCGI")
+	client, jar, err := exsrapi.CreateNewClient("ShowroomCGI")
 	if err != nil {
 		log.Printf("CreateNewClient: %s\n", err.Error())
 		return
@@ -5350,7 +5351,7 @@ func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
 		"Sts": fmt.Sprintf("%d", sts),
 	}
 
-	var eventinf srdblib.Event_Inf
+	var eventinf exsrapi.Event_Inf
 
 	eia := strings.Split(eventid, "?")
 	if len(eia) == 2 {

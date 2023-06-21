@@ -27,6 +27,8 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/dustin/go-humanize"
 	"github.com/Chouette2100/srdblib"
+
+	"github.com/Chouette2100/exsrapi"
 )
 
 const MaxAcq = 5
@@ -101,7 +103,7 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 
 	eventid := req.FormValue("eventid")
 
-	var eventinf srdblib.Event_Inf
+	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
 	userno, _ := strconv.Atoi(req.FormValue("userno"))

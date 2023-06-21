@@ -28,6 +28,7 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	//	"github.com/dustin/go-humanize"
 
+	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
 )
 
@@ -123,7 +124,7 @@ func SelectFromNoOfFan(eventid string) (eventandrankinginf EventAndRankingInf, s
 
 	eventandrankinginf.RankingInfList = make([]RankingInf, 0)
 
-	var eventinf srdblib.Event_Inf
+	var eventinf exsrapi.Event_Inf
 
 	status = GetEventInf(eventid, &eventinf)
 	log.Printf("eventinf = %+v\n", eventinf)
