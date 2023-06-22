@@ -3,6 +3,7 @@
 *.txt
 *.html
 SRCGI
+SRCGI.20*
 ShowroomCGI
 ShowroomCGI_det
 workspace.code-workspace
