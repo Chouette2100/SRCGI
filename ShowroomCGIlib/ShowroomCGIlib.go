@@ -35,8 +35,8 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	"github.com/Chouette2100/srapi"
 	"github.com/Chouette2100/exsrapi"
+	"github.com/Chouette2100/srapi"
 	"github.com/Chouette2100/srdblib"
 )
 
@@ -96,10 +96,12 @@ import (
 	11AA02	intervalmin の値を5固定とする（異常終了に対する緊急対応）
 	11AA03	intervalminとintervalmin の適正でない入力を排除する。
 	11AB00	Event_Infの参照先をsrdblibからexsrapiに変更する。
+	11AB01	データベース保存時、Intervalminが0のときは強制的に5にする。
+	11AB02	データベース保存時、Intervalminが5でないときは強制的に5にする。
 
 */
 
-const Version = "11AB00"
+const Version = "11AB02"
 
 /*
 type Event_Inf struct {
@@ -1392,6 +1394,11 @@ func InsertEventInf(eventinf *exsrapi.Event_Inf) (
 		}
 		defer stmt.Close()
 
+		if eventinf.Intervalmin != 5 {	//	緊急対応
+			log.Printf(" Intervalmin isn't 5. (%dm)\n",eventinf.Intervalmin)
+			eventinf.Intervalmin = 5
+		}
+
 		log.Printf("row.Exec()\n")
 		_, err = stmt.Exec(
 			(*eventinf).Event_ID,
@@ -1461,6 +1468,11 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 			return
 		}
 		defer stmt.Close()
+
+		if eventinf.Intervalmin != 5 {	//	緊急対応
+			log.Printf(" Intervalmin isn't 5. (%dm)\n",eventinf.Intervalmin)
+			eventinf.Intervalmin = 5
+		}
 
 		log.Printf("row.Exec()\n")
 		_, err = stmt.Exec(
