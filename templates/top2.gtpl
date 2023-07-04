@@ -8,7 +8,8 @@
 {{/*
 <button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>
 */}}
-<button type="button" onclick="location.href='top?userno={{.Nobasis}}'">イベント選択画面に戻る</button>
+<button type="button" onclick="location.href='top?userno={{.Nobasis}}'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
 <form>
 <br>
 SHOWROOMイベント結果表示

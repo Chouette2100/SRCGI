@@ -98,10 +98,11 @@ import (
 	11AB00	Event_Infの参照先をsrdblibからexsrapiに変更する。
 	11AB01	データベース保存時、Intervalminが0のときは強制的に5にする。
 	11AB02	データベース保存時、Intervalminが5でないときは強制的に5にする。
+	11AC00	開催中イベント一覧の機能を作成し関連箇所を修正する。
 
 */
 
-const Version = "11AB02"
+const Version = "11AC00"
 
 /*
 type Event_Inf struct {
@@ -4934,6 +4935,9 @@ func HandlerListPerday(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
+
+	GetUserInf(r)
+
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/graph-perslot.gtpl"))
 

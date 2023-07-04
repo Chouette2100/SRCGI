@@ -50,8 +50,14 @@
 /top</a>
 </p>
 */}}
-
+<br>
+<p style="padding-left:2em">
+<a href="currentevent">開催中イベント一覧</a> （新しい機能。イベントID(Event_url_key)を調べなくてもここからデータ取得対象の登録ができます）
+</p>
+<p style="padding-left:4em">
 <a href="#newevent">イベントの新規登録へ</a>（ページ内）
+</p>
+<br>
 
 <p>イベント選択（最近のイベントから選ぶ...イベント名をクリックしてください）</p>
 

@@ -8,7 +8,10 @@ ShowroomCGI
 ShowroomCGI_det
 workspace.code-workspace
 *.tar
+*.tar.gz
 *.csh
+*.sh
+*.txt
 awk.in
 SC*
 go.mod

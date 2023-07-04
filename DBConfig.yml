@@ -10,4 +10,4 @@ DBname:	${DBNAME}
 #
 # ログイン名とパスワードは環境変数で渡す
 DBuser:	${DBUSER}
-DBpw:	${DBPW}
+DBpswd:	${DBPW}

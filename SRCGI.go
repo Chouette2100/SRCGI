@@ -57,10 +57,11 @@ import (
 	0200A1	バージョンの表記にsrdblibのバージョンを追加する。
 	0200A2	データ取得の間隔を0に設定できる問題に暫定的に対応する（5以外の入力を禁止する）
 	0200B0	トップページに「イベント新規登録」へのページ内リンクを追加する。
-
+	0201A0	srdblib.OpenDB()のインターフェース変更に対応する。
+	0202A0	開催中イベント一覧の機能を作成し関連箇所を修正する。
 */
 
-const version = "0200B0"
+const version = "0202A0"
 
 // 入力内容の確認画面
 func main() {
@@ -89,7 +90,7 @@ func main() {
 	}
 	log.Printf("%+v\n", svconfig)
 
-	var dbconfig srdblib.DBConfig
+	var dbconfig *srdblib.DBConfig
 	err = exsrapi.LoadConfig("DBConfig.yml", &dbconfig)
 	if err != nil {
 		log.Printf("err=%s.\n", err.Error())
@@ -113,13 +114,21 @@ func main() {
 	if svconfig.WebServer != "None" {
 		rootPath = os.Getenv("SCRIPT_NAME")
 	}
-	log.Printf("\n")
-	log.Printf("\n")
-	log.Printf("********** WevServer=<%s> port = <%s> OS = <%s> rootPath = <%s>\n", svconfig.WebServer, svconfig.HTTPport, ShowroomCGIlib.OS, rootPath)
-	log.Printf("********** crt=<%s> key = <%s>\n", svconfig.SSLcrt, svconfig.SSLkey)
-	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.Dbhost, dbconfig.Dbname, dbconfig.Dbuser, dbconfig.Dbpw)
 
-	err = srdblib.OpenDb(&dbconfig)
+	err = os.Setenv("HOME", "/var/www")
+	if err != nil {
+		log.Printf("os.Setenv(): err=%s.\n", err.Error())
+		return
+	}
+	home := os.Getenv("HOME")
+	log.Printf("\n")
+	log.Printf("\n")
+	log.Printf("********** WevServer=<%s> port = <%s> OS = <%s> rootPath = <%s> home = <%s>\n",
+		svconfig.WebServer, svconfig.HTTPport, ShowroomCGIlib.OS, rootPath, home)
+	log.Printf("********** crt=<%s> key = <%s>\n", svconfig.SSLcrt, svconfig.SSLkey)
+	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.DBhost, dbconfig.DBname, dbconfig.DBuser, dbconfig.DBpswd)
+
+	dbconfig, err = srdblib.OpenDb("DBConfig.yml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return
@@ -191,6 +200,10 @@ func main() {
 	http.HandleFunc(rootPath+"/fanlevel", ShowroomCGIlib.HandlerFanLevel)
 
 	http.HandleFunc(rootPath+"/flranking", ShowroomCGIlib.HandlerFlRanking)
+
+	http.HandleFunc(rootPath+"/currentevent", ShowroomCGIlib.HandlerCurrentEvent)
+
+	http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.HandlerEventRoomList)
 
 	if svconfig.WebServer == "None" {
 		//	Webサーバーとして起動

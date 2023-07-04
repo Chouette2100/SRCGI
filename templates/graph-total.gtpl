@@ -3,6 +3,7 @@
 <html>
 <body>
 <button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
 <button type="button" onclick="location.href='top?eventid={{.eventid}}'">「SHOWROOMイベント結果表示」画面に戻る</button>　
 <button type="button" onclick="location.href='list-last?eventid={{.eventid}}'"><span style="color: blue;">直近の獲得ポイント一覧を表示する</span></button>
   <h2>獲得ポイントグラフ</h2>

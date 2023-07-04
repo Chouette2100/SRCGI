@@ -1,4 +1,0 @@
-Hostname: ${SSHHOST}
-Port: ${SSHPORT}
-Username: ${SSHUSER}
-PrivateKey: ${SSHKEY}

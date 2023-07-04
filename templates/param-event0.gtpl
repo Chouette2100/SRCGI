@@ -2,10 +2,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <html>
 <body>
+<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
 <button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
 <br><br>
 <p style="padding-left:2em">
-イベント設定の変更
+イベントパラメータの設定
 <p style="padding-left:4em">
 このイベントに関わる設定を変更するときは、設定値を書き換えた後「設定変更」ボタンを押してください。<br>
 <form>

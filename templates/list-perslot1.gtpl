@@ -5,6 +5,8 @@
 <p id="Top">
 <br>
 </p>
+<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
 <button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">「SHOWROOMイベント結果表示」画面に戻る</button><br>
 <h2>配信枠毎の獲得ポイント</h2>
 <p style="padding-left:2em;color:blue">
