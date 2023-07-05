@@ -99,10 +99,11 @@ import (
 	11AB01	データベース保存時、Intervalminが0のときは強制的に5にする。
 	11AB02	データベース保存時、Intervalminが5でないときは強制的に5にする。
 	11AC00	開催中イベント一覧の機能を作成し関連箇所を修正する。
+	11AC01 FindPtPerSlot()でPrepare()に対するdefer Close()の抜けを補う。
 
 */
 
-const Version = "11AC00"
+const Version = "11AC01"
 
 /*
 type Event_Inf struct {

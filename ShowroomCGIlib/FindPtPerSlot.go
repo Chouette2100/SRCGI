@@ -20,6 +20,7 @@ if err != nil {
 	err = fmt.Errorf("Prepare(): %w", err)
 	return
 }
+defer stmts.Close()
 
 for i, room := range *roomlist {
 
