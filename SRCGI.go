@@ -59,9 +59,10 @@ import (
 	0200B0	トップページに「イベント新規登録」へのページ内リンクを追加する。
 	0201A0	srdblib.OpenDB()のインターフェース変更に対応する。
 	0202A0	開催中イベント一覧の機能を作成し関連箇所を修正する。
+	0202A1	rootpath($SCRIPT_NAME)とWebserverの設定の整合性をチェックする。
 */
 
-const version = "0202A0"
+const version = "0202A1"
 
 // 入力内容の確認画面
 func main() {
@@ -90,6 +91,7 @@ func main() {
 	}
 	log.Printf("%+v\n", svconfig)
 
+	/*
 	var dbconfig *srdblib.DBConfig
 	err = exsrapi.LoadConfig("DBConfig.yml", &dbconfig)
 	if err != nil {
@@ -97,6 +99,7 @@ func main() {
 		os.Exit(1)
 	}
 	log.Printf("%+v\n", dbconfig)
+	*/
 
 	switch svconfig.WebServer {
 	case "nginxSakura":
@@ -110,24 +113,35 @@ func main() {
 	}
 
 	ShowroomCGIlib.OS = runtime.GOOS
+	/*
 	rootPath := ""
 	if svconfig.WebServer != "None" {
 		rootPath = os.Getenv("SCRIPT_NAME")
 	}
+	*/
+	rootPath := os.Getenv("SCRIPT_NAME")
+	if rootPath != "" && svconfig.WebServer != "None" {
+		log.Printf("**error** rootPath is \"%s\", but WebServer is not \"None\".\n", rootPath)
+	} else if rootPath == "" && svconfig.WebServer == "None" {
+		log.Printf("**error** rootPath is \"\", but WebServer is \"None\".\n")
+	}
 
+	/*	設定ファイルで操作するはず？
 	err = os.Setenv("HOME", "/var/www")
 	if err != nil {
 		log.Printf("os.Setenv(): err=%s.\n", err.Error())
 		return
 	}
+	*/
 	home := os.Getenv("HOME")
 	log.Printf("\n")
 	log.Printf("\n")
 	log.Printf("********** WevServer=<%s> port = <%s> OS = <%s> rootPath = <%s> home = <%s>\n",
 		svconfig.WebServer, svconfig.HTTPport, ShowroomCGIlib.OS, rootPath, home)
 	log.Printf("********** crt=<%s> key = <%s>\n", svconfig.SSLcrt, svconfig.SSLkey)
-	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.DBhost, dbconfig.DBname, dbconfig.DBuser, dbconfig.DBpswd)
+	//	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.DBhost, dbconfig.DBname, dbconfig.DBuser, dbconfig.DBpswd)
 
+	var dbconfig *srdblib.DBConfig
 	dbconfig, err = srdblib.OpenDb("DBConfig.yml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
@@ -137,6 +151,7 @@ func main() {
 		defer srdblib.Dialer.Close()
 	}
 	defer srdblib.Db.Close()
+	log.Printf("%+v\n", dbconfig)
 
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。
