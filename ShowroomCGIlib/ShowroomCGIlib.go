@@ -100,6 +100,7 @@ import (
 	11AB02	データベース保存時、Intervalminが5でないときは強制的に5にする。
 	11AC00	開催中イベント一覧の機能を作成し関連箇所を修正する。
 	11AC01 FindPtPerSlot()でPrepare()に対するdefer Close()の抜けを補う。
+	11AC02 HandleListCntrb()でボーナスポイントに対する対応を行う。
 
 */
 
