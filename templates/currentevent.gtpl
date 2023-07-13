@@ -39,10 +39,10 @@
     <p>開催中イベント一覧表</p>
     {{/*
     <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }} （{{ UnixTimeToStr $tn }}）</div>
-        */}}
+    */}}
     <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }} </div>
     <table>
-        <tr style="text-align: center">
+        <tr bgcolor="gainsboro" style="text-align: center">
             <td>イベント名とイベントページへのリンク</td>
             <td>開始日時</td>
             <td>終了日時</td>
@@ -54,8 +54,15 @@
             <td>枠毎の<br>獲得pt</td>
 
         </tr>
+        {{ $i := 0 }}
         {{ range .Eventinflist }}
+        {{ if eq $i 1 }}
+        <tr bgcolor="gainsboro">
+            {{ $i = 0 }}
+            {{ else }}
         <tr>
+            {{ $i = 1 }}
+            {{ end }}
             <td>
                 <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
             </td>
