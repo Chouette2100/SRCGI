@@ -102,10 +102,11 @@ import (
 	11AC01 FindPtPerSlot()でPrepare()に対するdefer Close()の抜けを補う。
 	11AC02 HandleListCntrb()でボーナスポイントに対する対応を行う。
 	11AC03 currentevent.gtpl 1行おきに背景色を変える。list-last_h.gtpl 結果が反映される時刻を正す。
+	11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。 
 
 */
 
-const Version = "11AC03"
+const Version = "11AD00"
 
 /*
 type Event_Inf struct {
@@ -5235,7 +5236,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		"templates/error.gtpl",
 	))
 
-	var eventinf exsrapi.Event_Inf
+	var eventinf *exsrapi.Event_Inf
 	var roominfolist RoomInfoList
 
 	eventid := r.FormValue("eventid")
@@ -5246,7 +5247,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 	if r.FormValue("from") != "new-event" {
 		//	eventinf, _ = SelectEventInf(eventid)
-		eventinf, _ := srdblib.SelectFromEvent(eventid)
+		eventinf, _ = srdblib.SelectFromEvent(eventid)
 		Event_inf = *eventinf
 
 		log.Println("***** HandlerAddEvent() Called. not 'from new-event'")
@@ -5288,7 +5289,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	//      すべての処理が終了したらcookiejarを保存する。
 	defer jar.Save()
 
-	starttimeafternow, status := GetAndInsertEventRoomInfo(client, eventid, ibreg, iereg, &eventinf, &roominfolist)
+	starttimeafternow, status := GetAndInsertEventRoomInfo(client, eventid, ibreg, iereg, eventinf, &roominfolist)
 	if status != 0 {
 
 		values := map[string]string{
