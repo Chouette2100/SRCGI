@@ -73,7 +73,7 @@
                 {{ TimeToString .End_time }}
             </td>
             <td style="text-align: center;">
-                <a href="eventroomlist?eventid={{ .I_Event_ID }}">表示</a>
+                <a href="eventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">表示</a>
             </td>
             <td style="text-align: center;">
                 {{ if eq .Target 1 }}

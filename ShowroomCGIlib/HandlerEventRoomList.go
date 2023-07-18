@@ -13,6 +13,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"html/template"
@@ -32,8 +33,8 @@ import (
 
 */
 
-//	"/ApiEventRoomList()"に対するハンドラー
-//	http://localhost:8080/apieventroomlist で呼び出される
+// "/ApiEventRoomList()"に対するハンドラー
+// http://localhost:8080/apieventroomlist で呼び出される
 func HandlerEventRoomList(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -63,19 +64,20 @@ func HandlerEventRoomList(
 		Eventid     int
 		Eventname   string
 		Eventurl    string
-		Ib		int
-		Ie		int
+		Ib          int
+		Ie          int
 		Roomlistinf *srapi.RoomListInf
 		Msg         string
-		Eventlist 	[]srapi.Event
+		Eventlist   []srapi.Event
 	}
 
 	seventid := r.FormValue("eventid")
+	eventurlkey := r.FormValue("eventurlkey")
 	if seventid == "" {
 		/*
-		err = errors.New("eventid が設定されていません。URLのあとに\"?eventid=.....\"を追加してください。<br>あるいは「開催中イベント一覧表」から参加者一覧が必要なイベントを指定してください。")
-		erl.Msg = err.Error()
-		log.Printf("%s\n", erl.Msg)
+			err = errors.New("eventid が設定されていません。URLのあとに\"?eventid=.....\"を追加してください。<br>あるいは「開催中イベント一覧表」から参加者一覧が必要なイベントを指定してください。")
+			erl.Msg = err.Error()
+			log.Printf("%s\n", erl.Msg)
 		*/
 		erl.Eventid = 0
 		erl.Eventlist, err = srapi.MakeEventListByApi(client)
@@ -85,45 +87,53 @@ func HandlerEventRoomList(
 			erl.Msg = err.Error()
 		}
 		//	erl.Totalcount = len(top.Eventlist)
-	
+
 		//	ソートが必要ないときは次の行とimportの"sort"をコメントアウトする。
 		//	無名関数のリターン値でソート条件を変更できます。
 		//	ここではエベント終了日時が近い順にソートしています。
 		sort.Slice(erl.Eventlist, func(i, j int) bool { return erl.Eventlist[i].Ended_at < erl.Eventlist[j].Ended_at })
-	
 
 	} else {
 
 		erl.Eventid, err = strconv.Atoi(seventid)
+		erl.Eventurl = eventurlkey
 		if err != nil {
 			err = fmt.Errorf("HandlerEventRoomList(): %w", err)
 			erl.Msg = err.Error()
 			log.Printf("%s\n", erl.Msg)
 		} else {
 
-		sib := r.FormValue("ib")
-		erl.Ib, err = strconv.Atoi(sib)
-		if err != nil {
-			erl.Ib = 1
-		}
-
-		sie := r.FormValue("ie")
-		erl.Ie, err = strconv.Atoi(sie)
-		if err != nil {
-			erl.Ie = 10
-		}
-
-		if erl.Ie < erl.Ib {
-			erl.Ie = erl.Ib
-		}
-
-
-			//	イベント参加ルーム一覧を取得する。
-			erl.Roomlistinf, err = srapi.GetRoominfFromEventByApi(client, erl.Eventid, erl.Ib, erl.Ie)
+			sib := r.FormValue("ib")
+			erl.Ib, err = strconv.Atoi(sib)
 			if err != nil {
-				err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-				erl.Msg = err.Error()
-				log.Printf("%s\n", erl.Msg)
+				erl.Ib = 1
+			}
+
+			sie := r.FormValue("ie")
+			erl.Ie, err = strconv.Atoi(sie)
+			if err != nil {
+				erl.Ie = 10
+			}
+
+			if erl.Ie < erl.Ib {
+				erl.Ie = erl.Ib
+			}
+
+			if strings.Contains(eventurlkey, "?") {
+				erl.Roomlistinf, err = exsrapi.GetRoominfFromEventOfBR(client, erl.Eventurl, erl.Ib, erl.Ie)
+				if err != nil {
+					err = fmt.Errorf("GetRoominfFromEventOfBR(): %w", err)
+					erl.Msg = err.Error()
+					log.Printf("%s\n", erl.Msg)
+				}
+			} else {
+				//	イベント参加ルーム一覧を取得する。
+				erl.Roomlistinf, err = srapi.GetRoominfFromEventByApi(client, erl.Eventid, erl.Ib, erl.Ie)
+				if err != nil {
+					err = fmt.Errorf("GetRoominfFromEventByApi(): %w", err)
+					erl.Msg = err.Error()
+					log.Printf("%s\n", erl.Msg)
+				}
 			}
 
 			//	ルーム一覧にあるそれぞれのルームについて補足的なデータを取得する。

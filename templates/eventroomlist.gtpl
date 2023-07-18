@@ -117,7 +117,8 @@
             <input type="number" name="ib" min="1" max="9999" value="{{ .Ib }}"> 番目から
             <input type="number" name="ie" min="1" max="9999" value="{{ .Ie }}"> 番目まで
             <input type="hidden" name="eventid" value="{{ .Eventid }}">
-            <span style="padding-left:2em"><input type="submit" value="再表示する" formaction="apieventroomlist"
+            <input type="hidden" name="eventurlkey" value="{{ .Eventurl }}">
+            <span style="padding-left:2em"><input type="submit" value="再表示する" formaction="eventroomlist"
                     formmethod="GET"></span>
         </p>
     </form>
