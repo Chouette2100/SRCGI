@@ -32,8 +32,11 @@
     <div style="text-indent: 2rem;"><a href="t009top">t009:配信中ルーム一覧</a></div>
     <p>-------------------------------------------------------------</p>
     {{*/}}
-    <button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+    <button type="button" onclick="location.href='top'">Top</button>　
+    {{/*}}
     <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
+    {{*/}}
+    <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
     <br>
     <br>
     <p>開催中イベント一覧表</p>

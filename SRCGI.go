@@ -19,6 +19,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
+	//	"github.com/Chouette2100/srhandler"
 
 	"SRCGI/ShowroomCGIlib"
 )
@@ -219,6 +220,8 @@ func main() {
 	http.HandleFunc(rootPath+"/currentevent", ShowroomCGIlib.HandlerCurrentEvent)
 
 	http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.HandlerEventRoomList)
+
+	http.HandleFunc(rootPath+"/scheduledevent", ShowroomCGIlib.HandlerScheduledEvent)
 
 	if svconfig.WebServer == "None" {
 		//	Webサーバーとして起動

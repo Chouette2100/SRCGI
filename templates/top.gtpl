@@ -52,6 +52,12 @@
 */}}
 <br>
 <p style="padding-left:2em">
+<a href="scheduledevent">開催予定イベント一覧</a> （新しい機能。現時点では予定されているイベントが表示されるだけです）
+</p>
+<p style="padding-left:2em">
+<a href="scheduledevent">開催予定イベント一覧</a> （新しい機能。現時点では予定されているイベントが表示されるだけです）
+</p>
+<p style="padding-left:2em">
 <a href="currentevent">開催中イベント一覧</a> （新しい機能。イベントID(Event_url_key)を調べなくてもここからデータ取得対象の登録ができます）
 </p>
 <p style="padding-left:4em">

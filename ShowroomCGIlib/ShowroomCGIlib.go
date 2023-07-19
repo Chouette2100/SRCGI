@@ -104,11 +104,12 @@ import (
 	11AC03 currentevent.gtpl 1行おきに背景色を変える。list-last_h.gtpl 結果が反映される時刻を正す。
 	11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。 
 	11AE00	HandlerEventRoomList()でブロックイベントの参加ルーム一覧も表示できるようにする。
+	11AF00	開催予定イベント一覧の機能を追加する（HandlerScheduledEvent()）
 
 
 */
 
-const Version = "11AD00"
+const Version = "11AF00"
 
 /*
 type Event_Inf struct {
