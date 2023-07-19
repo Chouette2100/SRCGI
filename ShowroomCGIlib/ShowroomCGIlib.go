@@ -105,11 +105,12 @@ import (
 	11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。 
 	11AE00	HandlerEventRoomList()でブロックイベントの参加ルーム一覧も表示できるようにする。
 	11AF00	開催予定イベント一覧の機能を追加する（HandlerScheduledEvent()）
+	11AF01	新規イベントの登録ができなくなった問題（＝11AD00の修正で発生したデグレード）に対応する
 
 
 */
 
-const Version = "11AF00"
+const Version = "11AF01"
 
 /*
 type Event_Inf struct {
@@ -5256,6 +5257,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		log.Println("***** HandlerAddEvent() Called. not 'from new-event'")
 		log.Println(eventinf)
 	} else {
+		eventinf = &exsrapi.Event_Inf{}
 		log.Println("***** HandlerAddEvent() Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
 		eventinf.Modsec, _ = strconv.Atoi(r.FormValue("modsec"))
