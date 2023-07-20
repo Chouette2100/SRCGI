@@ -14,7 +14,8 @@ import (
 
 // 指定した条件に該当するイベントのリストを作る。
 func SelectEventinflistFromEvent(
-	mode int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
+	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
+	mode int, // 0: すべて、 1: データ取得中のものに限定
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -28,22 +29,25 @@ func SelectEventinflistFromEvent(
 
 	tnow := time.Now().Truncate(time.Second)
 
-	sqls := "select eventid,ieventid,event_name, period, starttime, endtime, noentry, intervalmin, modmin, modsec, "
-	sqls += " Fromorder, Toorder, Resethh, Resetmm, Nobasis, Maxdsp, cmap, target, `rstatus`, maxpoint, achk "
-	sqls += " from " + srdblib.Tevent
-	sqls += " where achk = 0 "
-	switch mode {
+	sqls := "select we.eventid,we.ieventid,we.event_name, we.period, we.starttime, we.endtime, we.noentry, we.intervalmin, we.modmin, we.modsec, "
+	sqls += " we.Fromorder, we.Toorder, we.Resethh, we.Resetmm, we.Nobasis, we.Maxdsp, we.cmap, we.target, we.`rstatus`, we.maxpoint, we.achk "
+	sqls += " from wevent we"
+	if mode == 1 {
+		sqls += " join event e on we.eventid = e.eventid "
+	}
+	sqls += " where we.achk = 0 "
+	switch cond {
 	case -1:
-		sqls += " and endtime < ?"
+		sqls += " and we.endtime < ?"
 	case 0:
-		sqls += " and starttime < ? and endtime > ?"
+		sqls += " and we.starttime < ? and we.endtime > ?"
 	case 1:
-		sqls += " and starttime > ?"
+		sqls += " and we.starttime > ?"
 	default:
-		err = fmt.Errorf("mode=%d is not valid", mode)
+		err = fmt.Errorf("mode=%d is not valid", cond)
 		return
 	}
-	sqls += " order by endtime, starttime"
+	sqls += " order by we.endtime, we.starttime"
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
 	stmts, srdblib.Dberr = srdblib.Db.Prepare(sqls)
@@ -54,7 +58,7 @@ func SelectEventinflistFromEvent(
 	defer stmts.Close()
 
 	var rows *sql.Rows
-	if mode == 0 {
+	if cond == 0 {
 		rows, srdblib.Dberr = stmts.Query(tnow, tnow)
 	} else {
 		rows, srdblib.Dberr = stmts.Query(tnow)

@@ -9,12 +9,14 @@ package ShowroomCGIlib
 
 import (
 	"fmt"
-	"html/template"
-	//	"io" //　ログ出力設定用。必要に応じて。
 	"log"
-	"net/http"
-	//	"sort" //	ソート用。必要に応じて。
+	"strconv"
 	"time"
+	//	"io" //　ログ出力設定用。必要に応じて。
+	//	"sort" //	ソート用。必要に応じて。
+
+	"html/template"
+	"net/http"
 
 	"github.com/dustin/go-humanize"
 
@@ -43,6 +45,7 @@ type T999Dtop struct {
 	TimeNow      int64
 	Totalcount   int
 	ErrMsg       string
+	Mode			int
 	Eventinflist []exsrapi.Event_Inf
 }
 
@@ -64,12 +67,12 @@ func HandlerCurrentEvent(
 		defer cookiejar.Save()
 	*/
 
-		//      テーブルは"w"で始まるものを操作の対象とする。
-		srdblib.Tevent = "wevent"
-		srdblib.Teventuser = "weventuser"
-		srdblib.Tuser = "wuser"
-		srdblib.Tuserhistory = "wuserhistory"
-	
+	//      テーブルは"w"で始まるものを操作の対象とする。
+	srdblib.Tevent = "wevent"
+	srdblib.Teventuser = "weventuser"
+	srdblib.Tuser = "wuser"
+	srdblib.Tuserhistory = "wuserhistory"
+
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
@@ -84,16 +87,16 @@ func HandlerCurrentEvent(
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
 	top := new(T999Dtop)
 	top.TimeNow = time.Now().Unix()
+	top.Mode, _ = strconv.Atoi(r.FormValue("mode"))
 
 	var err error
-	top.Eventinflist, err = SelectEventinflistFromEvent(0)
+	top.Eventinflist, err = SelectEventinflistFromEvent(0, top.Mode)
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)
 		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
 		top.ErrMsg = err.Error()
 	}
 	top.Totalcount = len(top.Eventinflist)
-
 
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {
@@ -106,15 +109,15 @@ func HandlerCurrentEvent(
 	//	ソートが必要ないときは次の行とimportの"sort"をコメントアウトする。
 	//	無名関数のリターン値でソート条件を変更できます。
 	/*
-	sort.Slice(top.Eventinflist, func(i, j int) bool {
-		if top.Eventinflist[i].End_time.After(top.Eventinflist[j].End_time) {
-			return true
-		} else if top.Eventinflist[i].End_time == top.Eventinflist[j].End_time {
-			return top.Eventinflist[i].Start_time.Before(top.Eventinflist[j].Start_time)
-		} else {
-			return false
-		}
-	})
+		sort.Slice(top.Eventinflist, func(i, j int) bool {
+			if top.Eventinflist[i].End_time.After(top.Eventinflist[j].End_time) {
+				return true
+			} else if top.Eventinflist[i].End_time == top.Eventinflist[j].End_time {
+				return top.Eventinflist[i].Start_time.Before(top.Eventinflist[j].Start_time)
+			} else {
+				return false
+			}
+		})
 	*/
 
 	// テンプレートへのデータの埋め込みを行う

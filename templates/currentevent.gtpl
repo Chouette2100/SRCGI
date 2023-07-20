@@ -39,11 +39,20 @@
     <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
     <br>
     <br>
-    <p>開催中イベント一覧表</p>
+    <p>
+    {{ if eq .Mode 1 }}
+    （獲得ポイントデータ取得中の）イベント一覧　　
+    <button type="button" onclick="location.href='currentevent'">すべてのイベントを表示する</button>
+    {{ else }}
+    開催中イベント一覧　　
+    <button type="button" onclick="location.href='currentevent?mode=1'">獲得ポイントデータ取得中のイベントのみ表示する</button>
+    {{ end }}
+    </p>
     {{/*
     <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }} （{{ UnixTimeToStr $tn }}）</div>
     */}}
-    <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }} </div>
+    <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }}
+    </div>
     <table>
         <tr bgcolor="gainsboro" style="text-align: center">
             <td>イベント名とイベントページへのリンク</td>

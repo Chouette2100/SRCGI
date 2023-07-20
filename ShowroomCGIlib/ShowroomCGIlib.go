@@ -107,11 +107,12 @@ import (
 	11AF00	開催予定イベント一覧の機能を追加する（HandlerScheduledEvent()）
 	11AF01	新規イベントの登録ができなくなった問題（＝11AD00の修正で発生したデグレード）に対応する
 	11AG00	srdblib.SelectFromEvent()の実行前にはsrdblib.Tevent = "event"を行う。 これはSelectFromEvent()の引数とすべき。
+	11AH00	HandlerCurrentEvent()で全イベント表示、データ取得中イベントのみ表示の切り替えを可能にする。
 
 
 */
 
-const Version = "11AG00"
+const Version = "11AH00"
 
 /*
 type Event_Inf struct {
