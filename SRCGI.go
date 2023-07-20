@@ -61,9 +61,10 @@ import (
 	0201A0	srdblib.OpenDB()のインターフェース変更に対応する。
 	0202A0	開催中イベント一覧の機能を作成し関連箇所を修正する。
 	0202A1	rootpath($SCRIPT_NAME)とWebserverの設定の整合性をチェックする。
+	00AA00	配信中ルーム一覧の機能（HandlerCurrentDistributions()）を追加する。
 */
 
-const version = "0202A1"
+const version = "00AA00"
 
 // 入力内容の確認画面
 func main() {
@@ -216,6 +217,8 @@ func main() {
 	http.HandleFunc(rootPath+"/fanlevel", ShowroomCGIlib.HandlerFanLevel)
 
 	http.HandleFunc(rootPath+"/flranking", ShowroomCGIlib.HandlerFlRanking)
+
+	http.HandleFunc(rootPath+"/currentdistrb", ShowroomCGIlib.HandlerCurrentDistributors)
 
 	http.HandleFunc(rootPath+"/currentevent", ShowroomCGIlib.HandlerCurrentEvent)
 

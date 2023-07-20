@@ -17,7 +17,7 @@
 <p style="color:red;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！</p>
 */}}
 <p style="color:green;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！
-サーバ移行のため<span style="color:red;">月曜日の早朝に1時間ほどサーバを停止</span>します。</p>
+　　サーバ移行のため<span style="color:red;">月曜日の早朝に1時間ほどサーバを停止</span>します。</p>
 <p style="color:green;">使用中にヘンな現象が発生したら<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/03187b">トラブルシューティング</a>をご覧ください！
 {{/*
 <p style="color:red;">
@@ -27,9 +27,14 @@
 </p>
 */}}
 
+{{/*
 <p style="color:blue;">
-特定のルームを獲得ポイント取得の対象とするときは『(DB登録済み)イベント参加ルーム一覧（確認・編集）』の下の方にある『一覧にないルームの追加』の機能を使います。<br>ユーザIDはプロフィールやファンルームのURLの最後にある５桁あるいは６桁の整数です。
+特定のルームを獲得ポイント取得の対象とするときは『(DB登録済み)イベント参加ルーム一覧（確認・編集）』の下の方にある
+『一覧にないルームの追加』の機能を使います。
+<br>ユーザIDはプロフィールやファンルームのURLの最後にある５桁あるいは６桁の整数です。
 </p>
+*/}}
+
 {{/*
 <p style="color:blue;">『直近の獲得ポイント一覧』の画面の表にあるルームの配信画面へのリンク『LIVE』について正常に動作しないケースがありますがこれについてはじょじょに解決していく予定です。状況については随時<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>でお知らせします。</p>
 <p style="color:blue;">午前11時30分頃獲得ポイントが減る（＝増分がマイナスになる）ことがあります。これは
@@ -37,10 +42,10 @@
 <br>という告知に該当するものと思われます。不審に思われる方がいらっしゃるかもしれないので念のため書いておきます。</p>
 */}}
 
-<p style="color:blue;">
-このCGI/Webサーバに関するソースコードをGithubで公開しています。詳しくは<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/4fccae">『SHOWROOM イベント 獲得ポイント一覧』関連のソースの公開について(1)</a>をごらんください。
+<p style="color:green;">
+このWebサーバ(＝CGIとしても動作可能)とそれに関わるプログラムのースコードをGithubで公開しています。
+<br>詳しくは<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/4fccae">『SHOWROOM イベント 獲得ポイント一覧』関連のソースの公開について(1)</a>をごらんください。
 </p>
-{{/*
 
 {{/*
 <p style="color:red;">ここはテスト中の新しいバージョンです。現在のバージョンは下記URLから。</p>
@@ -52,19 +57,19 @@
 */}}
 <br>
 <p style="padding-left:2em">
-<a href="scheduledevent">開催予定イベント一覧</a> （新しい機能。現時点では予定されているイベントが表示されるだけです）
+<a href="currentdistrb">配信中ルーム一覧</a> （作成中の機能。配信開始から間もないルームの一覧が表示されます）
 </p>
 <p style="padding-left:2em">
-<a href="scheduledevent">開催予定イベント一覧</a> （新しい機能。現時点では予定されているイベントが表示されるだけです）
+<a href="scheduledevent">開催予定イベント一覧</a> （作成中の機能。現時点では開催が予定されているイベントの詳細が表示されるだけです）
 </p>
 <p style="padding-left:2em">
-<a href="currentevent">開催中イベント一覧</a> （新しい機能。イベントID(Event_url_key)を調べなくてもここからデータ取得対象の登録ができます）
-</p>
-<p style="padding-left:4em">
-<a href="#newevent">イベントの新規登録へ</a>（ページ内）
+<a href="currentevent">開催中イベント一覧</a> （1.獲得ポイントデータを見たいイベントを選択する。 2.獲得ポイントデータを取得したいイベントを選択する）
 </p>
 <br>
-
+<p style="padding-left:4em">
+<a href="#newevent">獲得ポイントデータを取得するイベントのイベントID(Event_url_key)による</a>新規登録（ページ内）
+</p>
+<br>
 <p>イベント選択（最近のイベントから選ぶ...イベント名をクリックしてください）</p>
 
 <table border="1">
@@ -109,3 +114,4 @@
     </tr>
     {{ end }}
 </table>
+の
