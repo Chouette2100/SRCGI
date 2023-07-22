@@ -20,3 +20,4 @@ go.sum
 *.svg
 launch.json
 __debug_bin
+*.swp

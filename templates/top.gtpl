@@ -65,6 +65,9 @@
 <p style="padding-left:2em">
 <a href="currentevent">開催中イベント一覧</a> （1.獲得ポイントデータを見たいイベントを選択する。 2.獲得ポイントデータを取得したいイベントを選択する）
 </p>
+<p style="padding-left:2em">
+<a href="closedevents">終了イベント一覧</a> （過去のイベント結果を検索する）
+</p>
 <br>
 <p style="padding-left:4em">
 <a href="#newevent">獲得ポイントデータを取得するイベントのイベントID(Event_url_key)による</a>新規登録（ページ内）
@@ -114,4 +117,3 @@
     </tr>
     {{ end }}
 </table>
-の

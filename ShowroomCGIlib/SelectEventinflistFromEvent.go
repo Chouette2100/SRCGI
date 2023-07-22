@@ -16,6 +16,7 @@ import (
 func SelectEventinflistFromEvent(
 	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	mode int, // 0: すべて、 1: データ取得中のものに限定
+	keyword string, // イベント名検索キーワード
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -47,7 +48,14 @@ func SelectEventinflistFromEvent(
 		err = fmt.Errorf("mode=%d is not valid", cond)
 		return
 	}
-	sqls += " order by we.endtime, we.starttime"
+	if keyword != "" {
+		sqls += " and we.event_name like ?"
+	}
+	if cond == 0 {
+		sqls += " order by we.endtime, we.starttime"
+	} else {
+		sqls += " order by we.endtime desc, we.starttime desc"
+	}
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
 	stmts, srdblib.Dberr = srdblib.Db.Prepare(sqls)
@@ -58,10 +66,16 @@ func SelectEventinflistFromEvent(
 	defer stmts.Close()
 
 	var rows *sql.Rows
-	if cond == 0 {
-		rows, srdblib.Dberr = stmts.Query(tnow, tnow)
-	} else {
-		rows, srdblib.Dberr = stmts.Query(tnow)
+
+	switch {
+		case cond == 0 && keyword == "":
+			rows, srdblib.Dberr = stmts.Query(tnow, tnow)
+		case cond == 0 && keyword != "":
+			rows, srdblib.Dberr = stmts.Query(tnow, tnow, "%"+keyword+"%")
+		case cond != 0 && keyword == "":
+			rows, srdblib.Dberr = stmts.Query(tnow)
+		case cond != 0 && keyword != "":
+			rows, srdblib.Dberr = stmts.Query(tnow, "%"+keyword+"%")
 	}
 	if srdblib.Dberr != nil {
 		err = fmt.Errorf("Query(tnow): %w", srdblib.Dberr)

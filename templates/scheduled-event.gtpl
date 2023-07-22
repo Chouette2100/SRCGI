@@ -25,6 +25,7 @@
     {{/*}}
     <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
     {{*/}}
+    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
 
     <br>
     <br>
