@@ -51,8 +51,7 @@ type T999Dtop struct {
 }
 */
 
-// "/T999Dtop"に対するハンドラー
-// http://localhost:8080/T999Dtop で呼び出される
+// 終了イベント一覧を表示する。
 func HandlerClosedEvents(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -60,21 +59,11 @@ func HandlerClosedEvents(
 
 	GetUserInf(r)
 
-	/*
-		client, cookiejar, err := exsrapi.CreateNewClient("")
-		if err != nil {
-			log.Printf("exsrapi.CeateNewClient(): %s", err.Error())
-			return //	エラーがあれば、ここで終了
-		}
-		defer cookiejar.Save()
-	*/
-
 	//      テーブルは"w"で始まるものを操作の対象とする。
 	srdblib.Tevent = "wevent"
 	srdblib.Teventuser = "weventuser"
 	srdblib.Tuser = "wuser"
 	srdblib.Tuserhistory = "wuserhistory"
-
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
@@ -89,15 +78,36 @@ func HandlerClosedEvents(
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
 	top := new(T999Dtop)
 	top.TimeNow = time.Now().Unix()
-	top.Mode, _ = strconv.Atoi(r.FormValue("mode"))
-	top.Keyword = r.FormValue("keyword")
+	top.Mode, _ = strconv.Atoi(r.FormValue("mode")) // 0: すべて、 1: データ取得中のものに限定
+	top.Keywordev = r.FormValue("keywordev")
+	top.Keywordrm = r.FormValue("keywordrm")
 
 	var err error
-	top.Eventinflist, err = SelectEventinflistFromEvent(-1, top.Mode, top.Keyword)
-	if err != nil {
-		err = fmt.Errorf("MakeListOfPoints(): %w", err)
-		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
-		top.ErrMsg = err.Error()
+
+	if top.Keywordrm != "" {
+		top.Roomlist, err = SelectUsernoAndName(top.Keywordrm, 50, 0)
+		if err != nil {
+			err = fmt.Errorf("SelectUsernoAndName(): %w", err)
+			log.Printf("SelectUsernoAndName() returned error %s\n", err.Error())
+			top.ErrMsg = err.Error()
+		}
+	}
+
+	cond := -1 // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
+	if top.Keywordrm == "" {
+		top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, top.Keywordev)
+		if err != nil {
+			err = fmt.Errorf("SelectEventinflistFromEvent(): %w", err)
+			log.Printf("SelectEventinflistFromEvent() returned error %s\n", err.Error())
+			top.ErrMsg = err.Error()
+		}
+	} else {
+		top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Keywordev)
+		if err != nil {
+			err = fmt.Errorf("MakeListOfPoints(): %w", err)
+			log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
+			top.ErrMsg = err.Error()
+		}
 	}
 	top.Totalcount = len(top.Eventinflist)
 

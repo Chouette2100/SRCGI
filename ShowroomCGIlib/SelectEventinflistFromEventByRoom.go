@@ -13,7 +13,7 @@ import (
 )
 
 // 指定した条件に該当するイベントのリストを作る。
-func SelectEventinflistFromEvent(
+func SelectEventinflistFromEventByRoom(
 	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	mode int, // 0: すべて、 1: データ取得中のものに限定
 	keyword string, // イベント名検索キーワード

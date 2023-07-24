@@ -20,7 +20,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 
-	"github.com/Chouette2100/exsrapi"
+	//	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
 	//	"github.com/Chouette2100/srapi"
 )
@@ -40,26 +40,19 @@ import (
 		ErrMsg     string
 		Eventlist  []srapi.Event
 	}
-*/
-type Room struct {
-	Userno    int
-	User_name string
-}
 type T999Dtop struct {
 	TimeNow      int64
 	Totalcount   int
 	ErrMsg       string
-	Mode         int
-	Keywordev    string //	検索文字列:イベント名
-	Keywordrm    string //	検索文字列:ルーム名
-	Userno       int    //	絞り込み対象のルーム
+	Mode			int
+	Keyword			string	//	検索文字列
 	Eventinflist []exsrapi.Event_Inf
-	Roomlist     *[]Room
 }
+*/
 
 // "/T999Dtop"に対するハンドラー
 // http://localhost:8080/T999Dtop で呼び出される
-func HandlerCurrentEvent(
+func HandlerScheduledEvents(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -81,6 +74,7 @@ func HandlerCurrentEvent(
 	srdblib.Tuser = "wuser"
 	srdblib.Tuserhistory = "wuserhistory"
 
+
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
 		"Comma":         func(i int) string { return humanize.Comma(int64(i)) },                       //	3桁ごとに","を入れる関数。
@@ -89,7 +83,7 @@ func HandlerCurrentEvent(
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/currentevent.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/scheduled-events.gtpl"))
 
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
 	top := new(T999Dtop)
@@ -97,7 +91,8 @@ func HandlerCurrentEvent(
 	top.Mode, _ = strconv.Atoi(r.FormValue("mode"))
 
 	var err error
-	top.Eventinflist, err = SelectEventinflistFromEvent(0, top.Mode, "")
+	cond := 1	//	開催予定
+	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "")
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)
 		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
@@ -128,7 +123,7 @@ func HandlerCurrentEvent(
 	*/
 
 	// テンプレートへのデータの埋め込みを行う
-	if err = tpl.ExecuteTemplate(w, "currentevent.gtpl", top); err != nil {
+	if err = tpl.ExecuteTemplate(w, "scheduled-events.gtpl", top); err != nil {
 		log.Printf("tpl.ExecuteTemplate() returned error: %s\n", err.Error())
 	}
 

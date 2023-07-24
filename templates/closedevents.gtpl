@@ -49,17 +49,18 @@
         <table>
             <tr>
                 <td style="width:4em"></td>
-                <td>含まれる文字列</td>
-                <td><input type="text" value="{{ .Keyword }}" name="keyword"></td>
+                <td>イベント名に含まれる文字列</td>
+                <td><input type="text" value="{{ .Keywordev }}" name="keywordev"></td>
                 <td align="right">
-                    <input type="submit" value="絞り込む" formaction="closedevents" formmethod="GET" {{/*
+                    <input type="submit" value="イベント名で絞り込む" formaction="closedevents" formmethod="GET" {{/*
                         style="background-color: aquamarine" */}}>
                 </td>
             </tr>
             <tr>
                 <td style="width:4em"></td>
                 <td colspan="2">
-                    （「含まれる文字列」は例えば、スタートダッシュ、花火、Music 等ですが、<br>全角と半角、英大文字と小文字は別の文字とみなされます）
+                    （「含まれる文字列」は例えば、スタートダッシュ、花火、Music 等で、
+                    <br>カタカナとひらがな、全角と半角、英大文字と小文字あたりはアバウトです。）
                 </td>
                 <td></td>
             </tr>
@@ -69,21 +70,79 @@
     </form>
     <br>
     <br>
+    エントリーしているルーム名から絞り込む
+    <form>
+        <table>
+            <tr>
+                <td style="width:4em"></td>
+                <td>ルーム名に含まれる文字列</td>
+                <td><input type="text" value="{{ .Keywordrm }}" name="keywordrm"></td>
+                <td align="right">
+                    <input type="submit" value="ルームを検索する" formaction="closedevents" formmethod="GET" {{/*
+                        style="background-color: aquamarine" */}}>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:4em"></td>
+                <td colspan="2">
+                    （現在のルーム名だけでなく過去のルーム名（のうち最近のもの）も<br>検索対象となります。ただし検索結果は50件で打ち切り）
+                </td>
+                <td></td>
+            </tr>
+        </table>
+        </p>
+        <input type="hidden" name="mode" value="{{ .Mode }}" />
+    </form>
+
+    <form>
+        <table>
+            <tr>
+                <td style="width:4em"></td>
+                <td>ルームを選択する</td>
+                <td>
+
+                    <input name="userno" type="text" list="combolist" size="40">
+                    <datalist id="combolist">
+                        {{ range .Roomlist }}
+                        <option value="{{ .Userno }}">{{ .User_name }}</option>
+                        {{ end }}
+                    </datalist>
+                </td>
+                <td align="right">
+                    <input type="submit" value="ルームで絞り込む" formaction="closedevents" formmethod="GET" {{/*
+                        style="background-color: aquamarine" */}}>
+                </td>
+            </tr>
+            <tr>
+                <td style="width:4em"></td>
+                <td colspan="2">
+                    リストが表示されないときは二回クリックお願いします。<br>usernoがわかっていたら直接入力可！
+                </td>
+                <td></td>
+            </tr>
+
+        </table>
+        </p>
+        <input type="hidden" name="mode" value="{{ .Mode }}" />
+    </form>
+
+    <br>
+    <br>
     <p>
         {{ if eq .Mode 1 }}
         （獲得ポイント詳細データがある）終了イベント一覧　　
-        {{ if eq .Keyword "" }}
+        {{ if eq .Keywordev "" }}
         <button type="button" onclick="location.href='closedevents'">すべてのイベントを表示する</button>
         {{ else }}
-        <button type="button" onclick="location.href='closedevents?keyword={{ .Keyword }}'">すべてのイベントを表示する</button>
+        <button type="button" onclick="location.href='closedevents?keyword={{ .Keywordev }}'">すべてのイベントを表示する</button>
         {{ end }}
         {{ else }}
         終了イベント一覧　　
-        {{ if eq .Keyword "" }}
+        {{ if eq .Keywordev "" }}
         <button type="button" onclick="location.href='closedevents?mode=1'">獲得ポイント詳細データのある終了イベントのみ表示する</button>
         {{ else }}
         <button type="button"
-            onclick="location.href='closedevents?mode=1&keyword={{ .Keyword }}'">獲得ポイント詳細データのある終了イベントのみ表示する</button>
+            onclick="location.href='closedevents?mode=1&keyword={{ .Keywordev }}'">獲得ポイント詳細データのある終了イベントのみ表示する</button>
         {{ end }}
         {{ end }}
     </p>

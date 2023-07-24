@@ -19,7 +19,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
-	//	"github.com/Chouette2100/srhandler"
+	"github.com/Chouette2100/srhandler"
 
 	"SRCGI/ShowroomCGIlib"
 )
@@ -62,9 +62,12 @@ import (
 	0202A0	開催中イベント一覧の機能を作成し関連箇所を修正する。
 	0202A1	rootpath($SCRIPT_NAME)とWebserverの設定の整合性をチェックする。
 	00AA00	配信中ルーム一覧の機能（HandlerCurrentDistributions()）を追加する。
+	00AA00	終了イベント一覧の機能（HandlerClosedEvents()）を追加する。
+	00AB00	終了イベント一覧にイベント名の検索機能を追加する。各ページの上部にリンクボタンを追加する。
+	00AC00	開催予定イベント一覧の機能(HadleScheduledEvents())を追加する。
 */
 
-const version = "00AA00"
+const version = "00AB00"
 
 // 入力内容の確認画面
 func main() {
@@ -224,7 +227,19 @@ func main() {
 
 	http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.HandlerEventRoomList)
 
-	http.HandleFunc(rootPath+"/scheduledevent", ShowroomCGIlib.HandlerScheduledEvent)
+	//	開催予定イベント一覧
+	http.HandleFunc(rootPath+"/scheduledevents", ShowroomCGIlib.HandlerScheduledEvents)
+	
+	//	開催予定イベント一覧（サーバーから取得）
+	http.HandleFunc(rootPath+"/scheduledeventssvr", ShowroomCGIlib.HandlerScheduledEventsSvr)
+	
+	//	終了イベント一覧
+	http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.HandlerClosedEvents)
+
+	//	イベント最終結果
+	http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.HandlerClosedEventRoomList)
+
+	http.HandleFunc(rootPath+"/apiroomstatus", srhandler.HandlerApiRoomStatus)
 
 	if svconfig.WebServer == "None" {
 		//	Webサーバーとして起動

@@ -39,7 +39,7 @@ type T008top struct {
 
 //	"/t008top"に対するハンドラー
 //	http://localhost:8080/t008top で呼び出される
-func HandlerScheduledEvent(
+func HandlerScheduledEventsSvr(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -58,7 +58,7 @@ func HandlerScheduledEvent(
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/scheduled-event.gtpl", "templates/footer.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/scheduled-event-svr.gtpl"))
 
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
 	top := new(T008top)
@@ -77,7 +77,7 @@ func HandlerScheduledEvent(
 	sort.Slice(top.Eventlist, func(i, j int) bool { return top.Eventlist[i].Started_at < top.Eventlist[j].Started_at })
 
 	// テンプレートへのデータの埋め込みを行う
-	if err = tpl.ExecuteTemplate(w, "scheduled-event.gtpl", top); err != nil {
+	if err = tpl.ExecuteTemplate(w, "scheduled-event-svr.gtpl", top); err != nil {
 		log.Printf("tpl.ExecuteTemplate() returned error: %s\n", err.Error())
 	}
 

@@ -108,11 +108,12 @@ import (
 	11AF01	新規イベントの登録ができなくなった問題（＝11AD00の修正で発生したデグレード）に対応する
 	11AG00	srdblib.SelectFromEvent()の実行前にはsrdblib.Tevent = "event"を行う。 これはSelectFromEvent()の引数とすべき。
 	11AH00	HandlerCurrentEvent()で全イベント表示、データ取得中イベントのみ表示の切り替えを可能にする。
+	11AJ00	終了イベント一覧の作成でルームによる絞り込みを可能にする。
 
 
 */
 
-const Version = "11AH00"
+const Version = "11AJ00"
 
 /*
 type Event_Inf struct {
