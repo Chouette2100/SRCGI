@@ -34,19 +34,19 @@
     {{*/}}
     <button type="button" onclick="location.href='top'">Top</button>　
     {{/*}}
-    <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
+    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
     {{*/}}
-    <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
+    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
     <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
     <br>
     <br>
     <p>
     {{ if eq .Mode 1 }}
     （獲得ポイントデータ取得中の）イベント一覧　　
-    <button type="button" onclick="location.href='currentevent'">すべてのイベントを表示する</button>
+    <button type="button" onclick="location.href='currentevents'">すべてのイベントを表示する</button>
     {{ else }}
     開催中イベント一覧　　
-    <button type="button" onclick="location.href='currentevent?mode=1'">獲得ポイントデータ取得中のイベントのみ表示する</button>
+    <button type="button" onclick="location.href='currentevents?mode=1'">獲得ポイントデータ取得中のイベントのみ表示する</button>
     {{ end }}
     </p>
     {{/*

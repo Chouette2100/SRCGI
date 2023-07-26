@@ -36,10 +36,10 @@
     <p>-------------------------------------------------------------</p>
     {{*/}}
     <button type="button" onclick="location.href='top'">Top</button>　
-    <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-    <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
+    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
+    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
     {{/*}}
-    <button type="button" onclick="location.href='closedevent'">終了イベント一覧表</button>　
+    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
     {{*/}}
     <form> <!-- 0. 最初のパス -->
         <br>
@@ -60,7 +60,7 @@
                 <tr>
                     <td style="width:4em"></td>
                     <td colspan="2">
-                        （「含まれる文字列」は例えば、スタートダッシュ、花火、Music 等で、
+                        （「含まれる文字列」は例えば、スタートダッシュ、花火、Music 等です。
                         <br>カタカナとひらがな、全角と半角、英大文字と小文字あたりはアバウトです。）
                     </td>
                     <td></td>
@@ -87,7 +87,8 @@
                 <tr>
                     <td style="width:4em"></td>
                     <td colspan="2">
-                        （現在のルーム名だけでなく過去のルーム名（のうち最近のもの）も<br>検索対象となります。ただし検索結果は50件で打ち切り）
+                        （現在のルーム名だけでなく過去のルーム名（のうち最近のもの、例えば「夜風」）も
+                        <br>検索対象となります。ただしルームの検索結果は30件までしか表示されません）
                     </td>
                     <td></td>
                 </tr>
@@ -163,8 +164,11 @@
         </p>
         {{/*
         <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }} （{{ UnixTimeToStr $tn }}）</div>
-        */}}
         <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }}
+        </div>
+        */}}
+        <div style="text-indent: 2rem;">
+            現時点では最初の50件のみ表示されます。
         </div>
         <table border="1" style="border-collapse: collapse">
             <tr bgcolor="gainsboro" style="text-align: center">

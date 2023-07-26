@@ -32,8 +32,9 @@
     <p>-------------------------------------------------------------</p>
     {{*/}}
     <button type="button" onclick="location.href='top'">Top</button>　
-    <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-    <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
+    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
+    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
+    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
     <br>
     <br>
     <p>配信中ルーム一覧（{{ UnixTimeToYYYYMMDDHHMM $tn }}）</p>

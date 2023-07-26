@@ -90,7 +90,7 @@ func HandlerCurrentEvents(
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/currentevent.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/currentevents.gtpl"))
 
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
 	top := new(T999Dtop)
@@ -130,7 +130,7 @@ func HandlerCurrentEvents(
 	*/
 
 	// テンプレートへのデータの埋め込みを行う
-	if err = tpl.ExecuteTemplate(w, "currentevent.gtpl", top); err != nil {
+	if err = tpl.ExecuteTemplate(w, "currentevents.gtpl", top); err != nil {
 		log.Printf("tpl.ExecuteTemplate() returned error: %s\n", err.Error())
 	}
 
