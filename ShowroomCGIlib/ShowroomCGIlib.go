@@ -109,11 +109,12 @@ import (
 	11AG00	srdblib.SelectFromEvent()の実行前にはsrdblib.Tevent = "event"を行う。 これはSelectFromEvent()の引数とすべき。
 	11AH00	HandlerCurrentEvent()で全イベント表示、データ取得中イベントのみ表示の切り替えを可能にする。
 	11AJ00	終了イベント一覧の作成でルームによる絞り込みを可能にする。
+	11AJ01	終了イベント一覧の作成でルームによる絞り込みを可能にする（不具合の修正）
 
 
 */
 
-const Version = "11AJ00"
+const Version = "11AJ01"
 
 /*
 type Event_Inf struct {
@@ -1380,6 +1381,11 @@ func GetAndInsertEventRoomInfo(
 	log.Println("GetAndInsertEventRoomInfo() after InsertEventIinf() or UpdateEventInf")
 	log.Println(*eventinfo)
 
+	if eventinfo.Start_time.After(time.Now()) {
+		//	イベント開始前のルームの登録は行わない。
+		return
+	}
+
 	_, _, status = SelectEventNoAndName(eventid)
 
 	if status == 0 {
@@ -1536,6 +1542,26 @@ func InsertRoomInf(eventid string, roominfolist *RoomInfoList) {
 		} else if status == 1 {
 			(*roominfolist)[i].Status = "新規"
 			(*roominfolist)[i].Statuscolor = "green"
+
+			userno, _ := strconv.Atoi((*roominfolist)[i].ID)
+			eventinf, _ := srdblib.SelectFromEvent(eventid)
+			sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
+			_, srdblib.Dberr = srdblib.Db.Exec(
+				sqlip,
+				eventinf.Start_time.Truncate(time.Second),
+				userno,
+				eventid,
+				0,
+				1,
+				0,
+				"=",
+			)
+			if srdblib.Dberr != nil {
+				err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
+				log.Printf("err=[%s]\n", err.Error())
+			}
+		
+
 		} else {
 			(*roominfolist)[i].Status = "エラー"
 			(*roominfolist)[i].Statuscolor = "red"
@@ -1828,6 +1854,22 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 			log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
 			status = -2
 		}
+		sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
+		_, srdblib.Dberr = srdblib.Db.Exec(
+			sqlip,
+			Event_inf.Start_time.Truncate(time.Second),
+			userno,
+			eventid,
+			0,
+			1,
+			0,
+			"=",
+		)
+		if srdblib.Dberr != nil {
+			err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
+			log.Printf("err=[%s]\n", err.Error())
+		}
+
 		status = 1
 	}
 	return

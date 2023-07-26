@@ -5,6 +5,9 @@ import (
 	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
 )
+/*
+	イベントがeventとwebentに共通して存在するかチェックする。
+*/
 func FindHistoricalData(
 	eventinflist *[]exsrapi.Event_Inf,
 ) (

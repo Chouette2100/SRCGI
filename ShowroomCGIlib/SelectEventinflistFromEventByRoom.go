@@ -16,7 +16,7 @@ import (
 func SelectEventinflistFromEventByRoom(
 	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	mode int, // 0: すべて、 1: データ取得中のものに限定
-	keyword string, // イベント名検索キーワード
+	userno int, // イベント名検索キーワード
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -36,35 +36,13 @@ func SelectEventinflistFromEventByRoom(
 	if mode == 1 {
 		sqls += " join event e on we.eventid = e.eventid "
 	}
-	sqls += " where we.achk = 0 "
-	switch cond {
-	case -1:
-		sqls += " and we.endtime < ?"
-	case 0:
-		sqls += " and we.starttime < ? and we.endtime > ?"
-	case 1:
-		sqls += " and we.starttime > ?"
-	default:
-		err = fmt.Errorf("mode=%d is not valid", cond)
-		return
-	}
-	if keyword != "" {
-		sqls += " and we.event_name like ?"
-	}
+	sqls += " where we.eventid in "
+	sqls += " (select weu.eventid from weventuser weu join wevent we on weu.eventid  = we.eventid "
+	sqls += " where weu.userno = ? and we.endtime < ? "
+	sqls += " union select eu.eventid from eventuser eu join event e on eu.eventid = e.eventid "
+	sqls += " where eu.userno = ? and e.endtime < ? )  "
+	sqls += " order by starttime desc, endtime desc limit 30 offset 0"
 
-	switch cond {
-	case -1: //	終了済みイベント
-		//	sqls += " order by we.endtime desc, we.starttime desc "
-		sqls += " order by we.starttime desc, we.endtime desc "
-	case 0: //	開催中のイベント
-		sqls += " order by we.endtime, we.starttime "
-	case 1: //	開催予定のイベント
-		sqls += " order by we.starttime, we.endtime "
-	}
-
-	if cond == -1 {
-		sqls += " limit 50"
-	}
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
 	stmts, srdblib.Dberr = srdblib.Db.Prepare(sqls)
@@ -75,19 +53,9 @@ func SelectEventinflistFromEventByRoom(
 	defer stmts.Close()
 
 	var rows *sql.Rows
-
-	switch {
-	case cond == 0 && keyword == "":
-		rows, srdblib.Dberr = stmts.Query(tnow, tnow)
-	case cond == 0 && keyword != "":
-		rows, srdblib.Dberr = stmts.Query(tnow, tnow, "%"+keyword+"%")
-	case cond != 0 && keyword == "":
-		rows, srdblib.Dberr = stmts.Query(tnow)
-	case cond != 0 && keyword != "":
-		rows, srdblib.Dberr = stmts.Query(tnow, "%"+keyword+"%")
-	}
+	rows, srdblib.Dberr = stmts.Query(userno, tnow, userno, tnow)
 	if srdblib.Dberr != nil {
-		err = fmt.Errorf("Query(tnow): %w", srdblib.Dberr)
+		err = fmt.Errorf("Query(userno, userno): %w", srdblib.Dberr)
 		return
 	}
 	defer rows.Close()

@@ -223,7 +223,7 @@ func main() {
 
 	http.HandleFunc(rootPath+"/currentdistrb", ShowroomCGIlib.HandlerCurrentDistributors)
 
-	http.HandleFunc(rootPath+"/currentevent", ShowroomCGIlib.HandlerCurrentEvent)
+	http.HandleFunc(rootPath+"/currentevent", ShowroomCGIlib.HandlerCurrentEvents)
 
 	http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.HandlerEventRoomList)
 

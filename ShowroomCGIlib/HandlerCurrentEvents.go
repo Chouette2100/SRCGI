@@ -49,7 +49,8 @@ type T999Dtop struct {
 	TimeNow      int64
 	Totalcount   int
 	ErrMsg       string
-	Mode         int
+	Mode         int    // 0: すべて、 1: データ取得中のものに限定
+	Path         int    //	どの検索方法が使われているか？（詳細は HandlerCloesedEvnets()および関連関数を参照）
 	Keywordev    string //	検索文字列:イベント名
 	Keywordrm    string //	検索文字列:ルーム名
 	Userno       int    //	絞り込み対象のルーム
@@ -59,7 +60,7 @@ type T999Dtop struct {
 
 // "/T999Dtop"に対するハンドラー
 // http://localhost:8080/T999Dtop で呼び出される
-func HandlerCurrentEvent(
+func HandlerCurrentEvents(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -97,7 +98,8 @@ func HandlerCurrentEvent(
 	top.Mode, _ = strconv.Atoi(r.FormValue("mode"))
 
 	var err error
-	top.Eventinflist, err = SelectEventinflistFromEvent(0, top.Mode, "")
+	cond := 0 // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
+	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "")
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)
 		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
