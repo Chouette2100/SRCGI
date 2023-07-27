@@ -20,9 +20,9 @@
 
 <body>
     <button type="button" onclick="location.href='top'">Top</button>　
-    <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-    <button type="button" onclick="location.href='scheduledevent'">開催予定イベント一覧表</button>　
-    <button type="button" onclick="location.href='closedevent'">終了イベント一覧表</button>　
+    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
+    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
+    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
     <br>
     <br>
 
@@ -44,7 +44,7 @@
         <p style="padding-left:2em">
             <select name="eventid">
                 {{ range .Eventlist }}
-                <option value="{{ .Event_id }}" zgotmplz="">{{ .Event_name }}</option>
+                <option value="{{ .Eventurl }}" zgotmplz="">{{ .Eventname }}</option>
                 {{ end }}
             </select>
             <span style="padding: 2em;"></span>

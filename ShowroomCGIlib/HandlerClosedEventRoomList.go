@@ -128,6 +128,11 @@ func HandlerClosedEventRoomList(
 
 	seventid := r.FormValue("eventid")
 	eventurlkey := r.FormValue("eventurlkey")
+	peventinf, err := srdblib.SelectFromEvent(eventurlkey)
+	if err != nil {
+		return
+	}
+	erl.Eventname = peventinf.Event_name
 	if seventid == "" {
 		/*
 			err = errors.New("eventid が設定されていません。URLのあとに\"?eventid=.....\"を追加してください。<br>あるいは「開催中イベント一覧表」から参加者一覧が必要なイベントを指定してください。")

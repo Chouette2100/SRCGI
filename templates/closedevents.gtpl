@@ -168,7 +168,7 @@
         </div>
         */}}
         <div style="text-indent: 2rem;">
-            現時点では最初の50件のみ表示されます。
+            現時点では最初の50件のみ表示されます。データ上最終結果が存在しても表示されないケースがあります（いずれも修正・改良予定あり）
         </div>
         <table border="1" style="border-collapse: collapse">
             <tr bgcolor="gainsboro" style="text-align: center">
@@ -196,13 +196,15 @@
                     <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
                 </td>
                 <td>
-                    {{ TimeToString .Start_time }}
+                    {{ TimeToStringY .Start_time }}
                 </td>
                 <td>
                     {{ TimeToString .End_time }}
                 </td>
                 <td style="text-align: center;">
+                    {{ if ne .I_Event_ID 0 }}
                     <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">最終結果</a>
+                    {{ end }}
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}

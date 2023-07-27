@@ -67,7 +67,7 @@ import (
 	00AC00	開催予定イベント一覧の機能(HadleScheduledEvents())を追加する。
 */
 
-const version = "00AB00"
+const version = "00AC00"
 
 // 入力内容の確認画面
 func main() {
