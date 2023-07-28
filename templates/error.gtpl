@@ -7,8 +7,8 @@
 {{.Msg001}}{{.Eventid}}{{.Msg002}}
 </p>
 <p>
-{{/* <button type="button" onclick="history.back()">結果表示選択画面に戻る</button><br> */}}
-<button type="button" onclick="location.href='top?eventid={{.Eventid}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
+{{/* <button type="button" onclick="history.back()">このルームの表示項目選択</button><br> */}}
+<button type="button" onclick="location.href='top?eventid={{.Eventid}}'">このルームの表示項目選択</button>
 </p>
 </body>
 </html>

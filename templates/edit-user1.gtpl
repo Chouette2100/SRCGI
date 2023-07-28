@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
 <html>
 <body>
-<button type="button" onclick="location.href='top?eventid={{.Eventid}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
+<button type="button" onclick="location.href='top?eventid={{.Eventid}}'">このルームの表示項目選択</button>
 <br><br>
 <p>(DB登録済)イベント参加者ルーム一覧（確認・編集）　　<span style="color:red;">初めて使うときは表の後にある説明をよく読んでください！</span></p>
 <table style="text-align: center">

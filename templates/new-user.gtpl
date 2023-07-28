@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
 <html>
 <body>
-<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
+<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">このルームの表示項目選択</button>
 <br><br>
 <p>個別に指定した配信者の登録</p>
 

@@ -4,7 +4,7 @@
 <html>
 <body>
 <p>
-<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
+<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">このルームの表示項目選択</button>
 </p>
 <table>
 <tr><td>イベントID</td><td>{{.Event_ID}}</td></tr>

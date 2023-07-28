@@ -2,17 +2,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
 <html>
 <body>
-<span style="color:blue;">（上のURLを直打ちすればイベント選択画面を飛ばして直接この画面に来ます）</span>
+<span style="color:blue;">（このページもブックマーク可能です）</span>
 <br>
 <br>
 {{/*
-<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>
+<button type="button" onclick="location.href='top'">top</button>
 */}}
-<button type="button" onclick="location.href='top?userno={{.Nobasis}}'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='top?userno={{.Nobasis}}'">top</button>　
 <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
 <form>
 <br>
-SHOWROOMイベント結果表示
+このルームの表示項目選択
 <table>
 {{/*
 <tr><td style="width:4em"></td><td>イベントのID</td><td style="width:2em"></td><td>{{.Event_ID}}</td></tr>

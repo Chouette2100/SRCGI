@@ -1,3 +1,4 @@
+{{/*}}
 <p>2. イベント選択</p>
 <form>
 <p style="padding-left:2em"><dive title="下の方にあるイベント管理で登録されたイベントがここに表示されます">表示・操作の対象となるイベントを選択してください。<div></p>
@@ -7,16 +8,18 @@
 			<option value="{{.EventID}}" {{.Selected}}>{{.EventName}}　({{.EventID}})</option>
 		{{ end }}
 	</select>
-<span style="padding-left:2em"><input type="submit" value="決定" formaction="top" formmethod="GET" {{/* style="background-color: aquamarine" */}} ></span></p>
+<span style="padding-left:2em"><input type="submit" value="決定" formaction="top" formmethod="GET"></span></p>
 
 </form>
 ========================================================================
 <br>
 <p><a name="newevent" id="newevent">イベント管理</a></p>
+{{*/}}
 {{/*
 <a href="add-event" style="background-color: dimgray">SHOWROOMイベント情報ページからDBへの新規イベントの追加</a>　データ取得の対象としたいイベントの追加<br>
 <button type="button" onclick="location.href='add-event'" style="background-color: dimgray">新規イベントの追加</button>　データ取得の対象としたいイベントの追加
 */}}
+{{/*}}
 <p style="padding-left:2em;color:blue;">
 イベントの獲得ポイントデータの推移をみたいときは「新規イベントと参加ルームの登録」でイベントの登録を行ってください。<br>
 登録が終わると上のリストからイベントが選択できるようになります。<br>
@@ -31,14 +34,16 @@
 <p style="padding-left:2em;color:red;">ブロックイベントの場合は次のような形式でイベントを指定してください『circle2023_2nd_a?block_id=7101』</p>
 <p style="padding-left:2em">
 新規イベントと参加ルームの登録
+{{*/}}
 {{/* <br><font color="red">参加者が多いイベントではルーム一覧が表示されるまで十数秒かかることがあります<br>
 とくにイベント開始前の場合数十秒かかることもありますので気長にお待ちください。</font></p> */}}
+{{/*}}
 <p>
 <form>
 <table>
 <tr><td style="width:4em"></td><td>イベントのID</td><td><input type="text" name="eventid" required="true">（イベントページのURLの最後のフィールド）
 </td></tr>
-<tr><td style="width:4em"></td><td></td><td align="right"><input type="submit" value="「新規イベントと参加ルームの登録」画面へ" formaction="new-event" formmethod="POST" {{/* style="background-color: aquamarine" */}}></td></tr>
+<tr><td style="width:4em"></td><td></td><td align="right"><input type="submit" value="「新規イベントと参加ルームの登録」画面へ" formaction="new-event" formmethod="POST" ></td></tr>
 </table>
 </p>
 </form>
@@ -51,6 +56,7 @@
 <p style="padding-left:4em"><input type="submit" value="実行" formaction="param-global" formmethod="POST" style="background-color: dimgray"></p>
 <p style="padding-left:4em">※　アプリケーション全体に関するパラメーターの設定を行います。</p>
 </p>
+{{*/}}
 <br>-----------------------------------<br>
 文句・ご意見・ご要望は<a href="https://twitter.com/Seppina1/">こちら</a>
 <p>　</p>

@@ -2,9 +2,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <html>
 <body>
-<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='top'">top</button>　
 <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">「SHOWROOMイベント結果表示」画面に戻る</button>
+<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">このルームの表示項目選択</button>
 <br><br>
 <p style="padding-left:2em">
 イベントパラメータの設定

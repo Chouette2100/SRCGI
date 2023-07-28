@@ -5,9 +5,9 @@
 <p id="Top">
 <br>
 </p>
-<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='top'">top</button>　
 <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">「SHOWROOMイベント結果表示」画面に戻る</button><br>
+<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">このルームの表示項目選択</button><br>
 <h2>配信枠毎の獲得ポイント</h2>
 <p style="padding-left:2em;color:blue">
 一回の配信でも配信中に10分間程度獲得ポイントの変化がない場合は

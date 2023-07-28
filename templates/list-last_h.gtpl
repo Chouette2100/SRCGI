@@ -5,9 +5,9 @@
 {{ $detail := .Detail }}
 <html>
 <body>
-<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='top'">top</button>　
 <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-<button type="button" onclick="location.href='top?eventid={{.Eventid}}&userno={{.userno}}'">「SHOWROOMイベント結果表示」画面に戻る</button>　
+<button type="button" onclick="location.href='top?eventid={{.Eventid}}&userno={{.userno}}'">このルームの表示項目選択</button>　
 <button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'"><span style="color: blue;">獲得ポイントグラフを表示する</span></button><br><br>
 <br><br>
 <p>直近の獲得ポイント一覧）　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span></p>

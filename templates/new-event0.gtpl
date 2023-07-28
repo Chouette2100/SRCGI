@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
 <html>
 <body>
-<button type="button" onclick="location.href='top'">イベント選択画面に戻る</button>　
+<button type="button" onclick="location.href='top'">top</button>　
 <button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
 <br><br>
 <p style="padding-left:2em">

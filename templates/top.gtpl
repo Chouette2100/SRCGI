@@ -73,6 +73,7 @@
 <a href="scheduledeventssvr">開催予定イベント一覧（内容詳細）</a> （開催が予定されているイベントの詳細が表示されます）
 </p>
 <br>
+{{/*}}
 <p style="padding-left:4em">
 <a href="#newevent">獲得ポイントデータを取得するイベントのイベントID(Event_url_key)による</a>新規登録（ページ内）
 </p>
@@ -85,7 +86,7 @@
         <td style="border-right-style:none;">開始</td>
         <td style="border-right-style:none;border-left-style:none;"> - </td>
         <td style="border-left-style:none;">終了</td>
-        <td style="border-right-style:none;"> 　　　　　　 イベント名をクリックをクリックすると「SHOWROOMイベント結果表示」画面が表示されます。
+        <td style="border-right-style:none;"> 　　　　　　 イベント名をクリックをクリックすると「このルームの表示項目選択」が表示されます。
             <br> 　　　　　　 "一覧"、"グラフ"のリンクは「直近の獲得ポイントリスト」、「獲得ポイントの推移グラフ」へのショートカットです。</td>
         <td style="border-left-style:none;"></td>
         <td>ベース</td>
@@ -121,3 +122,4 @@
     </tr>
     {{ end }}
 </table>
+{{*/}}
