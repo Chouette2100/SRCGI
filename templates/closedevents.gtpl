@@ -27,7 +27,7 @@
     {{/*}}
     (外部リンク)<br>
     <a href="https://zenn.dev/">Zenn</a> - <a
-        href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7">SHOWROOMのAPI、その使い方とサンプルソース</a></p>
+        href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7">SHOWROOMのAPI、その使い方とサンプルソース</a>
     <div style="text-indent: 2rem;"><a
             href="https://chouette2100.com/">記事/ソース/CGI一覧表</a>　（証明書の期限が切れてしまっていました。2022年8月29日、有効な証明書に切り替えました）</div>
     <p>-------------------------------------------------------------</p>
@@ -45,7 +45,6 @@
         <br>
         <br>
         イベント名に含まれる文字列で絞り込む
-        <p>
         <form> <!-- 1. イベント名で絞り込む -->
             <table>
                 <tr>
@@ -60,17 +59,42 @@
                 <tr>
                     <td style="width:4em"></td>
                     <td colspan="2">
-                        （「含まれる文字列」は例えば、スタートダッシュ、花火、Music 等です。
-                        <br>カタカナとひらがな、全角と半角、英大文字と小文字あたりはアバウトです。）
+                        「含まれる文字列」は例えば、スタートダッシュ、花火、Music 等です。
+                        <br>カタカナとひらがな、全角と半角、英大文字と小文字あたりはアバウトです。
                     </td>
                     <td></td>
                 </tr>
             </table>
-            </p>
             <input type="hidden" name="mode" value="{{ .Mode }}" />
             <input type="hidden" name="path" value="1" />
         </form>
         <!-- 2. イベントID(Event_url_key)で絞り込む -->
+        イベントID(Event_url_key)で絞り込む
+        <form>
+            <table>
+                <tr>
+                    <td style="width:4em"></td>
+                    <td>イベントIDに含まれる文字列</td>
+                    <td><input value="{{ .Kwevid }}" name="kwevid" pattern="[0-9A-Za-z-_=?]+"></td>
+                    <td align="right">
+                        <input type="submit" value="イベントIDで絞り込む" formaction="closedevents" formmethod="GET" {{/*
+                            style="background-color: aquamarine" */}}>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:4em"></td>
+                    <td colspan="2">
+                        ここでいうイベントIDというのはイベントページのURLの最後のフィールド<br>
+                        のことです（本来のイベントIDは5桁程度の整数です）<br>
+                        例えば花火のイベントであれば"fireworks"が含まれていることが多いです。
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <input type="hidden" name="mode" value="{{ .Mode }}" />
+            <input type="hidden" name="path" value="2" />
+        </form>
+
         <br>
         <br>
         エントリーしているルーム名から絞り込む
@@ -87,13 +111,14 @@
                 <tr>
                     <td style="width:4em"></td>
                     <td colspan="2">
-                        （現在のルーム名だけでなく過去のルーム名（のうち最近のもの、例えば「夜風」）も
-                        <br>検索対象となります。ただしルームの検索結果は30件までしか表示されません）
+                        現在のルーム名だけでなく過去のルーム名（のうち最近のもの、<br>
+                        例えば「夜風」）も検索対象となります。ただしルームの検索<br>
+                        結果は30件までしか表示されません。<br>
+                        下の検索結果からルームを選択してください。
                     </td>
                     <td></td>
                 </tr>
             </table>
-            </p>
             <input type="hidden" name="mode" value="{{ .Mode }}" />
             <input type="hidden" name="path" value="3" />
         </form>
@@ -130,14 +155,37 @@
                 </tr>
 
             </table>
-            </p>
             <input type="hidden" name="keywordrm" value="{{ .Keywordrm }}" />
             <input type="hidden" name="mode" value="{{ .Mode }}" />
             <input type="hidden" name="path" value="4" />
         </form>
 
         <!-- 5. ユーザ番号で選択する -->
-
+        エントリーしたルームのルームID(Room_id)で絞り込む
+        <form>
+            <table>
+                <tr>
+                    <td style="width:4em"></td>
+                    <td>ルームID</td>
+                    <td><input value="{{ .Userno }}" name="userno" type="number"></td>
+                    <td align="right">
+                        <input type="submit" value="ルームIDで絞り込む" formaction="closedevents" formmethod="GET" {{/*
+                            style="background-color: aquamarine" */}}>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:4em"></td>
+                    <td colspan="2">
+                        ルームIDはプロフィールやファンルームのURLの最後の"ID="の<br>
+                        あとにある整数です（６桁が多い）<BR>
+                        ルームIDの一部を指定しての検索はできません。
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <input type="hidden" name="mode" value="{{ .Mode }}" />
+            <input type="hidden" name="path" value="5" />
+        </form>
         <br>
         <br>
         {{ if or ( eq .Keywordrm "" ) ( ne .Userno 0) }}

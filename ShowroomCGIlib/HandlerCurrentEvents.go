@@ -53,7 +53,8 @@ type T999Dtop struct {
 	Path         int    //	どの検索方法が使われているか？（詳細は HandlerCloesedEvnets()および関連関数を参照）
 	Keywordev    string //	検索文字列:イベント名
 	Keywordrm    string //	検索文字列:ルーム名
-	Userno       int    //	絞り込み対象のルーム
+	Kwevid    string //	検索文字列:イベントID
+	Userno       int    //	絞り込み対象のルームID
 	Eventinflist []exsrapi.Event_Inf
 	Roomlist     *[]Room
 }
@@ -99,7 +100,7 @@ func HandlerCurrentEvents(
 
 	var err error
 	cond := 0 // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
-	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "")
+	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "")
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)
 		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())

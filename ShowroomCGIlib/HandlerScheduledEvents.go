@@ -92,7 +92,7 @@ func HandlerScheduledEvents(
 
 	var err error
 	cond := 1	//	開催予定
-	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "")
+	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "")
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)
 		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())

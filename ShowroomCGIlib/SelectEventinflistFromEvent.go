@@ -2,7 +2,7 @@ package ShowroomCGIlib
 
 import (
 	"fmt"
-	"log"
+	//	"log"
 	"time"
 
 	"database/sql"
@@ -17,6 +17,7 @@ func SelectEventinflistFromEvent(
 	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	mode int, // 0: すべて、 1: データ取得中のものに限定
 	keyword string, // イベント名検索キーワード
+	kwevid string, // イベント検索キーワード
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -49,7 +50,9 @@ func SelectEventinflistFromEvent(
 		return
 	}
 	if keyword != "" {
-		sqls += " and we.event_name like ?"
+		sqls += " and we.event_name like ? "
+	} else if kwevid != "" {
+		sqls += " and we.eventid like ? "
 	}
 
 	switch cond {
@@ -76,15 +79,20 @@ func SelectEventinflistFromEvent(
 
 	var rows *sql.Rows
 
+	kw := keyword
+	if kwevid != "" {
+		kw = kwevid
+	}
+
 	switch {
-	case cond == 0 && keyword == "":
+	case cond == 0 && kw == "":
 		rows, srdblib.Dberr = stmts.Query(tnow, tnow)
-	case cond == 0 && keyword != "":
-		rows, srdblib.Dberr = stmts.Query(tnow, tnow, "%"+keyword+"%")
-	case cond != 0 && keyword == "":
+	case cond == 0 && kw != "":
+		rows, srdblib.Dberr = stmts.Query(tnow, tnow, "%"+kw+"%")
+	case cond != 0 && kw == "":
 		rows, srdblib.Dberr = stmts.Query(tnow)
-	case cond != 0 && keyword != "":
-		rows, srdblib.Dberr = stmts.Query(tnow, "%"+keyword+"%")
+	case cond != 0 && kw != "":
+		rows, srdblib.Dberr = stmts.Query(tnow, "%"+kw+"%")
 	}
 	if srdblib.Dberr != nil {
 		err = fmt.Errorf("Query(tnow): %w", srdblib.Dberr)
@@ -143,7 +151,7 @@ func SelectEventinflistFromEvent(
 		eventinf.Gscale = eventinf.Maxpoint % 1000
 		eventinf.Maxpoint = eventinf.Maxpoint - eventinf.Gscale
 
-		log.Printf("eventinf=[%v]\n", eventinf)
+		//	log.Printf("eventinf=[%v]\n", eventinf)
 
 		eventinflist = append(eventinflist, eventinf)
 

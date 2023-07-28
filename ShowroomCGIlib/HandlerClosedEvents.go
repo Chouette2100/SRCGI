@@ -59,7 +59,6 @@ func HandlerClosedEvents(
 	r *http.Request,
 ) {
 
-
 	GetUserInf(r)
 
 	//      テーブルは"w"で始まるものを操作の対象とする。
@@ -70,12 +69,12 @@ func HandlerClosedEvents(
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
-		"Comma":         func(i int) string { return humanize.Comma(int64(i)) },                       //	3桁ごとに","を入れる関数。
-		"UnixTimeToStr": func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") }, //	UnixTimeを月日時分に変換する関数。
+		"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                          //	3桁ごとに","を入れる関数。
+		"UnixTimeToStr":  func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") },    //	UnixTimeを月日時分に変換する関数。
 		"UnixTimeToStrY": func(i int64) string { return time.Unix(int64(i), 0).Format("06-01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
 
 		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
-		"TimeToStringY":  func(t time.Time) string { return t.Format("06-01-02 15:04") },
+		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
 	}
 
 	// テンプレートをパースする
@@ -87,50 +86,73 @@ func HandlerClosedEvents(
 	top.Mode, _ = strconv.Atoi(r.FormValue("mode")) // 0: すべて、 1: データ取得中のものに限定
 	top.Keywordev = r.FormValue("keywordev")
 	top.Keywordrm = r.FormValue("keywordrm")
+	top.Kwevid = r.FormValue("kwevid")
 	top.Userno, _ = strconv.Atoi(r.FormValue("userno"))
 
 	top.Path, _ = strconv.Atoi(r.FormValue("path"))
 	/*
-	0. 最初のパス
-	1. イベント名で絞り込む
-	2. イベントID(Event_url_key)で絞り込む
-	3. ルーム名で絞り込む(ルーム名の入力)
-	4. ルーム名で絞り込む(ルーム名の選択)
-	5. ユーザ番号で選択する
+		0. 最初のパス
+		1. イベント名で絞り込む
+		2. イベントID(Event_url_key)で絞り込む
+		3. ルーム名で絞り込む(ルーム名の入力)
+		4. ルーム名で絞り込む(ルーム名の選択)
+		5. ユーザ番号で選択する
 	*/
+
+	top.Roomlist = &[]Room{}
 
 	var err error
 
-	if (top.Path == 3 || top.Path == 4 ) && top.Keywordrm != "" {
-		//	ルーム名による絞り込み、ルームの候補リストを作成する。
-		top.Roomlist, err = SelectUsernoAndName(top.Keywordrm, 50, 0)
-		if err != nil {
-			err = fmt.Errorf("SelectUsernoAndName(): %w", err)
-			log.Printf("SelectUsernoAndName() returned error %s\n", err.Error())
-			top.ErrMsg = err.Error()
-		}
-	} else {
-		top.Roomlist = &[]Room{}
-	}
-
 	cond := -1 // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
-	if top.Path != 3 && top.Path != 4 {
-		//	ルーム名による絞り込みでない場合
-		top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, top.Keywordev)
+	switch top.Path {
+	case 0:
+		top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "")
 		if err != nil {
 			err = fmt.Errorf("SelectEventinflistFromEvent(): %w", err)
 			log.Printf("SelectEventinflistFromEvent() returned error %s\n", err.Error())
 			top.ErrMsg = err.Error()
 		}
-	} else if top.Path == 4 && top.Userno != 0{
-		//	ルーム名による絞り込み
-		top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno)
+	case 1, 2:
+		if top.Path == 1 {
+			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, top.Keywordev, "")
+		} else {
+			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", top.Kwevid)
+		}
 		if err != nil {
-			err = fmt.Errorf("MakeListOfPoints(): %w", err)
-			log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
+			err = fmt.Errorf("SelectEventinflistFromEvent(): %w", err)
+			log.Printf("SelectEventinflistFromEvent() returned error %s\n", err.Error())
 			top.ErrMsg = err.Error()
 		}
+	case 3, 4:
+		if top.Keywordrm != "" {
+			//	ルーム名による絞り込み、ルームの候補リストを作成する。
+			top.Roomlist, err = SelectUsernoAndName(top.Keywordrm, 50, 0)
+			if err != nil {
+				err = fmt.Errorf("SelectUsernoAndName(): %w", err)
+				log.Printf("SelectUsernoAndName() returned error %s\n", err.Error())
+				top.ErrMsg = err.Error()
+			}
+		}
+		if top.Path == 4 && top.Userno != 0 {
+			//	ルーム名による絞り込み
+			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno)
+			if err != nil {
+				err = fmt.Errorf("MakeListOfPoints(): %w", err)
+				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
+				top.ErrMsg = err.Error()
+			}
+		}
+	case 5:
+			//	ルーム名による絞り込み
+			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno)
+			if err != nil {
+				err = fmt.Errorf("MakeListOfPoints(): %w", err)
+				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
+				top.ErrMsg = err.Error()
+			}
+	default:
 	}
+
 	top.Totalcount = len(top.Eventinflist)
 
 	err = FindHistoricalData(&top.Eventinflist)
