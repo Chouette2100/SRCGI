@@ -2,10 +2,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
 <html>
 <body>
-<button type="button" onclick="location.href='top'">top</button>　
-<button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.Userno}}'">「直近の獲得ポイント一覧」画面に戻る</button>
-<br><br>
+<table>
+    <tr>
+  <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+  <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+  <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+  <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+    </tr>
+    <tr>
+  <td><button type="button" onclick="location.href='top?eventid={{.Eventid}}'">イベントトップ</button></td>
+  <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
+  <td><button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
+  <td></td>
+    </tr>
+  </table>
+
 <p>枠別貢献ポイント一覧表</p>
 <p style="color:crimson;">本機能は実験的なものです。結果を100%信じないでください。<br>上位のリスナーの結果は比較的正確です。あくまで"比較的"にです。</p>
 <p style="color:crimson;">イベント開始から終了までのすべてのデータが取得されていない場合、<br>（特に最初と最後の）データに不整合が発生していることがあります。</p>

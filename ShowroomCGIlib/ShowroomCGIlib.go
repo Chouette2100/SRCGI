@@ -102,7 +102,7 @@ import (
 	11AC01 FindPtPerSlot()でPrepare()に対するdefer Close()の抜けを補う。
 	11AC02 HandleListCntrb()でボーナスポイントに対する対応を行う。
 	11AC03 currentevent.gtpl 1行おきに背景色を変える。list-last_h.gtpl 結果が反映される時刻を正す。
-	11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。 
+	11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。
 	11AE00	HandlerEventRoomList()でブロックイベントの参加ルーム一覧も表示できるようにする。
 	11AF00	開催予定イベント一覧の機能を追加する（HandlerScheduledEvent()）
 	11AF01	新規イベントの登録ができなくなった問題（＝11AD00の修正で発生したデグレード）に対応する
@@ -114,9 +114,10 @@ import (
 	11AJ03	終了イベントリスト、終了イベントルームリストの表示を改善する。
 	11AJ04	ページ遷移のレイアウトの共通化を行い、トップ画面を簡素化する。
 	11AK00	終了イベントでイベントIDとルームIDによる検索を可能にする。
+	11AL00	画面遷移のためのリンクを新しい機能に合わせる。list-cntrbSで目標値を変更できるようにする。
 */
 
-const Version = "11AK00"
+const Version = "11AL00"
 
 /*
 type Event_Inf struct {
@@ -174,6 +175,8 @@ type PointPerDay struct {
 	Eventid         string
 	Eventname       string
 	Period          string
+	Maxpoint        int
+	Gscale          int
 	Usernolist      []int
 	Longnamelist    []LongName
 	Pointrecordlist []PointRecord
@@ -1416,8 +1419,8 @@ func InsertEventInf(eventinf *exsrapi.Event_Inf) (
 		}
 		defer stmt.Close()
 
-		if eventinf.Intervalmin != 5 {	//	緊急対応
-			log.Printf(" Intervalmin isn't 5. (%dm)\n",eventinf.Intervalmin)
+		if eventinf.Intervalmin != 5 { //	緊急対応
+			log.Printf(" Intervalmin isn't 5. (%dm)\n", eventinf.Intervalmin)
 			eventinf.Intervalmin = 5
 		}
 
@@ -1491,8 +1494,8 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 		}
 		defer stmt.Close()
 
-		if eventinf.Intervalmin != 5 {	//	緊急対応
-			log.Printf(" Intervalmin isn't 5. (%dm)\n",eventinf.Intervalmin)
+		if eventinf.Intervalmin != 5 { //	緊急対応
+			log.Printf(" Intervalmin isn't 5. (%dm)\n", eventinf.Intervalmin)
 			eventinf.Intervalmin = 5
 		}
 
@@ -1562,7 +1565,6 @@ func InsertRoomInf(eventid string, roominfolist *RoomInfoList) {
 				err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
 				log.Printf("err=[%s]\n", err.Error())
 			}
-		
 
 		} else {
 			(*roominfolist)[i].Status = "エラー"
@@ -3240,18 +3242,21 @@ func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp
 	return
 }
 
-func MakePointPerDay(eventid string) (p_pointperday *PointPerDay, status int) {
+// func MakePointPerDay(eventid string) (p_pointperday *PointPerDay, status int) {
+func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, status int) {
 
 	status = 0
 
-	Event_inf.Event_ID = eventid
-	_, sts := SelectEventInfAndRoomList()
+	/*
+		Event_inf.Event_ID = eventid
+		_, sts := SelectEventInfAndRoomList()
 
-	if sts != 0 {
-		log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
-		status = sts
-		return
-	}
+		if sts != 0 {
+			log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
+			status = sts
+			return
+		}
+	*/
 
 	dstart := Event_inf.Start_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.Start_time.Hour()) * time.Hour)
 	if Event_inf.Start_time.Hour()*60+Event_inf.Start_time.Minute() > Event_inf.Resethh*60+Event_inf.Resetmm {
@@ -3271,11 +3276,11 @@ func MakePointPerDay(eventid string) (p_pointperday *PointPerDay, status int) {
 	var pointperday PointPerDay
 	pointperday.Pointrecordlist = make([]PointRecord, days+1)
 	pointperday.Eventname = Event_inf.Event_name
-	pointperday.Eventid = eventid
+	pointperday.Eventid = Event_inf.Event_ID
 	pointperday.Period = Event_inf.Period
 
 	var roominfolist RoomInfoList
-	_, _ = SelectEventRoomInfList(eventid, &roominfolist)
+	_, _ = SelectEventRoomInfList(Event_inf.Event_ID, &roominfolist)
 	log.Printf(" no of rooms. = %d\n", len(roominfolist))
 
 	iu := 0 //	リスト作成の対象となるルームのインデックス
@@ -4953,10 +4958,17 @@ func HandlerGraphPerday(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/graph-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
+	Event_inf.Event_ID = eventid
+	_, sts := SelectEventInfAndRoomList()
+
+	if sts != 0 {
+		log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
+		return
+	}
 
 	log.Printf("      called. eventid=%s\n", eventid)
 
-	ppointperday, _ := MakePointPerDay(eventid)
+	ppointperday, _ := MakePointPerDay(Event_inf)
 
 	filename, _ := GraphPerDay(eventid, ppointperday)
 	if Serverconfig.WebServer == "nginxSakura" {
@@ -4971,6 +4983,8 @@ func HandlerGraphPerday(w http.ResponseWriter, r *http.Request) {
 	values := map[string]string{
 		"filename": filename,
 		"eventid":  eventid,
+		"maxpoint": fmt.Sprintf("%d", Event_inf.Maxpoint),
+		"gscale":   fmt.Sprintf("%d", Event_inf.Gscale),
 	}
 
 	if err := tpl.ExecuteTemplate(w, "graph-perday.gtpl", values); err != nil {
@@ -4987,10 +5001,17 @@ func HandlerListPerday(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/list-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
+	Event_inf.Event_ID = eventid
+	_, sts := SelectEventInfAndRoomList()
+
+	if sts != 0 {
+		log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
+		return
+	}
 
 	log.Printf("      eventid=%s\n", eventid)
 
-	pointperday, _ := MakePointPerDay(eventid)
+	pointperday, _ := MakePointPerDay(Event_inf)
 
 	if err := tpl.ExecuteTemplate(w, "list-perday.gtpl", *pointperday); err != nil {
 		log.Println(err)
@@ -5022,6 +5043,8 @@ func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
 	values := map[string]string{
 		"filename": filename,
 		"eventid":  eventid,
+		"maxpoint": fmt.Sprintf("%d", Event_inf.Maxpoint),
+		"gscale":   fmt.Sprintf("%d", Event_inf.Gscale),
 	}
 
 	if err := tpl.ExecuteTemplate(w, "graph-perslot.gtpl", values); err != nil {

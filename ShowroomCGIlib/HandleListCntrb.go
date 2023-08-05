@@ -37,6 +37,8 @@ type CntrbHeader struct {
 	Eventid   string
 	Eventname string
 	Period    string
+	Maxpoint  int
+	Gscale    int
 	Userno    int
 	Username  string
 	ShortURL  string
@@ -129,6 +131,10 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 
 	cntrbheader.Eventid = eventid
 	cntrbheader.Eventname = eventinf.Event_name
+
+	cntrbheader.Maxpoint = eventinf.Maxpoint
+	cntrbheader.Gscale = eventinf.Gscale
+
 	cntrbheader.Period = eventinf.Period
 	cntrbheader.Userno = userno
 
@@ -202,19 +208,23 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	//	順位のないデータ（＝ボーナスポイント）の個数を求める。
 	sqlsc := "select count(*) from eventrank where eventid = ? and userid = ? and ts = ? and nrank = 0"
 	norow := 0
 	srdblib.Db.QueryRow(sqlsc, eventid, userno, tsie).Scan(&norow)
-
 	if norow != 0 {
+		//	ボーナスポイントのデータがある
 		for i := range cntrbinflist {
-			if  i < norow {
+			if i < norow {
+				//	ボーナスポイント
 				cntrbinflist[i].Ranking = -1
-			} else if  cntrbinflist[i].Ranking  > 0 && cntrbinflist[i].Ranking < 999 {
+			} else if cntrbinflist[i].Ranking > 0 && cntrbinflist[i].Ranking < 999 {
+				//	獲得ポイント
 				cntrbinflist[i].Ranking -= norow
 			}
 		}
-		if  cntrbinflist[1].Point == 0 {
+		if cntrbinflist[1].Point == 0 {
+			//	ボーナスポイント部分の2番目でポイントが0のものは除く
 			cntrbinflist[1] = cntrbinflist[0]
 			cntrbinflist = cntrbinflist[1:]
 		}

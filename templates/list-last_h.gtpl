@@ -5,12 +5,21 @@
 {{ $detail := .Detail }}
 <html>
 <body>
-<button type="button" onclick="location.href='top'">top</button>　
-<button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
-<button type="button" onclick="location.href='top?eventid={{.Eventid}}&userno={{.userno}}'">このルームの表示項目選択</button>　
-<button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'"><span style="color: blue;">獲得ポイントグラフを表示する</span></button><br><br>
-<br><br>
-<p>直近の獲得ポイント一覧）　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span></p>
+    <table>
+        <tr>
+      <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+      <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+      <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+      <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+        </tr>
+        <tr>
+      <td><button type="button" onclick="location.href='top?eventid={{.Eventid}}'">イベントトップ</button></td>
+      <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
+      <td><button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
+      <td></td>
+        </tr>
+      </table>
+<p>直近の獲得ポイント一覧　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span></p>
 <p style="padding-left:2em">
 {{.UpdateTime}}
 </p>

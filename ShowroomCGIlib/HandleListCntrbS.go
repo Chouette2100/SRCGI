@@ -32,18 +32,22 @@ import (
 )
 
 type CntrbS_Header struct {
-	Eventid		string
-	Eventname	string
-	Period		string
-	Userno		int
-	Username	string
-	ShortURL	string
-	S_stime		string
-	S_etime		string
-	Srt		int
-	Ifrm1	int
-	Ifrm_b	int
-	Ifrm_f	int
+	Eventid   string
+	Eventname string
+	Period    string
+	Target    int
+	Maxpoint  int
+	Gscale    int
+	Userno    int
+	Username  string
+	ShortURL  string
+	S_stime   string
+	S_etime   string
+	Srt       int
+	Ifrm      int
+	Ifrm1     int
+	Ifrm_b    int
+	Ifrm_f    int
 }
 
 type CntrbInfS struct {
@@ -52,9 +56,41 @@ type CntrbInfS struct {
 	Incremental  int
 	ListenerName string
 	LastName     string
-	Tlsnid		 int
-	Eventid		 string
-	Userno		 int
+	Tlsnid       int
+	Eventid      string
+	Userno       int
+}
+
+func SelectTargetfromTimetable(
+	eventid string,
+	userno int,
+	ts time.Time,
+) (
+	target int,
+	err error,
+) {
+	sqls := "SELECT target FROM timetable WHERE eventid = ? AND userid = ? AND sampletm2 = ?"
+	err = srdblib.Db.QueryRow(sqls, eventid, userno, ts).Scan(&target)
+	if err != nil {
+		err = fmt.Errorf("QueryRow().Scan()  error: %v", err)
+	}
+	return
+}
+
+func UpdateTimetableSetTarget(
+	eventid string,
+	userno int,
+	ts time.Time,
+	target int,
+) (
+	err error,
+) {
+	sqlu := "UPDATE timetable SET target = ? WHERE eventid = ? AND userid = ? AND sampletm2 = ?"
+	_, err = srdblib.Db.Exec(sqlu, target, eventid, userno, ts)
+	if err != nil {
+		err = fmt.Errorf("Exec()  error: %v", err)
+	}
+	return
 }
 
 
@@ -86,16 +122,16 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h.gtpl", "templates/list-cntrb.gtpl"))
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
 	funcMap := template.FuncMap{
-        "sub": func(i, j int) int { return i - j },
+		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-    }
-    tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
-
+	}
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
 
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	ifrm, _ := strconv.Atoi(req.FormValue("ifrm"))
 	sort := req.FormValue("sort")
+	target, _ := strconv.Atoi(req.FormValue("target"))
 	log.Printf("***** HandlerListCntrbS() called. eventid=%s, userno=%d, ifrm=%d\n", eventid, userno, ifrm)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
@@ -107,7 +143,6 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	//	log.Printf(" len(cntrbinflists)=%d\n", len(cntrbinflists))
-	
 
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
@@ -116,11 +151,29 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 
 	cntrbs_header.Eventid = eventid
 	cntrbs_header.Eventname = eventinf.Event_name
+	cntrbs_header.Maxpoint = eventinf.Maxpoint
+	cntrbs_header.Gscale = eventinf.Gscale
 
-	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _  := GetRoomInfoByAPI(fmt.Sprintf("%d", userno)) 
+	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
 	cntrbs_header.Userno = userno
 	cntrbs_header.Username = roomname
 	cntrbs_header.ShortURL = roomurlkey
+
+	var err error
+	if target == 0 {
+		cntrbs_header.Target, err = SelectTargetfromTimetable(eventid, userno, ts)
+		if err != nil {
+			log.Printf("SelectTargetfromTimetable() returned %s\n", err)
+			return
+		}
+	} else {
+		cntrbs_header.Target = target
+		err = UpdateTimetableSetTarget(eventid, userno, ts, target)
+		if err != nil {
+			log.Printf("SelectTargetfromTimetable() returned %s\n", err)
+			return
+		}
+	}
 
 	var stime, etime time.Time
 	sql := "select stime, etime from timetable where eventid = ? and userid = ? and sampletm2 = ? "
@@ -134,18 +187,20 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	log.Printf(" s=%v e=%v\n", stime, etime)
 	cntrbs_header.S_stime = stime.Format("2006-01-02 15:04")
 	cntrbs_header.S_etime = etime.Format("15:04")
-	cntrbs_header.Ifrm1	= ifrm + 1
-	cntrbs_header.Ifrm_b = ifrm - 1		//	範囲外になると -1 になる
-	cntrbs_header.Ifrm_f = ifrm + 1		//	範囲外になったら -1 にする
+	cntrbs_header.Ifrm = ifrm
+	cntrbs_header.Ifrm1 = ifrm + 1
+	cntrbs_header.Ifrm_b = ifrm - 1 //	範囲外になると -1 になる
+	cntrbs_header.Ifrm_f = ifrm + 1 //	範囲外になったら -1 にする
 	if sort == "D" {
+		//	増分順にソートする。
 		cntrbs_header.Srt = 1
 	} else {
+		//	累計順にソートする。
 		cntrbs_header.Srt = 0
 	}
 	if cntrbs_header.Ifrm_f >= len(acqtimelist) {
 		cntrbs_header.Ifrm_f = -1
 	}
-
 
 	if err := tpl.ExecuteTemplate(w, "list-cntrbS-h.gtpl", cntrbs_header); err != nil {
 		log.Println(err)
@@ -156,27 +211,26 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 }
 
 /*
-        SelectCntrbSingle()
+	        SelectCntrbSingle()
 
-		指定したイベント、ユーザー、時刻の貢献ポイントランキングを一枠分だけ取得する。
-		リスナー名の突き合わせのチェックを目的とするページを作るために使用する。
+			指定したイベント、ユーザー、時刻の貢献ポイントランキングを一枠分だけ取得する。
+			リスナー名の突き合わせのチェックを目的とするページを作るために使用する。
 
-        引数
-		eventid			string			イベントID
-		userno			int				ユーザーID
-		ts				int				ユーザーID
-		loc				int				データの格納場所（ 0 だったら先頭）
+	        引数
+			eventid			string			イベントID
+			userno			int				ユーザーID
+			ts				int				ユーザーID
+			loc				int				データの格納場所（ 0 だったら先頭）
 
-        戻り値
-        cntrbinflists	[] CntrbInf		貢献ポイントランキング（最終貢献ポイント順）
-		stats			int				== 0 正常終了	!= 0 データベースアクセス時のエラー
-
+	        戻り値
+	        cntrbinflists	[] CntrbInf		貢献ポイントランキング（最終貢献ポイント順）
+			stats			int				== 0 正常終了	!= 0 データベースアクセス時のエラー
 */
 func SelectCntrbSingle(
 	eventid string,
 	userno int,
 	ts time.Time,
-	sort	string,
+	sort string,
 ) (
 	cntrbinflists []CntrbInfS,
 	status int,
@@ -236,4 +290,3 @@ func SelectCntrbSingle(
 	return
 
 }
-

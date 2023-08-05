@@ -15,7 +15,7 @@
 	<td>{{.S_stime}}</td>
 	<td>{{.S_etime}}</td>
 	<td align="right">
-		{{ if eq .Target -1 }}
+		{{ if lt .Target 0 }}
 			n/a
 		{{ else }}
 			{{ Comma .Target }}
@@ -29,14 +29,14 @@
 		{{ end }}
 	</td>
 	<td align="right">
-		{{ if or ( eq .Incremental -1) (eq .Target -1) }}
+		{{ if or ( eq .Incremental -1) (lt .Target 0 ) }}
 			---
 		{{ else }}
 			{{ Comma (sub .Incremental .Target) }}
 		{{ end }}
 	</td>
 	<td align="right">
-		{{ if eq .Point -1 }}
+		{{ if lt .Point 0 }}
 			---
 		{{ else }}
 			{{ Comma .Point }}

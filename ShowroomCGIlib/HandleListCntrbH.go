@@ -34,18 +34,19 @@ import (
 type CntrbH_Header struct {
 	Eventid   string
 	Eventname string
-	Period		 string
+	Period    string
+	Maxpoint  int
+	Gscale    int
 	Userno    int
 	Username  string
 	ShortURL  string
-	Tlsnid		int
-	Listener	string
+	Tlsnid    int
+	Listener  string
 
-	Tlsnid_b	int
-	Listener_b	string
-	Tlsnid_f	int
-	Listener_f	string
-
+	Tlsnid_b   int
+	Listener_b string
+	Tlsnid_f   int
+	Listener_f string
 }
 
 type CntrbHistoryInf struct {
@@ -84,11 +85,11 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbH-h.gtpl", "templates/list-cntrbH.gtpl"))
-    funcMap := template.FuncMap{
-        "sub": func(i, j int) int { return i - j },
+	funcMap := template.FuncMap{
+		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-    }
-    tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbH-h.gtpl", "templates/list-cntrbH.gtpl"))
+	}
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbH-h.gtpl", "templates/list-cntrbH.gtpl"))
 
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
@@ -98,34 +99,32 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
 
 	/*
-	type Tlsnidinf struct {
-	Norder	int
-	Tlsnid	int
-	Listener	string
-	}
-	func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) ( tlsnidinflist [3]Tlsnidinf, status int) {
+		type Tlsnidinf struct {
+		Norder	int
+		Tlsnid	int
+		Listener	string
+		}
+		func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) ( tlsnidinflist [3]Tlsnidinf, status int) {
 	*/
-
-
-
-
 
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
-	var cntrbh_header	CntrbH_Header
+	var cntrbh_header CntrbH_Header
 
 	cntrbh_header.Eventid = eventid
 	cntrbh_header.Eventname = eventinf.Event_name
 	cntrbh_header.Period = eventinf.Period
 
+	cntrbh_header.Maxpoint = eventinf.Maxpoint
+
 	cntrbh_header.Userno = userno
 
-	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _  := GetRoomInfoByAPI(fmt.Sprintf("%d", userno)) 
+	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
 	cntrbh_header.Username = roomname
 	cntrbh_header.ShortURL = roomurlkey
 
-	tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist) - 1])
+	tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
 
 	cntrbh_header.Tlsnid = tlsnid
 	cntrbh_header.Listener = tlsnidinflist[1].Listener
@@ -134,8 +133,6 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 	cntrbh_header.Listener_b = tlsnidinflist[0].Listener
 	cntrbh_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
 	cntrbh_header.Listener_f = tlsnidinflist[2].Listener
-
-	
 
 	if err := tpl.ExecuteTemplate(w, "list-cntrbH-h.gtpl", cntrbh_header); err != nil {
 		log.Println(err)
@@ -153,11 +150,12 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 }
 
 type Tlsnidinf struct {
-	Norder	int
-	Tlsnid	int
-	Listener	string
+	Norder   int
+	Tlsnid   int
+	Listener string
 }
-func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) ( tlsnidinflist [3]Tlsnidinf, status int) {
+
+func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (tlsnidinflist [3]Tlsnidinf, status int) {
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -216,12 +214,12 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	return
 }
 
-//	指定したリスナーの貢献ポイントの履歴を取得する。
+// 指定したリスナーの貢献ポイントの履歴を取得する。
 func SelectCntrbHistory(
 	eventid string,
 	userno int,
 	tlsnid int,
-	acqtimelist []time.Time,	//	配信者の配信時刻のリスト
+	acqtimelist []time.Time, //	配信者の配信時刻のリスト
 ) (
 	cntrbhistory CntrbHistory,
 	status int,
@@ -271,8 +269,8 @@ func SelectCntrbHistory(
 			status = -11
 		}
 
-		if chi.Target < 0 {
-			nfr := ( int(etime.Sub(stime).Minutes()) + 45 ) / 60
+		if chi.Target == -1 {
+			nfr := (int(etime.Sub(stime).Minutes()) + 45) / 60
 			chi.Target, _ = InsertTargetIntoTimtable(eventid, userno, ts, nfr)
 		}
 
@@ -295,7 +293,7 @@ func SelectCntrbHistory(
 				log.Printf("err=[%s]\n", srdblib.Dberr.Error())
 				status = -11
 			}
-			lnl := strings.Split(chi.Lastname,"[")
+			lnl := strings.Split(chi.Lastname, "[")
 			if len(lnl) == 2 {
 				chi.Lastname = strings.TrimRight(lnl[1], "]")
 			}
@@ -314,9 +312,9 @@ func SelectCntrbHistory(
 			cntrbhistory[i].Listener = ""
 		}
 		/*
-		if cntrbhistory[i].Lastname == cntrbhistory[i-1].Lastname {
-			cntrbhistory[i].Lastname = ""
-		}
+			if cntrbhistory[i].Lastname == cntrbhistory[i-1].Lastname {
+				cntrbhistory[i].Lastname = ""
+			}
 		*/
 
 	}
@@ -325,14 +323,14 @@ func SelectCntrbHistory(
 }
 
 type P_c struct {
-	Pnt int
-	Cnt int
+	Pnt  int
+	Cnt  int
 	Wcnt int
-	Cmp int
+	Cmp  int
 }
 type Pclist []P_c
 
-//	sort.Sort()のための関数三つ
+// sort.Sort()のための関数三つ
 func (p Pclist) Len() int {
 	return len(p)
 }
@@ -346,7 +344,7 @@ func (p Pclist) Choose(from, to int) (s Pclist) {
 func (p Pclist) Less(i, j int) bool {
 	return p[i].Wcnt > p[j].Wcnt
 }
-	
+
 func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int) (target int, status int) {
 	status = 0
 
@@ -363,7 +361,7 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 		return
 	}
 	defer stmt_tg.Close()
-	
+
 	rows, srdblib.Dberr = stmt_tg.Query(eventid, userno, ts)
 	if srdblib.Dberr != nil {
 		log.Printf("InsertIntoTimtableTarget() (2) err=%s\n", srdblib.Dberr.Error())
@@ -372,10 +370,9 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 	}
 	defer rows.Close()
 
-
 	pcl := make(Pclist, 0)
 	var pc P_c
-	
+
 	for rows.Next() {
 		srdblib.Dberr = rows.Scan(&pc.Pnt, &pc.Cnt)
 		if srdblib.Dberr != nil {
@@ -406,14 +403,13 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 			return
 		}
 		defer stmt.Close()
-	
+
 		_, err = stmt.Exec(target, eventid, userno, ts)
-	
+
 		if err != nil {
 			log.Printf("error(UpdatePointsSetQstatus() Update/Exec) err=%s\n", err.Error())
 			status = -2
 		}
-	
 
 	}
 
@@ -422,41 +418,41 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 
 func GetWeightedCnt(pcl Pclist, nfr int) {
 
-	maxpnt := 1842 + ( nfr -1 ) * 600
+	maxpnt := 1842 + (nfr-1)*600
 
 	for i := 0; i < len(pcl); i++ {
 		cmp := 0
 		pcl[i].Wcnt = pcl[i].Cnt
-		if pcl[i].Pnt > 599 && pcl[i].Pnt < 1263{
+		if pcl[i].Pnt > 599 && pcl[i].Pnt < 1263 {
 			switch pcl[i].Pnt % 600 {
-				case 62:
-					cmp = 8
-				case 50:
-					cmp = 6
-				case 52:
-					cmp = -6
-				case 40:
-					cmp = -8
-				default:
-					continue
+			case 62:
+				cmp = 8
+			case 50:
+				cmp = 6
+			case 52:
+				cmp = -6
+			case 40:
+				cmp = -8
+			default:
+				continue
 			}
-			pcl[i].Cmp =  (pcl[i].Pnt / 600) * 10 + cmp 
+			pcl[i].Cmp = (pcl[i].Pnt/600)*10 + cmp
 			pcl[i].Wcnt = pcl[i].Cnt * pcl[i].Cmp
-		} else if pcl[i].Pnt >= 1263  && pcl[i].Pnt < maxpnt {
+		} else if pcl[i].Pnt >= 1263 && pcl[i].Pnt < maxpnt {
 			switch pcl[i].Pnt % 600 {
-				case 42:
-					cmp = 8
-				case 30:
-					cmp = 6
-				case 592:
-					cmp = -6
-				case 580:
-					cmp = -8
-				default:
-					continue
+			case 42:
+				cmp = 8
+			case 30:
+				cmp = 6
+			case 592:
+				cmp = -6
+			case 580:
+				cmp = -8
+			default:
+				continue
 			}
-			//	pcl[i].Cmp =  ((pcl[i].Pnt + 20) / 600) * 10 + cmp 
-			pcl[i].Cmp =  ((pcl[i].Pnt + 20) / 600) * 10 + cmp 
+			//	pcl[i].Cmp =  ((pcl[i].Pnt + 20) / 600) * 10 + cmp
+			pcl[i].Cmp = ((pcl[i].Pnt+20)/600)*10 + cmp
 			//	pcl[i].Wcnt = pcl[i].Cnt * pcl[i].Cmp
 			pcl[i].Wcnt = pcl[i].Cnt * 3 * pcl[i].Cmp
 		} else if pcl[i].Pnt == 0 {

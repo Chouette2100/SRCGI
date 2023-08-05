@@ -3,9 +3,21 @@
 <html>
 <body>
 <p>
-<button type="button" onclick="location.href='top'">top</button>　
-<button type="button" onclick="location.href='currentevent'">開催中イベント一覧表</button>　
-<button type="button" onclick="location.href='top?eventid={{.Eventid}}'">このルームの表示項目選択</button><br>
+<table>
+    <tr>
+  <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+  <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+  <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+  <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+    </tr>
+    <tr>
+  <td><button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">イベントトップ</button></td>
+  <td><button type="button" onclick="location.href='list-last?eventid={{.Event_ID}}'">直近の獲得ポイント</button></td>
+  <td><button type="button" onclick="location.href='graph-total?eventid={{.Event_ID}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">>獲得ポイントグラフ</button></td>
+  <td></td>
+    </tr>
+  </table>
+
 
 </p>
 <h2>日々の獲得ポイント</h2>

@@ -10,7 +10,7 @@
 	<tr>
 		<td align="right">{{ .Ranking }}</td>
 		<td align="right">
-			{{ if ne .Point -1 }}
+			{{ if ge .Point 0 }}
 			{{ Comma .Point }}
 			{{ else }}
 			n/a
