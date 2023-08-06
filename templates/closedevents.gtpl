@@ -35,12 +35,16 @@
     <div style="text-indent: 2rem;"><a href="t009top">t009:配信中ルーム一覧</a></div>
     <p>-------------------------------------------------------------</p>
     {{*/}}
-    <button type="button" onclick="location.href='top'">Top</button>　
-    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
-    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
-    {{/*}}
-    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
-    {{*/}}
+    <table>
+        <tr>
+            <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+            <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+            <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+            <td>終了イベント一覧</td>
+        </tr>
+    </table>
+    <br>
+    終了イベントの検索
     <form> <!-- 0. 最初のパス -->
         <br>
         <br>
@@ -189,7 +193,7 @@
         <br>
         <br>
         {{ if or ( eq .Keywordrm "" ) ( ne .Userno 0) }}
-        <p>
+        <p id="result">
             {{ if eq .Mode 1 }}
             （獲得ポイント詳細データがある）終了イベント一覧　　
             {{ if eq .Keywordev "" }}

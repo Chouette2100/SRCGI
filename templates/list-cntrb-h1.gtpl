@@ -11,8 +11,14 @@
     </tr>
     <tr>
   <td><button type="button" onclick="location.href='top?eventid={{.Eventid}}'">イベントトップ</button></td>
-  <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
+  <td></td>
   <td><button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
+  <td></td>
+    </tr>
+    <tr>
+  <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
+  <td></td>
+  <td></td>
   <td></td>
     </tr>
   </table>

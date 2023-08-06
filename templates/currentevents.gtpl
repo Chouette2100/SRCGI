@@ -2,6 +2,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+    {{/*}}
     <style type="text/css">
         th,
         td {
@@ -10,11 +11,9 @@
 
         table {
             border-collapse: collapse;
-            /*
-            width: 100%;
-            */
         }
     </style>
+    {{*/}}
 </head>
 
 <body>
@@ -32,12 +31,14 @@
     <div style="text-indent: 2rem;"><a href="t009top">t009:配信中ルーム一覧</a></div>
     <p>-------------------------------------------------------------</p>
     {{*/}}
-    <button type="button" onclick="location.href='top'">Top</button>　
-    {{/*}}
-    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
-    {{*/}}
-    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
-    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
+    <table>
+        <tr>
+            <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+            <td>開催中イベント一覧</td>
+            <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+            <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+        </tr>
+    </table>
     <br>
     <br>
     <p>
@@ -54,7 +55,7 @@
     */}}
     <div style="text-indent: 2rem;">イベント数： {{ .Totalcount }}
     </div>
-    <table>
+    <table border="1" style="border-collapse: collapse">
         <tr bgcolor="gainsboro" style="text-align: center">
             <td>イベント名とイベントページへのリンク</td>
             <td>開始日時</td>

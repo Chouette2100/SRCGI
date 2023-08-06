@@ -7,7 +7,22 @@
 </style>
 </head>
 <body>
-<button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">このルームの表示項目選択</button>
+<table>
+    <tr>
+        <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+        <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+        <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+        <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+    </tr>
+    <tr>
+        <td><button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">イベントトップ</button></td>
+        <td><button type="button" onclick="location.href='list-last?eventid={{.Event_ID}}'">直近の獲得ポイント</button></td>
+        <td><button type="button"
+                onclick="location.href='graph-total?eventid={{.Event_ID}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button>
+        </td>
+        <td></td>
+    </tr>
+</table>
 <br><br>
 <p style="padding-left:2em">
 イベント設定の変更（確認）

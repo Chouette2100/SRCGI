@@ -51,12 +51,14 @@ type CntrbHeader struct {
 	Target    []int
 	Ifrm      []int
 	Nof       []int
-	Nft       int
-	Npb       int
-	N1b       int
+	Nft       int	//	先頭に戻ったときの最後に表示される枠
+	Npb       int	//	1ページ戻る
+	N1b       int	//	一枠戻る
+	Ncr       int
 	N1f       int
 	Npf       int
 	Nlt       int
+	Cntrbinflist *[]CntrbInf
 }
 
 type CntrbInf struct {
@@ -137,6 +139,8 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 
 	cntrbheader.Period = eventinf.Period
 	cntrbheader.Userno = userno
+
+	cntrbheader.Ncr = ie
 
 	//	戻る側の設定
 	if ie < MaxAcq {
@@ -230,13 +234,15 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	cntrbheader.Cntrbinflist = &cntrbinflist
+
 	if err := tpl.ExecuteTemplate(w, "list-cntrb-h1.gtpl", cntrbheader); err != nil {
 		log.Println(err)
 	}
 	if err := tpl.ExecuteTemplate(w, "list-cntrb-h2.gtpl", cntrbheader); err != nil {
 		log.Println(err)
 	}
-	if err := tpl.ExecuteTemplate(w, "list-cntrb.gtpl", cntrbinflist); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrb.gtpl", cntrbheader); err != nil {
 		log.Println(err)
 	}
 }

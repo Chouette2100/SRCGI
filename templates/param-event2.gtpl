@@ -1,6 +1,7 @@
 <tr><td></td><td>目標ポイント</td><td><input type="text" name="target" value="{{.Target}}" size="7" required pattern="[0-9]+"></td></tr>
 <tr><td></td><td>最大表示数</td><td><input type="text" name="maxdsp" value="{{.Maxdsp}}" size="3" required pattern="[1-9][0-9]*"></td></tr>
-<tr><td></td><td>カラーマップ</td><td><input type="text" name="cmap" value="{{.Cmap}}" size="2" required pattern="[12]" title="原則2を指定します。1は旧バージョンの色パターンです。"></td></tr>
+<tr><td></td><td>カラーマップ</td><td><input type="text" name="cmap" value="{{.Cmap}}" size="2" required pattern="[12]"
+    title="原則2を指定します。1は旧バージョンの色パターンです。"></td></tr>
 <tr><td></td><td></td><td align="right"><input type="submit" value="設定変更" formaction="param-eventc" formmethod="POST" style="background-color: khaki"></td></tr>
 <tr><td></td><td></td><td align="right"><input type="submit" value="キャンセル" formaction="top?eventid={{.Event_ID}}" formmethod="POST" style="background-color: khaki"></td></tr>
 </table>

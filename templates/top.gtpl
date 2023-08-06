@@ -86,7 +86,7 @@
         <td style="border-right-style:none;">開始</td>
         <td style="border-right-style:none;border-left-style:none;"> - </td>
         <td style="border-left-style:none;">終了</td>
-        <td style="border-right-style:none;"> 　　　　　　 イベント名をクリックをクリックすると「このルームの表示項目選択」が表示されます。
+        <td style="border-right-style:none;"> 　　　　　　 イベント名をクリックをクリックすると「イベントトップ（このイベントの表示項目選択）」が表示されます。
             <br> 　　　　　　 "一覧"、"グラフ"のリンクは「直近の獲得ポイントリスト」、「獲得ポイントの推移グラフ」へのショートカットです。</td>
         <td style="border-left-style:none;"></td>
         <td>ベース</td>

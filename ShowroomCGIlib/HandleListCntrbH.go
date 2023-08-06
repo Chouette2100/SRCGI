@@ -32,17 +32,17 @@ import (
 )
 
 type CntrbH_Header struct {
-	Eventid   string
-	Eventname string
-	Period    string
-	Maxpoint  int
-	Gscale    int
-	Userno    int
-	Username  string
-	ShortURL  string
-	Tlsnid    int
-	Listener  string
-
+	Eventid    string
+	Eventname  string
+	Period     string
+	Maxpoint   int
+	Gscale     int
+	Userno     int
+	Username   string
+	ShortURL   string
+	Tlsnid     int
+	Listener   string
+	Ie         int
 	Tlsnid_b   int
 	Listener_b string
 	Tlsnid_f   int
@@ -94,6 +94,7 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	tlsnid, _ := strconv.Atoi(req.FormValue("tlsnid"))
+	ie, _ := strconv.Atoi(req.FormValue("ie"))
 	log.Printf("***** HandlerListCntrbH() called. eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
@@ -115,6 +116,7 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 	cntrbh_header.Eventid = eventid
 	cntrbh_header.Eventname = eventinf.Event_name
 	cntrbh_header.Period = eventinf.Period
+	cntrbh_header.Ie = ie
 
 	cntrbh_header.Maxpoint = eventinf.Maxpoint
 

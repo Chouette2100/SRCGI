@@ -49,9 +49,10 @@
 	<td style="border-top-style:none; border-bottom-style:none;">累計獲得</td>
 	{{ $e := .Eventid }}
 	{{ $u := .Userno }}
+	{{ $i := .Ncr }}
 	{{ range .Ifrm }}
 		<td style="border-top-style:hidden;border-bottom-style:none;">
-			<a href="list-cntrbS?eventid={{ $e }}&userno={{ $u }}&ifrm={{ . }}">累計順</a>
+			<a href="list-cntrbS?eventid={{ $e }}&userno={{ $u }}&ifrm={{ . }}&ie={{ $i }}">累計順</a>
 		</td>
 	{{ end }}
 	<td style="border-top-style:none;border-bottom-style:none;">リスナー名</td>
@@ -62,9 +63,10 @@
 	<td style="border-top-style:none; border-bottom-style:none;border-bottom-style:none;">ポイント</td>
 	{{ $e := .Eventid }}
 	{{ $u := .Userno }}
+	{{ $i := .Ncr }}
 	{{ range .Ifrm }}
 		<td style="border-top-style:hidden;border-bottom-style:none;">
-			<a href="list-cntrbS?eventid={{ $e }}&userno={{ $u }}&ifrm={{ . }}&sort=D">増分順</a>
+			<a href="list-cntrbS?eventid={{ $e }}&userno={{ $u }}&ifrm={{ . }}&sort=D&ie={{ $i }}">増分順</a>
 		</td>
 	{{ end }}
 	<td style="border-top-style:none;border-bottom-style:none;"></td>

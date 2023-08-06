@@ -44,6 +44,7 @@ type CntrbS_Header struct {
 	S_stime   string
 	S_etime   string
 	Srt       int
+	Ie        int
 	Ifrm      int
 	Ifrm1     int
 	Ifrm_b    int
@@ -93,8 +94,6 @@ func UpdateTimetableSetTarget(
 	return
 }
 
-
-
 /*
         HandlerListCntrbS()
 			一枠分の貢献ポイントランキングを表示する。
@@ -132,6 +131,7 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	ifrm, _ := strconv.Atoi(req.FormValue("ifrm"))
 	sort := req.FormValue("sort")
 	target, _ := strconv.Atoi(req.FormValue("target"))
+	ie, _ := strconv.Atoi(req.FormValue("ie"))
 	log.Printf("***** HandlerListCntrbS() called. eventid=%s, userno=%d, ifrm=%d\n", eventid, userno, ifrm)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
@@ -153,6 +153,7 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	cntrbs_header.Eventname = eventinf.Event_name
 	cntrbs_header.Maxpoint = eventinf.Maxpoint
 	cntrbs_header.Gscale = eventinf.Gscale
+	cntrbs_header.Ie = ie
 
 	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
 	cntrbs_header.Userno = userno

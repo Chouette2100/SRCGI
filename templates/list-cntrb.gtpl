@@ -1,4 +1,6 @@
-{{ range . }}
+
+{{ $i := .Ncr }}
+{{ range .Cntrbinflist }}
 	<tr>
 	<td align="right">
 		{{ if eq .Ranking 999 }}
@@ -25,7 +27,7 @@
 	{{end}}
 	<td>{{.ListenerName}}</td>
 	<td align="right">
-		<a href="list-cntrbH?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid}}">{{.Tlsnid}}</a>
+		<a href="list-cntrbH?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid}}&ie={{ $i }}">{{.Tlsnid}}</a>
 	</td>
 	</tr>
 {{end}}
