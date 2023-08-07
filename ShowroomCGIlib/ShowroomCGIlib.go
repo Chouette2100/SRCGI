@@ -115,9 +115,10 @@ import (
 	11AJ04	ページ遷移のレイアウトの共通化を行い、トップ画面を簡素化する。
 	11AK00	終了イベントでイベントIDとルームIDによる検索を可能にする。
 	11AL00	画面遷移のためのリンクを新しい機能に合わせる。list-cntrbSで目標値を変更できるようにする。
+	11AM00	開始前のイベントの登録は開催予定イベントのリストから行い、ルームの登録はイベント開始まで行わない件についてGetAndInsertEventRoomInfo()のフローを変更する。
 */
 
-const Version = "11AL00"
+const Version = "11AM00"
 
 /*
 type Event_Inf struct {
@@ -1374,6 +1375,11 @@ func GetAndInsertEventRoomInfo(
 
 	log.Printf(" GetEventRoomInfo() len(*roominfolist)=%d\n", len(*roominfolist))
 
+	srdblib.Tevent = "wevent"
+	weventinf, _ := srdblib.SelectFromEvent(eventid)
+
+	eventinfo.Event_name = weventinf.Event_name
+
 	log.Println("GetAndInsertEventRoomInfo() before InsertEventIinf()")
 	log.Println(*eventinfo)
 	status = InsertEventInf(eventinfo)
@@ -1405,7 +1411,8 @@ func InsertEventInf(eventinf *exsrapi.Event_Inf) (
 	status int,
 ) {
 
-	if _, _, status = SelectEventNoAndName((*eventinf).Event_ID); status != 0 {
+	status = 0
+	if _, _, sts := SelectEventNoAndName((*eventinf).Event_ID); sts != 0 {
 		sql := "INSERT INTO event(eventid, ieventid, event_name, period, starttime, endtime, noentry,"
 		sql += " intervalmin, modmin, modsec, "
 		sql += " Fromorder, Toorder, Resethh, Resetmm, Nobasis, Maxdsp, Cmap, target, maxpoint "
@@ -5310,6 +5317,12 @@ func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/*
+イベントを獲得ポイントデータ取得の対象としてeventテーブルに登録する。
+イベントが開催中であれば指定した順位内のルームを取得対象として登録する。
+イベントが開催予定のものであればルームの登録は行わない。
+イベント開催中、開催予定にかかわらず、取得対象ルームの追加は srAddNewOnes で行われる。
+*/
 func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 	GetUserInf(r)
@@ -5321,7 +5334,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		"templates/error.gtpl",
 	))
 
-	var eventinf *exsrapi.Event_Inf
+	eventinf := &exsrapi.Event_Inf{}
 	var roominfolist RoomInfoList
 
 	eventid := r.FormValue("eventid")
@@ -5331,6 +5344,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	iereg, _ := strconv.Atoi(ereg)
 
 	if r.FormValue("from") != "new-event" {
+		//	すでに登録済みのイベントの参加ルームの更新を行うとき
 		//	eventinf, _ = SelectEventInf(eventid)
 		srdblib.Tevent = "event"
 		eventinf, _ = srdblib.SelectFromEvent(eventid)
@@ -5338,7 +5352,11 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		log.Println("***** HandlerAddEvent() Called. not 'from new-event'")
 		log.Println(eventinf)
 	} else {
-		eventinf = &exsrapi.Event_Inf{}
+		//	新規にイベントを登録するとき
+		//	eventinf = &exsrapi.Event_Inf{}
+		srdblib.Tevent = "wevent"
+		eventinf, _ = srdblib.SelectFromEvent(eventid)
+
 		log.Println("***** HandlerAddEvent() Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
 		eventinf.Modsec, _ = strconv.Atoi(r.FormValue("modsec"))
@@ -5363,21 +5381,31 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	eventinf.Fromorder = ibreg
 	eventinf.Toorder = iereg
 
-	Event_inf = *eventinf
+	starttimeafternow := false
+	status := 0
+	if eventinf.Start_time.After(time.Now()) {
+		//	開催予定のイベント
+		starttimeafternow = true
+		status = InsertEventInf(eventinf)
+	} else {
+		//	開催中のイベント
 
-	log.Println("before GetAndInsertEventRoomInfo()")
-	log.Println(eventinf)
+		Event_inf = *eventinf
 
-	//      cookiejarがセットされたHTTPクライアントを作る
-	client, jar, err := exsrapi.CreateNewClient("ShowroomCGI")
-	if err != nil {
-		log.Printf("CreateNewClient: %s\n", err.Error())
-		return
+		log.Println("before GetAndInsertEventRoomInfo()")
+		log.Println(eventinf)
+
+		//      cookiejarがセットされたHTTPクライアントを作る
+		client, jar, err := exsrapi.CreateNewClient("ShowroomCGI")
+		if err != nil {
+			log.Printf("CreateNewClient: %s\n", err.Error())
+			return
+		}
+		//      すべての処理が終了したらcookiejarを保存する。
+		defer jar.Save()
+
+		starttimeafternow, status = GetAndInsertEventRoomInfo(client, eventid, ibreg, iereg, eventinf, &roominfolist)
 	}
-	//      すべての処理が終了したらcookiejarを保存する。
-	defer jar.Save()
-
-	starttimeafternow, status := GetAndInsertEventRoomInfo(client, eventid, ibreg, iereg, eventinf, &roominfolist)
 	if status != 0 {
 
 		values := map[string]string{
