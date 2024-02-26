@@ -117,9 +117,10 @@ import (
 	11AL00	画面遷移のためのリンクを新しい機能に合わせる。list-cntrbSで目標値を変更できるようにする。
 	11AM00	開始前のイベントの登録は開催予定イベントのリストから行い、ルームの登録はイベント開始まで行わない件についてGetAndInsertEventRoomInfo()のフローを変更する。
 	11AN00	順位に関わりなくデータ取得の対象とするルームの追加でルーム検索を可能とするための準備を行う。
+	11AN01	api/room/profileでエラーを起きたときエラーの内容をログ出力する。
 */
 
-const Version = "11AN00"
+const Version = "11AN01"
 
 /*
 type Event_Inf struct {
@@ -778,15 +779,21 @@ func GetRoomInfoByAPI(room_id string) (
 	}
 	defer resp.Body.Close()
 
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	bufstr := buf.String()
+
+
 	//	JSONをデコードする。
 	//	次の記事を参考にさせていただいております。
 	//		Go言語でJSONに泣かないためのコーディングパターン
 	//		https://qiita.com/msh5/items/dc524e38073ed8e3831b
 
 	var result interface{}
-	decoder := json.NewDecoder(resp.Body)
+	decoder := json.NewDecoder(buf)
 	if err := decoder.Decode(&result); err != nil {
 		//	panic(err)
+		log.Printf("%s",bufstr)
 		status = -2
 		return
 	}
