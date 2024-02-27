@@ -118,9 +118,10 @@ import (
 	11AM00	開始前のイベントの登録は開催予定イベントのリストから行い、ルームの登録はイベント開始まで行わない件についてGetAndInsertEventRoomInfo()のフローを変更する。
 	11AN00	順位に関わりなくデータ取得の対象とするルームの追加でルーム検索を可能とするための準備を行う。
 	11AN01	api/room/profileでエラーを起きたときエラーの内容をログ出力する。
+	11AN02	HandlerNewUser() DBにユーザデータが存在しないときlongname、shortnameにAPIで取得した値をセットする。
 */
 
-const Version = "11AN01"
+const Version = "11AN02"
 
 /*
 type Event_Inf struct {
@@ -5237,8 +5238,8 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 	longname := roominf.Longname
 	shortname := roominf.Shortname
 	if status != 0 {
-		longname = ""
-		shortname = ""
+		longname = roomname
+		shortname = fmt.Sprintf("%d", userno % 100)
 	} else {
 		_, _, status = SelectUserColor(userno, Event_inf.Event_ID)
 	}
