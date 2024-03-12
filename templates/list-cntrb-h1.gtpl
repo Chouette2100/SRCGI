@@ -24,8 +24,11 @@
   </table>
 
 <p>枠別貢献ポイント一覧表</p>
+{{/*
 <p style="color:crimson;">本機能は実験的なものです。結果を100%信じないでください。<br>上位のリスナーの結果は比較的正確です。あくまで"比較的"にです。</p>
+*/}}
 <p style="color:crimson;">イベント開始から終了までのすべてのデータが取得されていない場合、<br>（特に最初と最後の）データに不整合が発生していることがあります。</p>
+<p style="color:green;">2014-03-11以後に開始されてイベントについてはtlsnidはリスナーさんのユーザーIDです。</p>
 <table>
 <tr><td align="center"><a href="https://www.showroom-live.com/event/{{.Eventid}}">{{.Eventname}}</a>（{{.Eventid}}）</td></tr>
 <tr><td align="center">{{.Period}}</td></tr>
