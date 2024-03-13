@@ -66,9 +66,10 @@ import (
 	00AB00	終了イベント一覧にイベント名の検索機能を追加する。各ページの上部にリンクボタンを追加する。
 	00AC00	開催予定イベント一覧の機能(HadleScheduledEvents())を追加する。
 	00AD00	srhandler.HandlerT008topForm(),srhandler.HandlerT008topForm()の呼び出しを追加する。
+	00AE00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
 */
 
-const version = "00AD00"
+const version = "00AE00"
 
 // 入力内容の確認画面
 func main() {
@@ -241,6 +242,8 @@ func main() {
 	http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.HandlerClosedEventRoomList)
 
 	http.HandleFunc(rootPath+"/apiroomstatus", srhandler.HandlerApiRoomStatus)
+
+	http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)
 
 	http.HandleFunc(rootPath+"/t008top", srhandler.HandlerT008topForm) //	http://....../t008top で呼び出される。
 	http.HandleFunc(rootPath+"/t009top", srhandler.HandlerT009topForm) //	http://....../t009top で呼び出される。

@@ -119,9 +119,10 @@ import (
 	11AN00	順位に関わりなくデータ取得の対象とするルームの追加でルーム検索を可能とするための準備を行う。
 	11AN01	api/room/profileでエラーを起きたときエラーの内容をログ出力する。
 	11AN02	HandlerNewUser() DBにユーザデータが存在しないときlongname、shortnameにAPIで取得した値をセットする。
+	11AP00「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
 */
 
-const Version = "11AN02"
+const Version = "11AP00"
 
 /*
 type Event_Inf struct {
