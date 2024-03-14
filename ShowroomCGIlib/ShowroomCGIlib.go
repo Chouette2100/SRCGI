@@ -121,9 +121,11 @@ import (
 	11AN02	HandlerNewUser() DBにユーザデータが存在しないときlongname、shortnameにAPIで取得した値をセットする。
 	11AP00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
 	11AP01	HandlerTopRoom()で日時範囲と表示数の設定を可能にする。
+	11AP02	GetUserInf()の抜けを補う。
+
 */
 
-const Version = "11AP01"
+const Version = "11AP02"
 
 /*
 type Event_Inf struct {

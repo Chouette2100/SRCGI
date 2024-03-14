@@ -60,6 +60,10 @@ func HandlerCurrentDistributors(
 	r *http.Request,
 ) {
 
+	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
+	GetUserInf(r)
+
+
 	top := T009top{
 		SR_acct:      "999999",
 		Category:     "Official",

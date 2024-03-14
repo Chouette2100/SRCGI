@@ -44,6 +44,10 @@ func HandlerScheduledEventsSvr(
 	r *http.Request,
 ) {
 
+	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
+	GetUserInf(r)
+
+
 	client, cookiejar, err := exsrapi.CreateNewClient("")
 	if err != nil {
 		log.Printf("exsrapi.CeateNewClient(): %s", err.Error())
