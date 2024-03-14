@@ -39,12 +39,18 @@ type TopRoom struct {
 }
 
 type Top struct {
+	Olim        int
+	From        time.Time
+	To          time.Time
+	ChkGenre	map[string]bool
 	TopRoomList []TopRoom
 }
 
 func SelectTopRoom(
 	client *http.Client,
 	olim int,
+	fromtime time.Time,
+	totime time.Time,
 ) (
 	top *Top,
 	err error,
@@ -53,8 +59,12 @@ func SelectTopRoom(
 	top = &Top{}
 	top.TopRoomList = make([]TopRoom, 0)
 
+	top.Olim = olim
+	top.From = fromtime
+	top.To = totime
+
 	sqltr := "select p.point, p.`rank`, u.userno,u.genre, e.endtime, u.user_name, p.eventid, e.event_name from points p, user u, event e "
-	sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime > '2023-10-01' order by p.point desc limit ?; "
+	sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime > ? and e.endtime < ? order by p.point desc limit ?; "
 
 	var stmt *sql.Stmt
 	var rows *sql.Rows
@@ -65,7 +75,7 @@ func SelectTopRoom(
 		return
 	}
 
-	rows, err = stmt.Query(olim)
+	rows, err = stmt.Query(fromtime, totime, olim)
 	if err != nil {
 		err = fmt.Errorf("query(): %w", err)
 		return
@@ -122,16 +132,46 @@ func HandlerTopRoom(
 		olim = 50
 	}
 
+	from := r.FormValue("from")
+	if from == "" {
+		from = "2023-10-01"
+	}
+	from += " +0900"
+	fromtime, err := time.Parse("2006-01-02 -0700", from)
+	if err != nil {
+		log.Printf("HandlerTopRoom(): time.Parse(): %s", err.Error())
+		fromtime = time.Date(2023, 10, 1, 0, 0, 0, 0, time.Local)
+	}
+
+	totimelimit := time.Now().Truncate(24 * time.Hour).Add(-48 * time.Hour)
+
+	to := r.FormValue("to")
+	if to == "" {
+		to = time.Now().Truncate(24 * time.Hour).Add(-48 * time.Hour).Format("2006-01-02")
+	}
+	to += " +0900"
+	totime, err := time.Parse("2006-01-02 -0700", to)
+	if err != nil {
+		log.Printf("HandlerTopRoom(): time.Parse(): %s", err.Error())
+		totime = totimelimit
+	}
+	if totime.After(totimelimit) {
+		totime = totimelimit
+	}
+
+	log.Printf("from: %v, to: %v olim: %d\n", fromtime, totime, olim)
+
+
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
-		"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                           //	3桁ごとに","を入れる関数。
+		"Comma":      func(i int) string { return humanize.Comma(int64(i)) }, //	3桁ごとに","を入れる関数。
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 	}
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/toproom.gtpl"))
 
-	top, err := SelectTopRoom(client, olim)
+	top, err := SelectTopRoom(client, olim, fromtime, totime)
 	if err != nil {
 		err = fmt.Errorf("HandlerTopRoom(): %w", err)
 		log.Printf("SelectTopRoom(): %s\n", err.Error())

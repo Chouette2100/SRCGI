@@ -17,7 +17,7 @@
 <p style="color:red;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！</p>
 */}}
 <p style="color:green;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！
-　　サーバ移行のため<span style="color:red;">月曜日の早朝に1時間ほどサーバを停止</span>します。</p>
+{{/*　　サーバ移行のため<span style="color:red;">月曜日の早朝に1時間ほどサーバを停止</span>します。*/}}</p>
 <p style="color:green;">使用中にヘンな現象が発生したら<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/03187b">トラブルシューティング</a>をご覧ください！
 {{/*
 <p style="color:red;">
