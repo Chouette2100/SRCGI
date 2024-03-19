@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
 <html>
+<head>
+	<style>
+		.p1 {
+			white-space: pre-wrap;
+			margin-left: 25;
+		}
+	</style>
+</head>
 <body>
 <H2>SHOWROOM イベント 獲得ポイント一覧</H2>
 
@@ -11,7 +19,6 @@
 /top</a>
 </p>
 */}}
-
 {{/*
 <p style="color:red;">現在システムの更新作業中です。しばらくお待ちください。</p>
 <p style="color:red;">更新や障害の状況については<a href="https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/807ad9">だいじなお知らせ</a>をご覧ください！</p>

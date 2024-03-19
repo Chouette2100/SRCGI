@@ -67,9 +67,10 @@ import (
 	00AC00	開催予定イベント一覧の機能(HadleScheduledEvents())を追加する。
 	00AD00	srhandler.HandlerT008topForm(),srhandler.HandlerT008topForm()の呼び出しを追加する。
 	00AE00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
+	00AF00	掲示板機能を追加する。
 */
 
-const version = "00AE00"
+const version = "00AF00"
 
 // 入力内容の確認画面
 func main() {
@@ -244,6 +245,9 @@ func main() {
 	http.HandleFunc(rootPath+"/apiroomstatus", srhandler.HandlerApiRoomStatus)
 
 	http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)
+
+	http.HandleFunc(rootPath+"/disp-bbs", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/write-bbs", ShowroomCGIlib.HandlerWriteBbs)
 
 	http.HandleFunc(rootPath+"/t008top", srhandler.HandlerT008topForm) //	http://....../t008top で呼び出される。
 	http.HandleFunc(rootPath+"/t009top", srhandler.HandlerT009topForm) //	http://....../t009top で呼び出される。

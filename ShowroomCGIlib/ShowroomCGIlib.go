@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"html"
 
 	//	"math"
 	"sort"
@@ -122,10 +123,11 @@ import (
 	11AP00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
 	11AP01	HandlerTopRoom()で日時範囲と表示数の設定を可能にする。
 	11AP02	GetUserInf()の抜けを補う。
+	11AQ00	掲示板機能を追加する。
 
 */
 
-const Version = "11AP02"
+const Version = "11AQ00"
 
 /*
 type Event_Inf struct {
@@ -4662,12 +4664,13 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 	GetUserInf(r)
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
-		"templates/top.gtpl",
-		"templates/top0.gtpl",
-		"templates/top1.gtpl",
-		"templates/top2.gtpl",
-	))
+//	tpl := template.Must(template.ParseFiles(
+//		"templates/top.gtpl",
+//		"templates/top0.gtpl",
+//		"templates/bbs-2.gtpl",
+//		"templates/top1.gtpl",
+//		"templates/top2.gtpl",
+//	))
 
 	eventid := r.FormValue("eventid")
 	suserno := r.FormValue("userno")
@@ -4678,6 +4681,76 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 	log.Printf("      eventid=%s userno=%d\n", eventid, userno)
 
 	if eventid == "" {
+
+
+		// **********************************************
+		var bbs BBS
+
+		bbs.Cntlist = []int{1, 2, 3, 4, 5}
+		bbs.Cntr = 9
+	
+		//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
+		//	GetUserInf(req)
+	
+		bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
+		if bbs.Limit == 0 {
+			bbs.Limit = 10
+		}
+		bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
+	
+		action := r.FormValue("action")
+		if action == "next" {
+			bbs.Offset += bbs.Limit
+		} else if action == "prev." {
+			bbs.Offset -= bbs.Limit
+			if bbs.Offset < 0 {
+				bbs.Offset = 0
+			}
+		} else if action == "再表示(top)" {
+			bbs.Offset = 0
+		}
+	
+		from := r.FormValue("from")
+		bbs.Manager = r.FormValue("manager")
+		if bbs.Manager == "" {
+			bbs.Manager = "black"
+		}
+	
+		if from == "disp-bbs" {
+			/*
+			for i, v := range []string{"cnt0", "cnt1", "cnt2", "cnt3", "cnt4"} {
+				cntv, _ := strconv.Atoi(r.FormValue(v))
+				if cntv > 0 {
+					bbs.Cntlist[i] = cntv
+				} else {
+					bbs.Cntlist[i] = -1
+				}
+			}
+			*/
+			bbs.Cntr, _ = strconv.Atoi(r.FormValue("cntr"))
+		}
+	
+		//      テンプレートで使用する関数を定義する
+		funcMap := template.FuncMap{
+			"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
+			"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
+			"CntToName": func(c int) string {
+				cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
+				return cntname[c]
+			},
+			"Add": func(n int, m int) int { return n + m },
+		}
+		// テンプレートをパースする
+		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl", "templates/top1.gtpl", "templates/top2.gtpl"))
+	
+		// ログを読み出してHTMLを生成 --- (*7)
+		err := loadLogs(&bbs) // データを読み出す
+		if err != nil {
+			err = fmt.Errorf("loadLogs(): %w", err)
+			log.Printf("showHandler(): %s\n", err.Error())
+		}
+		// **********************************************
+
 
 		// マップを展開してテンプレートを出力する
 		eventlist, _ := SelectLastEventList()
@@ -4708,13 +4781,18 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// マップを展開してテンプレートを出力する
-		if err := tpl.ExecuteTemplate(w, "top0.gtpl", userlist); err != nil {
+//		if err := tpl.ExecuteTemplate(w, "top0.gtpl", userlist); err != nil {
+		if err := tpl.ExecuteTemplate(w, "bbs-2.gtpl", bbs); err != nil {
 			log.Println(err)
 		}
 		if err := tpl.ExecuteTemplate(w, "top1.gtpl", eventlist); err != nil {
 			log.Println(err)
 		}
 	} else {
+		tpl := template.Must(template.ParseFiles(
+		"templates/top2.gtpl",
+	))
+
 		//	eventinf, _ := SelectEventInf(eventid)
 		srdblib.Tevent = "event"
 		eventinf, err := srdblib.SelectFromEvent(eventid)
