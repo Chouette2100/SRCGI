@@ -54,7 +54,6 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 	var logm Logm
 
 	bbs.Cntlist = []int{1, 2, 3, 4, 5}
-	bbs.Cntr = 9
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	ra, ua := GetUserInf(r)
@@ -83,8 +82,11 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 			err = fmt.Errorf("saveLogs(): %w", err)
 			log.Printf("writeHandler(): %s\n", err.Error())
 		}
+		//	ログ書き込み後のログの表示はジャンルを限定せず表示する。
+		bbs.Cntr = 9
 	} else {
 		//	読み込みが行われた。前回と同じジャンルの投稿を表示する。
+		//	URL直打ちのときは前回がないので、actionの処理のとき別に設定する。
 		bbs.Cntr, _ = strconv.Atoi(r.FormValue("cntr"))
 	}
 
@@ -111,6 +113,9 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 	} else if action == "再表示(top)" {
 		//	投稿を最初（＝投稿順としては最後）から表示する。
 		bbs.Offset = 0
+	} else {
+		//	actionが指定されていないとき＝URL(/bbs-disp)直打ちのときは全ログを表示する。
+		bbs.Cntr = 9
 	}
 
 	//	メンバー名を取得する。managerに色名を指定すると投稿がその色で表示されるとともに

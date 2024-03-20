@@ -125,10 +125,11 @@ import (
 	11AP02	GetUserInf()の抜けを補う。
 	11AQ00	掲示板機能を追加する。
 	11AQ01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
+	11AQ02	HandlerDispBbs()に関して掲示板ページに直接来てもログが表示されるようにする。
 
 */
 
-const Version = "11AQ01"
+const Version = "11AQ02"
 
 /*
 type Event_Inf struct {
