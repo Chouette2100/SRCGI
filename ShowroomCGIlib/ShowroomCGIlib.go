@@ -124,10 +124,11 @@ import (
 	11AP01	HandlerTopRoom()で日時範囲と表示数の設定を可能にする。
 	11AP02	GetUserInf()の抜けを補う。
 	11AQ00	掲示板機能を追加する。
+	11AQ01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
 
 */
 
-const Version = "11AQ00"
+const Version = "11AQ01"
 
 /*
 type Event_Inf struct {
@@ -4638,7 +4639,10 @@ func Mark(j int, canvas *svg.SVG, x0, y0, d float64, color string) {
 /*
 ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 */
-func GetUserInf(r *http.Request) {
+func GetUserInf(r *http.Request) (
+	ra	string,
+	ua	string,
+) {
 
 	pt, _, _, ok := runtime.Caller(1) //	スタックトレースへのポインターを得る。1は一つ上のファンクション。
 
@@ -4650,12 +4654,13 @@ func GetUserInf(r *http.Request) {
 	fn = runtime.FuncForPC(pt).Name()
 	fna := strings.Split(fn, ".")
 
-	ra := r.RemoteAddr
-	ua := r.UserAgent()
+	ra = r.RemoteAddr
+	ua = r.UserAgent()
 
 	log.Printf("***** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 	//	fmt.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 
+	return
 }
 
 // 入力フォーム画面

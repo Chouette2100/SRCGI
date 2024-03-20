@@ -1,7 +1,10 @@
 <h3>掲示板　（直接の連絡は<a href="https://twitter.com/Seppina1/" target="_blank" rel="noopener noreferrer">こちら</a>へ）</h3>
 <div>
-	<form action='/write-bbs' method='POST' style="color: {{ .Manager }};">
+	<form action='/disp-bbs' method='POST' style="color: {{ .Manager }};">
+		<input type="hidden" name="prc" value="write" />
+		<input type="hidden" name=manager value="{{ .Manager }}" />
 		<input type="hidden" name=color value="{{ .Manager }}" />
+		<input type="hidden" name="color" value="{{ .Manager }}" />
 		{{ range $i, $v := .Cntlist }}
 			<input type="hidden" name="cnt{{ $i }}" value="{{ Add $i 1 }}" />
 		{{ end }}
@@ -32,9 +35,9 @@
 <hr>
 <p>投稿一覧</p>
 <form action='?' method='POST'>
+	<input type="hidden" name="prc" value="display" />
 	<input type="hidden" name=offset value="{{ .Offset }}" />
 	<input type="hidden" name=limit value="{{ .Limit }}" />
-	<input type="hidden" name=from value="disp-bbs" />
 	<input type="hidden" name=manager value="{{ .Manager }}" />
 	<fieldset>
 		<legend>表示したいジャンルを選んでください</legend>
@@ -42,11 +45,6 @@
 		<label for="CntDispA">{{ CntToName 5 }}</label>
 		{{ $cntr := .Cntr }}
 		{{ range $i, $v := .Cntlist }}
-		{{/*
-		<input type="checkbox" id="cnt{{ $i }}" name="cnt{{ $i }}" value="{{ Add $i 1 }}" {{ if gt $v 0 }} checked {{
-			end }}}} />
-		<label for="cnt{{ $i }}">{{ CntToName $i }}</label>
-		*/}}
 		<input type="radio" id="CntDisp{{ Add $i 1}}" name="cntr" value="{{ Add $i 1 }}" {{ if eq ( Add $i 1) $cntr }} checked {{ end }}}} />
 		<label for="CntDisp{{ Add $i 1 }}">{{ CntToName $i }}</label>
 		{{ end }}
