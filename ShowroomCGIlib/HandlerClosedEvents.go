@@ -27,32 +27,10 @@ import (
 
 /*
 
-	開催中のイベント一覧を作るためのハンドラー
+	終了イベント一覧を作るためのハンドラー
 
 	Ver. 0.1.0
 
-*/
-
-/*
-	type T008top struct {
-		TimeNow    int64
-		Totalcount int
-		ErrMsg     string
-		Eventlist  []srapi.Event
-	}
-*/
-/*
-type T999Dtop struct {
-	TimeNow      int64
-	Totalcount   int
-	ErrMsg       string
-	Mode			int
-	Eventinflist []exsrapi.Event_Inf
-}
-*/
-
-/*
-終了イベント一覧を表示する。
 */
 func HandlerClosedEvents(
 	w http.ResponseWriter,
@@ -89,6 +67,35 @@ func HandlerClosedEvents(
 	top.Kwevid = r.FormValue("kwevid")
 	top.Userno, _ = strconv.Atoi(r.FormValue("userno"))
 
+	slimit := r.FormValue("limit")
+	if slimit == "" {
+		top.Limit = 51
+	} else {
+		top.Limit, _ = strconv.Atoi(slimit)
+	}
+	soffset := r.FormValue("offset")
+	if soffset == "" {
+		top.Offset = 0
+	} else {
+		top.Offset, _ = strconv.Atoi(soffset)
+	}
+
+	//	ページ操作	
+	action := r.FormValue("action")
+	if action == "next" {
+		//	次ページを表示する。
+		top.Offset += top.Limit - 1
+	} else if action == "prev" {
+		//	前ページを表示する。
+		top.Offset -= top.Limit - 1
+		if top.Offset < 0 {
+			top.Offset = 0
+		}
+	} else if action == "top" {
+		//	最初から表示する。
+		top.Offset = 0
+	}
+
 	top.Path, _ = strconv.Atoi(r.FormValue("path"))
 	/*
 		0. 最初のパス
@@ -106,7 +113,7 @@ func HandlerClosedEvents(
 	cond := -1 // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	switch top.Path {
 	case 0:
-		top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "")
+		top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "", top.Limit, top.Offset)
 		if err != nil {
 			err = fmt.Errorf("SelectEventinflistFromEvent(): %w", err)
 			log.Printf("SelectEventinflistFromEvent() returned error %s\n", err.Error())
@@ -114,9 +121,9 @@ func HandlerClosedEvents(
 		}
 	case 1, 2:
 		if top.Path == 1 {
-			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, top.Keywordev, "")
+			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, top.Keywordev, "", top.Limit, top.Offset)
 		} else {
-			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", top.Kwevid)
+			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", top.Kwevid, top.Limit, top.Offset)
 		}
 		if err != nil {
 			err = fmt.Errorf("SelectEventinflistFromEvent(): %w", err)
@@ -135,7 +142,7 @@ func HandlerClosedEvents(
 		}
 		if top.Path == 4 && top.Userno != 0 {
 			//	ルーム名による絞り込み
-			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno)
+			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
 			if err != nil {
 				err = fmt.Errorf("MakeListOfPoints(): %w", err)
 				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
@@ -144,7 +151,7 @@ func HandlerClosedEvents(
 		}
 	case 5:
 			//	ルーム名による絞り込み
-			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno)
+			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
 			if err != nil {
 				err = fmt.Errorf("MakeListOfPoints(): %w", err)
 				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())

@@ -17,6 +17,8 @@ func SelectEventinflistFromEventByRoom(
 	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	mode int, // 0: すべて、 1: データ取得中のものに限定
 	userno int, // イベント名検索キーワード
+	limit	int, // ページング制限
+	offset	int, // ページングオフセット
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -30,6 +32,7 @@ func SelectEventinflistFromEventByRoom(
 
 	tnow := time.Now().Truncate(time.Second)
 
+
 	sqls := "select we.eventid,we.ieventid,we.event_name, we.period, we.starttime, we.endtime, we.noentry, we.intervalmin, we.modmin, we.modsec, "
 	sqls += " we.Fromorder, we.Toorder, we.Resethh, we.Resetmm, we.Nobasis, we.Maxdsp, we.cmap, we.target, we.`rstatus`, we.maxpoint, we.achk "
 	sqls += " from wevent we"
@@ -41,7 +44,7 @@ func SelectEventinflistFromEventByRoom(
 	sqls += " where weu.userno = ? and we.endtime < ? "
 	sqls += " union select eu.eventid from eventuser eu join event e on eu.eventid = e.eventid "
 	sqls += " where eu.userno = ? and e.endtime < ? )  "
-	sqls += " order by starttime desc, endtime desc limit 30 offset 0"
+	sqls += " order by starttime desc, endtime desc limit ? offset ?"
 
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
@@ -53,7 +56,7 @@ func SelectEventinflistFromEventByRoom(
 	defer stmts.Close()
 
 	var rows *sql.Rows
-	rows, srdblib.Dberr = stmts.Query(userno, tnow, userno, tnow)
+	rows, srdblib.Dberr = stmts.Query(userno, tnow, userno, tnow, limit, offset)
 	if srdblib.Dberr != nil {
 		err = fmt.Errorf("Query(userno, userno): %w", srdblib.Dberr)
 		return

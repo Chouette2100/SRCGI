@@ -35,6 +35,8 @@
     <div style="text-indent: 2rem;"><a href="t009top">t009:配信中ルーム一覧</a></div>
     <p>-------------------------------------------------------------</p>
     {{*/}}
+
+    
     <table>
         <tr>
             <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
@@ -220,8 +222,23 @@
         </div>
         */}}
         <div style="text-indent: 2rem;">
-            現時点では最初の50件のみ表示されます。データ上最終結果が存在しても表示されないケースがあります（いずれも修正・改良予定あり）
+            一覧は51件ずつ表示され、50件ずつスクロールされます。データ上最終結果が存在しても表示されないケースがあります（修正・改良予定あり）
         </div>
+        
+        {{ if ne .Offset 0 }}
+
+            <button type="button"
+                onclick="location.href='closedevents?path={{ .Path }}&mode={{ .Mode }}&keywordev={{ .Keywordev }}&keywordrm={{ .Keywordrm }}&kwevid={{ .Kwevid }}&userno={{ .Userno }}&action=top&limit={{ .Limit }}&offset={{.Offset}}'">最初から表示する</button>
+
+            <button type="button"
+                onclick="location.href='closedevents?path={{ .Path }}&mode={{ .Mode }}&keywordev={{ .Keywordev }}&keywordrm={{ .Keywordrm }}&kwevid={{ .Kwevid }}&userno={{ .Userno }}&action=prev&limit={{ .Limit }}&offset={{.Offset}}'">前ページ</button>
+
+
+        {{ end }}
+
+
+
+
         <table border="1" style="border-collapse: collapse">
             <tr bgcolor="gainsboro" style="text-align: center">
                 <td>イベント名とイベントページへのリンク</td>
@@ -287,6 +304,12 @@
             {{ end }}
             <tr>
         </table>
+
+        {{ if eq .Totalcount .Limit }}
+           <button type="button"
+                onclick="location.href='closedevents?path={{ .Path }}&mode={{ .Mode }}&keywordev={{ .Keywordev }}&keywordrm={{ .Keywordrm }}&kwevid={{ .Kwevid }}&userno={{ .Userno }}&action=next&limit={{ .Limit }}&offset={{.Offset}}'">次ページ</button>
+        {{ end }}
+
         {{ end }}
         <p>
             {{ .ErrMsg}}

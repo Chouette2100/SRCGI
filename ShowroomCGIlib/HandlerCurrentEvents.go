@@ -55,6 +55,8 @@ type T999Dtop struct {
 	Keywordrm    string //	検索文字列:ルーム名
 	Kwevid    string //	検索文字列:イベントID
 	Userno       int    //	絞り込み対象のルームID
+	Limit        int    //	データ取得数
+	Offset       int    //	データ取得開始位置
 	Eventinflist []exsrapi.Event_Inf
 	Roomlist     *[]Room
 }
@@ -98,9 +100,17 @@ func HandlerCurrentEvents(
 	top.TimeNow = time.Now().Unix()
 	top.Mode, _ = strconv.Atoi(r.FormValue("mode"))
 
+	top.Limit = 50
+	soffset := r.FormValue("offset")
+	if soffset == "" {
+		top.Offset = 0
+	} else {
+		top.Offset, _ = strconv.Atoi(soffset)
+	}
+
 	var err error
 	cond := 0 // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
-	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "")
+	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "", 0, 0)
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)
 		log.Printf("MakeListOfPoints() returned error %s\n", err.Error())

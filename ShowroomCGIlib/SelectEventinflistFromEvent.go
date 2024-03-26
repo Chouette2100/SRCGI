@@ -18,6 +18,8 @@ func SelectEventinflistFromEvent(
 	mode int, // 0: すべて、 1: データ取得中のものに限定
 	keyword string, // イベント名検索キーワード
 	kwevid string, // イベント検索キーワード
+	limit int, //	select文のlimitに使用する値
+	offset int, //	select文のoffsetに使用する値
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -66,7 +68,7 @@ func SelectEventinflistFromEvent(
 	}
 
 	if cond == -1 {
-		sqls += " limit 50"
+		sqls += " limit ? offset ? "
 	}
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
@@ -90,9 +92,17 @@ func SelectEventinflistFromEvent(
 	case cond == 0 && kw != "":
 		rows, srdblib.Dberr = stmts.Query(tnow, tnow, "%"+kw+"%")
 	case cond != 0 && kw == "":
-		rows, srdblib.Dberr = stmts.Query(tnow)
+		if cond == -1 {
+			rows, srdblib.Dberr = stmts.Query(tnow, limit, offset)
+		} else {
+			rows, srdblib.Dberr = stmts.Query(tnow)
+		}
 	case cond != 0 && kw != "":
-		rows, srdblib.Dberr = stmts.Query(tnow, "%"+kw+"%")
+		if cond == -1 {	
+			rows, srdblib.Dberr = stmts.Query(tnow, "%"+kw+"%", limit, offset)
+		} else {
+			rows, srdblib.Dberr = stmts.Query(tnow, "%"+kw+"%")
+		}
 	}
 	if srdblib.Dberr != nil {
 		err = fmt.Errorf("Query(tnow): %w", srdblib.Dberr)
