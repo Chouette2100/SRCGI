@@ -44,7 +44,8 @@ type BBS struct {
 	Cntlist []int  //	ラジオボタンの制御（1: 不具合、	2: 要望、3: 質問、4: その他、5: お知らせ、9: すべて）
 	Offset  int    //	表示開始位置
 	Limit   int    //	表示投稿数
-	Loglist []Logm
+	Nlog    int    //	読みこんだ投稿の数
+	Loglist []Logm //	ログメッセージ
 }
 
 // リクエストの内容によって投稿を書き込み、あるいは投稿一覧を表示する
@@ -57,7 +58,6 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	ra, ua := GetUserInf(r)
-
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	//	GetUserInf(req)
@@ -74,7 +74,7 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 		logm.CTime = time.Now()
 
 		raa := strings.Split(ra, ":")
-		logm.Ra = raa[0] 
+		logm.Ra = raa[0]
 		logm.Ua = ua
 
 		err := saveLog(&logm)
@@ -90,11 +90,14 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 		bbs.Cntr, _ = strconv.Atoi(r.FormValue("cntr"))
 	}
 
-	//	一度に表示する投稿の数	
+	//	一度に表示する投稿の数
+	/*
 	bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
 	if bbs.Limit == 0 {
-		bbs.Limit = 10
+		bbs.Limit = 11
 	}
+	*/
+	bbs.Limit = 11
 
 	//	何番目の投稿から表示するか？
 	//	上のlimitとあわせ  select ........... limit , offset に用いる。
@@ -103,10 +106,10 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 	action := r.FormValue("action")
 	if action == "next" {
 		//	次ページを表示する。
-		bbs.Offset += bbs.Limit
-	} else if action == "prev." {
+		bbs.Offset += bbs.Limit - 1
+	} else if action == "prev" {
 		//	前ページを表示する。
-		bbs.Offset -= bbs.Limit
+		bbs.Offset -= bbs.Limit - 1
 		if bbs.Offset < 0 {
 			bbs.Offset = 0
 		}
@@ -127,7 +130,7 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	//      テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
-		"htmlEscapeString": func(s string) string { return html.EscapeString(s) },	//	必要か（もっとかんたんな方法がないか）確認のこと
+		"htmlEscapeString": func(s string) string { return html.EscapeString(s) }, //	必要か（もっとかんたんな方法がないか）確認のこと
 		"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 		"CntToName": func(c int) string {
 			cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
@@ -138,12 +141,14 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
 
-	// ログを読み出してHTMLを生成
+	// ログを読み出す
 	err := loadLogs(&bbs) // データを読み出す
 	if err != nil {
 		err = fmt.Errorf("loadLogs(): %w", err)
 		log.Printf("showHandler(): %s\n", err.Error())
 	}
+
+	bbs.Nlog = len(bbs.Loglist)
 
 	if err := tpl.ExecuteTemplate(w, "bbs-1.gtpl", bbs); err != nil {
 		log.Println(err)
@@ -180,7 +185,7 @@ func loadLogs(
 		return
 	}
 	if bbs.Offset >= nrow {
-		bbs.Offset -= bbs.Limit
+		bbs.Offset -= bbs.Limit - 1
 	}
 
 	bbs.Loglist = make([]Logm, 0)
@@ -199,6 +204,7 @@ func loadLogs(
 		err = fmt.Errorf("prepare(): %w", err)
 		return
 	}
+	defer stmt.Close()
 
 	if bbs.Cntr != 9 {
 		rows, err = stmt.Query(bbs.Cntr, bbs.Offset, bbs.Limit)
@@ -209,6 +215,7 @@ func loadLogs(
 		err = fmt.Errorf("query(): %w", err)
 		return
 	}
+	defer rows.Close()
 
 	var logm Logm
 	for rows.Next() {

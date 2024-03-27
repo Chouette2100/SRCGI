@@ -127,10 +127,14 @@ import (
 	11AQ01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
 	11AQ02	HandlerDispBbs()に関して掲示板ページに直接来てもログが表示されるようにする。
 	11AQ03	終了イベント一覧の表示：51件表示し、50件ずつスクロールする。
+	11AQ04	ログメッセージを変更する（HandleListCntrb(),HandleListCntrbD(),HandleListCntrbH()）
+			「(DB登録済み)イベント参加ルーム一覧（確認・編集）」で一覧にないルームを追加した直後の更新の不具合を修正する。
+			掲示板の「前ページ」、「次ページ」の操作を終了イベント一覧と同様にする。
+			
 
 */
 
-const Version = "11AQ02"
+const Version = "11AQ04"
 
 /*
 type Event_Inf struct {
@@ -4699,17 +4703,20 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 		//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 		//	GetUserInf(req)
 	
+		/*
 		bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
 		if bbs.Limit == 0 {
-			bbs.Limit = 10
+			bbs.Limit = 11
 		}
+		*/
+		bbs.Limit = 11
 		bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
 	
 		action := r.FormValue("action")
 		if action == "next" {
-			bbs.Offset += bbs.Limit
+			bbs.Offset += bbs.Limit - 1
 		} else if action == "prev." {
-			bbs.Offset -= bbs.Limit
+			bbs.Offset -= bbs.Limit - 1
 			if bbs.Offset < 0 {
 				bbs.Offset = 0
 			}
@@ -4756,6 +4763,7 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 			err = fmt.Errorf("loadLogs(): %w", err)
 			log.Printf("showHandler(): %s\n", err.Error())
 		}
+		bbs.Nlog = len(bbs.Loglist)
 		// **********************************************
 
 

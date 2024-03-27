@@ -122,7 +122,7 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 		ie = latl - 1
 	}
 
-	log.Printf("***** HandlerListCntrb() called. eventid=%s, userno=%d, ie=%d\n", eventid, userno, ie)
+	log.Printf(". eventid=%s, userno=%d, ie=%d\n", eventid, userno, ie)
 
 	ib := ie - 4
 	if ib < 0 {

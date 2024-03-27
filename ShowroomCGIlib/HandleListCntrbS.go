@@ -132,7 +132,7 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	sort := req.FormValue("sort")
 	target, _ := strconv.Atoi(req.FormValue("target"))
 	ie, _ := strconv.Atoi(req.FormValue("ie"))
-	log.Printf("***** HandlerListCntrbS() called. eventid=%s, userno=%d, ifrm=%d\n", eventid, userno, ifrm)
+	log.Printf(" eventid=%s, userno=%d, ifrm=%d\n", eventid, userno, ifrm)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
 	ts := acqtimelist[ifrm]

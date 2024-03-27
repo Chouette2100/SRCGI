@@ -62,7 +62,10 @@
      </select>
 </td>
 
-<td><input type="submit" value="更新" form="{{.Formid}}" /></td>
+<td>
+     <input type="hidden" name="func" value="edituser" form="{{.Formid}}" />
+     <input type="submit" value="更新" form="{{.Formid}}" />
+</td>
 </tr>
 {{ end }}
 

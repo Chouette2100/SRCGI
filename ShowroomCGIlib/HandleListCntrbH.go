@@ -95,7 +95,7 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	tlsnid, _ := strconv.Atoi(req.FormValue("tlsnid"))
 	ie, _ := strconv.Atoi(req.FormValue("ie"))
-	log.Printf("***** HandlerListCntrbH() called. eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
+	log.Printf(" eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
 

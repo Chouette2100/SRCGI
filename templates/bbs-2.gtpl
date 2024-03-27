@@ -2,8 +2,7 @@
 <div>
 	<form action='/disp-bbs' method='POST' style="color: {{ .Manager }};">
 		<input type="hidden" name="prc" value="write" />
-		<input type="hidden" name=manager value="{{ .Manager }}" />
-		<input type="hidden" name=color value="{{ .Manager }}" />
+		<input type="hidden" name="manager" value="{{ .Manager }}" />
 		<input type="hidden" name="color" value="{{ .Manager }}" />
 		{{ range $i, $v := .Cntlist }}
 			<input type="hidden" name="cnt{{ $i }}" value="{{ Add $i 1 }}" />
@@ -49,8 +48,16 @@
 		<label for="CntDisp{{ Add $i 1 }}">{{ CntToName $i }}</label>
 		{{ end }}
 		<input type='submit' name="action" value='再表示(top)' formaction="/disp-bbs" />
-		<input type='submit' name="action" value='next' formaction="/disp-bbs" />
-		<input type='submit' name="action" value='prev.' formaction="/disp-bbs" />
+		{{/*
+			<input type='submit' name="action" value='next' formaction="/disp-bbs" />
+		*/}}
+		{{ if ne .Offset 0 }}
+		{{/*
+			<input type='submit' name="action" value='prev.' formaction="/disp-bbs" />
+		*/}}
+		<button type="button"
+                onclick="location.href='disp-bbs?action=prev&offset={{.Offset}}&cntr={{.Cntr}}&manager={{.Manager}}'">前ページ</button>
+		{{ end }}
 	</fieldset>
 
 {{ range .Loglist }}
@@ -62,6 +69,15 @@
 </div>
 {{ end }}
 		<input type='submit' name="action" value='再表示(top)' formaction="/disp-bbs" />
-		<input type='submit' name="action" value='next' formaction="/disp-bbs" />
+		{{ if eq .Nlog .Limit }}
+		{{/*
+			<input type='submit' name="action" value='next' formaction="/disp-bbs" />
+		*/}}
+           <button type="button"
+                onclick="location.href='disp-bbs?action=next&offset={{.Offset}}&cntr={{.Cntr}}&manager={{.Manager}}'">次ページ</button>
+
+		{{ end }}
+		{{/*
 		<input type='submit' name="action" value='prev.' formaction="/disp-bbs" />
+		*/}}
 </form>
