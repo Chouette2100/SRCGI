@@ -130,11 +130,12 @@ import (
 	11AQ04	ログメッセージを変更する（HandleListCntrb(),HandleListCntrbD(),HandleListCntrbH()）
 			「(DB登録済み)イベント参加ルーム一覧（確認・編集）」で一覧にないルームを追加した直後の更新の不具合を修正する。
 			掲示板の「前ページ」、「次ページ」の操作を終了イベント一覧と同様にする。
+	11AQ05	Prepare()のあとのdefer stmt.Close()とdefer rows.Close()の抜けを補う。
 			
 
 */
 
-const Version = "11AQ04"
+const Version = "11AQ05"
 
 /*
 type Event_Inf struct {

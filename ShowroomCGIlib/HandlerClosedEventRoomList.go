@@ -13,6 +13,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+
 	//	"strings"
 	"time"
 
@@ -20,13 +21,15 @@ import (
 	"net/http"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
+	//	"golang.org/x/tools/go/analysis/passes/defers"
 
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
 	"github.com/Chouette2100/srapi"
+	"github.com/Chouette2100/srdblib"
 )
 
 type Erl struct {
@@ -64,12 +67,14 @@ func SelectLastdataFromWeventuser(
 		err = fmt.Errorf("prepare: %s", err.Error())
 		return
 	}
+	defer stmt.Close()
 
 	rows, err = stmt.Query(eventurlkey)
 	if err != nil {
 		err = fmt.Errorf("query: %s", err.Error())
 		return
 	}
+	defer rows.Close()
 
 	var room srapi.Room
 	for rows.Next() {

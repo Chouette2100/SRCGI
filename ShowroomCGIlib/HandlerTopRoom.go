@@ -74,12 +74,14 @@ func SelectTopRoom(
 		err = fmt.Errorf("prepare(): %w", err)
 		return
 	}
+	defer stmt.Close()
 
 	rows, err = stmt.Query(fromtime, totime, olim)
 	if err != nil {
 		err = fmt.Errorf("query(): %w", err)
 		return
 	}
+	defer rows.Close()	
 
 	var troom TopRoom
 	for rows.Next() {

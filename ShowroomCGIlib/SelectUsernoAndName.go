@@ -34,8 +34,14 @@ func SelectUsernoAndName(
 		err = fmt.Errorf("Prepare(): %w", err)
 		return
 	}
+	defer stmt.Close()
 
 	rows, err = stmt.Query(kw, kw, limit, offset)
+	if err != nil {
+		err = fmt.Errorf("Query(): %w", err)
+		return
+	}
+	defer rows.Close()
 
 
 	for rows.Next() {
