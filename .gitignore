@@ -1,6 +1,6 @@
 *.exe
 *.bak
-*.txt
+00*.txt
 SRCGI
 SRCGI.20*
 ShowroomCGI
@@ -10,7 +10,6 @@ workspace.code-workspace
 *.tar.gz
 *.csh
 *.sh
-*.txt
 awk.in
 SC*
 go.mod
