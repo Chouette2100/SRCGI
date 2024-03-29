@@ -45,7 +45,13 @@ func HandlerScheduledEventsSvr(
 ) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
-	GetUserInf(r)
+	_, _, isallow := GetUserInf(r)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 
 	client, cookiejar, err := exsrapi.CreateNewClient("")

@@ -57,7 +57,12 @@ func HandlerScheduledEvents(
 	r *http.Request,
 ) {
 
-	GetUserInf(r)
+	_, _, isallow := GetUserInf(r)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
 
 	/*
 		client, cookiejar, err := exsrapi.CreateNewClient("")

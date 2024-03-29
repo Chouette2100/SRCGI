@@ -81,7 +81,13 @@ type CntrbHistory []CntrbHistoryInf
 func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
-	GetUserInf(req)
+	_, _, isallow := GetUserInf(req)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbH-h.gtpl", "templates/list-cntrbH.gtpl"))
@@ -394,6 +400,10 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 		log.Printf("%6d %3d %5d\n", pcl[i].Pnt, pcl[i].Cnt, pcl[i].Wcnt)
 	}
 
+	if len(pcl) == 0 {
+		target = -1
+		return
+	}
 	target = pcl[0].Pnt
 
 	if target != -1 {

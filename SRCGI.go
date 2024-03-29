@@ -69,9 +69,11 @@ import (
 	00AE00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
 	00AF00	掲示板機能を追加する。
 	00AF01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
+	00AG00	「枠別貢献ポイント一覧表」でリスナーさんの配信枠別貢献ポイントの履歴が表示されないことがある問題の修正。
+			ボット等からの接続を拒否（できるように）する。
 */
 
-const version = "00AF01"
+const version = "00AG00"
 
 // 入力内容の確認画面
 func main() {
@@ -99,6 +101,9 @@ func main() {
 		svconfig.NoEvent = 30
 	}
 	log.Printf("%+v\n", svconfig)
+
+	ShowroomCGIlib.LoadDenyIp("DenyIp.txt")
+	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)
 
 	/*
 	var dbconfig *srdblib.DBConfig

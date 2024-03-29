@@ -1,7 +1,7 @@
 package ShowroomCGIlib
 
 import (
-	//	"fmt"
+	"fmt"
 	"log"
 	"time"
 
@@ -51,7 +51,13 @@ import (
 func HandlerFanLevel(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
-	GetUserInf(req)
+	_, _, isallow := GetUserInf(req)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(

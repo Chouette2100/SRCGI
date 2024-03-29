@@ -11,6 +11,7 @@ import (
 	"html/template"
 	//	"io" //　ログ出力設定用。必要に応じて。
 	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -61,7 +62,13 @@ func HandlerCurrentDistributors(
 ) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
-	GetUserInf(r)
+	_, _, isallow := GetUserInf(r)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 
 	top := T009top{

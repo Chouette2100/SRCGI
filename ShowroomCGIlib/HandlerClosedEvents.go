@@ -37,7 +37,13 @@ func HandlerClosedEvents(
 	r *http.Request,
 ) {
 
-	GetUserInf(r)
+	_, _, isallow := GetUserInf(r)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 	//      テーブルは"w"で始まるものを操作の対象とする。
 	srdblib.Tevent = "wevent"

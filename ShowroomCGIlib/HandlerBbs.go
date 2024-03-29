@@ -57,7 +57,13 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 	bbs.Cntlist = []int{1, 2, 3, 4, 5}
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
-	ra, ua := GetUserInf(r)
+	ra, ua, isallow := GetUserInf(r)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	//	GetUserInf(req)

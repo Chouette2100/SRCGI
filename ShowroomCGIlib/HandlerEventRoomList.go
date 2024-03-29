@@ -40,7 +40,13 @@ func HandlerEventRoomList(
 	r *http.Request,
 ) {
 
-	GetUserInf(r)
+	_, _, isallow := GetUserInf(r)
+	if ! isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+
 
 	//	cookiejarがセットされたHTTPクライアントを作る
 	client, jar, err := exsrapi.CreateNewClient("XXXXXX")
