@@ -74,7 +74,7 @@ import (
 	00AG01	DenyIp.txtに関するログ出力を削除する。
 */
 
-const version = "00AG00"
+const version = "00AG01"
 
 // 入力内容の確認画面
 func main() {
