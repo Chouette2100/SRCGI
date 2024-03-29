@@ -71,6 +71,7 @@ import (
 	00AF01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
 	00AG00	「枠別貢献ポイント一覧表」でリスナーさんの配信枠別貢献ポイントの履歴が表示されないことがある問題の修正。
 			ボット等からの接続を拒否（できるように）する。
+	00AG01	DenyIp.txtに関するログ出力を削除する。
 */
 
 const version = "00AG00"
@@ -103,7 +104,7 @@ func main() {
 	log.Printf("%+v\n", svconfig)
 
 	ShowroomCGIlib.LoadDenyIp("DenyIp.txt")
-	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)
+	//	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)
 
 	/*
 	var dbconfig *srdblib.DBConfig

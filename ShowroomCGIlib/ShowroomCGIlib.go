@@ -4,8 +4,8 @@ import (
 	//	"SRCGI/ShowroomCGIlib"
 	"bytes"
 	"fmt"
-	"log"
 	"html"
+	"log"
 
 	//	"math"
 	"sort"
@@ -133,11 +133,12 @@ import (
 	11AQ05	Prepare()のあとのdefer stmt.Close()とdefer rows.Close()の抜けを補う。
 	11AR00	「枠別貢献ポイント一覧表」でリスナーさんの配信枠別貢献ポイントの履歴が表示されないことがある問題の修正。
 			ボット等からの接続を拒否（できるように）する。
-			
+	11AS00	配信枠別貢献ポイントランキングでボット等から適正でないパラメータの要求を検出する。
+
 
 */
 
-const Version = "11AR00"
+const Version = "11AS00"
 
 /*
 type Event_Inf struct {
@@ -800,7 +801,6 @@ func GetRoomInfoByAPI(room_id string) (
 	buf.ReadFrom(resp.Body)
 	bufstr := buf.String()
 
-
 	//	JSONをデコードする。
 	//	次の記事を参考にさせていただいております。
 	//		Go言語でJSONに泣かないためのコーディングパターン
@@ -810,7 +810,7 @@ func GetRoomInfoByAPI(room_id string) (
 	decoder := json.NewDecoder(buf)
 	if err := decoder.Decode(&result); err != nil {
 		//	panic(err)
-		log.Printf("%s",bufstr)
+		log.Printf("%s", bufstr)
 		status = -2
 		return
 	}
@@ -4649,8 +4649,8 @@ func Mark(j int, canvas *svg.SVG, x0, y0, d float64, color string) {
 ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 */
 func GetUserInf(r *http.Request) (
-	ra	string,
-	ua	string,
+	ra string,
+	ua string,
 	isallow bool,
 ) {
 
@@ -4668,13 +4668,17 @@ func GetUserInf(r *http.Request) (
 
 	rap := r.RemoteAddr
 	rapa := strings.Split(rap, ":")
-	ra = rapa[0]
+	if rapa[0] != "[" {
+		ra = rapa[0]
+	} else {
+		ra = "127.0.0.1"
+	}
 	ua = r.UserAgent()
 
 	log.Printf("***** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 	//	fmt.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 
-	if ! IsAllowIp( ra )  {
+	if !IsAllowIp(ra) {
 		log.Printf("%s is on the Blacklist(%s)", ra, ua)
 		isallow = false
 		return
@@ -4687,19 +4691,19 @@ func GetUserInf(r *http.Request) (
 func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
 
 	// テンプレートをパースする
-//	tpl := template.Must(template.ParseFiles(
-//		"templates/top.gtpl",
-//		"templates/top0.gtpl",
-//		"templates/bbs-2.gtpl",
-//		"templates/top1.gtpl",
-//		"templates/top2.gtpl",
-//	))
+	//	tpl := template.Must(template.ParseFiles(
+	//		"templates/top.gtpl",
+	//		"templates/top0.gtpl",
+	//		"templates/bbs-2.gtpl",
+	//		"templates/top1.gtpl",
+	//		"templates/top2.gtpl",
+	//	))
 
 	eventid := r.FormValue("eventid")
 	suserno := r.FormValue("userno")
@@ -4711,25 +4715,24 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 
 	if eventid == "" {
 
-
 		// **********************************************
 		var bbs BBS
 
 		bbs.Cntlist = []int{1, 2, 3, 4, 5}
 		bbs.Cntr = 9
-	
+
 		//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 		//	GetUserInf(req)
-	
+
 		/*
-		bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
-		if bbs.Limit == 0 {
-			bbs.Limit = 11
-		}
+			bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
+			if bbs.Limit == 0 {
+				bbs.Limit = 11
+			}
 		*/
 		bbs.Limit = 11
 		bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
-	
+
 		action := r.FormValue("action")
 		if action == "next" {
 			bbs.Offset += bbs.Limit - 1
@@ -4741,27 +4744,27 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 		} else if action == "再表示(top)" {
 			bbs.Offset = 0
 		}
-	
+
 		from := r.FormValue("from")
 		bbs.Manager = r.FormValue("manager")
 		if bbs.Manager == "" {
 			bbs.Manager = "black"
 		}
-	
+
 		if from == "disp-bbs" {
 			/*
-			for i, v := range []string{"cnt0", "cnt1", "cnt2", "cnt3", "cnt4"} {
-				cntv, _ := strconv.Atoi(r.FormValue(v))
-				if cntv > 0 {
-					bbs.Cntlist[i] = cntv
-				} else {
-					bbs.Cntlist[i] = -1
+				for i, v := range []string{"cnt0", "cnt1", "cnt2", "cnt3", "cnt4"} {
+					cntv, _ := strconv.Atoi(r.FormValue(v))
+					if cntv > 0 {
+						bbs.Cntlist[i] = cntv
+					} else {
+						bbs.Cntlist[i] = -1
+					}
 				}
-			}
 			*/
 			bbs.Cntr, _ = strconv.Atoi(r.FormValue("cntr"))
 		}
-	
+
 		//      テンプレートで使用する関数を定義する
 		funcMap := template.FuncMap{
 			"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
@@ -4774,7 +4777,7 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 		}
 		// テンプレートをパースする
 		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl", "templates/top1.gtpl", "templates/top2.gtpl"))
-	
+
 		// ログを読み出してHTMLを生成 --- (*7)
 		err := loadLogs(&bbs) // データを読み出す
 		if err != nil {
@@ -4783,7 +4786,6 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 		}
 		bbs.Nlog = len(bbs.Loglist)
 		// **********************************************
-
 
 		// マップを展開してテンプレートを出力する
 		eventlist, _ := SelectLastEventList()
@@ -4814,7 +4816,7 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// マップを展開してテンプレートを出力する
-//		if err := tpl.ExecuteTemplate(w, "top0.gtpl", userlist); err != nil {
+		//		if err := tpl.ExecuteTemplate(w, "top0.gtpl", userlist); err != nil {
 		if err := tpl.ExecuteTemplate(w, "bbs-2.gtpl", bbs); err != nil {
 			log.Println(err)
 		}
@@ -4823,8 +4825,8 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		tpl := template.Must(template.ParseFiles(
-		"templates/top2.gtpl",
-	))
+			"templates/top2.gtpl",
+		))
 
 		//	eventinf, _ := SelectEventInf(eventid)
 		srdblib.Tevent = "event"
@@ -4848,12 +4850,10 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 func HandlerListLevel(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/list-level.gtpl"))
@@ -4872,12 +4872,10 @@ func HandlerListLevel(w http.ResponseWriter, req *http.Request) {
 func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	status := 0
 
@@ -4995,12 +4993,10 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	eventid := req.FormValue("eventid")
 	//	maxpoint, _ := strconv.Atoi(req.FormValue("maxpoint"))
@@ -5070,12 +5066,10 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 func HandlerCsvTotal(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/csv-total.gtpl"))
@@ -5092,12 +5086,10 @@ func HandlerCsvTotal(w http.ResponseWriter, r *http.Request) {
 func HandlerGraphDfr(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/graph-dfr.gtpl"))
@@ -5114,12 +5106,10 @@ func HandlerGraphDfr(w http.ResponseWriter, r *http.Request) {
 func HandlerGraphPerday(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/graph-perday.gtpl"))
@@ -5163,12 +5153,10 @@ func HandlerGraphPerday(w http.ResponseWriter, r *http.Request) {
 func HandlerListPerday(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/list-perday.gtpl"))
@@ -5194,12 +5182,10 @@ func HandlerListPerday(w http.ResponseWriter, r *http.Request) {
 func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/graph-perslot.gtpl"))
@@ -5235,12 +5221,10 @@ func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
 func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(
@@ -5278,12 +5262,10 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(
@@ -5382,12 +5364,10 @@ func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/new-user.gtpl"))
@@ -5420,7 +5400,7 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 	shortname := roominf.Shortname
 	if status != 0 {
 		longname = roomname
-		shortname = fmt.Sprintf("%d", userno % 100)
+		shortname = fmt.Sprintf("%d", userno%100)
 	} else {
 		_, _, status = SelectUserColor(userno, Event_inf.Event_ID)
 	}
@@ -5494,12 +5474,10 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/param-local.gtpl"))
@@ -5522,12 +5500,10 @@ func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(
@@ -5662,12 +5638,10 @@ func MakeSampleTime(
 func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(
@@ -5759,12 +5733,10 @@ func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
 func HandlerParamEvent(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(
@@ -5806,12 +5778,10 @@ func HandlerParamEvent(w http.ResponseWriter, r *http.Request) {
 func HandlerParamEventC(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/param-eventc.gtpl"))
@@ -5860,12 +5830,10 @@ func HandlerParamEventC(w http.ResponseWriter, r *http.Request) {
 func HandlerParamGlobal(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/param-global.gtpl"))

@@ -141,6 +141,13 @@ func HandlerListCntrbS(w http.ResponseWriter, req *http.Request) {
 	log.Printf(" eventid=%s, userno=%d, ifrm=%d\n", eventid, userno, ifrm)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
+	if len(acqtimelist) == 0 || ifrm >= len(acqtimelist) || ifrm < 0 {
+		fmt.Fprintf(w, "HandlerListCntrbS() No AcqTimeList\n")
+		fmt.Fprintf(w, "Check eventid and userno\n")
+		log.Printf("No AcqTimeList\n")
+		return
+	}
+
 	ts := acqtimelist[ifrm]
 
 	cntrbinflists, status := SelectCntrbSingle(eventid, userno, ts, sort)

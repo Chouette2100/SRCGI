@@ -2,6 +2,7 @@ package ShowroomCGIlib
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -49,13 +50,13 @@ func LoadDenyIp(filename string) (
 
 		m := 1
 		for i := 0; i < 32-atoi(linea[1]); i++ {
-			m = m*2
+			m = m * 2
 		}
 
 		DenyIpList = append(DenyIpList, DenyIp{bip, bip + m - 1})
 
 	}
-	fmt.Printf("DenyIpList: %v\n", DenyIpList)
+	log.Printf("DenyIpList: %v\n", DenyIpList)
 	return nil
 
 }

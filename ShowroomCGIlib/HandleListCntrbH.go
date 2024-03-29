@@ -104,6 +104,12 @@ func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
 	log.Printf(" eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
+	if len(acqtimelist) == 0 {
+		fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
+		fmt.Fprintf(w, "Check eventid and userno\n")
+		log.Printf("No AcqTimeList\n")
+		return
+	}
 
 	/*
 		type Tlsnidinf struct {

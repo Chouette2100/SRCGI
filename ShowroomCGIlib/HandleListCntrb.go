@@ -118,6 +118,13 @@ func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
+	if len(acqtimelist) == 0 {
+		fmt.Fprintf(w, "HandlerListCntrb() No AcqTimeList\n")
+		fmt.Fprintf(w, "Check eventid and userno\n")
+		log.Printf("No AcqTimeList\n")
+		return
+	}
+
 	latl := len(acqtimelist)
 
 	sie := req.FormValue("ie")
