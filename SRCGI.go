@@ -72,9 +72,45 @@ import (
 	00AG00	「枠別貢献ポイント一覧表」でリスナーさんの配信枠別貢献ポイントの履歴が表示されないことがある問題の修正。
 			ボット等からの接続を拒否（できるように）する。
 	00AG01	DenyIp.txtに関するログ出力を削除する。
+	00AH00	ログファイル名を毎日午前0時に更新する。
 */
 
-const version = "00AG01"
+const version = "00AH00"
+
+//	日付けが変わったらログファイルの名前を変える
+func NewLogfileName(logfile *os.File) {
+
+	var err error
+
+	//	毎日繰り返す
+	for {
+
+		tnow := time.Now()
+
+		//	今日の午前0時
+		today := tnow.Truncate(24 * time.Hour)
+		//	test	today := tnow.Truncate(5 * time.Minute)
+
+		//	次の日の午前0時
+		nextday := today.AddDate(0, 0, 1)
+		//	test	nextday := today.Add(5 * time.Minute)
+
+		//	日付けが変わるまで待つ
+		time.Sleep(nextday.Sub(tnow))
+
+		//	ログファイルを閉じて新しいログファイルを作る
+		logfile.Close()
+
+		logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
+		//	test	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102-1504") + ".txt"
+
+		logfile, err = os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			panic("cannnot open logfile: " + logfilename + err.Error())
+		}
+		log.SetOutput(logfile)
+	}
+}
 
 // 入力内容の確認画面
 func main() {
@@ -87,6 +123,8 @@ func main() {
 	defer logfile.Close()
 	log.SetOutput(logfile)
 	// log.SetOutput(io.MultiWriter(logfile, os.Stdout))
+
+	go NewLogfileName(logfile)
 
 	//	https://ssabcire.hatenablog.com/entry/2019/02/13/000722
 	//	https://konboi.hatenablog.com/entry/2016/04/12/100903
@@ -107,13 +145,13 @@ func main() {
 	//	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)
 
 	/*
-	var dbconfig *srdblib.DBConfig
-	err = exsrapi.LoadConfig("DBConfig.yml", &dbconfig)
-	if err != nil {
-		log.Printf("err=%s.\n", err.Error())
-		os.Exit(1)
-	}
-	log.Printf("%+v\n", dbconfig)
+		var dbconfig *srdblib.DBConfig
+		err = exsrapi.LoadConfig("DBConfig.yml", &dbconfig)
+		if err != nil {
+			log.Printf("err=%s.\n", err.Error())
+			os.Exit(1)
+		}
+		log.Printf("%+v\n", dbconfig)
 	*/
 
 	switch svconfig.WebServer {
@@ -129,10 +167,10 @@ func main() {
 
 	ShowroomCGIlib.OS = runtime.GOOS
 	/*
-	rootPath := ""
-	if svconfig.WebServer != "None" {
-		rootPath = os.Getenv("SCRIPT_NAME")
-	}
+		rootPath := ""
+		if svconfig.WebServer != "None" {
+			rootPath = os.Getenv("SCRIPT_NAME")
+		}
 	*/
 	rootPath := os.Getenv("SCRIPT_NAME")
 	if rootPath != "" && svconfig.WebServer != "None" {
@@ -142,11 +180,11 @@ func main() {
 	}
 
 	/*	設定ファイルで操作するはず？
-	err = os.Setenv("HOME", "/var/www")
-	if err != nil {
-		log.Printf("os.Setenv(): err=%s.\n", err.Error())
-		return
-	}
+		err = os.Setenv("HOME", "/var/www")
+		if err != nil {
+			log.Printf("os.Setenv(): err=%s.\n", err.Error())
+			return
+		}
 	*/
 	home := os.Getenv("HOME")
 	log.Printf("\n")
@@ -239,10 +277,10 @@ func main() {
 
 	//	開催予定イベント一覧
 	http.HandleFunc(rootPath+"/scheduledevents", ShowroomCGIlib.HandlerScheduledEvents)
-	
+
 	//	開催予定イベント一覧（サーバーから取得）
 	http.HandleFunc(rootPath+"/scheduledeventssvr", ShowroomCGIlib.HandlerScheduledEventsSvr)
-	
+
 	//	終了イベント一覧
 	http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.HandlerClosedEvents)
 
