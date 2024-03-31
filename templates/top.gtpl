@@ -90,11 +90,16 @@
         <a href="scheduledeventssvr">開催予定イベント一覧（内容詳細）</a> （開催が予定されているイベントの詳細が表示されます）
     </p>
     <p style="padding-left:2em"> -----------------------------------<br>
+    {{/*
     <br>実験中
     <br>
     <br><a href="toproom" style="padding-left:2em">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）
-    <br>
-    <br>-----------------------------------<br>
+    */}}
+    <p style="padding-left:2em">
+    <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）
+    </p>
+    <p style="padding-left:2em">
+    最近のイベントの貢献ポイント上位のリスナー
     </p>
     {{/*}}
     <p style="padding-left:4em">

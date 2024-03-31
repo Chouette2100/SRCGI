@@ -38,11 +38,17 @@ type TopRoom struct {
 	Event_endtime time.Time
 }
 
+type Genre struct {
+	Genre_name string
+	Genre_id   int
+	Checked    bool
+}
+
 type Top struct {
 	Olim        int
 	From        time.Time
 	To          time.Time
-	ChkGenre	map[string]bool
+	Genrelist   []Genre
 	TopRoomList []TopRoom
 }
 
@@ -51,20 +57,53 @@ func SelectTopRoom(
 	olim int,
 	fromtime time.Time,
 	totime time.Time,
-) (
 	top *Top,
+) (
 	err error,
 ) {
-
-	top = &Top{}
-	top.TopRoomList = make([]TopRoom, 0)
 
 	top.Olim = olim
 	top.From = fromtime
 	top.To = totime
 
 	sqltr := "select p.point, p.`rank`, u.userno,u.genre, e.endtime, u.user_name, p.eventid, e.event_name from points p, user u, event e "
-	sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime > ? and e.endtime < ? order by p.point desc limit ?; "
+	sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime > ? and e.endtime < ? "
+
+	lgenre := len(top.Genrelist)
+	n := 0
+
+	for _, v := range top.Genrelist {
+		if v.Checked {
+			n++
+		}
+	}
+
+	cond := make([]string, 0)
+	if n != 0 {
+		for _, v := range top.Genrelist {
+			if v.Checked {
+				cond = append(cond, v.Genre_name)
+			} else {
+				cond = append(cond, "none")
+			}
+		}
+	} else {
+	//	すべてのジャンルがチェックされていないときはunknownをのぞいてすべてチェックする。
+	//	誤入力および最初の一回目対策
+		for i, v := range top.Genrelist {
+			cond = append(cond, v.Genre_name)
+			top.Genrelist[i].Checked = true
+		}
+		n = lgenre - 1
+		cond[lgenre-1] = "none"
+		top.Genrelist[lgenre-1].Checked = false
+	}
+
+	if n < lgenre {
+		//	lgenreに応じて書き換える必要がある。
+		sqltr += " and u.genre in (?,?,?,?,?,?,?,?) "
+	}
+	sqltr += " order by p.point desc limit ?; "
 
 	var stmt *sql.Stmt
 	var rows *sql.Rows
@@ -76,12 +115,17 @@ func SelectTopRoom(
 	}
 	defer stmt.Close()
 
-	rows, err = stmt.Query(fromtime, totime, olim)
+	if n == lgenre {
+		rows, err = stmt.Query(fromtime, totime, olim)
+	} else {
+		//	lgenreに応じて書き換える必要がある。
+		rows, err = stmt.Query(fromtime, totime, cond[0], cond[1], cond[2], cond[3], cond[4], cond[5], cond[6], cond[7], olim)
+	}
 	if err != nil {
 		err = fmt.Errorf("query(): %w", err)
 		return
 	}
-	defer rows.Close()	
+	defer rows.Close()
 
 	var troom TopRoom
 	for rows.Next() {
@@ -119,12 +163,23 @@ func HandlerTopRoom(
 ) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
 
-
+	top := &Top{}
+	top.TopRoomList = make([]TopRoom, 0)
+	top.Genrelist = []Genre{
+		{"Free", 1, true},
+		{"Idol", 2, true},
+		{"Talent Model", 3, true},
+		{"Music", 4, true},
+		{"Voice Actors & Anime", 5, true},
+		{"Comedians/Talk Show", 6, true},
+		{"Virtual", 7, true},
+		{"Unknown", 8, true},
+	}
 
 	//	cookiejarがセットされたHTTPクライアントを作る
 	client, jar, err := exsrapi.CreateNewClient("XXXXXX")
@@ -137,7 +192,7 @@ func HandlerTopRoom(
 
 	olim, _ := strconv.Atoi(r.FormValue("olim"))
 	if olim == 0 {
-		olim = 50
+		olim = 30
 	}
 
 	from := r.FormValue("from")
@@ -169,6 +224,13 @@ func HandlerTopRoom(
 
 	log.Printf("from: %v, to: %v olim: %d\n", fromtime, totime, olim)
 
+	for i, v := range top.Genrelist {
+		if r.FormValue("genre"+strconv.Itoa(v.Genre_id)) == "on" {
+			top.Genrelist[i].Checked = true
+		} else {
+			top.Genrelist[i].Checked = false
+		}
+	}
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
@@ -179,7 +241,7 @@ func HandlerTopRoom(
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/toproom.gtpl"))
 
-	top, err := SelectTopRoom(client, olim, fromtime, totime)
+	err = SelectTopRoom(client, olim, fromtime, totime, top)
 	if err != nil {
 		err = fmt.Errorf("HandlerTopRoom(): %w", err)
 		log.Printf("SelectTopRoom(): %s\n", err.Error())

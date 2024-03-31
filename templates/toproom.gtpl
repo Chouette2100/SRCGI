@@ -40,18 +40,30 @@
     <br>イベント最終結果（獲得ポイント）が発表されるルーム（＝ランキングイベントの上位30位まで）が対象です。
     <br>ただし、すべての対象ルームのデータが取得できているかについては検証が不十分です。
     <br>もし"漏れ"に気づかれたら、□□イベントの○○さんがいない、みたいな指摘をいただければうれしいです。
+    <br>また「unknown」はジャンルのデータが対象としているテーブルにないという意味です。履歴データから特定できるものもあるかもしれませんが。
+    <br>試行錯誤しながら作ってきたものなのでこのあたりはご理解・ご勘弁のほどをお願いします。
     <br>
-    <br>特定のジャンルでの順位やアイドルのジャンルは除いた順位がほしいと思われる方もいらっしゃると思いますが、現時点では取得しているデータに不備があり対応できません。
-    <br>（何が問題かは下記の結果をご覧になればわかると思いますが、今後データの修復を行う予定はありますのでどうにかなるかもしれません）
-    <br>なお、ルームのジャンルや名称はこの結果を表示した時点のものであり、イベント開催時のものではありません。
-    <br>（ジャンルやルーム名をイベント開催時のものにすることは全く不可能ではなさそうなので検討はしています）
+    <br>なお、ルームのジャンルや名称はこの結果を表示した時点（またはそれに近い時点）のものであり、イベント開催時のものではありません。
+    <br>（ジャンルやルーム名をイベント開催時のものにすることが可能か、またできるとしてそうすることに意味があるか、は検討中です）
     <br>
     <br>
     <form>
+    	<fieldset>
     <input type="submit" fromaction="toproom" formmethod="get" value="再表示">
     イベント終了日時が <input type="date" name="from" value="{{ FormatTime .From "2006-01-02" }}"> 午前0時から
     <input type="date" name="to" value="{{ FormatTime .To "2006-01-02" }}"> 午前0時までの中から
     上位<input style="width: 4em" type="number" name="olim" value="{{ .Olim }}"> ルームを表示する。
+    <div>
+    	<fieldset>
+		<legend>ランキングの対象となるジャンルを選んでください</legend>
+
+        {{ range .Genrelist }}
+        <input type="checkbox" id="genre{{.Genre_id}}" name="genre{{.Genre_id}}" {{if .Checked }}checked{{end}} />
+            <label for="genre{{.Genre_id}}">{{.Genre_name}}</label>
+        {{ end }}
+        </fieldset>
+    </div>
+        </fieldset>
     </form>
     ※　結果が表示されるまで十数秒要します。<br>
     ※　最終結果発表日時はイベント終了日翌日のお昼頃ですので終了日時の上限は一昨日としています。
@@ -59,17 +71,17 @@
     <table>
         <tr style="text-align: center">
             <td>獲得ポイント</td>
-            <td>ルーム</td>
+            <td>ルーム　リンク先は「終了イベント一覧」のルーム検索結果</td>
             <td>ジャンル</td>
-            <td>イベント（イベント順位）</td>
+            <td>イベント（イベント順位）　リンク先は「直近の獲得ポイント一覧」（表示に時間がかかるケースあり）</td>
             <td>イベント終了日時</td>
         </tr>
         {{ range .TopRoomList }}
         <tr>
             <td align="right">{{ Comma .Point }}</td>
-            <td><a href="https://www.showroom-live.com/room/profile?room_id={{ .Room_id }}" target="_blank" rel="noopener noreferrer">{{ .Room_name }}</a></td>
+            <td><a href="closedevents?userno={{ .Room_id }}&mode=0&path=5" target="_blank" rel="noopener noreferrer">{{ .Room_name }}</a></td>
             <td>{{ .Genre }}</td>
-            <td><a href="https://www.showroom-live.com/event/{{ .Event_id }}" target="_blank" rel="noopener noreferrer">{{ .Event_name }}</a>（{{ .Rank }}）</td>
+            <td><a href="list-last?eventid={{ .Event_id }}" target="_blank" rel="noopener noreferrer">{{ .Event_name }}</a>（{{ .Rank }}）</td>
             <td>〜{{ FormatTime .Event_endtime "2006-01-02" }}</td>
         </tr>
         {{ end }}
