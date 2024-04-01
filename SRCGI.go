@@ -2,6 +2,7 @@ package main
 
 import (
 	//	"fmt"
+	//	"io"
 	"log"
 
 	//	"strconv"
@@ -73,9 +74,10 @@ import (
 			ボット等からの接続を拒否（できるように）する。
 	00AG01	DenyIp.txtに関するログ出力を削除する。
 	00AH00	ログファイル名を毎日午前0時に更新する。
+	00AJ00	設定の追加　SetMaxOpenConns(8), SetMaxIdleConns(8), SetConnMaxLifetime(time.Second * 10)
 */
 
-const version = "00AH00"
+const version = "00AJ00"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -203,6 +205,15 @@ func main() {
 	if dbconfig.UseSSH {
 		defer srdblib.Dialer.Close()
 	}
+
+	//	http://dsas.blog.klab.org/archives/2018-02/configure-sql-db.html
+	//	https://qiita.com/hgsgtk/items/770c51559f374b36da3f
+	//	http://dsas.blog.klab.org/archives/pixiv-isucon2016-2.html
+	srdblib.Db.SetMaxOpenConns(8)
+	srdblib.Db.SetMaxIdleConns(8)
+	srdblib.Db.SetConnMaxLifetime(time.Second * 10)
+
+ 
 	defer srdblib.Db.Close()
 	log.Printf("%+v\n", dbconfig)
 
