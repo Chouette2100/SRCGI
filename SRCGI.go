@@ -76,9 +76,10 @@ import (
 	00AH00	ログファイル名を毎日午前0時に更新する。
 	00AJ00	設定の追加　SetMaxOpenConns(8), SetMaxIdleConns(8), SetConnMaxLifetime(time.Second * 10)
 	00AK00	ログファイル名変更のタイミングを（間違った午前9時から）午前0時に変更する。
+	00AK01	SetConnMaxLifetime()に関するコメントを追加する。
 */
 
-const version = "00AK00"
+const version = "00AK01"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -215,6 +216,8 @@ func main() {
 	//	http://dsas.blog.klab.org/archives/2018-02/configure-sql-db.html
 	//	https://qiita.com/hgsgtk/items/770c51559f374b36da3f
 	//	http://dsas.blog.klab.org/archives/pixiv-isucon2016-2.html
+	//	SetConnMaxLifetime()は必要ないとするものも
+	//	https://qiita.com/ichizero/items/36036dbd8a32ce23ca5b
 	srdblib.Db.SetMaxOpenConns(8)
 	srdblib.Db.SetMaxIdleConns(8)
 	srdblib.Db.SetConnMaxLifetime(time.Second * 10)
