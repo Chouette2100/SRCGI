@@ -75,9 +75,10 @@ import (
 	00AG01	DenyIp.txtに関するログ出力を削除する。
 	00AH00	ログファイル名を毎日午前0時に更新する。
 	00AJ00	設定の追加　SetMaxOpenConns(8), SetMaxIdleConns(8), SetConnMaxLifetime(time.Second * 10)
+	00AK00	ログファイル名変更のタイミングを（間違った午前9時から）午前0時に変更する。
 */
 
-const version = "00AJ00"
+const version = "00AK00"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -89,8 +90,11 @@ func NewLogfileName(logfile *os.File) {
 
 		tnow := time.Now()
 
-		//	今日の午前0時
+		//	今日の午前9時
 		today := tnow.Truncate(24 * time.Hour)
+
+		//	今日の午前0時
+		today = today.Add(-9 * time.Hour)
 		//	test	today := tnow.Truncate(5 * time.Minute)
 
 		//	次の日の午前0時
@@ -111,6 +115,8 @@ func NewLogfileName(logfile *os.File) {
 			panic("cannnot open logfile: " + logfilename + err.Error())
 		}
 		log.SetOutput(logfile)
+
+		time.Sleep(1 * time.Second)
 	}
 }
 
