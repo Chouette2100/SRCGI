@@ -135,11 +135,12 @@ import (
 			ボット等からの接続を拒否（できるように）する。
 	11AS00	配信枠別貢献ポイントランキングでボット等から適正でないパラメータの要求を検出する。
 	11AT00	「イベント獲得ポイントランキング」でジャンルの指定を可能にする。
+	11AT01	MakePointPerDay()のログ出力を間引きする。
 
 
 */
 
-const Version = "11AT00"
+const Version = "11AT01"
 
 /*
 type Event_Inf struct {
@@ -3320,10 +3321,10 @@ func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, s
 
 	for i := 0; i < len(roominfolist); i++ {
 
-		log.Printf(" Room=%s Graph=%s\n", roominfolist[i].Longname, roominfolist[i].Graph)
 		if roominfolist[i].Graph != "Checked" {
 			continue
 		}
+		log.Printf(" Room=%s Graph=%s\n", roominfolist[i].Longname, roominfolist[i].Graph)
 
 		pointperday.Longnamelist = append(pointperday.Longnamelist, LongName{roominfolist[i].Longname})
 		pointperday.Usernolist = append(pointperday.Usernolist, roominfolist[i].Userno)
@@ -3359,8 +3360,8 @@ func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, s
 		prvpoint := 0
 		for j := 0; j < len(*tp); j++ {
 			if (*tp)[j].After(d.AddDate(0, 0, k)) {
-				log.Printf("i(room)=%d, j(time)=%d(%s), k(day)=%d\n", i, j, (*tp)[j].Format("01/02 15:04"), k)
-				log.Printf("pointperday.Pointrecordlist[k].Pointlist=%v\n", pointperday.Pointrecordlist[k].Pointlist)
+				//	log.Printf("i(room)=%d, j(time)=%d(%s), k(day)=%d\n", i, j, (*tp)[j].Format("01/02 15:04"), k)
+				//	log.Printf("pointperday.Pointrecordlist[k].Pointlist=%v\n", pointperday.Pointrecordlist[k].Pointlist)
 				if (*tp)[j].Sub(d.AddDate(0, 0, k)) < 30*time.Minute || j == 0 || (*pp)[j] == (*pp)[j-1] {
 					pointperday.Pointrecordlist[k].Pointlist[iu].Pnt = lastpoint - prvpoint
 					pointperday.Pointrecordlist[k].Pointlist[iu].Spnt = humanize.Comma(int64(lastpoint - prvpoint))
