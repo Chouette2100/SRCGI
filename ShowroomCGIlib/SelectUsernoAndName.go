@@ -51,7 +51,7 @@ func SelectUsernoAndName(
 			err = fmt.Errorf("Scan(): %w", err)
 			return
 		}
-		room.User_name = "(" + fmt.Sprintf("%6d", room.Userno) + ")" + room.User_name
+		room.User_name = "(" + fmt.Sprintf("%d", room.Userno) + ")" + room.User_name
 		*roomlist = append(*roomlist, room)
 	}
 

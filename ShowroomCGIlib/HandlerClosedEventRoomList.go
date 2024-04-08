@@ -36,6 +36,7 @@ type Erl struct {
 	Eventid     int
 	Eventname   string
 	Eventurl    string
+	Roomid		int
 	Ib          int
 	Ie          int
 	Roomlistinf *srapi.RoomListInf
@@ -144,6 +145,9 @@ func HandlerClosedEventRoomList(
 		return
 	}
 	erl.Eventname = peventinf.Event_name
+
+	erl.Roomid, _ = strconv.Atoi(r.FormValue("roomid"))
+
 	if seventid == "" {
 		/*
 			err = errors.New("eventid が設定されていません。URLのあとに\"?eventid=.....\"を追加してください。<br>あるいは「開催中イベント一覧表」から参加者一覧が必要なイベントを指定してください。")

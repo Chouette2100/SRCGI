@@ -79,9 +79,15 @@
         {{ range .TopRoomList }}
         <tr>
             <td align="right">{{ Comma .Point }}</td>
+            {{/*
             <td><a href="closedevents?userno={{ .Room_id }}&mode=0&path=5" target="_blank" rel="noopener noreferrer">{{ .Room_name }}</a></td>
+            */}}
+            <td><a href="closedevents?userno={{ .Room_id }}&mode=0&path=5">{{ .Room_name }}</a></td>
             <td>{{ .Genre }}</td>
-            <td><a href="list-last?eventid={{ .Event_id }}" target="_blank" rel="noopener noreferrer">{{ .Event_name }}</a>（{{ .Rank }}）</td>
+            {{/*
+            <td><a href="list-last?eventid={{ .Event_id }}&roomid={{.Room_id}}" target="_blank" rel="noopener noreferrer">{{ .Event_name }}</a>（{{ .Rank }}）</td>
+            */}}
+            <td><a href="list-last?eventid={{ .Event_id }}&roomid={{.Room_id}}">{{ .Event_name }}</a>（{{ .Rank }}）</td>
             <td>〜{{ FormatTime .Event_endtime "2006-01-02" }}</td>
         </tr>
         {{ end }}

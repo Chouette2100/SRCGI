@@ -1,6 +1,7 @@
 {{define "list-last"}}
 {{ $Detail := .Detail }}
 {{ $Isover := .Isover }}
+{{ $r := .Roomid }}
 {{/*
 <table border="1" style="font-family: monospace,serif;">
 */}}
@@ -34,7 +35,7 @@
 	{{ end }}
 <tr>
 {{ range .Scorelist }}
-	<tr>
+	<tr {{ if eq .Userno $r }} class=bgct {{ end }}>
 	<td align="right">{{.Srank}}</td>
 	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a></td>
 	<td align="right">{{.Spoint}}</td>

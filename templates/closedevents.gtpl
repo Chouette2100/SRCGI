@@ -272,7 +272,7 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if ne .I_Event_ID 0 }}
-                    <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">最終結果</a>
+                    <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">最終結果</a>
                     {{ end }}
                 </td>
                 <td style="text-align: center;">
@@ -282,7 +282,7 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
-                    <a href="list-last?eventid={{ .Event_ID }}">リスト</a>
+                    <a href="list-last?eventid={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">リスト</a>
                     {{ end }}
                 </td>
                 <td style="text-align: center;">

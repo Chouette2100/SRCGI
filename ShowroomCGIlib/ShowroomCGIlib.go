@@ -136,11 +136,12 @@ import (
 	11AS00	配信枠別貢献ポイントランキングでボット等から適正でないパラメータの要求を検出する。
 	11AT00	「イベント獲得ポイントランキング」でジャンルの指定を可能にする。
 	11AT01	MakePointPerDay()のログ出力を間引きする。
+	11AU00	終了したイベントの検索で、ルーム名、ルームIDで検索したとき、イベントの獲得ポイント上位のリストからイベント情報を見たとき該当ルームがどれかわかりやすくする。
 
 
 */
 
-const Version = "11AT01"
+const Version = "11AU00"
 
 /*
 type Event_Inf struct {
@@ -4884,6 +4885,7 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 	var list_last struct {
 		Detail    string
 		Isover    string
+		Roomid    int
 		Scorelist []CurrentScore
 	}
 
@@ -4906,6 +4908,7 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 
 	eventid := req.FormValue("eventid")
 	userno := req.FormValue("userno")
+	list_last.Roomid, _ = strconv.Atoi(req.FormValue("roomid"))
 	list_last.Detail = req.FormValue("detail")
 	log.Printf("      eventid=%s, detail=%s\n", eventid, list_last.Detail)
 	//	Event_inf, _ = SelectEventInf(eventid)

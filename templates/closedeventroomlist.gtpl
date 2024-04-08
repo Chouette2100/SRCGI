@@ -14,6 +14,10 @@
             width: 100%;
             */
         }
+
+        .bgct {
+            background-color: paleturquoise;
+        }
     </style>
 </head>
 
@@ -144,10 +148,11 @@
         </tr>
 
         {{ $e := .Eventurl }}
+        {{ $r := .Roomid }}
 
         {{ with .Roomlistinf }}
         {{ range .RoomList }}
-        <tr>
+        <tr {{ if eq .Room_id $r }} class=bgct {{ end }}>
             <td style="text-align: right;">
                 {{ if ne .Rank -1 }}
                 {{ .Rank }}

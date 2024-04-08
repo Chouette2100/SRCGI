@@ -4,6 +4,14 @@
 <meta http-equiv="refresh" content="{{.SecondsToReload}}; URL=list-last?eventid={{.Eventid}}&userno={{.userno}}&detail={{.Detail}}">
 {{ $detail := .Detail }}
 <html>
+<head>
+    <style type="text/css">
+        .bgct {
+            background-color: paleturquoise;
+        }
+    </style>
+
+</head>
 <body>
     <table>
         <tr>

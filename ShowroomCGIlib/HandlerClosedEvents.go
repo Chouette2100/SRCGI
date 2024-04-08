@@ -147,22 +147,28 @@ func HandlerClosedEvents(
 			}
 		}
 		if top.Path == 4 && top.Userno != 0 {
-			//	ルーム名による絞り込み
+			//	ルーム名による絞り込み(ルームIDに変換後)
 			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
 			if err != nil {
 				err = fmt.Errorf("MakeListOfPoints(): %w", err)
 				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
 				top.ErrMsg = err.Error()
 			}
+			ri, _ := SelectRoomInf(top.Userno)
+			top.Keywordrm = ri.Name
+			top.Roomlist = & []Room { {Userno: ri.Userno, User_name: "(" + strconv.Itoa(ri.Userno) + ")" + ri.Name} }
 		}
 	case 5:
-			//	ルーム名による絞り込み
+			//	ルームIDによる絞り込み
 			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
 			if err != nil {
 				err = fmt.Errorf("MakeListOfPoints(): %w", err)
 				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
 				top.ErrMsg = err.Error()
 			}
+			ri, _ := SelectRoomInf(top.Userno)
+			top.Keywordrm = ri.Name
+			top.Roomlist = & []Room { {Userno: ri.Userno, User_name: "(" + strconv.Itoa(ri.Userno) + ")" + ri.Name} }
 	default:
 	}
 
