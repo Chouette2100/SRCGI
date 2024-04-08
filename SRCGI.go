@@ -77,9 +77,10 @@ import (
 	00AJ00	設定の追加　SetMaxOpenConns(8), SetMaxIdleConns(8), SetConnMaxLifetime(time.Second * 10)
 	00AK00	ログファイル名変更のタイミングを（間違った午前9時から）午前0時に変更する。
 	00AK01	SetConnMaxLifetime()に関するコメントを追加する。
+	00AK02	SetConnMaxLifetime()の設定を10秒から20秒に変更する（HandlerTopRoom()のタイムアウト対策）
 */
 
-const version = "00AK01"
+const version = "00AK02"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -220,7 +221,7 @@ func main() {
 	//	https://qiita.com/ichizero/items/36036dbd8a32ce23ca5b
 	srdblib.Db.SetMaxOpenConns(8)
 	srdblib.Db.SetMaxIdleConns(8)
-	srdblib.Db.SetConnMaxLifetime(time.Second * 10)
+	srdblib.Db.SetConnMaxLifetime(time.Second * 20)
 
  
 	defer srdblib.Db.Close()
