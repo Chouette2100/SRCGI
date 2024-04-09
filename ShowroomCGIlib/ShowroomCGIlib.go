@@ -137,11 +137,12 @@ import (
 	11AT00	「イベント獲得ポイントランキング」でジャンルの指定を可能にする。
 	11AT01	MakePointPerDay()のログ出力を間引きする。
 	11AU00	終了したイベントの検索で、ルーム名、ルームIDで検索したとき、イベントの獲得ポイント上位のリストからイベント情報を見たとき該当ルームがどれかわかりやすくする。
+	11AV00	HandlerListLast()で確定値が発表されていないルームも表示するようにする。
 
 
 */
 
-const Version = "11AU00"
+const Version = "11AV00"
 
 /*
 type Event_Inf struct {
@@ -2605,8 +2606,13 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 
 	//	---------------------------------------------------
 	//	stmt, err = Db.Prepare("select user_id, `rank`, point, pstatus, ptime, qstatus, qtime from points where eventid = ? and ts = ? order by point desc")
-	sql = "select p.user_id, u.userid, p.rank, p.point, p.pstatus, p.ptime, p.qstatus, p.qtime "
-	sql += " from points p join user u where p.eventid = ? and p.ts = ? and p.user_id = u.userno order by p.point desc"
+	sql = "SELECT p.user_id, u.userid, p.rank, p.point, p.pstatus, p.ptime, p.qstatus, p.qtime "
+	sql += " FROM points p JOIN user u where p.eventid = ? AND p.user_id = u.userno "
+	sql += " AND (p.user_id , p.ts) IN (SELECT user_id, MAX(ts) FROM points WHERE eventid = ? AND ts > ? GROUP BY user_id) "
+	sql += " ORDER BY p.point desc"
+
+
+
 	stmt, err = srdblib.Db.Prepare(sql)
 
 	if err != nil {
@@ -2616,7 +2622,8 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(eventid, gtime)
+	//	rows, err := stmt.Query(eventid, gtime)
+	rows, err := stmt.Query(eventid, eventid, gtime.Add(-2 * time.Minute))
 	if err != nil {
 		log.Printf("GetCurrentScore() (6) err=%s\n", err.Error())
 		status = -6

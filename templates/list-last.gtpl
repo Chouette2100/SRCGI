@@ -35,7 +35,7 @@
 	{{ end }}
 <tr>
 {{ range .Scorelist }}
-	<tr {{ if eq .Userno $r }} class=bgct {{ end }}>
+	<tr {{ if and ( ne $r 0 ) ( eq .Userno $r ) }} class=bgct {{ end }}>
 	<td align="right">{{.Srank}}</td>
 	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a></td>
 	<td align="right">{{.Spoint}}</td>
