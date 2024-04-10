@@ -138,11 +138,12 @@ import (
 	11AT01	MakePointPerDay()のログ出力を間引きする。
 	11AU00	終了したイベントの検索で、ルーム名、ルームIDで検索したとき、イベントの獲得ポイント上位のリストからイベント情報を見たとき該当ルームがどれかわかりやすくする。
 	11AV00	HandlerListLast()で確定値が発表されていないルームも表示するようにする。
+	11AV01	説明書きや表の項目名の修正
 
 
 */
 
-const Version = "11AV00"
+const Version = "11AV01"
 
 /*
 type Event_Inf struct {

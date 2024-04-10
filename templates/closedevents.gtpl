@@ -182,7 +182,7 @@
                 <tr>
                     <td style="width:4em"></td>
                     <td colspan="2">
-                        ルームIDはプロフィールやファンルームのURLの最後の"ID="の<br>
+                        ルームIDはプロフィールやファンルームのURLの最後の"room_id="の<br>
                         あとにある整数です（６桁が多い）<BR>
                         ルームIDの一部を指定しての検索はできません。
                     </td>
@@ -244,9 +244,9 @@
                 <td>イベント名とイベントページへのリンク</td>
                 <td>開始日時</td>
                 <td>終了日時</td>
-                <td></td>
-                <td>結果表示選択画面/<br>データ取得新規登録</td>
-                <td>直近獲得<br>ポイント表</td>
+                <td>最終結果<br>(30位まで)</td>
+                <td>表示項目<br>選択画面</td>
+                <td>最終獲得<br>ポイント表</td>
                 <td>獲得ポイント<br>推移図</td>
                 <td>日々の<br>獲得pt</td>
                 <td>枠毎の<br>獲得pt</td>
@@ -277,7 +277,7 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
-                    <a href="top?eventid={{ .Event_ID }}">結果表示選択</a>
+                    <a href="top?eventid={{ .Event_ID }}">表示項目選択</a>
                     {{ end }}
                 </td>
                 <td style="text-align: center;">

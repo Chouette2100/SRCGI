@@ -61,7 +61,7 @@
             <td>開始日時</td>
             <td>終了日時</td>
             <td>参加ルーム一覧</td>
-            <td>結果表示選択画面/<br>データ取得新規登録</td>
+            <td>表示項目選択画面/<br>データ取得開始登録</td>
             <td>直近獲得<br>ポイント表</td>
             <td>獲得ポイント<br>推移図</td>
             <td>日々の<br>獲得pt</td>
@@ -91,9 +91,9 @@
             </td>
             <td style="text-align: center;">
                 {{ if eq .Target 1 }}
-                <a href="top?eventid={{ .Event_ID }}">表示</a>
+                <a href="top?eventid={{ .Event_ID }}">項目選択</a>
                 {{ else }}
-                <a href="new-event?eventid={{ .Event_ID }}">新規登録</a>
+                <a href="new-event?eventid={{ .Event_ID }}">取得開始登録</a>
                 {{ end }}
             </td>
             <td style="text-align: center;">
