@@ -139,11 +139,12 @@ import (
 	11AU00	終了したイベントの検索で、ルーム名、ルームIDで検索したとき、イベントの獲得ポイント上位のリストからイベント情報を見たとき該当ルームがどれかわかりやすくする。
 	11AV00	HandlerListLast()で確定値が発表されていないルームも表示するようにする。
 	11AV01	説明書きや表の項目名の修正
+	11AV02	scheduled-event.gtpl データ取得開始設定の説明を追加する。
 
 
 */
 
-const Version = "11AV01"
+const Version = "11AV02"
 
 /*
 type Event_Inf struct {
