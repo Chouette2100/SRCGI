@@ -140,11 +140,12 @@ import (
 	11AV00	HandlerListLast()で確定値が発表されていないルームも表示するようにする。
 	11AV01	説明書きや表の項目名の修正
 	11AV02	scheduled-event.gtpl データ取得開始設定の説明を追加する。
+	11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
 
 
 */
 
-const Version = "11AV02"
+const Version = "11AW00"
 
 /*
 type Event_Inf struct {
@@ -2562,8 +2563,8 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 	period = Event_inf.Period
 
 	nrow := 0
-	sql := "select count(*) from points where eventid = ?"
-	srdblib.Dberr = srdblib.Db.QueryRow(sql, eventid).Scan(&nrow)
+	sql0 := "select count(*) from points where eventid = ?"
+	srdblib.Dberr = srdblib.Db.QueryRow(sql0, eventid).Scan(&nrow)
 
 	if srdblib.Dberr != nil {
 		log.Printf("select max(point) from eventuser where eventid = '%s'\n", Event_inf.Event_ID)
@@ -2580,19 +2581,19 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 	//	---------------------------------------------------
 	//	sql := "select t.idx, t.t from timeacq t join points p where t.idx = p.idx and t.idx = ( select max(idx) from points where event_id = ? )"
 	//	sql := "select distinct t.idx, t.t from timeacq t join points p where t.idx = p.idx and t.t = ( select max(t) from points p join timeacq t where p.idx = t.idx and event_id = ? )"
-	sql = "select distinct max(ts) from points where eventid = ?"
+	sql1 := "select distinct max(ts) from points where eventid = ?"
 	//	sql := "select distinct COALESCE(max(ts), ?) from points where eventid = ?"
-	stmt, err := srdblib.Db.Prepare(sql)
+	stmt1, err := srdblib.Db.Prepare(sql1)
 	if err != nil {
 		log.Printf("GetCurrentScore() (3) err=%s\n", err.Error())
 		status = -3
 		return
 	}
-	defer stmt.Close()
+	defer stmt1.Close()
 
 	//	idx := 0
 	//	Err = stmt.QueryRow(time.Now().Add(time.Hour), eventid).Scan(&gtime)
-	srdblib.Dberr = stmt.QueryRow(eventid).Scan(&gtime)
+	srdblib.Dberr = stmt1.QueryRow(eventid).Scan(&gtime)
 	if srdblib.Dberr != nil {
 		log.Printf("GetCurrentScore() (4) err=%s\n", srdblib.Dberr.Error())
 		status = -4
@@ -2608,30 +2609,30 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 
 	//	---------------------------------------------------
 	//	stmt, err = Db.Prepare("select user_id, `rank`, point, pstatus, ptime, qstatus, qtime from points where eventid = ? and ts = ? order by point desc")
-	sql = "SELECT p.user_id, u.userid, p.rank, p.point, p.pstatus, p.ptime, p.qstatus, p.qtime "
-	sql += " FROM points p JOIN user u where p.eventid = ? AND p.user_id = u.userno "
-	sql += " AND (p.user_id , p.ts) IN (SELECT user_id, MAX(ts) FROM points WHERE eventid = ? AND ts > ? GROUP BY user_id) "
-	sql += " ORDER BY p.point desc"
+	sql2 := "SELECT p.user_id, u.userid, p.rank, p.point, p.pstatus, p.ptime, p.qstatus, p.qtime "
+	sql2 += " FROM points p JOIN user u where p.eventid = ? AND p.user_id = u.userno "
+	sql2 += " AND (p.user_id , p.ts) IN (SELECT user_id, MAX(ts) FROM points WHERE eventid = ? AND ts > ? GROUP BY user_id) "
+	sql2 += " ORDER BY p.point desc"
 
 
 
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt2, err := srdblib.Db.Prepare(sql2)
 
 	if err != nil {
 		log.Printf("GetCurrentScore() (5) err=%s\n", err.Error())
 		status = -5
 		return
 	}
-	defer stmt.Close()
+	defer stmt2.Close()
 
 	//	rows, err := stmt.Query(eventid, gtime)
-	rows, err := stmt.Query(eventid, eventid, gtime.Add(-2 * time.Minute))
+	rows2, err := stmt2.Query(eventid, eventid, gtime.Add(-2 * time.Minute))
 	if err != nil {
 		log.Printf("GetCurrentScore() (6) err=%s\n", err.Error())
 		status = -6
 		return
 	}
-	defer rows.Close()
+	defer rows2.Close()
 
 	//	var score, bscore CurrentScore
 	var bscore CurrentScore
@@ -2639,9 +2640,9 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 	i := 0
 	//	shift := 1
 	nextrank := 1
-	for rows.Next() {
+	for rows2.Next() {
 		var score CurrentScore
-		err := rows.Scan(&score.Userno, &score.Shorturl, &score.Rank, &score.Point, &score.Pstatus, &score.Ptime, &score.Qstatus, &score.Qtime)
+		err := rows2.Scan(&score.Userno, &score.Shorturl, &score.Rank, &score.Point, &score.Pstatus, &score.Ptime, &score.Qstatus, &score.Qtime)
 		if err != nil {
 			log.Printf("GetCurrentScore() (7) err=%s\n", err.Error())
 			status = -7
@@ -2719,7 +2720,7 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 			}
 		*/
 	}
-	if err = rows.Err(); err != nil {
+	if err = rows2.Err(); err != nil {
 		log.Printf("GetCurrentScore() (8) err=%s\n", err.Error())
 		status = -8
 		return
