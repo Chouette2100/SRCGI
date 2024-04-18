@@ -78,8 +78,10 @@ import (
 	00AK00	ログファイル名変更のタイミングを（間違った午前9時から）午前0時に変更する。
 	00AK01	SetConnMaxLifetime()に関するコメントを追加する。
 	00AK02	SetConnMaxLifetime()の設定を10秒から20秒に変更する（HandlerTopRoom()のタイムアウト対策）
+	//	00AK03	SetMaxOpenConns(8), SetMaxIdleConns(12), SetConnMaxLifetime(time.Minute * 10),SetConnMaxIdolTime(time.Minute * 5)	
 */
 
+//	const version = "00AK03"
 const version = "00AK02"
 
 //	日付けが変わったらログファイルの名前を変える
@@ -222,6 +224,13 @@ func main() {
 	srdblib.Db.SetMaxOpenConns(8)
 	srdblib.Db.SetMaxIdleConns(8)
 	srdblib.Db.SetConnMaxLifetime(time.Second * 20)
+
+	//	00AK03	SetMaxOpenConns(8), SetMaxIdleConns(12), SetConnMaxLifetime(time.Minute * 10),SetConnMaxIdolTime(time.Minute * 5)	
+	//	https://zenn.dev/kouhei_fujii/articles/72ac1f8d4e8a84
+	//	srdblib.Db.SetMaxOpenConns(8)
+	//	srdblib.Db.SetMaxIdleConns(12)
+	//	srdblib.Db.SetConnMaxLifetime(time.Minute * 5)
+	//	srdblib.Db.SetConnMaxIdleTime(time.Minute * 5)
 
  
 	defer srdblib.Db.Close()
