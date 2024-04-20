@@ -141,11 +141,12 @@ import (
 	11AV01	説明書きや表の項目名の修正
 	11AV02	scheduled-event.gtpl データ取得開始設定の説明を追加する。
 	11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
+	11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
 
 
 */
 
-const Version = "11AW00"
+const Version = "11AW01"
 
 /*
 type Event_Inf struct {
@@ -2589,7 +2590,13 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 		status = -3
 		return
 	}
-	defer stmt1.Close()
+	//	defer stmt1.Close()
+	defer func() {
+		err := stmt1.Close()
+		if err != nil {
+			log.Printf("stmt1.Close() err=%s\n", err.Error())
+		}	
+    }()
 
 	//	idx := 0
 	//	Err = stmt.QueryRow(time.Now().Add(time.Hour), eventid).Scan(&gtime)
@@ -2623,7 +2630,14 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 		status = -5
 		return
 	}
-	defer stmt2.Close()
+	//	defer stmt2.Close()
+	defer func() {
+		err := stmt2.Close()
+		if err != nil {
+			log.Printf("stmt2.Close() err=%s\n", err.Error())
+		}	
+    }()
+
 
 	//	rows, err := stmt.Query(eventid, gtime)
 	rows2, err := stmt2.Query(eventid, eventid, gtime.Add(-2 * time.Minute))
