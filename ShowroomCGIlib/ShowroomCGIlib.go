@@ -142,11 +142,12 @@ import (
 	11AV02	scheduled-event.gtpl データ取得開始設定の説明を追加する。
 	11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
 	11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
+	11AW02	説明書きや表の項目名の修正(追加)
 
 
 */
 
-const Version = "11AW01"
+const Version = "11AW02"
 
 /*
 type Event_Inf struct {
