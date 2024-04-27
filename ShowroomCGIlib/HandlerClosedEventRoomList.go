@@ -140,7 +140,8 @@ func HandlerClosedEventRoomList(
 
 	seventid := r.FormValue("eventid")
 	eventurlkey := r.FormValue("eventurlkey")
-	peventinf, err := srdblib.SelectFromEvent(eventurlkey)
+	//	srdblib.Tevent = "wevent"
+	peventinf, err := srdblib.SelectFromEvent("wevent", eventurlkey)
 	if err != nil {
 		return
 	}

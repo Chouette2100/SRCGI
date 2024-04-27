@@ -143,11 +143,12 @@ import (
 	11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
 	11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
 	11AW02	説明書きや表の項目名の修正(追加)
+	11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とする方法に変える。
 
 
 */
 
-const Version = "11AW02"
+const Version = "11AX00"
 
 /*
 type Event_Inf struct {
@@ -984,8 +985,8 @@ func SelectEventRoomInfList(
 	//	eventno := 0
 	//	eventno, eventname, _ = SelectEventNoAndName(eventid)
 	//	Event_inf, _ = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -1276,8 +1277,8 @@ func GetRoomInfoAndPoint(
 	roominf.Userno, _ = strconv.Atoi(roomid)
 
 	//	Event_inf, _ = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -1409,8 +1410,8 @@ func GetAndInsertEventRoomInfo(
 
 	log.Printf(" GetEventRoomInfo() len(*roominfolist)=%d\n", len(*roominfolist))
 
-	srdblib.Tevent = "wevent"
-	weventinf, _ := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "wevent"
+	weventinf, _ := srdblib.SelectFromEvent("wevent", eventid)
 
 	eventinfo.Event_name = weventinf.Event_name
 
@@ -1590,7 +1591,7 @@ func InsertRoomInf(eventid string, roominfolist *RoomInfoList) {
 			(*roominfolist)[i].Statuscolor = "green"
 
 			userno, _ := strconv.Atoi((*roominfolist)[i].ID)
-			eventinf, _ := srdblib.SelectFromEvent(eventid)
+			eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 			sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
 			_, srdblib.Dberr = srdblib.Db.Exec(
 				sqlip,
@@ -2547,8 +2548,8 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 	status = 0
 
 	//	Event_inf, status = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -3040,8 +3041,8 @@ func SelectEventInfAndRoomList() (IDlist []int, status int) {
 	*/
 
 	//	Event_inf, _ = SelectEventInf(Event_inf.Event_ID)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(Event_inf.Event_ID)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", Event_inf.Event_ID)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -4287,8 +4288,8 @@ func GraphPerSlot(
 	status = 0
 
 	//	Event_inf, status = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -4461,8 +4462,8 @@ func GraphPerDay(
 	status = 0
 
 	//	Event_inf, status = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -4857,8 +4858,8 @@ func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
 		))
 
 		//	eventinf, _ := SelectEventInf(eventid)
-		srdblib.Tevent = "event"
-		eventinf, err := srdblib.SelectFromEvent(eventid)
+		//	srdblib.Tevent = "event"
+		eventinf, err := srdblib.SelectFromEvent("event", eventid)
 		if err != nil {
 			//	DBの処理でエラーが発生した。
 			return
@@ -4937,8 +4938,8 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 	list_last.Detail = req.FormValue("detail")
 	log.Printf("      eventid=%s, detail=%s\n", eventid, list_last.Detail)
 	//	Event_inf, _ = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -5264,8 +5265,8 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 
 	eventid := r.FormValue("eventid")
 	//	Event_inf, _ = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		return
@@ -5314,8 +5315,8 @@ func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 	color := r.FormValue("color")
 
 	//	Event_inf, _ = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, err := srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		return
@@ -5413,8 +5414,8 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 	//	log.Printf("eventname=%s, period=%s\n", eventname, period)
 
 	//	Event_inf, _ = SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, _ := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 	Event_inf = *eventinf
 
 	log.Printf("eventname=%s, period=%s\n", Event_inf.Event_name, Event_inf.Period)
@@ -5554,16 +5555,16 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("from") != "new-event" {
 		//	すでに登録済みのイベントの参加ルームの更新を行うとき
 		//	eventinf, _ = SelectEventInf(eventid)
-		srdblib.Tevent = "event"
-		eventinf, _ = srdblib.SelectFromEvent(eventid)
+		//	srdblib.Tevent = "event"
+		eventinf, _ = srdblib.SelectFromEvent("event", eventid)
 
 		log.Println("***** HandlerAddEvent() Called. not 'from new-event'")
 		log.Println(eventinf)
 	} else {
 		//	新規にイベントを登録するとき
 		//	eventinf = &exsrapi.Event_Inf{}
-		srdblib.Tevent = "wevent"
-		eventinf, _ = srdblib.SelectFromEvent(eventid)
+		//	srdblib.Tevent = "wevent"
+		eventinf, _ = srdblib.SelectFromEvent("wevent", eventid)
 
 		log.Println("***** HandlerAddEvent() Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
@@ -5712,8 +5713,8 @@ func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
 		values["Submit"] = "hidden"
 		values["Msgcolor"] = "red"
 		//	Event_inf, _ = SelectEventInf(eventid)
-		srdblib.Tevent = "event"
-		eventinf, _ := srdblib.SelectFromEvent(eventid)
+		//	srdblib.Tevent = "event"
+		eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 		Event_inf = *eventinf
 
 		values["Eventname"] = Event_inf.Event_name
@@ -5780,8 +5781,8 @@ func HandlerParamEvent(w http.ResponseWriter, r *http.Request) {
 	log.Printf("      eventid=%s\n", eventid)
 
 	//	eventinf, _ := SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, _ := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 	Event_inf = *eventinf
 
 	userlist, _ := SelectEventuserList(eventid)
@@ -5819,8 +5820,8 @@ func HandlerParamEventC(w http.ResponseWriter, r *http.Request) {
 	log.Printf("      eventid=%s\n", eventid)
 
 	//	eventinf, _ := SelectEventInf(eventid)
-	srdblib.Tevent = "event"
-	eventinf, _ := srdblib.SelectFromEvent(eventid)
+	//	srdblib.Tevent = "event"
+	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 	Event_inf = *eventinf
 
 	//	log.Println(eventinf)

@@ -21,7 +21,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	//	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
+	//	"github.com/Chouette2100/srdblib"
 	//	"github.com/Chouette2100/srapi"
 )
 
@@ -46,10 +46,10 @@ func HandlerClosedEvents(
 
 
 	//      テーブルは"w"で始まるものを操作の対象とする。
-	srdblib.Tevent = "wevent"
-	srdblib.Teventuser = "weventuser"
-	srdblib.Tuser = "wuser"
-	srdblib.Tuserhistory = "wuserhistory"
+	//	srdblib.Tevent = "wevent"
+	//	srdblib.Teventuser = "weventuser"
+	//	srdblib.Tuser = "wuser"
+	//	srdblib.Tuserhistory = "wuserhistory"
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{

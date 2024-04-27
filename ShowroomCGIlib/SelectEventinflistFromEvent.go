@@ -26,10 +26,10 @@ func SelectEventinflistFromEvent(
 ) {
 
 	//      テーブルは"w"で始まるものを操作の対象とする。
-	srdblib.Tevent = "wevent"
-	srdblib.Teventuser = "weventuser"
-	srdblib.Tuser = "wuser"
-	srdblib.Tuserhistory = "wuserhistory"
+	//	srdblib.Tevent = "wevent"
+	//	srdblib.Teventuser = "weventuser"
+	//	srdblib.Tuser = "wuser"
+	//	srdblib.Tuserhistory = "wuserhistory"
 
 	tnow := time.Now().Truncate(time.Second)
 
