@@ -18,6 +18,8 @@ import (
 
 	//	"github.com/dustin/go-humanize"
 
+	"github.com/go-gorp/gorp"
+
 	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
 	"github.com/Chouette2100/srhandler"
@@ -79,9 +81,10 @@ import (
 	00AK01	SetConnMaxLifetime()に関するコメントを追加する。
 	00AK02	SetConnMaxLifetime()の設定を10秒から20秒に変更する（HandlerTopRoom()のタイムアウト対策）
 	00AK03	SetMaxOpenConns(8), SetMaxIdleConns(12), SetConnMaxLifetime(time.Minute * 5),SetConnMaxIdolTime(time.Minute * 5)	
+	00AL00	SHOWランクの一覧を表示できるようにする。gorpを導入する。
 */
 
-const version = "00AK03"
+const version = "00AL00"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -227,12 +230,18 @@ func main() {
 	//	https://zenn.dev/kouhei_fujii/articles/72ac1f8d4e8a84
 	srdblib.Db.SetMaxOpenConns(8)
 	srdblib.Db.SetMaxIdleConns(12)
+
 	srdblib.Db.SetConnMaxLifetime(time.Minute * 5)
 	srdblib.Db.SetConnMaxIdleTime(time.Minute * 5)
 
  
 	defer srdblib.Db.Close()
 	log.Printf("%+v\n", dbconfig)
+
+	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
+	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db, Dialect: dial, ExpandSliceArgs: true}
+	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+
 
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。
@@ -317,7 +326,11 @@ func main() {
 
 	http.HandleFunc(rootPath+"/apiroomstatus", srhandler.HandlerApiRoomStatus)
 
+	//	イベント獲得ポイント上位ルーム
 	http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)
+
+	//	SHOWランク上位配信者一覧表
+	http.HandleFunc(rootPath+"/showrank", ShowroomCGIlib.HandlerShowRank)
 
 	//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
 	http.HandleFunc(rootPath+"/disp-bbs", ShowroomCGIlib.HandlerDispBbs)

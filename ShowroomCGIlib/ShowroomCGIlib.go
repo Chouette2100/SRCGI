@@ -144,11 +144,12 @@ import (
 	11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
 	11AW02	説明書きや表の項目名の修正(追加)
 	11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とする方法に変える。
+	11AY00	HandlerShowRank()（SHOWランク上位配信者を表示する）を導入する。gorpを導入する。
 
 
 */
 
-const Version = "11AX00"
+const Version = "11AY00"
 
 /*
 type Event_Inf struct {

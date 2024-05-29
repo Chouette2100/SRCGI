@@ -96,6 +96,9 @@
     <br><a href="toproom" style="padding-left:2em">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）
     */}}
     <p style="padding-left:2em">
+    <a href="showrank">SHOWランクが上位のルーム</a>  （データ整備中）
+    </p>
+    <p style="padding-left:2em">
     <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）
     </p>
     <p style="padding-left:2em">
