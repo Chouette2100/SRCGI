@@ -145,11 +145,11 @@ import (
 	11AW02	説明書きや表の項目名の修正(追加)
 	11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とする方法に変える。
 	11AY00	HandlerShowRank()（SHOWランク上位配信者を表示する）を導入する。gorpを導入する。
-
+	11AZ00	userテーブルへのINSERTはsrdblib.InsertIntoUser()を用い、userテーブルのPDATEは原則として行わない。
 
 */
 
-const Version = "11AY00"
+const Version = "11AZ00"
 
 /*
 type Event_Inf struct {
@@ -452,7 +452,7 @@ func GetSerialFromYymmddHhmmss(yymmdd, hhmmss string) (tserial float64) {
 	return
 }
 
-func GetUserInfForHistory() (status int) {
+func GetUserInfForHistory(client *http.Client) (status int) {
 
 	status = 0
 
@@ -512,7 +512,7 @@ func GetUserInfForHistory() (status int) {
 
 		roominf.Genre, roominf.Rank, roominf.Nrank, roominf.Prank, roominf.Level,
 			roominf.Followers, roominf.Fans, roominf.Fans_lst, roominf.Name, roominf.Account, _, status = GetRoomInfoByAPI(roominf.ID)
-		InsertIntoOrUpdateUser(time.Now().Truncate(time.Second), eventid, roominf)
+		InsertIntoOrUpdateUser(client, time.Now().Truncate(time.Second), eventid, roominf)
 	}
 
 	return
@@ -1437,7 +1437,7 @@ func GetAndInsertEventRoomInfo(
 
 	if status == 0 {
 		//	InsertRoomInf(eventno, eventid, roominfolist)
-		InsertRoomInf(eventid, roominfolist)
+		InsertRoomInf(client, eventid, roominfolist)
 	}
 
 	return
@@ -1576,13 +1576,13 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 	return
 }
 
-func InsertRoomInf(eventid string, roominfolist *RoomInfoList) {
+func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoList) {
 
 	log.Printf("***** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
 	tnow := time.Now().Truncate(time.Second)
 	for i := 0; i < len(*roominfolist); i++ {
 		log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
-		InsertIntoOrUpdateUser(tnow, eventid, (*roominfolist)[i])
+		InsertIntoOrUpdateUser(client, tnow, eventid, (*roominfolist)[i])
 		status := InsertIntoEventUser(i, eventid, (*roominfolist)[i])
 		if status == 0 {
 			(*roominfolist)[i].Status = "更新"
@@ -1617,11 +1617,11 @@ func InsertRoomInf(eventid string, roominfolist *RoomInfoList) {
 	log.Printf("***** end of InsertRoomInf() ***********\n")
 }
 
-func InsertIntoOrUpdateUser(tnow time.Time, eventid string, roominf RoomInfo) (status int) {
+func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string, roominf RoomInfo) (status int) {
 
 	status = 0
 
-	isnew := false
+	//	isnew := false
 
 	userno, _ := strconv.Atoi(roominf.ID)
 	log.Printf("  *** InsertIntoOrUpdateUser() *** userno=%d\n", userno)
@@ -1635,126 +1635,172 @@ func InsertIntoOrUpdateUser(tnow time.Time, eventid string, roominf RoomInfo) (s
 		return
 	}
 
-	name := ""
-	genre := ""
-	rank := ""
-	nrank := ""
-	prank := ""
-	level := 0
-	followers := 0
-	fans := -1
-	fans_lst := -1
+	//	name := ""
+	//	genre := ""
+	//	rank := ""
+	//	nrank := ""
+	//	prank := ""
+	//	level := 0
+	//	followers := 0
+	//	fans := -1
+	//	fans_lst := -1
 
 	if nrow == 0 {
 
-		isnew = true
+		srdblib.InsertIntoUser(client, tnow, userno)
 
-		log.Printf("insert into userhistory(*new*) userno=%d rank=<%s> nrank=<%s> prank=<%s> level=%d, followers=%d, fans=%d, fans_lst=%d\n",
-			userno, roominf.Rank, roominf.Nrank, roominf.Prank, roominf.Level, roominf.Followers, fans, fans_lst)
+		/*
+			//	isnew = true
 
-		sql := "INSERT INTO user(userno, userid, user_name, longname, shortname, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts, currentevent)"
-		sql += " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+				log.Printf("insert into userhistory(*new*) userno=%d rank=<%s> nrank=<%s> prank=<%s> level=%d, followers=%d, fans=%d, fans_lst=%d\n",
+					userno, roominf.Rank, roominf.Nrank, roominf.Prank, roominf.Level, roominf.Followers, fans, fans_lst)
 
-		//	log.Printf("sql=%s\n", sql)
-		stmt, err := srdblib.Db.Prepare(sql)
-		if err != nil {
-			log.Printf("InsertIntoOrUpdateUser() error() (INSERT/Prepare) err=%s\n", err.Error())
-			status = -1
-			return
-		}
-		defer stmt.Close()
+				sql := "INSERT INTO user(userno, userid, user_name, longname, shortname, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts, currentevent)"
+				sql += " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 
-		lenid := len(roominf.ID)
-		_, err = stmt.Exec(
-			userno,
-			roominf.Account,
-			roominf.Name,
-			//	roominf.ID,
-			roominf.Name,
-			roominf.ID[lenid-2:lenid],
-			roominf.Genre,
-			roominf.Rank,
-			roominf.Nrank,
-			roominf.Prank,
-			roominf.Level,
-			roominf.Followers,
-			roominf.Fans,
-			roominf.Fans_lst,
-			tnow,
-			eventid,
-		)
+				//	log.Printf("sql=%s\n", sql)
+				stmt, err := srdblib.Db.Prepare(sql)
+				if err != nil {
+					log.Printf("InsertIntoOrUpdateUser() error() (INSERT/Prepare) err=%s\n", err.Error())
+					status = -1
+					return
+				}
+				defer stmt.Close()
 
-		if err != nil {
-			log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
-			//	status = -2
-			_, err = stmt.Exec(
-				userno,
-				roominf.Account,
-				roominf.Account,
-				roominf.ID,
-				roominf.ID[lenid-2:lenid],
-				roominf.Genre,
-				roominf.Rank,
-				roominf.Nrank,
-				roominf.Prank,
-				roominf.Level,
-				roominf.Followers,
-				roominf.Fans,
-				roominf.Fans_lst,
-				tnow,
-				eventid,
-			)
+				lenid := len(roominf.ID)
+				_, err = stmt.Exec(
+					userno,
+					roominf.Account,
+					roominf.Name,
+					//	roominf.ID,
+					roominf.Name,
+					roominf.ID[lenid-2:lenid],
+					roominf.Genre,
+					roominf.Rank,
+					roominf.Nrank,
+					roominf.Prank,
+					roominf.Level,
+					roominf.Followers,
+					roominf.Fans,
+					roominf.Fans_lst,
+					tnow,
+					eventid,
+				)
+
+				if err != nil {
+					log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
+					//	status = -2
+					_, err = stmt.Exec(
+						userno,
+						roominf.Account,
+						roominf.Account,
+						roominf.ID,
+						roominf.ID[lenid-2:lenid],
+						roominf.Genre,
+						roominf.Rank,
+						roominf.Nrank,
+						roominf.Prank,
+						roominf.Level,
+						roominf.Followers,
+						roominf.Fans,
+						roominf.Fans_lst,
+						tnow,
+						eventid,
+					)
+					if err != nil {
+						log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
+						status = -2
+					}
+				}
+		*/
+
+	}
+
+	/*
+		else {
+
+			sql := "select user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst from user where userno = ?"
+			err = srdblib.Db.QueryRow(sql, userno).Scan(&name, &genre, &rank, &nrank, &prank, &level, &followers, &fans, &fans_lst)
 			if err != nil {
-				log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
-				status = -2
+				log.Printf("err=[%s]\n", err.Error())
+				status = -1
 			}
+			//	log.Printf("current userno=%d name=%s, nrank=%s, prank=%s level=%d, followers=%d\n", userno, name, nrank, prank, level, followers)
+
+			if roominf.Genre != genre ||
+				roominf.Rank != rank ||
+				//	roominf.Nrank != nrank ||
+				//	roominf.Prank != prank ||
+				roominf.Level != level ||
+				roominf.Followers != followers ||
+				roominf.Fans != fans {
+
+				isnew = true
+
+				log.Printf("insert into userhistory(*changed*) userno=%d level=%d, followers=%d, fans=%d\n",
+					userno, roominf.Level, roominf.Followers, roominf.Fans)
+				sql := "update user set userid=?,"
+				sql += "user_name=?,"
+				sql += "genre=?,"
+				sql += "`rank`=?,"
+				sql += "nrank=?,"
+				sql += "prank=?,"
+				sql += "level=?,"
+				sql += "followers=?,"
+				sql += "fans=?,"
+				sql += "fans_lst=?,"
+				sql += "ts=?,"
+				sql += "currentevent=? "
+				sql += "where userno=?"
+				stmt, err := srdblib.Db.Prepare(sql)
+
+				if err != nil {
+					log.Printf("InsertIntoOrUpdateUser() error(Update/Prepare) err=%s\n", err.Error())
+					status = -1
+					return
+				}
+				defer stmt.Close()
+
+				_, err = stmt.Exec(
+					roominf.Account,
+					roominf.Name,
+					roominf.Genre,
+					roominf.Rank,
+					roominf.Nrank,
+					roominf.Prank,
+					roominf.Level,
+					roominf.Followers,
+					roominf.Fans,
+					roominf.Fans_lst,
+					tnow,
+					eventid,
+					roominf.ID,
+				)
+
+				if err != nil {
+					log.Printf("error(InsertIntoOrUpdateUser() Update/Exec) err=%s\n", err.Error())
+					status = -2
+				}
+			}
+
 		}
-	} else {
+	*/
 
-		sql := "select user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst from user where userno = ?"
-		err = srdblib.Db.QueryRow(sql, userno).Scan(&name, &genre, &rank, &nrank, &prank, &level, &followers, &fans, &fans_lst)
-		if err != nil {
-			log.Printf("err=[%s]\n", err.Error())
-			status = -1
-		}
-		//	log.Printf("current userno=%d name=%s, nrank=%s, prank=%s level=%d, followers=%d\n", userno, name, nrank, prank, level, followers)
-
-		if roominf.Genre != genre ||
-			roominf.Rank != rank ||
-			//	roominf.Nrank != nrank ||
-			//	roominf.Prank != prank ||
-			roominf.Level != level ||
-			roominf.Followers != followers ||
-			roominf.Fans != fans {
-
-			isnew = true
-
-			log.Printf("insert into userhistory(*changed*) userno=%d level=%d, followers=%d, fans=%d\n",
-				userno, roominf.Level, roominf.Followers, roominf.Fans)
-			sql := "update user set userid=?,"
-			sql += "user_name=?,"
-			sql += "genre=?,"
-			sql += "`rank`=?,"
-			sql += "nrank=?,"
-			sql += "prank=?,"
-			sql += "level=?,"
-			sql += "followers=?,"
-			sql += "fans=?,"
-			sql += "fans_lst=?,"
-			sql += "ts=?,"
-			sql += "currentevent=? "
-			sql += "where userno=?"
+	/*
+		if isnew {
+			sql := "INSERT INTO userhistory(userno, user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts)"
+			sql += " VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+			//	log.Printf("sql=%s\n", sql)
 			stmt, err := srdblib.Db.Prepare(sql)
-
 			if err != nil {
-				log.Printf("InsertIntoOrUpdateUser() error(Update/Prepare) err=%s\n", err.Error())
+				log.Printf("error(INSERT into userhistory/Prepare) err=%s\n", err.Error())
 				status = -1
 				return
 			}
 			defer stmt.Close()
 
 			_, err = stmt.Exec(
-				roominf.Account,
+				userno,
 				roominf.Name,
 				roominf.Genre,
 				roominf.Rank,
@@ -1765,71 +1811,32 @@ func InsertIntoOrUpdateUser(tnow time.Time, eventid string, roominf RoomInfo) (s
 				roominf.Fans,
 				roominf.Fans_lst,
 				tnow,
-				eventid,
-				roominf.ID,
 			)
 
-			if err != nil {
-				log.Printf("error(InsertIntoOrUpdateUser() Update/Exec) err=%s\n", err.Error())
-				status = -2
-			}
-		}
-		/* else {
-			//	log.Printf("not insert into userhistory(*same*) userno=%d level=%d, followers=%d\n", userno, roominf.Level, roominf.Followers)
-		}
-		*/
-
-	}
-
-	if isnew {
-		sql := "INSERT INTO userhistory(userno, user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts)"
-		sql += " VALUES(?,?,?,?,?,?,?,?,?,?,?)"
-		//	log.Printf("sql=%s\n", sql)
-		stmt, err := srdblib.Db.Prepare(sql)
-		if err != nil {
-			log.Printf("error(INSERT into userhistory/Prepare) err=%s\n", err.Error())
-			status = -1
-			return
-		}
-		defer stmt.Close()
-
-		_, err = stmt.Exec(
-			userno,
-			roominf.Name,
-			roominf.Genre,
-			roominf.Rank,
-			roominf.Nrank,
-			roominf.Prank,
-			roominf.Level,
-			roominf.Followers,
-			roominf.Fans,
-			roominf.Fans_lst,
-			tnow,
-		)
-
-		if err != nil {
-			log.Printf("error(Insert Into into userhistory INSERT/Exec) err=%s\n", err.Error())
-			//	status = -2
-			_, err = stmt.Exec(
-				userno,
-				roominf.Account,
-				roominf.Genre,
-				roominf.Rank,
-				roominf.Nrank,
-				roominf.Prank,
-				roominf.Level,
-				roominf.Followers,
-				roominf.Fans,
-				roominf.Fans_lst,
-				tnow,
-			)
 			if err != nil {
 				log.Printf("error(Insert Into into userhistory INSERT/Exec) err=%s\n", err.Error())
-				status = -2
+				//	status = -2
+				_, err = stmt.Exec(
+					userno,
+					roominf.Account,
+					roominf.Genre,
+					roominf.Rank,
+					roominf.Nrank,
+					roominf.Prank,
+					roominf.Level,
+					roominf.Followers,
+					roominf.Fans,
+					roominf.Fans_lst,
+					tnow,
+				)
+				if err != nil {
+					log.Printf("error(Insert Into into userhistory INSERT/Exec) err=%s\n", err.Error())
+					status = -2
+				}
 			}
-		}
 
-	}
+		}
+	*/
 
 	return
 
@@ -2598,8 +2605,8 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 		err := stmt1.Close()
 		if err != nil {
 			log.Printf("stmt1.Close() err=%s\n", err.Error())
-		}	
-    }()
+		}
+	}()
 
 	//	idx := 0
 	//	Err = stmt.QueryRow(time.Now().Add(time.Hour), eventid).Scan(&gtime)
@@ -2624,8 +2631,6 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 	sql2 += " AND (p.user_id , p.ts) IN (SELECT user_id, MAX(ts) FROM points WHERE eventid = ? AND ts > ? GROUP BY user_id) "
 	sql2 += " ORDER BY p.point desc"
 
-
-
 	stmt2, err := srdblib.Db.Prepare(sql2)
 
 	if err != nil {
@@ -2638,12 +2643,11 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 		err := stmt2.Close()
 		if err != nil {
 			log.Printf("stmt2.Close() err=%s\n", err.Error())
-		}	
-    }()
-
+		}
+	}()
 
 	//	rows, err := stmt.Query(eventid, gtime)
-	rows2, err := stmt2.Query(eventid, eventid, gtime.Add(-2 * time.Minute))
+	rows2, err := stmt2.Query(eventid, eventid, gtime.Add(-2*time.Minute))
 	if err != nil {
 		log.Printf("GetCurrentScore() (6) err=%s\n", err.Error())
 		status = -6
@@ -5331,6 +5335,15 @@ func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("      func=%s eventid=%s userid=%s\n", fnc, eventid, userid)
 
+	//      cookiejarがセットされたHTTPクライアントを作る
+	client, jar, err := exsrapi.CreateNewClient("ShowroomCGI")
+	if err != nil {
+		log.Printf("CreateNewClient: %s\n", err.Error())
+		return
+	}
+	//      すべての処理が終了したらcookiejarを保存する。
+	defer jar.Save()
+
 	switch fnc {
 	case "newuser":
 		//	新規配信者の追加があるとき
@@ -5338,7 +5351,7 @@ func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 		roominf, status := GetRoomInfoAndPoint(eventid, userid, fmt.Sprintf("%d", Event_inf.Nobasis))
 		if status == 0 {
 			tnow := time.Now().Truncate(time.Second)
-			InsertIntoOrUpdateUser(tnow, eventid, roominf)
+			InsertIntoOrUpdateUser(client, tnow, eventid, roominf)
 			InsertIntoEventUser(0, eventid, roominf)
 			UpdateEventuserSetPoint(eventid, roominf.ID, roominf.Point)
 
