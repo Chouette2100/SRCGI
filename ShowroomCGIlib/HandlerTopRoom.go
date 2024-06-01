@@ -98,6 +98,10 @@ func SelectTopRoom(
 		cond[lgenre-1] = "none"
 		top.Genrelist[lgenre-1].Checked = false
 	}
+	//	Genre, GenreID変更にともなう暫定対応
+	if n < lgenre {
+		n = lgenre
+	}
 
 	if n < lgenre {
 		//	lgenreに応じて書き換える必要がある。
