@@ -73,9 +73,9 @@ func HandlerCurrentDistributors(
 
 	top := T009top{
 		SR_acct:      "999999",
-		Category:     "Official",
+		Category:     "All",
 		Aplmin:       240,
-		Maxnoroom:    20,
+		Maxnoroom:    30,
 		Rvlfilename:  "rvl.txt",
 		Exclfilename: "excl.txt",
 	}

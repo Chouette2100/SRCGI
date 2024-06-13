@@ -145,7 +145,10 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 		"Add": func(n int, m int) int { return n + m },
 	}
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
+	/* Maintenance */
+	//	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_maint.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_org.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
+	/* Maintenance コマンド */
 
 	// ログを読み出す
 	err := loadLogs(&bbs) // データを読み出す

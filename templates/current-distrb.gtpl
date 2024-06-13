@@ -41,10 +41,15 @@
     <form method="get" action="currentdistrb">
         <div style="text-indent: 2rem;"><div>
         <div style="text-indent: 2rem;"><input type="submit" value="配信ルーム一覧をもう一度取得する">
-        （<input type="radio" name="category" value="Official" {{ if eq .Category "Official" }}checked{{ end }}>公式　
-        <input type="radio" name="category" value="Free" {{ if eq .Category "Free" }}checked{{ end }}>フリー　
-        最近配信を始めたルームから <input type="text" name="maxnoroom" value="20" maxlength="2" type="number" size="2"></form> ルーム表示する ）</div>
+        （<input type="radio" name="category" value="All" {{ if eq .Category "All" }}checked{{ end }}>すべて　
+        <input type="radio" name="category" value="exLiver" {{ if eq .Category "exLiver" }}checked{{ end }}>ライバー以外　
+        <input type="radio" name="category" value="Liver" {{ if eq .Category "Liver" }}checked{{ end }}>ライバー　
+        最近配信を始めたルームから <input type="text" name="maxnoroom" value="30" maxlength="2" type="number" size="2"></form> ルーム表示する ）</div>
     </form>
+    <p style="margin-left: 2rem;">ルーム名のリンクをクリックすると新しいタブが開きそこに指定したルームが表示されるようにしてあります。<br>
+    新しいタブが作られてもフォーカスは移動してほしくないということでしたらCtrlを押したままリンクをクリックしてください<br>
+    このあたりはブラウザの仕様だと思うので必ずそうなるとは言えませんが...
+    </p>
     <br>
     <table>
         <tr style="text-align: center">

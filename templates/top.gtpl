@@ -84,7 +84,7 @@
     </p>
     <br>
     <p style="padding-left:2em">
-        <a href="currentdistrb">配信中ルーム一覧</a> （配信開始から間もないルームの一覧が表示されます）
+        <a href="currentdistrb">配信中ルーム一覧</a> （配信開始から間もないルームの一覧が表示されます（ジャンル問わず30ルーム表示されるようにしました））
     </p>
     <p style="padding-left:2em">
         <a href="scheduledeventssvr">開催予定イベント一覧（内容詳細）</a> （開催が予定されているイベントの詳細が表示されます）

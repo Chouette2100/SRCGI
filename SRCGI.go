@@ -22,7 +22,9 @@ import (
 
 	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
-	//	"github.com/Chouette2100/srhandler"
+	/* Maintenance */
+	"github.com/Chouette2100/srhandler"
+	/* Maintenance ここまで*/
 
 	"SRCGI/ShowroomCGIlib"
 )
@@ -82,11 +84,13 @@ import (
 	00AK02	SetConnMaxLifetime()の設定を10秒から20秒に変更する（HandlerTopRoom()のタイムアウト対策）
 	00AK03	SetMaxOpenConns(8), SetMaxIdleConns(12), SetConnMaxLifetime(time.Minute * 5),SetConnMaxIdolTime(time.Minute * 5)	
 	00AL00	SHOWランクの一覧を表示できるようにする。gorpを導入する。
-
 	00XX00	メンテナンス用
+	00AM00	メンテナンス用の取り込み SRCGI.go でコメントに Maintenance とあるところを変更する
+			SHOWROOMの2024年6月の仕様変更に /currentdistrb の機能をあわせる
+
 */
 
-const version = "00XX00"
+const version = "00AM00"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -270,7 +274,7 @@ func main() {
 		}
 	*/
 
-	/*	メンテナンス
+	/*	Maintenance */
 	http.HandleFunc(rootPath+"/top", ShowroomCGIlib.HandlerTopForm)
 
 	http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.HandlerListLevel)
@@ -340,8 +344,9 @@ func main() {
 
 	http.HandleFunc(rootPath+"/t008top", srhandler.HandlerT008topForm) //	http://....../t008top で呼び出される。
 	http.HandleFunc(rootPath+"/t009top", srhandler.HandlerT009topForm) //	http://....../t009top で呼び出される。
-	*/
+	/* Maintenance ここまで */
 
+	/* Maintenance
 	http.HandleFunc(rootPath+"/top", ShowroomCGIlib.HandlerDispBbs)
 	http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.HandlerDispBbs)
 	http.HandleFunc(rootPath+"/list-last", ShowroomCGIlib.HandlerDispBbs)
@@ -378,7 +383,7 @@ func main() {
 	http.HandleFunc(rootPath+"/t008top", ShowroomCGIlib.HandlerDispBbs) //	http://....../t008top で呼び出される。
 	http.HandleFunc(rootPath+"/t009top", ShowroomCGIlib.HandlerDispBbs) //	http://....../t009top で呼び出される。
 
-	/*	メンテナンス ここまで	*/
+		Maintenance ここまで	*/
 
 	if svconfig.WebServer == "None" {
 		//	Webサーバーとして起動
