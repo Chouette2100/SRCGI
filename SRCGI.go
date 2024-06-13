@@ -22,7 +22,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi"
 	"github.com/Chouette2100/srdblib"
-	"github.com/Chouette2100/srhandler"
+	//	"github.com/Chouette2100/srhandler"
 
 	"SRCGI/ShowroomCGIlib"
 )
@@ -82,9 +82,11 @@ import (
 	00AK02	SetConnMaxLifetime()の設定を10秒から20秒に変更する（HandlerTopRoom()のタイムアウト対策）
 	00AK03	SetMaxOpenConns(8), SetMaxIdleConns(12), SetConnMaxLifetime(time.Minute * 5),SetConnMaxIdolTime(time.Minute * 5)	
 	00AL00	SHOWランクの一覧を表示できるようにする。gorpを導入する。
+
+	00XX00	メンテナンス用
 */
 
-const version = "00AL00"
+const version = "00XX00"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -268,6 +270,7 @@ func main() {
 		}
 	*/
 
+	/*	メンテナンス
 	http.HandleFunc(rootPath+"/top", ShowroomCGIlib.HandlerTopForm)
 
 	http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.HandlerListLevel)
@@ -337,6 +340,45 @@ func main() {
 
 	http.HandleFunc(rootPath+"/t008top", srhandler.HandlerT008topForm) //	http://....../t008top で呼び出される。
 	http.HandleFunc(rootPath+"/t009top", srhandler.HandlerT009topForm) //	http://....../t009top で呼び出される。
+	*/
+
+	http.HandleFunc(rootPath+"/top", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-last", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/graph-total", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/csv-total", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/graph-dfr", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/graph-perday", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-perday", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/graph-perslot", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-perslot", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/add-event", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/edit-user", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/new-user", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/param-event", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/param-eventc", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/new-event", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/param-global", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-cntrb", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-cntrbS", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/list-cntrbH", ShowroomCGIlib.HandlerListCntrbH)
+	http.HandleFunc(rootPath+"/fanlevel", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/flranking", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/currentdistrb", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/currentevents", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/scheduledevents", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/scheduledeventssvr", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/apiroomstatus", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/showrank", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/disp-bbs", ShowroomCGIlib.HandlerDispBbs)
+	http.HandleFunc(rootPath+"/t008top", ShowroomCGIlib.HandlerDispBbs) //	http://....../t008top で呼び出される。
+	http.HandleFunc(rootPath+"/t009top", ShowroomCGIlib.HandlerDispBbs) //	http://....../t009top で呼び出される。
+
+	/*	メンテナンス ここまで	*/
 
 	if svconfig.WebServer == "None" {
 		//	Webサーバーとして起動

@@ -2,6 +2,7 @@
 *.bak
 00*.txt
 SRCGI
+SRCGI_maint
 SRCGI.20*
 ShowroomCGI
 ShowroomCGI_det
