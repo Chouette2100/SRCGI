@@ -87,10 +87,11 @@ import (
 	00XX00	メンテナンス用
 	00AM00	メンテナンス用の取り込み SRCGI.go でコメントに Maintenance とあるところを変更する
 			SHOWROOMの2024年6月の仕様変更に /currentdistrb の機能をあわせる
+	00AM01	メンテナンス用を取り込んだときbbs-1.gtplからbbs-1_org.gtplへの変更を忘れたところを修正する。
 
 */
 
-const version = "00AM00"
+const version = "00AM01"
 
 //	日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {

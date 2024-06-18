@@ -159,7 +159,7 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	bbs.Nlog = len(bbs.Loglist)
 
-	if err := tpl.ExecuteTemplate(w, "bbs-1.gtpl", bbs); err != nil {
+	if err := tpl.ExecuteTemplate(w, "bbs-1_org.gtpl", bbs); err != nil {
 		log.Println(err)
 	}
 	if err := tpl.ExecuteTemplate(w, "bbs-2.gtpl", bbs); err != nil {
