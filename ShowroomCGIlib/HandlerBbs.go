@@ -5,6 +5,10 @@ https://opensource.org/licenses/mit-license.php
 
 */
 
+/*
+	SRCGI.00AM02	通常とメンテナンスの切り替えを ShowroomCGIlib.Serverconfig.Maintenance で行う。
+*/
+
 // 参考	100行未満かつGo標準ライブラリだけで作る掲示板
 // https://news.mynavi.jp/techplus/article/gogogo-9/
 package ShowroomCGIlib
@@ -58,12 +62,10 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	ra, ua, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	//	GetUserInf(req)
@@ -98,10 +100,10 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	//	一度に表示する投稿の数
 	/*
-	bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
-	if bbs.Limit == 0 {
-		bbs.Limit = 11
-	}
+		bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
+		if bbs.Limit == 0 {
+			bbs.Limit = 11
+		}
 	*/
 	bbs.Limit = 11
 
@@ -145,10 +147,14 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 		"Add": func(n int, m int) int { return n + m },
 	}
 	// テンプレートをパースする
-	/* Maintenance */
-	//	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_maint.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_org.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
-	/* Maintenance コマンド */
+	var tpl *template.Template
+	if ! Serverconfig.Maintenance {
+		tpl = template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_org.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
+	} else {
+		/* Maintenance */
+		tpl = template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_maint.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
+
+	}
 
 	// ログを読み出す
 	err := loadLogs(&bbs) // データを読み出す
@@ -159,8 +165,16 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	bbs.Nlog = len(bbs.Loglist)
 
-	if err := tpl.ExecuteTemplate(w, "bbs-1_org.gtpl", bbs); err != nil {
-		log.Println(err)
+	if ! Serverconfig.Maintenance {
+		if err := tpl.ExecuteTemplate(w, "bbs-1_org.gtpl", bbs); err != nil {
+			log.Println(err)
+		}
+	} else {
+		/* Maintenance */
+		if err := tpl.ExecuteTemplate(w, "bbs-1_maint.gtpl", bbs); err != nil {
+			log.Println(err)
+		}
+
 	}
 	if err := tpl.ExecuteTemplate(w, "bbs-2.gtpl", bbs); err != nil {
 		log.Println(err)

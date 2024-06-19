@@ -15,6 +15,7 @@ import (
 	2.0B01	timetableの更新で処理が終わっていないものを処理済みにしていた問題を修正する。
 	10AJ00	ブロックランキングに仮対応（Event_id=30030以外に拡張）する。イベントリストの表示イベント数を設定可能とする。
 	11AA00	データベースへのアクセスをsrdblibに移行しつつある。
+	SRCGI.00AM02	通常とメンテナンスの切り替えを ShowroomCGIlib.Serverconfig.Maintenance で行う。
 
 */
 
@@ -25,13 +26,14 @@ type ServerConfig struct {
 	HTTPport  string `yaml:"HTTPport"`
 	SSLcrt    string `yaml:"SSLcrt"`
 	SSLkey    string `yaml:"SSLkey"`
-	Dbhost    string `yaml:"Dbhost"`
-	Dbport    string `yaml:"Dbport"`
-	Dbname    string `yaml:"Dbname"`
-	Dbuser    string `yaml:"Dbuser"`
-	Dbpw      string `yaml:"Dbpw"`
-	UseSSH    bool   `yaml:"UseSSH"`
+	//	Dbhost    string `yaml:"Dbhost"`
+	//	Dbport    string `yaml:"Dbport"`
+	//	Dbname    string `yaml:"Dbname"`
+	//	Dbuser    string `yaml:"Dbuser"`
+	//	Dbpw      string `yaml:"Dbpw"`
+	//	UseSSH    bool   `yaml:"UseSSH"`
 	NoEvent   int    `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
+	Maintenance bool `yaml:"Maintenance"`
 }
 
 type SSHConfig struct {
