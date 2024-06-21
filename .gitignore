@@ -18,6 +18,6 @@ go.sum
 *_cookies
 *.svg
 launch.json
-__debug_bin
+__debug_bin*
 *.swp
 Backup
