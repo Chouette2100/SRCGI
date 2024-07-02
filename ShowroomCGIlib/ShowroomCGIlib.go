@@ -7,7 +7,7 @@ import (
 	"html"
 	"log"
 
-	//	"math"
+	//	"math/rand"
 	"sort"
 	"strconv"
 	"strings"
@@ -147,10 +147,11 @@ import (
 	11AY00	HandlerShowRank()（SHOWランク上位配信者を表示する）を導入する。gorpを導入する。
 	11AZ00	userテーブルへのINSERTはsrdblib.InsertIntoUser()を用い、userテーブルのPDATEは原則として行わない。
 	11BA00	Genre, GenreIDの変更にともなう暫定対応（HandlerTopRoom()）+ showrank.gtpl の説明を追加する。
+	11BB00	未使用の関数GetIsOnliveByAPI()の定義を削除する。グラフ画像ファイル名を生成順の連番とする。
 
 */
 
-const Version = "11BA00"
+const Version = "11BB00"
 
 /*
 type Event_Inf struct {
@@ -697,6 +698,7 @@ func GetPointsByAPI(id string) (Point, Rank, Gap int, EventID string) {
 
 /*
  */
+ /*
 func GetIsOnliveByAPI(room_id string) (
 	isonlive bool, //	true:	配信中
 	startedat time.Time, //	配信開始時刻（isonliveがtrueのときだけ意味があります）
@@ -744,6 +746,7 @@ func GetIsOnliveByAPI(room_id string) (
 	return
 
 }
+*/
 
 func GetAciveFanByAPI(room_id string, yyyymm string) (nofan int) {
 
@@ -1579,7 +1582,7 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 
 func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoList) {
 
-	log.Printf("***** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
+	log.Printf("  *** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
 	tnow := time.Now().Truncate(time.Second)
 	for i := 0; i < len(*roominfolist); i++ {
 		log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
@@ -1615,7 +1618,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 			(*roominfolist)[i].Statuscolor = "red"
 		}
 	}
-	log.Printf("***** end of InsertRoomInf() ***********\n")
+	log.Printf("  *** end of InsertRoomInf() ***********\n")
 }
 
 func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string, roominf RoomInfo) (status int) {
@@ -4239,6 +4242,8 @@ func GraphScore01(filename string, IDlist []int, eventname string, period string
 
 }
 
+var Nfseq int
+
 func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string, status int) {
 
 	status = 0
@@ -4259,7 +4264,11 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 	Event_inf.Gscale = gscale
 	UpdateEventInf(&Event_inf)
 
-	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
+	//	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
+	//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	//	filename = fmt.Sprintf("%0d.svg", r.Intn(100))
+	filename = fmt.Sprintf("%03d.svg", Nfseq)
+	Nfseq = (Nfseq + 1) % 1000
 
 	GraphScore01(filename, IDlist, eventname, period, maxpoint)
 
@@ -4323,7 +4332,9 @@ func GraphPerSlot(
 	yorigin := height - lhmargin
 
 	//	SVG出力ファイルを設定し、背景色を決める。
-	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
+	//	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
+	filename = fmt.Sprintf("%03d.svg", Nfseq)
+	Nfseq = (Nfseq + 1) % 1000
 	file, err := os.OpenFile("public/"+filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		//	panic(err)
@@ -4497,7 +4508,9 @@ func GraphPerDay(
 	yorigin := height - lhmargin
 
 	//	SVG出力ファイルを設定し、背景色を決める。
-	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
+	//	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
+	filename = fmt.Sprintf("%03d.svg", Nfseq)
+	Nfseq = (Nfseq + 1) % 1000
 	file, err := os.OpenFile("public/"+filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		//	panic(err)
@@ -4710,7 +4723,7 @@ func GetUserInf(r *http.Request) (
 	}
 	ua = r.UserAgent()
 
-	log.Printf("***** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
+	log.Printf("  *** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 	//	fmt.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 
 	if !IsAllowIp(ra) {
@@ -4895,7 +4908,7 @@ func HandlerListLevel(w http.ResponseWriter, req *http.Request) {
 
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	levelonly, _ := strconv.Atoi(req.FormValue("levelonly"))
-	log.Printf("***** HandlerListLevel() called. userno=%d, levelonly=%d\n", userno, levelonly)
+	log.Printf("  *** HandlerListLevel() called. userno=%d, levelonly=%d\n", userno, levelonly)
 
 	RoomLevelInf, _ := SelectRoomLevel(userno, levelonly)
 
@@ -5573,7 +5586,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	srdblib.Tevent = "event"
 		eventinf, _ = srdblib.SelectFromEvent("event", eventid)
 
-		log.Println("***** HandlerAddEvent() Called. not 'from new-event'")
+		log.Println("  *** HandlerAddEvent() Called. not 'from new-event'")
 		log.Println(eventinf)
 	} else {
 		//	新規にイベントを登録するとき
@@ -5581,7 +5594,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	srdblib.Tevent = "wevent"
 		eventinf, _ = srdblib.SelectFromEvent("wevent", eventid)
 
-		log.Println("***** HandlerAddEvent() Called. 'from new-event'")
+		log.Println("  *** HandlerAddEvent() Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
 		eventinf.Modsec, _ = strconv.Atoi(r.FormValue("modsec"))
 
