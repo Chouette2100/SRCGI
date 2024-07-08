@@ -41,9 +41,11 @@ func SelectEventinflistFromEventByRoom(
 	}
 	sqls += " where we.eventid in "
 	sqls += " (select weu.eventid from weventuser weu join wevent we on weu.eventid  = we.eventid "
-	sqls += " where weu.userno = ? and we.endtime < ? "
+	//	sqls += " where weu.userno = ? and we.endtime < ? "
+	sqls += " where weu.userno = ? and we.starttime < ? "
 	sqls += " union select eu.eventid from eventuser eu join event e on eu.eventid = e.eventid "
-	sqls += " where eu.userno = ? and e.endtime < ? )  "
+	//	sqls += " where eu.userno = ? and e.endtime < ? )  "
+	sqls += " where eu.userno = ? and e.starttime < ? )  "
 	sqls += " order by starttime desc, endtime desc limit ? offset ?"
 
 	//	log.Printf("sql=[%s]\n", sqls)

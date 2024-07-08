@@ -206,12 +206,15 @@
                 onclick="location.href='closedevents?path={{ .Path }}&keywordev={{ .Keywordev }}&keywordrm={{ .Keywordrm }}&userno={{ .Userno }}'">すべてのイベントを表示する</button>
             {{ end }}
             {{ else }}
-            終了イベント一覧　　
+            終了イベント一覧
+            {{ if ge .Path 4 }}
+            （ルーム名からの検索では開催中イベントを含む）
+            {{ end }}
             {{ if eq .Keywordev "" }}
-            <button type="button"
-                onclick="location.href='closedevents?path={{ .Path }}&mode=1&keywordrm={{ .Keywordrm }}&userno={{ .Userno }}'">獲得ポイント詳細データのある終了イベントのみ表示する</button>
+            　　<button type="button"
+                onclick="location.href='closedevents?path={{ .Path }}&mode=1&keywordrm={{ .Keywordrm }}&userno={{ .Userno }}'">獲得ポイント詳細データのあるイベントのみ表示する</button>
             {{ else }}
-            <button type="button"
+            　　<button type="button"
                 onclick="location.href='closedevents?path={{ .Path }}&mode=1&keywordev={{ .Keywordev }}&keywordrm={{ .Keywordrm }}&userno={{ .Userno }}'">獲得ポイント詳細データのある終了イベントのみ表示する</button>
             {{ end }}
             {{ end }}

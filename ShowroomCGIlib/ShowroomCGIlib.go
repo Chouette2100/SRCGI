@@ -148,10 +148,11 @@ import (
 	11AZ00	userテーブルへのINSERTはsrdblib.InsertIntoUser()を用い、userテーブルのPDATEは原則として行わない。
 	11BA00	Genre, GenreIDの変更にともなう暫定対応（HandlerTopRoom()）+ showrank.gtpl の説明を追加する。
 	11BB00	未使用の関数GetIsOnliveByAPI()の定義を削除する。グラフ画像ファイル名を生成順の連番とする。
+	11BB01	過去イベントの検索でルーム名、IDから絞り込む場合は開催中のイベントも検索対象に含める。
 
 */
 
-const Version = "11BB00"
+const Version = "11BB01"
 
 /*
 type Event_Inf struct {
