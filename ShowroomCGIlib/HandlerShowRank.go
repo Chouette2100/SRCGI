@@ -103,7 +103,16 @@ func HandlerShowRank(
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/showrank.gtpl"))
 
 	//	showrank.Userlist, err = SelectShowRank(client, 260000000)	//	SS-5〜A-5
-	showrank.Userlist, err = SelectShowRank(client, 300000000)	//	SS-5〜A-1
+	//	showrank.Userlist, err = SelectShowRank(client, 300000000)	//	SS-5〜A-1
+	var user1 srdblib.User
+	err = srdblib.Dbmap.SelectOne(&user1, "select * from user where irank = (select min(irank) from user where `rank` = 'B-5')")
+	if err != nil {
+		err = fmt.Errorf("srdblib.Dbmap.SelectOne(): %w", err)
+		log.Printf("HandlerShowRank(): %s\n", err.Error())
+		return
+	}
+
+	showrank.Userlist, err = SelectShowRank(client, user1.Irank + 1)	//	SS-5〜A-1とB-5のトップ
 	if err != nil {
 		err = fmt.Errorf("SelectShowRank(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
