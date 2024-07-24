@@ -149,10 +149,13 @@ import (
 	11BA00	Genre, GenreIDの変更にともなう暫定対応（HandlerTopRoom()）+ showrank.gtpl の説明を追加する。
 	11BB00	未使用の関数GetIsOnliveByAPI()の定義を削除する。グラフ画像ファイル名を生成順の連番とする。
 	11BB01	過去イベントの検索でルーム名、IDから絞り込む場合は開催中のイベントも検索対象に含める。
+	11BB02	画像ファイル名はCGIの場合は連番、独立したWebサーバーの場合はPIDの下３桁とする。
+	11BC00	JSONのデコードが失敗したときのもとデータ（bufstr）のログ出力をやめる（APIが期待する結果を戻さない場合があることがわかっているから）
+	11BC01	終了済イベントのソート順はendtime descを優先する。
 
 */
 
-const Version = "11BB01"
+const Version = "11BC01"
 
 /*
 type Event_Inf struct {
@@ -699,7 +702,7 @@ func GetPointsByAPI(id string) (Point, Rank, Gap int, EventID string) {
 
 /*
  */
- /*
+/*
 func GetIsOnliveByAPI(room_id string) (
 	isonlive bool, //	true:	配信中
 	startedat time.Time, //	配信開始時刻（isonliveがtrueのときだけ意味があります）
@@ -815,7 +818,7 @@ func GetRoomInfoByAPI(room_id string) (
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
-	bufstr := buf.String()
+	//	bufstr := buf.String()
 
 	//	JSONをデコードする。
 	//	次の記事を参考にさせていただいております。
@@ -826,7 +829,8 @@ func GetRoomInfoByAPI(room_id string) (
 	decoder := json.NewDecoder(buf)
 	if err := decoder.Decode(&result); err != nil {
 		//	panic(err)
-		log.Printf("%s", bufstr)
+		//	log.Printf("%s", bufstr)
+		log.Printf(" GetRoomInfoByAPI() decoder.Decode returned error %s\n", err.Error())
 		status = -2
 		return
 	}
@@ -2161,9 +2165,9 @@ func GetEventInfAndRoomListBR(
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
-	bufstr := buf.String()
 
-	log.Printf("%s\n", bufstr)
+	//	bufstr := buf.String()
+	//	log.Printf("%s\n", bufstr)
 
 	//	doc, error = goquery.NewDocumentFromReader(resp.Body)
 	doc, error = goquery.NewDocumentFromReader(buf)
@@ -4265,11 +4269,15 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 	Event_inf.Gscale = gscale
 	UpdateEventInf(&Event_inf)
 
-	//	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
-	//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	//	filename = fmt.Sprintf("%0d.svg", r.Intn(100))
-	filename = fmt.Sprintf("%03d.svg", Nfseq)
-	Nfseq = (Nfseq + 1) % 1000
+	if Serverconfig.WebServer == "None" {
+		filename = fmt.Sprintf("%03d.svg", Nfseq)
+		Nfseq = (Nfseq + 1) % 1000
+	} else {
+		filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)
+		//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+		//	filename = fmt.Sprintf("%0d.svg", r.Intn(100))
+
+	}
 
 	GraphScore01(filename, IDlist, eventname, period, maxpoint)
 
@@ -4334,8 +4342,12 @@ func GraphPerSlot(
 
 	//	SVG出力ファイルを設定し、背景色を決める。
 	//	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
-	filename = fmt.Sprintf("%03d.svg", Nfseq)
-	Nfseq = (Nfseq + 1) % 1000
+	if Serverconfig.WebServer == "None" {
+		filename = fmt.Sprintf("%03d.svg", Nfseq)
+		Nfseq = (Nfseq + 1) % 1000
+	} else {
+		filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)
+	}
 	file, err := os.OpenFile("public/"+filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		//	panic(err)
@@ -4510,8 +4522,12 @@ func GraphPerDay(
 
 	//	SVG出力ファイルを設定し、背景色を決める。
 	//	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
-	filename = fmt.Sprintf("%03d.svg", Nfseq)
-	Nfseq = (Nfseq + 1) % 1000
+	if Serverconfig.WebServer == "None" {
+		filename = fmt.Sprintf("%03d.svg", Nfseq)
+		Nfseq = (Nfseq + 1) % 1000
+	} else {
+		filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)
+	}
 	file, err := os.OpenFile("public/"+filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		//	panic(err)

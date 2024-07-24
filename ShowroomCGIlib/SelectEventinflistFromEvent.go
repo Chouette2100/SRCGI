@@ -60,7 +60,8 @@ func SelectEventinflistFromEvent(
 	switch cond {
 	case -1: //	終了済みイベント
 		//	sqls += " order by we.endtime desc, we.starttime desc "
-		sqls += " order by we.starttime desc, we.endtime desc, we.event_name "
+		//	sqls += " order by we.starttime desc, we.endtime desc, we.event_name "
+		sqls += " order by we.endtime desc, we.starttime desc, we.event_name "
 	case 0: //	開催中のイベント
 		sqls += " order by we.endtime, we.starttime, we.event_name "
 	case 1: //	開催予定のイベント
