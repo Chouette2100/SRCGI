@@ -154,10 +154,11 @@ import (
 	11BC01	終了済イベントのソート順はendtime descを優先する。
 	11BD00	UpdateRoomInf()でistargetとiscntrbpointを"N"に設定することを禁止する。
 	11BD01	獲得ポイント取得対象ルームの範囲を指定しての登録は1〜20に限定する。
+	11BD02	獲得ポイントの推移のグラフの画面に「表示するルームを選ぶ」というボタンを追加する。
 
 */
 
-const Version = "11BD01"
+const Version = "11BD02"
 
 /*
 type Event_Inf struct {
