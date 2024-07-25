@@ -108,9 +108,9 @@
 		</p>
 
 		<p style="padding-left:6em">
-			<label>ＤＢに登録する順位の範囲<input type="text" name="breg" value="{{.Fromorder}}" size="3" required
-					pattern="[0-9]+"><label>位から
-					<input type="text" name="ereg" value="{{.Toorder}}" size="3" required pattern="[0-9]+"><label>位まで　　　
+			<label>ＤＢに登録する順位の範囲
+					<input type="number" name="breg" value="{{.Fromorder}}" size="3" required min="1" max="20"><label>位から
+					<input type="number" name="ereg" value="{{.Toorder}}" size="3" required min="1" max="{{.Toorder}}"><label>位まで　　　
 						<input type="submit" value="実行" formaction="add-event" formmethod="POST"
 							style="background-color: khaki">
 						<p style="padding-left:4em">イベント途中で新規の参加者がいた場合、参加者が多いイベントで大きな順位の変動があった場合などに使います。<br>

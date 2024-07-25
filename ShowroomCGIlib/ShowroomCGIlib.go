@@ -152,10 +152,12 @@ import (
 	11BB02	画像ファイル名はCGIの場合は連番、独立したWebサーバーの場合はPIDの下３桁とする。
 	11BC00	JSONのデコードが失敗したときのもとデータ（bufstr）のログ出力をやめる（APIが期待する結果を戻さない場合があることがわかっているから）
 	11BC01	終了済イベントのソート順はendtime descを優先する。
+	11BD00	UpdateRoomInf()でistargetとiscntrbpointを"N"に設定することを禁止する。
+	11BD01	獲得ポイント取得対象ルームの範囲を指定しての登録は1〜20に限定する。
 
 */
 
-const Version = "11BC01"
+const Version = "11BD01"
 
 /*
 type Event_Inf struct {
@@ -1227,7 +1229,15 @@ func UpdateRoomInf(eventid, suserno, longname, shortname, istarget, graph, color
 	}
 
 	//	sql = "update eventuser set istarget=?, graph=?, color=? where eventno=? and userno=?"
-	sql = "update eventuser set istarget=?, graph=?, color=?, iscntrbpoints=? where eventid=? and userno=?"
+	//	sql = "update eventuser set istarget=?, graph=?, color=?, iscntrbpoints=? where eventid=? and userno=?"
+	sql = "update eventuser set graph=?, color=?"
+	if iscntrbpoint == "Y" {
+		sql += ", iscntrbpoints= 'Y'"
+	}
+	if istarget == "Y" {
+		sql += ", istarget= 'Y'"
+	}
+	sql +=" where eventid=? and userno=?"
 
 	stmt, err = srdblib.Db.Prepare(sql)
 	if err != nil {
@@ -1237,7 +1247,8 @@ func UpdateRoomInf(eventid, suserno, longname, shortname, istarget, graph, color
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(istarget, graph, color, iscntrbpoint, eventid, userno)
+	//	_, err = stmt.Exec(istarget, graph, color, iscntrbpoint, eventid, userno)
+	_, err = stmt.Exec(graph, color, eventid, userno)
 
 	if err != nil {
 		log.Printf("error(InsertIntoOrUpdateUser() Update/Exec) err=%s\n", err.Error())
@@ -3087,7 +3098,7 @@ func SelectEventInfAndRoomList() (IDlist []int, status int) {
 	//	err = srdblib.Db.QueryRow(sql, Event_inf.Event_ID).Scan(&Event_inf.Maxpoint)
 
 	if err != nil {
-		log.Printf("select max(point) from eventuser where eventid = '%s'\n", Event_inf.Event_ID)
+		log.Printf("select max(point) from eventuser where eventid = '%s'  and graph = 'Y'\n", Event_inf.Event_ID)
 		log.Printf("err=[%s]\n", err.Error())
 		status = -2
 		return
