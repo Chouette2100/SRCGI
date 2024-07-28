@@ -156,11 +156,12 @@ import (
 	11BD01	獲得ポイント取得対象ルームの範囲を指定しての登録は1〜20に限定する。
 	11BD02	獲得ポイントの推移のグラフの画面に「表示するルームを選ぶ」というボタンを追加する。
 	11BD03	獲得ポイントの推移のグラフの画面の「表示するルームを選ぶ」に「グラフの色を変える」を追加する。
-			グラフ表示の最大ルーム数を10から20に変更する。
+			グラフ表示の最大ルーム数のデフォルト値を10から20に変更する。
+	11BE00	長期間に渡るイベントのグラフの表示方法を調整する。
 
 */
 
-const Version = "11BD03"
+const Version = "11BE00"
 
 /*
 type Event_Inf struct {
@@ -1240,7 +1241,7 @@ func UpdateRoomInf(eventid, suserno, longname, shortname, istarget, graph, color
 	if istarget == "Y" {
 		sql += ", istarget= 'Y'"
 	}
-	sql +=" where eventid=? and userno=?"
+	sql += " where eventid=? and userno=?"
 
 	stmt, err = srdblib.Db.Prepare(sql)
 	if err != nil {
@@ -3762,7 +3763,6 @@ func DetXaxScale(
 ) {
 
 	status = 0
-
 	type Xaxis struct {
 		Xupper  float64
 		Xscaled int
@@ -3770,13 +3770,15 @@ func DetXaxScale(
 	}
 	xaxis := []Xaxis{
 		{1.1, 24, 1},
-		{2.1, 12, 1},
-		{5.1, 8, 1},
-		{10.1, 4, 1},
-		{32.1, 2, 1},
-		{64.1, 1, 2},
-		{128.1, 1, 4},
-		{256.1, 1, 7},
+		{3.1, 12, 1},
+		{10.1, 8, 1},
+		{20.1, 4, 1},
+		{40.1, 2, 3},
+		{80.1, 1, 4},
+		{160.1, -3, 4},
+		{350.1, -7, 4},
+		{700.1, -14, 4},
+		{1400.1, -35, 4},
 	}
 
 	ix := 0
@@ -3788,8 +3790,8 @@ func DetXaxScale(
 		}
 	}
 	if ix == len(xaxis) {
-		xscaled = 1
-		xscalet = 28
+		xscaled = -70
+		xscalet = 4
 	}
 
 	return
@@ -4120,25 +4122,48 @@ func GraphScore01(filename string, IDlist []int, eventname string, period string
 
 	//	x軸（時間軸）を描画する
 
+	//	x軸に表示する値の上限値
 	xupper := Event_inf.Dperiod
+	//	x軸に表示する値と座標幅の比（表示値１が座標のいくらに相当するか？）
 	xscale := vwidth / float64(xupper)
+	// xscaled > 0 のとき　一目盛を1日の何分の一にするか？
+	// xscaled < 0 のとき、一目盛を1日の何倍にするか？
 	xscaled, xscalet, _ := DetXaxScale(xupper)
 	//	log.Printf("xupper=%f xscale=%f dxl=%f xscalet=%d\n", xupper, xscale, dxl, xscalet)
 
-	dxl := 1.0 / float64(xscaled) * xscale
+	//	一目盛の表示長さ
+	dxl := 0.0
+	if xscaled > 0 {
+		dxl = 1.0 / float64(xscaled) * xscale
+	} else {
+		dxl = -1.0 * float64(xscaled) * xscale
+	}
 	tval := Event_inf.Start_time
 	xl := 0.0
 	for i := 0; ; i++ {
 		wstr := 0.15
-		if i%xscaled == 0 {
+		if xscaled > 0 && i%xscaled == 0 {
+			//	xscaled > 0 のときは1日ごとに（00時に）表示を太くする
 			wstr = 0.3
-			if i%(xscaled*xscalet) == 0 {
+		}
+		if xscaled > 0 && i%(xscaled*xscalet) == 0 || xscaled < 0 && i%xscalet == 0 {
+			//	xscaled > 0 のときはxscalet日ごとに日付を表示する
+			//	xscaled < 0 のときはxscaled * xscalet日ごとに日付を表示する
+			if xscaled > -10 {
 				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("1/2"),
 					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-				tval = tval.AddDate(0, 0, xscalet)
+			} else {
+				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("06/01/02"),
+					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
 			}
 
+			if xscaled > 0 {
+				tval = tval.AddDate(0, 0, xscalet)
+			} else {
+				tval = tval.AddDate(0, 0, -xscaled*xscalet)
+			}
 		}
+
 		canvas.Line(xorigin+xl, yorigin, xorigin+xl, yorigin-vheight, "stroke=\"white\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*wstr)+"\"")
 		xl += dxl
 		if xl > vwidth+10 {
@@ -4440,20 +4465,40 @@ func GraphPerSlot(
 	xscaled, xscalet, _ := DetXaxScale(xupper)
 	//	log.Printf("xupper=%f xscale=%f dxl=%f xscalet=%d\n", xupper, xscale, dxl, xscalet)
 
-	dxl := 1.0 / float64(xscaled) * xscale
+	//	一目盛の表示長さ
+	dxl := 0.0
+	if xscaled > 0 {
+		dxl = 1.0 / float64(xscaled) * xscale
+	} else {
+		dxl = -1.0 * float64(xscaled) * xscale
+	}
+
 	tval := Event_inf.Start_time
 	xl := 0.0
 	for i := 0; ; i++ {
 		wstr := 0.15
 		if i%xscaled == 0 {
 			wstr = 0.3
-			if i%(xscaled*xscalet) == 0 {
+		}
+
+		if xscaled > 0 && i%(xscaled*xscalet) == 0 || xscaled < 0 && i%xscalet == 0 {
+			//	xscaled > 0 のときはxscalet日ごとに日付を表示する
+			//	xscaled < 0 のときはxscaled * xscalet日ごとに日付を表示する
+			if xscaled > -10 {
 				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("1/2"),
 					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-				tval = tval.AddDate(0, 0, xscalet)
+			} else {
+				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("06/01/02"),
+					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
 			}
 
+			if xscaled > 0 {
+				tval = tval.AddDate(0, 0, xscalet)
+			} else {
+				tval = tval.AddDate(0, 0, -xscaled*xscalet)
+			}
 		}
+
 		canvas.Line(xorigin+xl, yorigin, xorigin+xl, yorigin-vheight, "stroke=\"white\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*wstr)+"\"")
 		xl += dxl
 		if xl > vwidth+10 {
@@ -4614,20 +4659,41 @@ func GraphPerDay(
 	xscaled, xscalet, _ := DetXaxScale(xupper)
 	//	log.Printf("xupper=%f xscale=%f dxl=%f xscalet=%d\n", xupper, xscale, dxl, xscalet)
 
-	dxl := 1.0 / float64(xscaled) * xscale
+	//	一目盛の表示長さ
+	dxl := 0.0
+	if xscaled > 0 {
+		dxl = 1.0 / float64(xscaled) * xscale
+	} else {
+		dxl = -1.0 * float64(xscaled) * xscale
+	}
+
 	tval := Event_inf.Start_time
 	xl := 0.0
 	for i := 0; ; i++ {
 		wstr := 0.15
-		if i%xscaled == 0 {
+		if xscaled > 0 && i%xscaled == 0 {
+			//	xscaled > 0 のときは1日ごとに（00時に）表示を太くする
 			wstr = 0.3
-			if i%(xscaled*xscalet) == 0 {
+		}
+
+		if xscaled > 0 && i%(xscaled*xscalet) == 0 || xscaled < 0 && i%xscalet == 0 {
+			//	xscaled > 0 のときはxscalet日ごとに日付を表示する
+			//	xscaled < 0 のときはxscaled * xscalet日ごとに日付を表示する
+			if xscaled > -10 {
 				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("1/2"),
 					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-				tval = tval.AddDate(0, 0, xscalet)
+			} else {
+				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("06/01/02"),
+					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
 			}
 
+			if xscaled > 0 {
+				tval = tval.AddDate(0, 0, xscalet)
+			} else {
+				tval = tval.AddDate(0, 0, -xscaled*xscalet)
+			}
 		}
+
 		canvas.Line(xorigin+xl, yorigin, xorigin+xl, yorigin-vheight, "stroke=\"white\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*wstr)+"\"")
 		xl += dxl
 		if xl > vwidth+10 {
