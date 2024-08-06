@@ -27,7 +27,7 @@
       <td></td>
         </tr>
       </table>
-<p>直近の獲得ポイント一覧　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span></p>
+<p>直近の獲得ポイント一覧　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span>　このページはブックマーク可能です。</p>
 <p style="padding-left:2em">
 {{.UpdateTime}}
 </p>
