@@ -160,10 +160,11 @@ import (
 	11BE00	長期間に渡るイベントのグラフの表示方法を調整する。
 	11BE01	グラフ表示の最大ルーム数のデフォルト値を10から20に変更する（修正）
 	11BE02	list-last_h.gtplで「このページはブックマーク可能です」の文言を追加する。
+	11BF00	GraphScore01()でデータが連続していないとき（点になるとき）はcanvas.Circle()で描画する。
 
 */
 
-const Version = "11BE02"
+const Version = "11BF00"
 
 /*
 type Event_Inf struct {
@@ -4255,6 +4256,8 @@ func GraphScore01(filename string, IDlist []int, eventname string, period string
 		}
 		if k > 1 {
 			canvas.Polyline(xo[0:k], yo[0:k], "fill=\"none\" stroke=\""+cvalue+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
+		} else {
+			canvas.Circle(xo[0], yo[0], bstroke*1.5, "fill=\""+cvalue+"\" stroke=\""+cvalue+"\"")
 		}
 
 		xln := xorigin + vwidth + bstroke*30.0
