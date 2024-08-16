@@ -161,10 +161,11 @@ import (
 	11BE01	グラフ表示の最大ルーム数のデフォルト値を10から20に変更する（修正）
 	11BE02	list-last_h.gtplで「このページはブックマーク可能です」の文言を追加する。
 	11BF00	GraphScore01()でデータが連続していないとき（点になるとき）はcanvas.Circle()で描画する。
+	11BG00	GetAndInsertEventRoomInfo()でルーム情報の取得をGetEventsRankingByApi()を使う。block_id=0に対応する。
 
 */
 
-const Version = "11BF00"
+const Version = "11BG00"
 
 /*
 type Event_Inf struct {
@@ -1370,60 +1371,130 @@ func GetAndInsertEventRoomInfo(
 	//	イベントに参加しているルームの一覧を取得します。
 	//	ルーム名、ID、URLを取得しますが、イベント終了直後の場合の最終獲得ポイントが表示されている場合はそれも取得します。
 
-	if strings.Contains(eventid, "?") {
-		status = GetEventInfAndRoomListBR(client, eventid, breg, ereg, eventinfo, roominfolist)
-		eia := strings.Split(eventid, "?")
-		bka := strings.Split(eia[1], "=")
-		eventinfo.Event_name = eventinfo.Event_name + "(" + bka[1] + ")"
-	} else {
-		status = GetEventInfAndRoomList(eventid, breg, ereg, eventinfo, roominfolist)
-	}
+	/*	ここから
+		if strings.Contains(eventid, "?") {
+			status = GetEventInfAndRoomListBR(client, eventid, breg, ereg, eventinfo, roominfolist)
+			eia := strings.Split(eventid, "?")
+			bka := strings.Split(eia[1], "=")
+			eventinfo.Event_name = eventinfo.Event_name + "(" + bka[1] + ")"
+		} else {
+			status = GetEventInfAndRoomList(eventid, breg, ereg, eventinfo, roominfolist)
+		}
 
-	if status != 0 {
-		log.Printf("GetEventInfAndRoomList() returned %d\n", status)
+		if status != 0 {
+			log.Printf("GetEventInfAndRoomList() returned %d\n", status)
+			return
+		}
+
+		//	各ルームのジャンル、ランク、レベル、フォロワー数を取得します。
+		for i := 0; i < (*eventinfo).NoRoom; i++ {
+			(*roominfolist)[i].Genre, (*roominfolist)[i].Rank,
+				(*roominfolist)[i].Nrank,
+				(*roominfolist)[i].Prank,
+				(*roominfolist)[i].Level,
+				(*roominfolist)[i].Followers,
+				(*roominfolist)[i].Fans,
+				(*roominfolist)[i].Fans_lst,
+				_, _, _, _ = GetRoomInfoByAPI((*roominfolist)[i].ID)
+
+		}
+
+		//	各ルームの獲得ポイントを取得します。
+		for i := 0; i < (*eventinfo).NoRoom; i++ {
+			point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
+			if eventid == (*eventinfo).Event_ID {
+				(*roominfolist)[i].Point = point
+				UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
+				if point < 0 {
+					(*roominfolist)[i].Spoint = ""
+				} else {
+					(*roominfolist)[i].Spoint = humanize.Comma(int64(point))
+				}
+			} else {
+				log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
+			}
+
+			if (*roominfolist)[i].ID == fmt.Sprintf("%d", (*eventinfo).Nobasis) {
+				(*eventinfo).Pntbasis = point
+				(*eventinfo).Ordbasis = i
+			}
+
+			//	log.Printf(" followers=<%d> level=<%d> nrank=<%s> genre=<%s> point=%d\n",
+			//	(*roominfolist)[i].Followers,
+			//	(*roominfolist)[i].Level,
+			//	(*roominfolist)[i].Nrank,
+			//	(*roominfolist)[i].Genre,
+			//	(*roominfolist)[i].Point)
+		}
+
+		ここまで修正対象	*/
+
+	//	ここから
+
+	eid := eventid
+	if strings.Contains(eventid, "?block_id=0") {
+		//	Block_id=0 は特殊で、ブロックイベントを構成するイベントの一つということではなくイベント全体を示す
+		eid = strings.ReplaceAll(eventid, "?block_id=0", "")
+	}
+	//	ランキングイベントの1〜50位の結果を取得する。
+	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
+	pranking, err := srdblib.GetEventsRankingByApi(client, eid)
+	if err != nil {
+		log.Printf("GetAndInsertEventRoomInfo() GetEventsRankingByApi() err=%s\n", err.Error())
+		status = -1
 		return
 	}
+	
 
-	//	各ルームのジャンル、ランク、レベル、フォロワー数を取得します。
-	for i := 0; i < (*eventinfo).NoRoom; i++ {
-		(*roominfolist)[i].Genre, (*roominfolist)[i].Rank,
-			(*roominfolist)[i].Nrank,
-			(*roominfolist)[i].Prank,
-			(*roominfolist)[i].Level,
-			(*roominfolist)[i].Followers,
-			(*roominfolist)[i].Fans,
-			(*roominfolist)[i].Fans_lst,
-			_, _, _, _ = GetRoomInfoByAPI((*roominfolist)[i].ID)
-
-	}
-
-	//	各ルームの獲得ポイントを取得します。
-	for i := 0; i < (*eventinfo).NoRoom; i++ {
-		point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
-		if eventid == (*eventinfo).Event_ID {
-			(*roominfolist)[i].Point = point
-			UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
-			if point < 0 {
-				(*roominfolist)[i].Spoint = ""
-			} else {
-				(*roominfolist)[i].Spoint = humanize.Comma(int64(point))
+	if len(pranking.Ranking) != 0 {
+		//	for _, rinf := range(pranking.Ranking) {
+		for i := breg; i <= ereg; i++ {
+			rinf := pranking.Ranking[i-1]
+			roominf := RoomInfo{
+				Name:       rinf.Room.Name,
+				ID:         strconv.Itoa(rinf.Room.RoomID),
+				Userno:		rinf.Room.RoomID,
+				Account:		"",
+				Point:		rinf.Point,
+				Order:		rinf.Rank,
+				Irank:		888888888,
 			}
-		} else {
-			log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
+			*roominfolist = append(*roominfolist, roominf)
+		}
+	} else {
+		//	レベルイベントのとき
+		status = GetEventInfAndRoomList(eventid, breg, ereg, eventinfo, roominfolist)
+		if status != 0 {
+			log.Printf("GetEventInfAndRoomList() returned %d\n", status)
+			return
+		}
+		for i := 0; i < (*eventinfo).NoRoom; i++ {
+			point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
+			if eventid == (*eventinfo).Event_ID {
+				(*roominfolist)[i].Point = point
+				UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
+			} else {
+				log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
+			}
+
 		}
 
-		if (*roominfolist)[i].ID == fmt.Sprintf("%d", (*eventinfo).Nobasis) {
-			(*eventinfo).Pntbasis = point
-			(*eventinfo).Ordbasis = i
-		}
-
-		//	log.Printf(" followers=<%d> level=<%d> nrank=<%s> genre=<%s> point=%d\n",
-		//	(*roominfolist)[i].Followers,
-		//	(*roominfolist)[i].Level,
-		//	(*roominfolist)[i].Nrank,
-		//	(*roominfolist)[i].Genre,
-		//	(*roominfolist)[i].Point)
 	}
+
+	for i, rminf := range(*roominfolist) {
+		if rminf.Point < 0 {
+			(*roominfolist)[i].Spoint = ""
+		} else {
+			(*roominfolist)[i].Spoint = humanize.Comma(int64(rminf.Point))
+		}
+
+			if ( rminf.Userno ==  eventinfo.Nobasis ) {
+				(*eventinfo).Pntbasis = rminf.Point
+				(*eventinfo).Ordbasis = i
+			}
+	}
+
+	//	ここまで新規作成
 
 	if (*eventinfo).Start_time.After(time.Now()) {
 		SortByFollowers = true
@@ -5615,6 +5686,14 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 			values["Msg2color"] = "red"
 		} else {
 			_, _, _, peventid := GetPointsByAPI(roomid)
+			if strings.Contains(eventid , "?block_id=0") {
+				eida := strings.Split(eventid, "?")
+				if strings.Contains(peventid, eida[0]) {
+					//	block_id=0 はブロックイベントの全体を意味するのでいかなるblock_idのルームもこれに属する。
+					peventid = eventid
+				}
+			}
+
 			if peventid != eventid && time.Now().After(Event_inf.Start_time) && time.Now().Before(Event_inf.End_time) {
 				values["Submit"] = "hidden"
 				values["Label"] = "戻る"
