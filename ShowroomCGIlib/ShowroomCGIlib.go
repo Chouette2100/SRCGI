@@ -162,10 +162,11 @@ import (
 	11BE02	list-last_h.gtplで「このページはブックマーク可能です」の文言を追加する。
 	11BF00	GraphScore01()でデータが連続していないとき（点になるとき）はcanvas.Circle()で描画する。
 	11BG00	GetAndInsertEventRoomInfo()でルーム情報の取得をGetEventsRankingByApi()を使う。block_id=0に対応する。
+	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
 
 */
 
-const Version = "11BG00"
+const Version = "11BH00"
 
 /*
 type Event_Inf struct {
@@ -1438,7 +1439,7 @@ func GetAndInsertEventRoomInfo(
 	}
 	//	ランキングイベントの1〜50位の結果を取得する。
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
-	pranking, err := srdblib.GetEventsRankingByApi(client, eid)
+	pranking, err := srdblib.GetEventsRankingByApi(client, eid, 2)
 	if err != nil {
 		log.Printf("GetAndInsertEventRoomInfo() GetEventsRankingByApi() err=%s\n", err.Error())
 		status = -1
@@ -5252,8 +5253,14 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 			gschk100 = "checked"
 		}
 	*/
+	resetcolor := req.FormValue("resetcolor")
 
-	log.Printf("      eventid=%s maxpoint=%d(%s)\n", eventid, maxpoint, smaxpoint)
+	log.Printf("      eventid=%s maxpoint=%d(%s) resetcolor=[%s]\n", eventid, maxpoint, smaxpoint, resetcolor)
+
+	if resetcolor == "on" {
+		Resetcolor(eventid)
+	}
+
 	filename, _ := GraphTotalPoints(eventid, maxpoint, gscale)
 	if Serverconfig.WebServer == "nginxSakura" {
 		rootPath := os.Getenv("SCRIPT_NAME")
@@ -5284,6 +5291,36 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 	if err := tpl.ExecuteTemplate(w, "graph-total.gtpl", values); err != nil {
 		log.Println(err)
 	}
+}
+
+func Resetcolor(eventid string) error {
+
+	erow, err := srdblib.Dbmap.Get(srdblib.Event{}, eventid)
+	if err != nil {
+		err = fmt.Errorf("Resetcolor(): %w", err)
+		return err
+	}
+
+	rows, err := srdblib.Dbmap.Select(srdblib.Eventuser{},
+		"select * from eventuser where eventid = ? order by point desc", eventid)
+    if err != nil {
+        err = fmt.Errorf("Resetcolor(): %w", err)
+		return err
+    }
+
+    for i, row := range rows {
+		if erow.(*srdblib.Event).Cmap == 1 {
+			row.(*srdblib.Eventuser).Color = Colorlist1[i % len(Colorlist1)].Name
+		} else {
+			row.(*srdblib.Eventuser).Color = Colorlist2[i % len(Colorlist2)].Name
+		}
+			_, err = srdblib.Dbmap.Update(row)
+			if err != nil {
+				err = fmt.Errorf("Resetcolor(): %w", err)
+				return err
+			}
+    }
+	return nil
 }
 
 func HandlerCsvTotal(w http.ResponseWriter, r *http.Request) {
