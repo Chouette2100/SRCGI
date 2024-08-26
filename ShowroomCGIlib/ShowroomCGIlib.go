@@ -163,10 +163,11 @@ import (
 	11BF00	GraphScore01()でデータが連続していないとき（点になるとき）はcanvas.Circle()で描画する。
 	11BG00	GetAndInsertEventRoomInfo()でルーム情報の取得をGetEventsRankingByApi()を使う。block_id=0に対応する。
 	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
+	11BH01	HandlerAddEvent()で起きているエラーの原因を特定するための情報を出力する。
 
 */
 
-const Version = "11BH00"
+const Version = "11BH01"
 
 /*
 type Event_Inf struct {
@@ -1441,7 +1442,7 @@ func GetAndInsertEventRoomInfo(
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
 	pranking, err := srdblib.GetEventsRankingByApi(client, eid, 2)
 	if err != nil {
-		log.Printf("GetAndInsertEventRoomInfo() GetEventsRankingByApi() err=%s\n", err.Error())
+		log.Printf("GetAndInsertEventRoomInfo() GetEventsRankingByApi(client, %s, 2) err=%s\n", eid, err.Error())
 		status = -1
 		return
 	}
@@ -5797,6 +5798,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	ereg := r.FormValue("ereg")
 	ibreg, _ := strconv.Atoi(breg)
 	iereg, _ := strconv.Atoi(ereg)
+	log.Printf(" eventid =[%s], ibreg=%d, iereg=%d\n", eventid, ibreg, iereg)
 
 	if r.FormValue("from") != "new-event" {
 		//	すでに登録済みのイベントの参加ルームの更新を行うとき
@@ -5811,6 +5813,19 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	eventinf = &exsrapi.Event_Inf{}
 		//	srdblib.Tevent = "wevent"
 		eventinf, _ = srdblib.SelectFromEvent("wevent", eventid)
+		if eventinf == nil {
+			log.Printf("[%s] is not found in wevent table\n", eventid)
+			values := map[string]string{
+				"Msg001":   "入力したイベントID( ",
+				"Msg002":   " )をもつイベントは存在しません！",
+				"ReturnTo": "top",
+				"Eventid":  eventid,
+			}
+			if err := tpl.ExecuteTemplate(w, "error.gtpl", values); err != nil {
+				log.Println(err)
+			}
+			return
+		}
 
 		log.Println("  *** HandlerAddEvent() Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
