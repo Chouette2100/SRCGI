@@ -164,10 +164,12 @@ import (
 	11BG00	GetAndInsertEventRoomInfo()でルーム情報の取得をGetEventsRankingByApi()を使う。block_id=0に対応する。
 	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
 	11BH01	HandlerAddEvent()で起きているエラーの原因を特定するための情報を出力する。
+	11BH02	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
+	11BH02a	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
 
 */
 
-const Version = "11BH01"
+const Version = "11BH02"
 
 /*
 type Event_Inf struct {
@@ -1448,8 +1450,12 @@ func GetAndInsertEventRoomInfo(
 	}
 	
 
-	if len(pranking.Ranking) != 0 {
+	lenpr := len(pranking.Ranking)
+	if lenpr != 0 {
 		//	for _, rinf := range(pranking.Ranking) {
+		if ereg > lenpr {
+			ereg = lenpr
+		}
 		for i := breg; i <= ereg; i++ {
 			rinf := pranking.Ranking[i-1]
 			roominf := RoomInfo{
