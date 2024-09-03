@@ -1,3 +1,6 @@
+//	Copyright © 2024 chouette.21.00@gmail.com
+//	Released under the MIT license
+//	https://opensource.org/licenses/mit-license.php
 package ShowroomCGIlib
 
 import (
@@ -166,10 +169,11 @@ import (
 	11BH01	HandlerAddEvent()で起きているエラーの原因を特定するための情報を出力する。
 	11BH02	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
 	11BH02a	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
+	11BJ00	GetUserInf()でハンドラーが呼ばれたときのパラメータを表示する
 
 */
 
-const Version = "11BH02"
+const Version = "11BJ00"
 
 /*
 type Event_Inf struct {
@@ -2827,7 +2831,8 @@ func SelectCurrentScore(eventid string) (gtime time.Time, eventname string, peri
 		}
 		nextrank = score.Rank + 1
 
-		score.NextLive, _ = GetNextliveByAPI(fmt.Sprintf("%d", score.Userno))
+		//	score.NextLive, _ = GetNextliveByAPI(fmt.Sprintf("%d", score.Userno))
+		score.NextLive, _ = GetNextliveByAPI(strconv.Itoa(score.Userno))
 		score.Eventid = eventid
 
 		acqtimelist, _ := SelectAcqTimeList(eventid, score.Userno)
@@ -4913,6 +4918,16 @@ func GetUserInf(r *http.Request) (
 		return
 	}
 
+	//	パラメータを表示する
+	if err := r.ParseForm(); err != nil {
+		log.Printf("Error: %v\n", err)
+		return
+    }
+
+    for k, v := range r.Form {
+        log.Printf("%12v : %v\n", k, v)
+    }
+
 	return
 }
 
@@ -5812,7 +5827,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	srdblib.Tevent = "event"
 		eventinf, _ = srdblib.SelectFromEvent("event", eventid)
 
-		log.Println("  *** HandlerAddEvent() Called. not 'from new-event'")
+		log.Println("  Called. not 'from new-event'")
 		log.Println(eventinf)
 	} else {
 		//	新規にイベントを登録するとき
@@ -5833,7 +5848,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		log.Println("  *** HandlerAddEvent() Called. 'from new-event'")
+		log.Println("  Called. 'from new-event'")
 		eventinf.Modmin, _ = strconv.Atoi(r.FormValue("modmin"))
 		eventinf.Modsec, _ = strconv.Atoi(r.FormValue("modsec"))
 
