@@ -170,10 +170,11 @@ import (
 	11BH02	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
 	11BH02a	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
 	11BJ00	GetUserInf()でハンドラーが呼ばれたときのパラメータを表示する
+	11BJ001	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
 
 */
 
-const Version = "11BJ00"
+const Version = "11BJ01"
 
 /*
 type Event_Inf struct {
