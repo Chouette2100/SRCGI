@@ -169,20 +169,30 @@
                     target="_blank" rel="noopener noreferrer">Cnt.</a>
             </td>
             <td style="text-align: center;">
-                {{ if eq .Islive true}}
-                {{ UnixtimeToTime .Startedat "15:04"}} 〜
+                {{ if eq .Startedat -1 }}
+                n/a
+                {{ else }}
+                    {{ if eq .Islive true }}
+                        {{ UnixtimeToTime .Startedat "15:04"}} 〜
+                    {{ end }}
                 {{ end }}
             </td>
             <td style="text-align: center;">
-                {{ if ne .Nextlive 0 }}
-                {{ UnixtimeToTime .Nextlive "01/02 15:04"}}
+                {{ if eq .Nextlive -1 }}
+                n/a
+                {{ else }}
+                    {{ if ne .Nextlive 0 }}
+                    {{ UnixtimeToTime .Nextlive "01/02 15:04"}}
+                    {{ end }}
                 {{ end }}
             </td>
             <td style="text-align: center;">
+            {{/*
                 {{ if eq .Isofficial true }}
                 <a href="/cgi-bin/SC1/SC1/list-cntrb?eventid={{$e}}&userno={{.Room_id}}">表示</a>
                 {{ end }}
             </td>
+            */}}
         </tr>
         {{ end }}
         {{ end }}

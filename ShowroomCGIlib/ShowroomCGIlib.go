@@ -170,11 +170,12 @@ import (
 	11BH02	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
 	11BH02a	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
 	11BJ00	GetUserInf()でハンドラーが呼ばれたときのパラメータを表示する
-	11BJ001	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
+	11BJ01	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
+	11BK00	HandlerEventList()がApiRoomStatus()とApiRoomNext()でエラーを起こしても処理を継続する。
 
 */
 
-const Version = "11BJ01"
+const Version = "11BK00"
 
 /*
 type Event_Inf struct {
@@ -1690,10 +1691,18 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoList) {
 
 	log.Printf("  *** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
+	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	tnow := time.Now().Truncate(time.Second)
 	for i := 0; i < len(*roominfolist); i++ {
-		log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
-		InsertIntoOrUpdateUser(client, tnow, eventid, (*roominfolist)[i])
+		//	log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
+		user := new(srdblib.User)
+		user.Userno = (*roominfolist)[i].Userno
+		err := srdblib.UpinsUserSetProperty(client, tnow , user, 1440*5, 200)
+		if err != nil {
+			log.Printf("srdblib.UpinsUserSetProperty(): err=%v\n", err)
+			return
+		}
+		//	InsertIntoOrUpdateUser(client, tnow, eventid, (*roominfolist)[i])
 		status := InsertIntoEventUser(i, eventid, (*roominfolist)[i])
 		if status == 0 {
 			(*roominfolist)[i].Status = "更新"
@@ -1702,6 +1711,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 			(*roominfolist)[i].Status = "新規"
 			(*roominfolist)[i].Statuscolor = "green"
 
+			/* この処理はInsertIntoEventUser()に含まれている
 			userno, _ := strconv.Atoi((*roominfolist)[i].ID)
 			eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 			sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
@@ -1719,6 +1729,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 				err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
 				log.Printf("err=[%s]\n", err.Error())
 			}
+			*/
 
 		} else {
 			(*roominfolist)[i].Status = "エラー"

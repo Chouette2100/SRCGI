@@ -41,12 +41,10 @@ func HandlerEventRoomList(
 ) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	//	cookiejarがセットされたHTTPクライアントを作る
 	client, jar, err := exsrapi.CreateNewClient("XXXXXX")
@@ -143,6 +141,8 @@ func HandlerEventRoomList(
 			}
 
 			//	ルーム一覧にあるそれぞれのルームについて補足的なデータを取得する。
+			do1 := true
+			do2 := true
 			lrank := -1
 			rank := -1
 			for i, room := range erl.Roomlistinf.RoomList {
@@ -173,26 +173,44 @@ func HandlerEventRoomList(
 				}
 
 				//	ルーム状況（配信中か、配信開始時刻、公式か）を取得する。
-				roomstatus, err := srapi.ApiRoomStatus(client, room.Room_url_key)
-				if err != nil {
-					err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-					erl.Msg = err.Error()
-					log.Printf("%s\n", erl.Msg)
-					break
+				var roomstatus *srapi.RoomStatus
+				if do1 {
+					//	一度もエラーが発生していないとき
+					roomstatus, err = srapi.ApiRoomStatus(client, room.Room_url_key)
 				}
-				erl.Roomlistinf.RoomList[i].Islive = roomstatus.Is_live
-				erl.Roomlistinf.RoomList[i].Isofficial = roomstatus.Is_official
-				erl.Roomlistinf.RoomList[i].Startedat = roomstatus.Started_at
+				if err != nil || !do1 {
+					//	err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+					//	erl.Msg = err.Error()
+					//	log.Printf("%s\n", erl.Msg)
+					//	break
+					do1 = false
+					erl.Roomlistinf.RoomList[i].Islive = false
+					erl.Roomlistinf.RoomList[i].Isofficial = false
+					erl.Roomlistinf.RoomList[i].Startedat = -1
+					continue
+				} else {
+					erl.Roomlistinf.RoomList[i].Islive = roomstatus.Is_live
+					erl.Roomlistinf.RoomList[i].Isofficial = roomstatus.Is_official
+					erl.Roomlistinf.RoomList[i].Startedat = roomstatus.Started_at
+				}
 
 				//	次枠配信開始時刻を取得する。
-				roomnextlive, err := srapi.ApiRoomNextlive(client, room.Room_id)
-				if err != nil {
-					err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-					erl.Msg = err.Error()
-					log.Printf("%s\n", erl.Msg)
-					break
+				var roomnextlive *srapi.RoomNextlive
+				if do2 {
+					//	一度もエラーが発生していないとき
+					roomnextlive, err = srapi.ApiRoomNextlive(client, room.Room_id)
 				}
-				erl.Roomlistinf.RoomList[i].Nextlive = roomnextlive.Epoch
+				if err != nil || !do2 {
+					//	err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+					//	erl.Msg = err.Error()
+					//	log.Printf("%s\n", erl.Msg)
+					//	break
+					do2 = false
+					erl.Roomlistinf.RoomList[i].Nextlive = -1
+					continue
+				} else {
+					erl.Roomlistinf.RoomList[i].Nextlive = roomnextlive.Epoch
+				}
 
 			}
 		}
