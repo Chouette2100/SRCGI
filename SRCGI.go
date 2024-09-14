@@ -89,10 +89,11 @@ import (
 	00AM02	通常とメンテナンスの切り替えを ShowroomCGIlib.Serverconfig.Maintenance で行う。
 	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
 	11BL00	srdblib.UpinsUserSetProperty()に対する srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")を追加する
+	11BM00	HandlerListGiftScore()を作成する
 
 */
 
-const version = "11BL00"
+const version = "11BM00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -252,6 +253,11 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Eventuser{}, "eventuser").SetKeys(false, "Eventid", "Userno")
 
+	srdblib.Dbmap.AddTableWithName(srdblib.GiftScore{}, "giftscore").SetKeys(false, "Giftid", "Ts", "Userno")
+	srdblib.Dbmap.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
+	srdblib.Dbmap.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
+	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
+
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。
 		http.Handle("/", http.FileServer(http.Dir("public")))
@@ -337,6 +343,9 @@ func main() {
 		http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.HandlerClosedEventRoomList)
 
 		http.HandleFunc(rootPath+"/apiroomstatus", srhandler.HandlerApiRoomStatus)
+
+		//	ギフトランキングリスト
+		http.HandleFunc(rootPath+"/listgs", ShowroomCGIlib.HandlerListGiftScore)
 
 		//	イベント獲得ポイント上位ルーム
 		http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)

@@ -172,10 +172,11 @@ import (
 	11BJ00	GetUserInf()でハンドラーが呼ばれたときのパラメータを表示する
 	11BJ01	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
 	11BK00	HandlerEventList()がApiRoomStatus()とApiRoomNext()でエラーを起こしても処理を継続する。
+	11BM00	HandlerListGiftScore()を作成する
 
 */
 
-const Version = "11BK00"
+const Version = "11BM00"
 
 /*
 type Event_Inf struct {
