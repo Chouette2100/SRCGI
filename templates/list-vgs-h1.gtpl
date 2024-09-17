@@ -27,7 +27,7 @@
     */}}
   </table>
 
-<p>SHOWROOM ライバー王決定戦 2024 summer/autumn 人気ライバーランキング （giftid={{.Giftid}}）</p>
+<p>SHOWROOM ライバー王決定戦 2024 summer/autumn 最強ファンランキング （giftid={{.Giftid}}）</p>
 {{/*
 <p style="color:crimson;">本機能は実験的なものです。結果を100%信じないでください。<br>上位のリスナーの結果は比較的正確です。あくまで"比較的"にです。</p>
 <p style="color:crimson;">イベント開始から終了までのすべてのデータが取得されていない場合、<br>（特に最初と最後の）データに不整合が発生していることがあります。</p>
@@ -49,42 +49,42 @@
     <tr>
         <td>
         {{ if ne .Nft -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Nft}}'">先頭に戻る</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Nft}}'">先頭に戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Npb -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Npb}}'">１ページ戻る</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Npb}}'">１ページ戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .N1b -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.N1b}}'">一枠分戻る</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.N1b}}'">一枠分戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .N1f -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.N1f}}'">一枠分進む</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.N1f}}'">一枠分進む</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Npf -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Npf}}'">１ページ進む</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Npf}}'">１ページ進む</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Nlt -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Nlt}}'">最後に進む</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Nlt}}'">最後に進む</button>
         {{ else }}
             -----------
         {{ end }}

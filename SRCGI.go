@@ -90,10 +90,11 @@ import (
 	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
 	11BL00	srdblib.UpinsUserSetProperty()に対する srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")を追加する
 	11BM00	HandlerListGiftScore()を作成する
+	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
 
 */
 
-const version = "11BM00"
+const version = "11BN00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -346,6 +347,9 @@ func main() {
 
 		//	ギフトランキングリスト
 		http.HandleFunc(rootPath+"/listgs", ShowroomCGIlib.HandlerListGiftScore)
+
+		//	ギフトランキングリスト
+		http.HandleFunc(rootPath+"/listvgs", ShowroomCGIlib.HandlerListFanGiftScore)
 
 		//	イベント獲得ポイント上位ルーム
 		http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)

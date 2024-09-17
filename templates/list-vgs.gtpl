@@ -1,10 +1,9 @@
 
 {{ $i := .Ncr }}
-{{ range .Gslist }}
+{{ range .Vgslist }}
 	<tr>
 	<td align="right">
-		{{ if eq .Orderno 999 }}
-			---
+		{{ if eq .Orderno 0 }}
 		{{ else if ne .Orderno -1 }}
 			{{ .Orderno }}
 		{{ end }}
@@ -18,10 +17,8 @@
 			{{ end }}
 		</td>
 	{{end}}
-	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.User_name}}</a>（{{ .Rank }}）</td>
-	<td align="right">
-		<a href="https://www.showroom-live.com/r/{{.Url}}">Live</a> <a href="/closedevents?userno={{.Userno}}&mode=0&path=5">イベント履歴</a>
-	</td>
+	<td>{{ .Viewername }}<td>
+	<td align="right">{{ .Viewerid }}</td>
 	</tr>
 {{end}}
 </table>

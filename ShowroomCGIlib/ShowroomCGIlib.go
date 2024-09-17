@@ -173,11 +173,11 @@ import (
 	11BJ01	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
 	11BK00	HandlerEventList()がApiRoomStatus()とApiRoomNext()でエラーを起こしても処理を継続する。
 	11BM00	HandlerListGiftScore()を作成する
-	11BM01	HandlerListGiftScore()を作成する
+	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
 
 */
 
-const Version = "11BM01"
+const Version = "11BN00"
 
 /*
 type Event_Inf struct {
