@@ -91,10 +91,11 @@ import (
 	11BL00	srdblib.UpinsUserSetProperty()に対する srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")を追加する
 	11BM00	HandlerListGiftScore()を作成する
 	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
+	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする。
 
 */
 
-const version = "11BN00"
+const version = "11BN01"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -258,6 +259,9 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
+
+	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
+	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftRanking").SetKeys(false, "Campaignid", "Grid")
 
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。

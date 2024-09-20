@@ -174,10 +174,12 @@ import (
 	11BK00	HandlerEventList()がApiRoomStatus()とApiRoomNext()でエラーを起こしても処理を継続する。
 	11BM00	HandlerListGiftScore()を作成する
 	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
+	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする準備をする。
+	11BN02	HandlerListGiftScore()でmaxacqとlimitを可変にする。
 
 */
 
-const Version = "11BN00"
+const Version = "11BN02"
 
 /*
 type Event_Inf struct {

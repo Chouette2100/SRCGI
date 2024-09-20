@@ -49,42 +49,42 @@
     <tr>
         <td>
         {{ if ne .Nft -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Nft}}'">先頭に戻る</button>
+            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Nft}}&limit={{.Limit}}&maxacq={{.Maxacq}}'">先頭に戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Npb -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Npb}}'">１ページ戻る</button>
+            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Npb}}&limit={{.Limit}}&maxacq={{.Maxacq}}'">１ページ戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .N1b -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.N1b}}'">一枠分戻る</button>
+            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.N1b}}&limit={{.Limit}}&maxacq={{.Maxacq}}'">一枠分戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .N1f -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.N1f}}'">一枠分進む</button>
+            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.N1f}}&limit={{.Limit}}&maxacq={{.Maxacq}}'">一枠分進む</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Npf -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Npf}}'">１ページ進む</button>
+            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Npf}}&limit={{.Limit}}&maxacq={{.Maxacq}}'">１ページ進む</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Nlt -1 }}
-            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Nlt}}'">最後に進む</button>
+            <button type="button" onclick="location.href='listgs?giftid={{.Giftid}}&ie={{.Nlt}}&limit={{.Limit}}&maxacq={{.Maxacq}}'">最後に進む</button>
         {{ else }}
             -----------
         {{ end }}
