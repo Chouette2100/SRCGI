@@ -38,6 +38,8 @@ type VgsHeader struct {
 	Eventname string
 	Period    string
 	Maxpoint  int
+	Maxacq int
+	Limit int
 	Gscale    int
 	Userno    int
 	Username  string
@@ -113,6 +115,16 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	giftid, _ := strconv.Atoi(req.FormValue("giftid"))
 
+	limit, _ := strconv.Atoi(req.FormValue("limit"))
+	if limit == 0 {
+			limit = 20
+	}
+
+	maxacq, _ := strconv.Atoi(req.FormValue("maxacq"))
+	if maxacq == 0 {
+			maxacq = 5
+	}
+
 	acqtimelist, _ := SelectVgsAcqTimeList(giftid)
 	if len(acqtimelist) == 0 {
 		fmt.Fprintf(w, "HandlerFanGiftScore() No AcqTimeList\n")
@@ -133,16 +145,19 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	//	log.Printf(". eventid=%s, userno=%d, ie=%d\n", eventid, userno, ie)
 
-	ib := ie - MaxAcq + 1
+	ib := ie - maxacq + 1
 	if ib < 0 {
 		ib = 0
-		ie = MaxAcq - 1
+		//	ie = maxacq - 1
+		ie = latl - 1
 	}
 
 	var vgsheader VgsHeader
 
 	//	gsheader.Eventid = eventid
 	vgsheader.Giftid = giftid
+	vgsheader.Maxacq = maxacq
+	vgsheader.Limit = limit
 	//	gsheader.Eventname = eventinf.Event_name
 
 	//	gsheader.Maxpoint = eventinf.Maxpoint
@@ -154,15 +169,15 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 	vgsheader.Ncr = ie
 
 	//	戻る側の設定
-	if ie < MaxAcq {
+	if ie < maxacq {
 		vgsheader.Nft = -1
 		vgsheader.Npb = -1
 		vgsheader.N1b = -1
 	} else {
-		vgsheader.Nft = MaxAcq - 1  //	先頭にもどる
-		vgsheader.Npb = ie - MaxAcq //	１ページ分戻る
-		if vgsheader.Npb < MaxAcq-1 {
-			vgsheader.Npb = MaxAcq - 1
+		vgsheader.Nft = maxacq - 1  //	先頭にもどる
+		vgsheader.Npb = ie - maxacq //	１ページ分戻る
+		if vgsheader.Npb < maxacq-1 {
+			vgsheader.Npb = maxacq - 1
 		}
 		vgsheader.N1b = ie - 1 //	一枠分戻る
 	}
@@ -173,7 +188,7 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 		vgsheader.N1f = -1
 	} else {
 		vgsheader.Nlt = latl - 1    //	最後に進む
-		vgsheader.Npf = ie + MaxAcq //	１ページ分進む
+		vgsheader.Npf = ie + maxacq //	１ページ分進む
 		if vgsheader.Npf > latl-1 {
 			vgsheader.Npf = latl - 1
 		}
@@ -186,7 +201,7 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	tsie := acqtimelist[ie]
 
-	vgslist, viewerid2order, err := SelectViewerid2Order(giftid, tsie)
+	vgslist, viewerid2order, err := SelectViewerid2Order(giftid, tsie, limit)
 	if err != nil {
 		err = fmt.Errorf("SelectUserno2Order() returned %w", err)
 		log.Printf("HandlerListGiftScore(): err = %+v", err)
@@ -440,6 +455,7 @@ func SelectVgsHeader(
 func SelectViewerid2Order(
 	giftid int,
 	ts time.Time,
+	limit int,
 ) (
 	vgslist []VgsInf,
 	viewerid2order map[int]int,
@@ -450,10 +466,10 @@ func SelectViewerid2Order(
 
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	var rows []interface{}
-	sqlst := "select v.viewerid, v.sname "
+	sqlst := "select v.viewerid, v.sname, vgs.orderno "
 	sqlst += " from viewer v join viewergiftscore vgs on v.viewerid = vgs.viewerid "
-	sqlst += " where vgs.giftid = ? and vgs.ts = ? order by vgs.orderno limit 20 "
-	rows, err = srdblib.Dbmap.Select(srdblib.Viewer{}, sqlst, giftid, ts)
+	sqlst += " where vgs.giftid = ? and vgs.ts = ? order by vgs.orderno limit ? "
+	rows, err = srdblib.Dbmap.Select(srdblib.Viewer{}, sqlst, giftid, ts, limit)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(Viewer{}, giftid=%d)  err=%w", giftid, err)
 		return
@@ -465,6 +481,7 @@ func SelectViewerid2Order(
 		vgslist = append(vgslist, VgsInf{
 			Viewerid:   vw.Viewerid,
 			Viewername: vw.Sname,
+			Orderno: vw.Orderno,
 		})
 	}
 	/*

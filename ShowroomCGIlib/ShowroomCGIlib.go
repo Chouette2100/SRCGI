@@ -176,10 +176,11 @@ import (
 	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
 	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする準備をする。
 	11BN02	HandlerListGiftScore()でmaxacqとlimitを可変にする。
+	11BN03	HandlerListFanGiftScore()でmaxacqとlimitを可変にする。
 
 */
 
-const Version = "11BN02"
+const Version = "11BN03"
 
 /*
 type Event_Inf struct {
