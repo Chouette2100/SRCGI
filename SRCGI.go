@@ -92,10 +92,11 @@ import (
 	11BM00	HandlerListGiftScore()を作成する
 	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
 	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする。
+	11BP00	旧URL（https/chouette2100.com:8443/cgi-bin/SRCGI/top）に対応する
 
 */
 
-const version = "11BN01"
+const version = "11BP00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -366,6 +367,14 @@ func main() {
 
 		http.HandleFunc(rootPath+"/t008top", srhandler.HandlerT008topForm) //	http://....../t008top で呼び出される。
 		http.HandleFunc(rootPath+"/t009top", srhandler.HandlerT009topForm) //	http://....../t009top で呼び出される。
+
+		http.HandleFunc(rootPath+"/cgi-bin", HandlerCgiBin)
+		http.HandleFunc(rootPath+"/cgi-bin/SC1", HandlerCgiBinSc1)
+		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI", HandlerCgiBinSc1Srcgi)
+		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI/top", HandlerCgiBinSc1SrcgiTop)
+		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t008top", Handlert008top)
+		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t009top", Handlert009top)
+
 		/* Maintenance ここまで */
 	} else {
 
@@ -439,3 +448,70 @@ func main() {
 		cgi.Serve(nil)
 	}
 }
+func HandlerCgiBin(w http.ResponseWriter, r *http.Request) {
+
+	_, _, isallow := ShowroomCGIlib.GetUserInf(r)
+	if !isallow {
+		w.Write([]byte("Access Denied\n"))
+		return
+	}
+	w.Write([]byte("CgiBin called\n"))
+}
+func HandlerCgiBinSc1(w http.ResponseWriter, r *http.Request) {
+
+	_, _, isallow := ShowroomCGIlib.GetUserInf(r)
+	if !isallow {
+		w.Write([]byte("Access Denied\n"))
+		return
+	}
+	w.Write([]byte("CgiBinSc1 called\n"))
+}
+func HandlerCgiBinSc1Srcgi(w http.ResponseWriter, r *http.Request) {
+
+	_, _, isallow := ShowroomCGIlib.GetUserInf(r)
+	if !isallow {
+		w.Write([]byte("Access Denied\n"))
+		return
+	}
+	w.Write([]byte("CgiBinSc1Srcgi called\n"))
+}
+func HandlerCgiBinSc1SrcgiTop(w http.ResponseWriter, r *http.Request) {
+
+	_, _, isallow := ShowroomCGIlib.GetUserInf(r)
+	if !isallow {
+		w.Write([]byte("Access Denied\n"))
+		return
+	}
+	w.Write([]byte("<html>"))
+	w.Write([]byte("このURLは以下に変更されました<br>"))
+	w.Write([]byte("<a href=\"https://chouette2100.com/top\">https://chouette2100.com/top</a>"))
+	w.Write([]byte("</html>"))
+	//	w.Header().Set("Location", "https://chouette2100.com/top")
+	//	w.Write([]byte("302"))
+	//	http.Redirect(w, r, "https://chouette2100/top", 0)
+}
+func Handlert008top(w http.ResponseWriter, r *http.Request) {
+
+	_, _, isallow := ShowroomCGIlib.GetUserInf(r)
+	if !isallow {
+		w.Write([]byte("Access Denied\n"))
+		return
+	}
+	w.Write([]byte("<html>"))
+	w.Write([]byte("このURLは以下に変更されました<br>"))
+	w.Write([]byte("<a href=\"https://chouette2100.com/t008top\">https://chouette2100.com/t008top</a>"))
+	w.Write([]byte("</html>"))
+}
+func Handlert009top(w http.ResponseWriter, r *http.Request) {
+
+	_, _, isallow := ShowroomCGIlib.GetUserInf(r)
+	if !isallow {
+		w.Write([]byte("Access Denied\n"))
+		return
+	}
+	w.Write([]byte("<html>"))
+	w.Write([]byte("このURLは以下に変更されました<br>"))
+	w.Write([]byte("<a href=\"https://chouette2100.com/t009top\">https://chouette2100.com/t009top</a>"))
+	w.Write([]byte("</html>"))
+}
+

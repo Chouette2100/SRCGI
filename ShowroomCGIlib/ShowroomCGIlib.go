@@ -181,7 +181,7 @@ import (
 
 */
 
-const Version = "11BN03"
+const Version = "11BN04"
 
 /*
 type Event_Inf struct {
