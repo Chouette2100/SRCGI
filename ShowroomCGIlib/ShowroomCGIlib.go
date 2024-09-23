@@ -177,6 +177,7 @@ import (
 	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする準備をする。
 	11BN02	HandlerListGiftScore()でmaxacqとlimitを可変にする。
 	11BN03	HandlerListFanGiftScore()でmaxacqとlimitを可変にする。
+	11BN04	DrawLineGraph()を作成する準備をする。
 
 */
 

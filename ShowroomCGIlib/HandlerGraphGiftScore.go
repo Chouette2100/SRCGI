@@ -86,7 +86,7 @@ func HandlerGraphGs(w http.ResponseWriter, req *http.Request) {
 	*/
 	resetcolor := req.FormValue("resetcolor")
 
-	log.Printf("      eventid=%s maxpoint=%d(%s) resetcolor=[%s]\n", eventid, maxpoint, smaxpoint, resetcolor)
+	//	log.Printf("      eventid=%s maxpoint=%d(%s) resetcolor=[%s]\n", eventid, maxpoint, smaxpoint, resetcolor)
 
 	if resetcolor == "on" {
 		Resetcolor(eventid)
