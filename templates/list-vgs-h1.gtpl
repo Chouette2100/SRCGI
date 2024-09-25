@@ -4,87 +4,86 @@
 <body>
 <table>
     <tr>
-  <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
-  <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
-  <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
-  <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
-    </tr>
-    {{/*
-    <tr>
-  <td>
-  <button type="button" onclick="location.href='top?eventid={{.Eventid}}'">イベントトップ</button></td>
-  <td></td>
-  <td>
-  <button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
-  <td></td>
+      <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+      <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+      <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+      <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
     </tr>
     <tr>
-  <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
-  <td></td>
-  <td></td>
-  <td></td>
+      <td><button type="button" onclick="location.href='listgs'">ギフトランキング</button></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
-    */}}
-  </table>
-
-<p>SHOWROOM ライバー王決定戦 2024 summer/autumn 最強ファンランキング （giftid={{.Giftid}}）</p>
-{{/*
-<p style="color:crimson;">本機能は実験的なものです。結果を100%信じないでください。<br>上位のリスナーの結果は比較的正確です。あくまで"比較的"にです。</p>
-<p style="color:crimson;">イベント開始から終了までのすべてのデータが取得されていない場合、<br>（特に最初と最後の）データに不整合が発生していることがあります。</p>
-<p style="color:green;">2014-03-11以後に開始されてイベントについてはtlsnidはリスナーさんのユーザーIDです。</p>
-<table>
-*/}}
-{{/*
-<tr><td align="center"><a href="https://www.showroom-live.com/event/{{.Eventid}}">{{.Eventname}}</a>（{{.Eventid}}）</td></tr>
-<tr><td align="center">{{.Period}}</td></tr>
-<p style="color:crimson;">イベント開始から終了までのすべてのデータが取得されていない場合、<br>（特に最初と最後の）データに不整合が発生していることがあります。</p>
-<br>
-*/}}
-{{/*
-<tr><td align="center"><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a>（{{.Userno}}）　<a href="https://www.showroom-live.com/event/contribution/{{ .Eventid}}?room_id={{.Userno}}">[公式]イベント貢献ランキング(100位まで)</a></td></tr>
-*/}}
 </table>
 <br>
+<p><a href="{{ .Url }}">{{ .Campaignname }}</a>（{{ .Campaignid }}）</p>
+<p>　　{{ .Grname }}（{{ .Grid }}）</p>
+<br>
+<form>
+　　　　ギフト種別を選択する
+{{ $grid :=  .Grid }}
+<select name="giftid" type="text">
+{{ range .GiftRanking }}
+    {{ if eq .Grid $grid }}
+        <option selected value="{{ .Grid }}">{{ .Grname }}</option>
+    {{ else }}
+        <option value="{{ .Grid }}">{{ .Grname }}</option>
+    {{ end }}
+{{ end }}
+</select>
+
+　　横(時刻)表示数
+<input value="{{ .Maxacq }}" name="maxacq" type="number" size="5" min="1" max="15">
+
+　　縦(ルーム)表示数
+<input value="{{ .Limit }}" name="limit" type="number" size="5" min="20" max="500">
+
+ 　　<input type="submit" value="この条件で再表示" formaction="listvgs" formmethod="GET">
+
+</form>
+<br>
+
 <table>
     <tr>
         <td>
         {{ if ne .Nft -1 }}
-            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Nft}}'">先頭に戻る</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Grid}}&ie={{.Nft}}'">先頭に戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Npb -1 }}
-            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Npb}}'">１ページ戻る</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Grid}}&ie={{.Npb}}'">１ページ戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .N1b -1 }}
-            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.N1b}}'">一枠分戻る</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Grid}}&ie={{.N1b}}'">一枠分戻る</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .N1f -1 }}
-            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.N1f}}'">一枠分進む</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Grid}}&ie={{.N1f}}'">一枠分進む</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Npf -1 }}
-            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Npf}}'">１ページ進む</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Grid}}&ie={{.Npf}}'">１ページ進む</button>
         {{ else }}
             -----------
         {{ end }}
         </td>
         <td>
         {{ if ne .Nlt -1 }}
-            <button type="button" onclick="location.href='listvgs?giftid={{.Giftid}}&ie={{.Nlt}}'">最後に進む</button>
+            <button type="button" onclick="location.href='listvgs?giftid={{.Grid}}&ie={{.Nlt}}'">最後に進む</button>
         {{ else }}
             -----------
         {{ end }}

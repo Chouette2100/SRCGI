@@ -96,7 +96,7 @@
     <br><a href="toproom" style="padding-left:2em">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）
     */}}
     <p style="padding-left:2em">
-    <a href="/listgs?giftid=486">SHOWROOM ライバー王決定戦 2024 summer/autmn 人気ライバーランキング </a>  （<span style="color: red">新規機能・テスト中</span>）
+    <a href="/listgs">キャンペーンギフトランキング </a>  （<span style="color: red">新規機能・テスト中</span>）
     </p>
     <p style="padding-left:2em">
     <a href="showrank">SHOWランクが上位のルーム</a>  （データ整備中）

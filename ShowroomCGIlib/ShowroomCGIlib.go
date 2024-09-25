@@ -178,10 +178,11 @@ import (
 	11BN02	HandlerListGiftScore()でmaxacqとlimitを可変にする。
 	11BN03	HandlerListFanGiftScore()でmaxacqとlimitを可変にする。
 	11BN04	DrawLineGraph()を作成する準備をする。
+	11BN05	list-gs-h1.gtpl, list-vgs-h1.gtpl のレイアウトを調整する。
 
 */
 
-const Version = "11BN04"
+const Version = "11BN05"
 
 /*
 type Event_Inf struct {

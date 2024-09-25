@@ -27,40 +27,45 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/Chouette2100/srdblib"
 	"github.com/dustin/go-humanize"
-
-	"github.com/Chouette2100/exsrapi"
+	//	"github.com/Chouette2100/exsrapi"
 )
 
 //	const MaxAcq = 5
 
 type GsHeader struct {
-	Giftid      int
-	Eventname   string
-	Period      string
-	Maxpoint    int
-	Maxacq		int
-	Limit 	int
-	Gscale      int
-	Userno      int
-	Username    string
-	ShortURL    string
-	Ier         int
-	Iel         int
-	Stime       []time.Time
-	Earned      []int
-	Total       []int
-	Target      []int
-	Ifrm        []int
-	Nof         []int
-	Nft         int //	先頭に戻ったときの最後に表示される枠
-	Npb         int //	1ページ戻る
-	N1b         int //	一枠戻る
-	Ncr         int
-	N1f         int	//	一枠進む
-	Npf         int	//	1ページ進む
-	Nlt         int	//	最後に進んだとき
-	Gslist      *[]GsInf
-	GiftRanking *[]srdblib.GiftRanking
+	Campaignid   string
+	Campaignname string
+	Url          string
+	Grid         int
+	Grname       string
+	Grtype       string
+	Eventname    string
+	Period       string
+	Maxpoint     int
+	Maxacq       int
+	Limit        int
+	Gscale       int
+	Userno       int
+	Username     string
+	ShortURL     string
+	Ier          int
+	Iel          int
+	Stime        []time.Time
+	Earned       []int
+	Total        []int
+	Target       []int
+	Ifrm         []int
+	Nof          []int
+	Nft          int //	先頭に戻ったときの最後に表示される枠
+	Npb          int //	1ページ戻る
+	N1b          int //	一枠戻る
+	Ncr          int
+	N1f          int //	一枠進む
+	Npf          int //	1ページ進む
+	Nlt          int //	最後に進んだとき
+	Gslist       *[]GsInf
+	GiftRanking  []srdblib.GiftRanking
+	Vgslist      []VgsInf
 }
 
 type GsInf struct {
@@ -72,7 +77,7 @@ type GsInf struct {
 	Score     []int
 	Point     int
 	LastName  string
-	Giftid    int
+	Grid      int
 }
 
 //	type	CntrbInfList	[] CntrbInf
@@ -96,6 +101,8 @@ type GsInf struct {
 
 func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 
+	var gsheader GsHeader
+
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
@@ -112,40 +119,63 @@ func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 	}
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-gs-h1.gtpl", "templates/list-gs-h2.gtpl", "templates/list-gs.gtpl"))
 
-	var eventinf exsrapi.Event_Inf
+	//	var eventinf exsrapi.Event_Inf
 	//	GetEventInf(eventid, &eventinf)
 
 	/*
-	campaignid, _ := strconv.Atoi(req.FormValue("campaignid"))
-	giftranking, grid1, err := GetGiftRanking(campaignid)
-	if err != nil {
-		fmt.Fprintf(w, "HandlerListGiftScore() No GiftRanking. Check campaignid.\n")
-		log.Printf("HandlerListGiftScore() No GiftRanking. Check campaignid.\n")
-		return
-	}
-		*/
+		campaignid, _ := strconv.Atoi(req.FormValue("campaignid"))
+		giftranking, grid1, err := GetGiftRanking(campaignid)
+		if err != nil {
+			fmt.Fprintf(w, "HandlerListGiftScore() No GiftRanking. Check campaignid.\n")
+			log.Printf("HandlerListGiftScore() No GiftRanking. Check campaignid.\n")
+			return
+		}
+	*/
 
-	//	��ー�ー番号を取得する
-	giftid, _ := strconv.Atoi(req.FormValue("giftid"))
-	/*
-	if giftid == 0 {
-		giftid = grid1
+	gsheader.Campaignid = req.FormValue("campaignid")
+	if gsheader.Campaignid == "" {
+		gsheader.Campaignid = "kingofliver2024summer-autumn"
+		gsheader.Campaignname = "SHOWROOMライバー王決定戦summer/autumn"
+		gsheader.Url = "https://campaign.showroom-live.com/kingofliver2024/"
 	}
-		*/
+
+	grid, _ := strconv.Atoi(req.FormValue("giftid"))
+	/*
+		if grid == 0 {
+			grid = grid1
+		}
+	*/
 	limit, _ := strconv.Atoi(req.FormValue("limit"))
 	if limit == 0 {
-		limit = 20
+		limit = 60
 	}
 
 	maxacq, _ := strconv.Atoi(req.FormValue("maxacq"))
 	if maxacq == 0 {
-		maxacq = 5
+		maxacq = 10
 	}
 
-	acqtimelist, _ := SelectGsAcqTimeList(giftid)
+	err := GetGiftRanking(&gsheader, grid, "liver")
+	if err != nil {
+		err = fmt.Errorf("GetGiftRanking(): error %w", err)
+		log.Printf("%s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if grid == 0 {
+		grid = gsheader.GiftRanking[0].Grid
+	}
+	//	for i := 0; i < len(gsheader.GiftRanking); i++ {
+	//		if gsheader.GiftRanking[i].Grid == grid {
+	//			gsheader.Grtype =gsheader.GiftRanking[i].Grtype
+	//			break
+	//		}
+	//	}
+
+	acqtimelist, _ := SelectGsAcqTimeList(grid)
 	if len(acqtimelist) == 0 {
-		fmt.Fprintf(w, "HandlerListCntrb() No AcqTimeList\n")
-		fmt.Fprintf(w, "Check eventid and userno\n")
+		fmt.Fprintf(w, "HandlerListGiftScore() No AcqTimeList\n")
+		fmt.Fprintf(w, "Check campaignid and grid!\n")
 		log.Printf("No AcqTimeList\n")
 		return
 	}
@@ -170,11 +200,9 @@ func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 		ie = latl - 1
 	}
 
-	var gsheader GsHeader
-
 	//	gsheader.Eventid = eventid
 	//	gsheader.GiftRanking = giftranking
-	gsheader.Giftid = giftid
+	gsheader.Grid = grid
 	gsheader.Maxacq = maxacq
 	gsheader.Limit = limit
 	//	gsheader.Eventname = eventinf.Event_name
@@ -182,10 +210,8 @@ func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 	//	gsheader.Maxpoint = eventinf.Maxpoint
 	//	gsheader.Gscale = eventinf.Gscale
 
-	gsheader.Period = eventinf.Period
+	//	gsheader.Period = eventinf.Period
 	//	cntrbheader.Userno = userno
-
-	gsheader.Ncr = ie
 
 	//	戻る側の設定
 	if ie < maxacq {
@@ -220,7 +246,7 @@ func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	tsie := acqtimelist[ie]
 
-	gslist, userno2order, err := SelectUserno2Order(giftid, tsie, limit)
+	gslist, userno2order, err := SelectUserno2Order(grid, tsie, limit)
 	if err != nil {
 		err = fmt.Errorf("SelectUserno2Order() returned %w", err)
 		log.Printf("HandlerListGiftScore(): err = %+v", err)
@@ -232,14 +258,14 @@ func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 		ts := acqtimelist[i]
 		gsheader.Stime = append(gsheader.Stime, ts)
 		//	log.Printf(" i=%d ts=%+v\n", i, ts)
-		err = SelectGs(giftid, ts, &gslist, userno2order)
+		err = SelectGs(grid, ts, &gslist, userno2order)
 		if err != nil {
 			err = fmt.Errorf("SelectGs() returned %w", err)
 			log.Printf("HandlerListGiftScore(): err = %+v", err)
 			fmt.Fprintf(w, "HandlerListGiftScore(): err = %+v", err)
 			return
 		}
-		SelectGsHeader(giftid, ts, &gsheader)
+		SelectGsHeader(grid, ts, &gsheader)
 		gsheader.Ifrm[i-ib] = i
 		gsheader.Nof[i-ib] = i + 1
 	}
@@ -310,7 +336,7 @@ func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
 	        acqtimelist		[] time.Time	取得時刻一覧
 */
 func SelectGsAcqTimeList(
-	giftid int,
+	grid int,
 ) (
 	acqtimelist []time.Time,
 	err error,
@@ -320,9 +346,9 @@ func SelectGsAcqTimeList(
 
 	//	ギフトランキングを取得した時刻の一覧を取得する。
 	sqlst := "select distinct ts from giftscore where giftid = ? order by ts "
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, giftid)
+	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, grid)
 	if err != nil {
-		err = fmt.Errorf("Dbmap.Select(GiftScore{}, giftid=%d)  err=%w", giftid, err)
+		err = fmt.Errorf("Dbmap.Select(GiftScore{}, grid=%d)  err=%w", grid, err)
 		return
 	}
 
@@ -350,7 +376,7 @@ func SelectGsAcqTimeList(
 			stats			int				== 0 正常終了	!= 0 データベースアクセス時のエラー
 */
 func SelectGs(
-	giftid int,
+	grid int,
 	ts time.Time,
 	gslist *[]GsInf,
 	userno2order map[int]int,
@@ -363,9 +389,9 @@ func SelectGs(
 	//	指定した時刻のギフトランキングを取得する。
 	sqlst := "select userno, score from giftscore "
 	sqlst += " where giftid =? and ts = ? order by orderno "
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, giftid, ts)
+	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, grid, ts)
 	if err != nil {
-		err = fmt.Errorf("Dbmap.Select(GiftScore{}, giftid=%d, ts=%+v)  err=%w", giftid, ts, err)
+		err = fmt.Errorf("Dbmap.Select(GiftScore{}, grid=%d, ts=%+v)  err=%w", grid, ts, err)
 		return
 	}
 
@@ -423,7 +449,7 @@ func SelectGs(
 			status			int				終了ステータス（ 0: 正常、　1: DBアクセスでの異常）
 */
 func SelectGsHeader(
-	giftid int,
+	grid int,
 	ts time.Time,
 	gsheader *GsHeader,
 ) (
@@ -472,7 +498,7 @@ func SelectGsHeader(
 			status			int				終了ステータス（ 0: 正常、　1: DBアクセスでの異常）
 */
 func SelectUserno2Order(
-	giftid int,
+	grid int,
 	ts time.Time,
 	limit int,
 ) (
@@ -487,9 +513,9 @@ func SelectUserno2Order(
 	var rows []interface{}
 	sqlst := "select u.userno, u.longname, u.`rank`, u.userid, gs.orderno itrank from user u join giftscore gs on u.userno = gs.userno "
 	sqlst += " where gs.giftid = ? and gs.ts = ? order by orderno limit ? "
-	rows, err = srdblib.Dbmap.Select(srdblib.User{}, sqlst, giftid, ts, limit)
+	rows, err = srdblib.Dbmap.Select(srdblib.User{}, sqlst, grid, ts, limit)
 	if err != nil {
-		err = fmt.Errorf("Dbmap.Select(User{}, giftid=%d)  err=%w", giftid, err)
+		err = fmt.Errorf("Dbmap.Select(User{}, grid=%d)  err=%w", grid, err)
 		return
 	}
 
@@ -542,18 +568,36 @@ func SelectUserno2Order(
 
 }
 
-func GetGiftRanking(campaignid int) (
-	giftranking *[]srdblib.GiftRanking,
-	grid1 int,
+func GetGiftRanking(
+	gsheader *GsHeader,
+	grid int,
+	grtype string,
+) (
 	err error,
 ) {
-	/*
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, giftid)
+	sqlst := "select grid, grname, grtype from giftranking "
+	sqlst += " where campaignid = ? and grtype = ? order by norder "
+	rows, err := srdblib.Dbmap.Select(srdblib.GiftRanking{}, sqlst, gsheader.Campaignid, grtype)
 	if err != nil {
-		err = fmt.Errorf("Dbmap.Select(GiftScore{}, giftid=%d)  err=%w", giftid, err)
-		return
+		err = fmt.Errorf("Dbmap.Select(GiftScore{}, campaignid=%s)  err=%w", gsheader.Campaignid, err)
+		return err
 	}
-	*/
+	gsheader.GiftRanking = make([]srdblib.GiftRanking, 0, len(rows))
+	for _, v := range rows {
+		vgr := v.(*srdblib.GiftRanking)
+		gsheader.GiftRanking = append(gsheader.GiftRanking, *vgr)
+		if vgr.Grid == grid {
+			gsheader.Grid = vgr.Grid
+			gsheader.Grname = vgr.Grname
+			gsheader.Grtype = vgr.Grtype
+		}
+	}
+
+	if grid == 0 {
+		gsheader.Grid = gsheader.GiftRanking[0].Grid
+		gsheader.Grname = gsheader.GiftRanking[0].Grname
+		gsheader.Grtype = gsheader.GiftRanking[0].Grtype
+	}
 
 	return
 }

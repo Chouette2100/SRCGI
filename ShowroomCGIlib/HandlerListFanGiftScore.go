@@ -28,11 +28,11 @@ import (
 	"github.com/Chouette2100/srdblib"
 	"github.com/dustin/go-humanize"
 
-	"github.com/Chouette2100/exsrapi"
+	//	"github.com/Chouette2100/exsrapi"
 )
 
 //	const MaxAcq = 5	//	表示するデータ数、とりあえず HandlerListCntrb()と同じにしてみる
-
+/*
 type VgsHeader struct {
 	Giftid    int
 	Eventname string
@@ -61,6 +61,7 @@ type VgsHeader struct {
 	Nlt       int
 	Vgslist   *[]VgsInf
 }
+*/
 
 type VgsInf struct {
 	Viewerid   int
@@ -100,6 +101,8 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	var gsheader GsHeader
+
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
 	funcMap := template.FuncMap{
@@ -110,22 +113,45 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
 		"templates/list-vgs-h1.gtpl", "templates/list-vgs-h2.gtpl", "templates/list-vgs.gtpl"))
 
-	var eventinf exsrapi.Event_Inf
+	//	var eventinf exsrapi.Event_Inf
 	//	GetEventInf(eventid, &eventinf)
 
-	giftid, _ := strconv.Atoi(req.FormValue("giftid"))
+	gsheader.Campaignid = req.FormValue("campaignid")
+	if gsheader.Campaignid == "" {
+		gsheader.Campaignid = "kingofliver2024summer-autumn"
+		gsheader.Campaignname = "SHOWROOMライバー王決定戦summer/autumn"
+		gsheader.Url = "https://campaign.showroom-live.com/kingofliver2024/"
+	}
+
+
+	grid, _ := strconv.Atoi(req.FormValue("giftid"))
+	if grid == 0 {
+		grid = 206
+	}
 
 	limit, _ := strconv.Atoi(req.FormValue("limit"))
 	if limit == 0 {
-			limit = 20
+			limit = 60
 	}
 
 	maxacq, _ := strconv.Atoi(req.FormValue("maxacq"))
 	if maxacq == 0 {
-			maxacq = 5
+			maxacq = 10
 	}
 
-	acqtimelist, _ := SelectVgsAcqTimeList(giftid)
+		err := GetGiftRanking(&gsheader, grid, "fan")
+	if err != nil {
+		err = fmt.Errorf("GetGiftRanking(): error %w", err)
+		log.Printf("%s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if grid == 0 {
+		grid = gsheader.GiftRanking[0].Grid
+	}
+
+
+	acqtimelist, _ := SelectVgsAcqTimeList(grid)
 	if len(acqtimelist) == 0 {
 		fmt.Fprintf(w, "HandlerFanGiftScore() No AcqTimeList\n")
 		fmt.Fprintf(w, "Check eventid and userno\n")
@@ -152,47 +178,46 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 		ie = latl - 1
 	}
 
-	var vgsheader VgsHeader
 
 	//	gsheader.Eventid = eventid
-	vgsheader.Giftid = giftid
-	vgsheader.Maxacq = maxacq
-	vgsheader.Limit = limit
+	gsheader.Grid = grid
+	gsheader.Maxacq = maxacq
+	gsheader.Limit = limit
 	//	gsheader.Eventname = eventinf.Event_name
 
 	//	gsheader.Maxpoint = eventinf.Maxpoint
 	//	gsheader.Gscale = eventinf.Gscale
 
-	vgsheader.Period = eventinf.Period
+	//	gsheader.Period = eventinf.Period
 	//	cntrbheader.Userno = userno
 
-	vgsheader.Ncr = ie
+	gsheader.Ncr = ie
 
 	//	戻る側の設定
 	if ie < maxacq {
-		vgsheader.Nft = -1
-		vgsheader.Npb = -1
-		vgsheader.N1b = -1
+		gsheader.Nft = -1
+		gsheader.Npb = -1
+		gsheader.N1b = -1
 	} else {
-		vgsheader.Nft = maxacq - 1  //	先頭にもどる
-		vgsheader.Npb = ie - maxacq //	１ページ分戻る
-		if vgsheader.Npb < maxacq-1 {
-			vgsheader.Npb = maxacq - 1
+		gsheader.Nft = maxacq - 1  //	先頭にもどる
+		gsheader.Npb = ie - maxacq //	１ページ分戻る
+		if gsheader.Npb < maxacq-1 {
+			gsheader.Npb = maxacq - 1
 		}
-		vgsheader.N1b = ie - 1 //	一枠分戻る
+		gsheader.N1b = ie - 1 //	一枠分戻る
 	}
 
 	if ie == latl-1 {
-		vgsheader.Nlt = -1
-		vgsheader.Npf = -1
-		vgsheader.N1f = -1
+		gsheader.Nlt = -1
+		gsheader.Npf = -1
+		gsheader.N1f = -1
 	} else {
-		vgsheader.Nlt = latl - 1    //	最後に進む
-		vgsheader.Npf = ie + maxacq //	１ページ分進む
-		if vgsheader.Npf > latl-1 {
-			vgsheader.Npf = latl - 1
+		gsheader.Nlt = latl - 1    //	最後に進む
+		gsheader.Npf = ie + maxacq //	１ページ分進む
+		if gsheader.Npf > latl-1 {
+			gsheader.Npf = latl - 1
 		}
-		vgsheader.N1f = ie + 1 //	一枠分進む
+		gsheader.N1f = ie + 1 //	一枠分進む
 	}
 
 	//	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
@@ -201,7 +226,7 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	tsie := acqtimelist[ie]
 
-	vgslist, viewerid2order, err := SelectViewerid2Order(giftid, tsie, limit)
+	vgslist, viewerid2order, err := SelectViewerid2Order(grid, tsie, limit)
 	if err != nil {
 		err = fmt.Errorf("SelectUserno2Order() returned %w", err)
 		log.Printf("HandlerListGiftScore(): err = %+v", err)
@@ -211,36 +236,36 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	for i := ib; i <= ie; i++ {
 		ts := acqtimelist[i]
-		vgsheader.Stime = append(vgsheader.Stime, ts)
+		gsheader.Stime = append(gsheader.Stime, ts)
 		//	log.Printf(" i=%d ts=%+v\n", i, ts)
-		err = SelectVgs(giftid, ts, &vgslist, viewerid2order)
+		err = SelectVgs(grid, ts, &vgslist, viewerid2order)
 		if err != nil {
 			err = fmt.Errorf("SelectGs() returned %w", err)
 			log.Printf("HandlerListGiftScore(): err = %+v", err)
 			fmt.Fprintf(w, "HandlerListGiftScore(): err = %+v", err)
 			return
 		}
-		SelectVgsHeader(giftid, ts, &vgsheader)
-		vgsheader.Ifrm[i-ib] = i
-		vgsheader.Nof[i-ib] = i + 1
+		SelectVgsHeader(grid, ts, &gsheader)
+		gsheader.Ifrm[i-ib] = i
+		gsheader.Nof[i-ib] = i + 1
 	}
-	vgsheader.Vgslist = &vgslist
+	gsheader.Vgslist = vgslist
 
 	if ie == latl-1 {
-		vgsheader.Ier = -1
+		gsheader.Ier = -1
 	} else {
-		vgsheader.Ier = ie + 5
-		if vgsheader.Ier > latl-1 {
-			vgsheader.Ier = latl - 1
+		gsheader.Ier = ie + 5
+		if gsheader.Ier > latl-1 {
+			gsheader.Ier = latl - 1
 		}
 	}
 
 	if ie == 0 {
-		vgsheader.Ier = -1
+		gsheader.Ier = -1
 	} else {
-		vgsheader.Iel = ie - 5
-		if vgsheader.Iel < 0 {
-			vgsheader.Iel = 0
+		gsheader.Iel = ie - 5
+		if gsheader.Iel < 0 {
+			gsheader.Iel = 0
 		}
 	}
 	/*
@@ -269,13 +294,13 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	//	gsheader.Gsinflist = &gsinflist
 
-	if err := tpl.ExecuteTemplate(w, "list-vgs-h1.gtpl", vgsheader); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-vgs-h1.gtpl", gsheader); err != nil {
 		log.Println(err)
 	}
-	if err := tpl.ExecuteTemplate(w, "list-vgs-h2.gtpl", vgsheader); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-vgs-h2.gtpl", gsheader); err != nil {
 		log.Println(err)
 	}
-	if err := tpl.ExecuteTemplate(w, "list-vgs.gtpl", vgsheader); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-vgs.gtpl", gsheader); err != nil {
 		log.Println(err)
 	}
 }
@@ -406,7 +431,7 @@ func SelectVgs(
 func SelectVgsHeader(
 	giftid int,
 	ts time.Time,
-	vgsheader *VgsHeader,
+	gsheader *GsHeader,
 ) (
 	status int,
 ) {
@@ -430,8 +455,8 @@ func SelectVgsHeader(
 	//	(*cntrbheader).S_etime = append((*cntrbheader).S_etime, etime.Format("02 15:04"))
 	//	(*cntrbheader).Earned = append((*cntrbheader).Earned, earned)
 	//	(*cntrbheader).Total = append((*cntrbheader).Total, total)
-	(*vgsheader).Ifrm = append((*vgsheader).Ifrm, 0)
-	(*vgsheader).Nof = append((*vgsheader).Nof, 0)
+	gsheader.Ifrm = append(gsheader.Ifrm, 0)
+	gsheader.Nof = append(gsheader.Nof, 0)
 
 	return
 
