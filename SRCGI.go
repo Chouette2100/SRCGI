@@ -93,10 +93,11 @@ import (
 	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
 	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする。
 	11BP00	旧URL（https/chouette2100.com:8443/cgi-bin/SRCGI/top）に対応する
+	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
 
 */
 
-const version = "11BP00"
+const version = "11BQ00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -262,7 +263,7 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
 
 	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
-	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftRanking").SetKeys(false, "Campaignid", "Grid")
+	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
 
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。
@@ -353,7 +354,10 @@ func main() {
 		//	ギフトランキングリスト
 		http.HandleFunc(rootPath+"/listgs", ShowroomCGIlib.HandlerListGiftScore)
 
-		//	ギフトランキングリスト
+		//	ギフトランキンググラフ
+		http.HandleFunc(rootPath+"/graphgs", ShowroomCGIlib.HandlerGraphGiftScore)
+
+		//	最強ファンランキングリスト
 		http.HandleFunc(rootPath+"/listvgs", ShowroomCGIlib.HandlerListFanGiftScore)
 
 		//	イベント獲得ポイント上位ルーム

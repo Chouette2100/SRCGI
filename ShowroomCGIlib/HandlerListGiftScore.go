@@ -576,7 +576,8 @@ func GetGiftRanking(
 	err error,
 ) {
 	sqlst := "select grid, grname, grtype from giftranking "
-	sqlst += " where campaignid = ? and grtype = ? order by norder "
+	//	sqlst += " where campaignid = ? and grtype = ? order by norder "
+	sqlst += " where campaignid = ? and grtype = ? order by endedat desc, startedat desc, norder "
 	rows, err := srdblib.Dbmap.Select(srdblib.GiftRanking{}, sqlst, gsheader.Campaignid, grtype)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScore{}, campaignid=%s)  err=%w", gsheader.Campaignid, err)

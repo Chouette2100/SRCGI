@@ -1,6 +1,6 @@
-//	Copyright © 2024 chouette.21.00@gmail.com
-//	Released under the MIT license
-//	https://opensource.org/licenses/mit-license.php
+// Copyright © 2024 chouette.21.00@gmail.com
+// Released under the MIT license
+// https://opensource.org/licenses/mit-license.php
 package ShowroomCGIlib
 
 import (
@@ -14,7 +14,7 @@ import (
 	//	"sort"
 	"strconv"
 	"strings"
-	//	"time"
+	"time"
 
 	//	"bufio"
 	"os"
@@ -25,27 +25,19 @@ import (
 
 	"html/template"
 	"net/http"
-
 	//	"database/sql"
-
 	//	_ "github.com/go-sql-driver/mysql"
-
 	//	"github.com/PuerkitoBio/goquery"
-
 	//	svg "github.com/ajstarks/svgo/float"
-
 	//	"github.com/dustin/go-humanize"
-
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
-
 	//	"github.com/Chouette2100/exsrapi"
 	//	"github.com/Chouette2100/srapi"
-	//	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib"
 )
 
-
-func HandlerGraphGs(w http.ResponseWriter, req *http.Request) {
+func HandlerGraphGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
@@ -53,8 +45,15 @@ func HandlerGraphGs(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	eventid := req.FormValue("eventid")
+	//	eventid := req.FormValue("eventid")
 	//	maxpoint, _ := strconv.Atoi(req.FormValue("maxpoint"))
+	campaignid := req.FormValue("campaignid")
+	giftid, _ := strconv.Atoi(req.FormValue("giftid"))
+	target, _ := strconv.Atoi(req.FormValue("target"))
+	nroom, _ := strconv.Atoi(req.FormValue("nroom"))
+	if nroom == 0 {
+		nroom = 10
+	}
 	smaxpoint := req.FormValue("maxpoint")
 	maxpoint, _ := strconv.Atoi(smaxpoint)
 	if maxpoint < 10000 {
@@ -84,15 +83,33 @@ func HandlerGraphGs(w http.ResponseWriter, req *http.Request) {
 			gschk100 = "checked"
 		}
 	*/
-	resetcolor := req.FormValue("resetcolor")
 
-	//	log.Printf("      eventid=%s maxpoint=%d(%s) resetcolor=[%s]\n", eventid, maxpoint, smaxpoint, resetcolor)
+	intrf, err := srdblib.Dbmap.Get(srdblib.Campaign{}, campaignid)
+	if err != nil {
+		err = fmt.Errorf("srdblib.Dbmap.Get(srdblib.Campaign{}, %s) err = %w", campaignid, err)
+		log.Printf("%s\n", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+	campaign := intrf.(*srdblib.Campaign)
 
-	if resetcolor == "on" {
-		Resetcolor(eventid)
+	intrf, err = srdblib.Dbmap.Get(srdblib.GiftRanking{}, campaignid, giftid)
+	if err != nil {
+		err = fmt.Errorf("srdblib.Dbmap.Get(srdblib.GiftRanking{}, %d) err = %w", giftid, err)
+		log.Printf("%s\n", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+	giftranking := intrf.(*srdblib.GiftRanking)
+
+	filename, err := GraphGiftScore(campaign, giftranking, nroom, maxpoint, target, gscale)
+	if err != nil {
+		err = fmt.Errorf("GraphGiftScore(): Error: %w", err)
+		log.Printf("%s\n", err.Error())
+		w.Write([]byte(err.Error()))
+		return
 	}
 
-	filename, _ := GraphTotalPoints(eventid, maxpoint, gscale)
 	if Serverconfig.WebServer == "nginxSakura" {
 		rootPath := os.Getenv("SCRIPT_NAME")
 		rootPathFields := strings.Split(rootPath, "/")
@@ -103,47 +120,51 @@ func HandlerGraphGs(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-total.gtpl"))
+	tpl := template.Must(template.ParseFiles("templates/graph-gs.gtpl"))
 
-	// テンプレートに出力する値をマップにセット
-	/*
-		values := map[string]string{
-			"filename": req.FormValue("FileName"),
-		}
-	*/
-	values := map[string]string{
-		"filename": filename,
-		"eventid":  eventid,
-		"maxpoint": smaxpoint,
-		"gscale":   sgscale,
+	type Ggsheader struct {
+		Filename     string
+		Campaignid   string
+		Campaignname string
+		Url          string
+		Grid         int
+		Grname       string
+		Period       string
+		Maxpoint     int
+		Gscale       int
+	}
+	ggsheader := Ggsheader{
+		Filename:     filename,
+		Campaignid:   campaign.Campaignid,
+		Campaignname: campaign.Campaignname,
+		Url:          campaign.Url,
+		Grid:         giftranking.Grid,
+		Grname:       giftranking.Grname,
+		Period:       giftranking.Startedat.Format("2006-01-02 15:04") + " 〜 " + giftranking.Endedat.Format("2006-01-02 15:04"),
+		Maxpoint:     maxpoint,
+		Gscale:       gscale,
 	}
 
 	// マップを展開してテンプレートを出力する
-	if err := tpl.ExecuteTemplate(w, "graph-total.gtpl", values); err != nil {
+	if err := tpl.ExecuteTemplate(w, "graph-gs.gtpl", ggsheader); err != nil {
 		log.Println(err)
+		w.Write([]byte(err.Error()))
 	}
 }
+
 //	var Nfseq int
 
-func GraphGiftScore(eventid string, maxpoint int, gscale int) (filename string, status int) {
-
-	status = 0
-
-	Event_inf.Event_ID = eventid
-
-	IDlist, sts := SelectEventInfAndRoomList()
-
-	if sts != 0 {
-		log.Printf("status of SelectEventInfAndRoomList() =%d\n", sts)
-		status = sts
-		return
-	}
-
-	eventname, period, _ := SelectEventNoAndName(eventid)
-
-	Event_inf.Maxpoint = maxpoint
-	Event_inf.Gscale = gscale
-	UpdateEventInf(&Event_inf)
+func GraphGiftScore(
+	campaign *srdblib.Campaign,
+	giftranking *srdblib.GiftRanking,
+	nroom int,
+	maxpoint int,
+	target int,
+	gscale int,
+) (
+	filename string,
+	err error,
+) {
 
 	if Serverconfig.WebServer == "None" {
 		filename = fmt.Sprintf("%03d.svg", Nfseq)
@@ -152,27 +173,70 @@ func GraphGiftScore(eventid string, maxpoint int, gscale int) (filename string, 
 		filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)
 		//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		//	filename = fmt.Sprintf("%0d.svg", r.Intn(100))
+	}
+
+	maxscore := 0
+
+	xydata := make([]Xydata, 0)
+	IDlist := make([]int, 0)
+
+	giftscore := make([]srdblib.GiftScore, 0)
+	sqlst := "select userno from giftscore "
+	sqlst += " where giftid = ? "
+	sqlst += " and ts = (select max(ts) from giftscore where giftid = ?) order by score desc limit ? "
+	_, err = srdblib.Dbmap.Select(&giftscore, sqlst, giftranking.Grid, giftranking.Grid, nroom)
+	if err != nil {
+		err = fmt.Errorf("srdblib.Dbmap.Select(&giftscore, %d)(1) err = %w", giftranking.Grid, err)
+		return
+	}
+
+	ustartedat := Jtruncate(giftranking.Startedat).Unix()
+	for _, v := range giftscore {
+		IDlist = append(IDlist, v.Userno)
+
+		giftscore = make([]srdblib.GiftScore, 0)
+		sqlst = "select ts, score from giftscore where giftid = ? and userno = ? and ts < ? order by ts "
+		_, err = srdblib.Dbmap.Select(&giftscore, sqlst, giftranking.Grid, v.Userno, giftranking.Endedat.Add(2*time.Hour))
+		if err != nil {
+			err = fmt.Errorf("srdblib.Dbmap.Select(&giftscore, %d, %d,%s)(2) err = %w",
+				giftranking.Grid, v.Userno, giftranking.Endedat.Add(2*time.Hour).Format("2006-01-02 15:04"), err)
+			return
+		}
+
+		xy := Xydata{}
+		xy.X = make([]float64, 0)
+		xy.Y = make([]float64, 0)
+		for _, v := range giftscore {
+			xy.X = append(xy.X, float64(v.Ts.Unix()-ustartedat)/60/60/24)
+			xy.Y = append(xy.Y, float64(v.Score))
+			if maxscore < v.Score {
+				maxscore = v.Score
+			}
+		}
+
+		xydata = append(xydata, xy)
 
 	}
 
-	GraphScore01(filename, IDlist, eventname, period, maxpoint)
+	err = DrawLineGraph(
+		filename,              //	（パスなし）ファイル名　ex. 000.svg
+		campaign.Campaignname, //	ex.	グラフタイトル
+		giftranking.Grname,    //	ex. イベント名
+		giftranking.Startedat.Format("2006-01-02 15:04")+" 〜 "+giftranking.Endedat.Format("2006-01-02 15:04"), //	ex. 開催期間
+		maxscore,              //	データの最大値
+		maxpoint,              //	y軸方向グラフ表示範囲を制限する
+		target,                //	目標ポイント
+		giftranking.Startedat, //	イベント開始時刻 time.Time
+		giftranking.Endedat,   //	イベント終了時刻 time.Time
+		1.1,                   //	データ間隔がこの時間を超えたら接続しない(day)
+		IDlist,
+		&xydata,
+	)
 
-	/*
-		fmt.Printf("Content-type:text/html\n\n")
-		fmt.Printf("<!DOCTYPE html>\n")
-		fmt.Printf("<html lang=\"ja\">\n")
-		fmt.Printf("<head>\n")
-		fmt.Printf("  <meta charset=\"UTF-8\">\n")
-		fmt.Printf("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-		//	fmt.Printf("  <meta http-equiv=\"refresh\" content=\"30; URL=\">\n")
-		fmt.Printf("  <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n")
-		fmt.Printf("  <title></title>\n")
-		fmt.Printf("</head>\n")
-		fmt.Printf("<body>\n")
-		fmt.Printf("<img src=\"test.svg\" alt=\"\" width=\"100%%\">")
-		fmt.Printf("</body>\n")
-		fmt.Printf("</html>\n")
-	*/
+	if err != nil {
+		err = fmt.Errorf(" err = %w", err)
+		return "", err
+	}
 
 	return
 }

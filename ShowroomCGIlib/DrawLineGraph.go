@@ -42,26 +42,36 @@ import (
 	"github.com/Chouette2100/srdblib"
 )
 
+func Jtruncate(t time.Time) time.Time {
+	return t.Add(9*time.Hour).Truncate(24*time.Hour).Add(-9*time.Hour)
+}
+
+type Xydata struct {
+			X []float64
+			Y []float64
+}
+
 func DrawLineGraph(
-	filename string,
+	filename string, //	（パスなし）ファイル名　ex. 000.svg
+	title0 string, //	ex.	グラフタイトル
+	title1 string, //	ex. イベント名
+	title2 string, //	ex. 開催期間
+	maxpoint int, //	データの最大値
+	tmaxpoint int, //	y軸方向グラフ表示範囲を制限する
+	target int, //	目標ポイント
+	start_time time.Time, //	イベント開始時刻
+	end_time time.Time, //	イベント終了時刻
+	deltax float64,	//	データ間隔がこの時間を超えたら接続しない(day)
 	IDlist []int,
-	title1	string,	//	ex. eventname
-	title2	string,	//	ex. period
-	maxpoint int,
-	tmaxpoint int,	//	グラフ表示範囲を制限する
-	target int,		//	目標ポイント
-	dperiod float64,
-	start_time time.Time,
-	start_date float64,
-	end_date float64,
-	end_time time.Time,
-	xydata *[]struct {
-		X []float64
-		Y []float64
-	},
+	xydata *[]Xydata,
 ) (
 	err error,
 ) {
+
+	start_date := float64(Jtruncate(start_time).Unix()) / 60.0 / 60.0 / 24.0
+	end_date := float64(Jtruncate(end_time).Add(24*time.Hour).Unix()) / 60.0 / 60.0 / 24.0
+
+	dperiod := end_date - start_date
 
 	//	描画領域を決定する
 	width := 3840.0
@@ -113,7 +123,7 @@ func DrawLineGraph(
 	//	log.Printf("yupper=%d yscale=%f dyl=%f\n", yupper, yscale, dyl)
 
 	//	グラフタイトルとイベント情報を出力する
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5-8*1.5), "獲得ポイントの推移",
+	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5-8*1.5), title0,
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
 	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, title1,
@@ -225,7 +235,7 @@ func DrawLineGraph(
 	for idx := range IDlist {
 
 		//	_, cvalue, _ := SelectUserColor(id, eventid)
-		cvalue := Colorlist1[idx].Value
+		cvalue := Colorlist1[idx % len(Colorlist1)].Value
 
 		//	x, y := SelectScoreList(id)
 		x := &(*xydata)[j].X
@@ -244,9 +254,15 @@ func DrawLineGraph(
 			xt := xorigin + (*x)[i]*xscale
 			yt := yorigin + (*y)[i]*yscale
 			//	fmt.Printf("(*x).[i]=%.3f tl=%.3f (*x)[i]-tl=%.3f\n", (*x)[i], tl, (*x)[i]-tl)
-			if (*x)[i]-tl > 0.011 && (*y)[i]-yl > 1.0 {
+			if (*x)[i]-tl > deltax && (*y)[i]-yl > 0.9 {
 				//	次のデータとの間に欠測があり、かつ欠測の前後でデータが同一でないときはその部分の描画は行わない。
-				canvas.Polyline(xo[0:k], yo[0:k], "fill=\"none\" stroke=\""+cvalue+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
+				//	canvas.Polyline(xo[0:k], yo[0:k], "fill=\"none\" stroke=\""+cvalue+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
+				if k > 1 {
+					canvas.Polyline(xo[0:k], yo[0:k], "fill=\"none\" stroke=\""+cvalue+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
+				} else {
+					canvas.Circle(xo[0], yo[0], bstroke*1.5, "fill=\""+cvalue+"\" stroke=\""+cvalue+"\"")
+				}
+
 				xo[0] = xt
 				yo[0] = yt
 				tl = (*x)[i]

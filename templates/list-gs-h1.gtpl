@@ -13,7 +13,7 @@
      <td><button type="button" onclick="location.href='listvgs'">ファンランキング</button></td>
      <td></td>
      <td></td>
-     <td></td>
+     <td><button type="button" onclick="location.href='graphgs?campaignid={{.Campaignid}}&giftid={{.Grid}}'">ギフトランキンググラフ</button></td>
     </tr>
 
 </table>
