@@ -25,3 +25,19 @@ Windowsであれば
 [SHOWROOMのAPI、その使い方とサンプルソース](https://zenn.dev/chouette2100/books/d8c28f8ff426b7)
 
 [SHOWROOMのAPIで何ができるか？](https://zenn.dev/chouette2100/books/d8c28f8ff426b7/viewer/84023c)
+
+整合性のある最新バージョンの一覧（2024-10-01現在）
+|機能名|種別|Ver.|機能|
+|---|---|---|---|
+|SRCGI|daemon<br>Webサーバ|v1.6.1|獲得ポイントデータの取得の設定、データの参照<br>（ShowroomCGI は使用しない）|
+|SRGSE5M|daemon|v1.3.0|獲得ポイントデータの取得<br>(GetScoreEvery5minutes は使用しない)|
+|SRGPC|daemon|v1.2.1|配信枠別リスナー別貢献ポイントの算出<br>（GetPointsCont01 は使用しない）|
+|SRGCE|cron|v1.3.0|新規イベントデータ追加、ブロックイベント・イベントボックスの展開|
+|srAddNewOnes|cron|v1.2.0|イベントエントリーユーザーの追加|
+|UpdateUserSetProperty|cron|v1.0.2|配信者属性の更新<br>おもにSHOWRANK上位ルームの一覧を作るために使用する<br>（SRUUI/SRUEUI は使用しない）|
+|SRGGR|cron|v1.1.1|ライバー王決定戦等の結果データを取得する|
+|srapi|package|v1.4.1|SHOWROOMのAPIのラッパー|
+|exsrapi|package|v1.5.2|共通ライブラリ|
+|srdblib|package|v1.3.4|DBのアクセスのためのライブラリ|
+|srhandler|package|v0.3.1|Webサーバー/CGIのハンドラー<br>（一部、SRCGIで使うものは含まない）|
+|SRDB|SQL|v1.4.0|データベース作成用スキーマ|
