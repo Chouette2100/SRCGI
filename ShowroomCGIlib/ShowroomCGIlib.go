@@ -180,10 +180,11 @@ import (
 	11BN04	DrawLineGraph()を作成する準備をする。
 	11BN05	list-gs-h1.gtpl, list-vgs-h1.gtpl のレイアウトを調整する。
 	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
+	11BQ01	top.gtpl ギフトランキングのタイトルをより具体的にする
 
 */
 
-const Version = "11BQ00"
+const Version = "11BQ01"
 
 /*
 type Event_Inf struct {
