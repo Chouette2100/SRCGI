@@ -38,6 +38,6 @@ Windowsであれば
 |SRGGR|cron|v1.1.1|ライバー王決定戦等の結果データを取得する|
 |srapi|library|v1.5.0|SHOWROOMのAPIのラッパー|
 |exsrapi|library|v1.5.2|共通ライブラリ|
-|srdblib|library|v1.3.4|DBのアクセスのためのライブラリ|
+|srdblib|library|v1.3.5|DBのアクセスのためのライブラリ|
 |srhandler|library|v0.3.1|Webサーバー/CGIのハンドラー<br>（一部、SRCGIで使うものは含まない）|
 |SRDB|SQL|v1.4.1|データベース作成用スキーマ|
