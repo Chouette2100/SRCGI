@@ -36,8 +36,8 @@ Windowsであれば
 |srAddNewOnes|cron|v1.2.0|イベントエントリーユーザーの追加|
 |UpdateUserSetProperty|cron|v1.0.2|配信者属性の更新<br>おもにSHOWRANK上位ルームの一覧を作るために使用する<br>（SRUUI/SRUEUI は使用しない）|
 |SRGGR|cron|v1.1.1|ライバー王決定戦等の結果データを取得する|
-|srapi|package|v1.4.1|SHOWROOMのAPIのラッパー|
-|exsrapi|package|v1.5.2|共通ライブラリ|
-|srdblib|package|v1.3.4|DBのアクセスのためのライブラリ|
-|srhandler|package|v0.3.1|Webサーバー/CGIのハンドラー<br>（一部、SRCGIで使うものは含まない）|
+|srapi|library|v1.5.0|SHOWROOMのAPIのラッパー|
+|exsrapi|library|v1.5.2|共通ライブラリ|
+|srdblib|library|v1.3.4|DBのアクセスのためのライブラリ|
+|srhandler|library|v0.3.1|Webサーバー/CGIのハンドラー<br>（一部、SRCGIで使うものは含まない）|
 |SRDB|SQL|v1.4.0|データベース作成用スキーマ|
