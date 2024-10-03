@@ -490,18 +490,23 @@ func SelectViewerid2Order(
 	viewerid2order = make(map[int]int)
 
 	//	指定された時刻の貢献ポイントランキングを取得する。
+	type ViewerAndOrderno struct {
+			Viewerid  int
+			Sname  string
+			Orderno   int
+	}
 	var rows []interface{}
 	sqlst := "select v.viewerid, v.sname, vgs.orderno "
 	sqlst += " from viewer v join viewergiftscore vgs on v.viewerid = vgs.viewerid "
 	sqlst += " where vgs.giftid = ? and vgs.ts = ? order by vgs.orderno limit ? "
-	rows, err = srdblib.Dbmap.Select(srdblib.Viewer{}, sqlst, giftid, ts, limit)
+	rows, err = srdblib.Dbmap.Select(ViewerAndOrderno{}, sqlst, giftid, ts, limit)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(Viewer{}, giftid=%d)  err=%w", giftid, err)
 		return
 	}
 
 	for i, v := range rows {
-		vw := v.(*srdblib.Viewer)
+		vw := v.(*ViewerAndOrderno)
 		viewerid2order[vw.Viewerid] = i
 		vgslist = append(vgslist, VgsInf{
 			Viewerid:   vw.Viewerid,

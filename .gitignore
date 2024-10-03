@@ -23,3 +23,5 @@ __debug_bin*
 *.swp
 Backup
 kagoya09
+ShowroomCGIlib/public
+ShowroomCGIlib/DBConfig.yml

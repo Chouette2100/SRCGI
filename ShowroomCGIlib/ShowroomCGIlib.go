@@ -182,10 +182,11 @@ import (
 	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
 	11BQ01	top.gtpl ギフトランキングのタイトルをより具体的にする
 	11BQ02	X軸の最小値を10,000から1,000に変更する
+	11BQ03	Viewerから（本来なかった）Ordernoを削除したことに対しSelectViewerid2Order()を修正する。
 
 */
 
-const Version = "11BQ02"
+const Version = "11BQ03"
 
 /*
 type Event_Inf struct {
