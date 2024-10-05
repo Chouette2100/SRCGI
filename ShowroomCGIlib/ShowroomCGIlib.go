@@ -183,10 +183,12 @@ import (
 	11BQ01	top.gtpl ギフトランキングのタイトルをより具体的にする
 	11BQ02	X軸の最小値を10,000から1,000に変更する
 	11BQ03	Viewerから（本来なかった）Ordernoを削除したことに対しSelectViewerid2Order()を修正する。
+	11BR00	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）を作成する
+	11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
 
 */
 
-const Version = "11BQ03"
+const Version = "11BS00"
 
 /*
 type Event_Inf struct {

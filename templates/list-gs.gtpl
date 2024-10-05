@@ -13,6 +13,10 @@
 		<td align="right">
 			{{ if eq . -1 }}
 			n/a
+			{{ else if eq . 0  }}
+			---
+			{{ else if lt . -1  }}
+			（ {{ add . 10000 }} ）
 			{{ else }}
 			{{ Comma . }}
 			{{ end }}

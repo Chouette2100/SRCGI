@@ -94,10 +94,12 @@ import (
 	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする。
 	11BP00	旧URL（https/chouette2100.com:8443/cgi-bin/SRCGI/top）に対応する
 	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
+	11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
+
 
 */
 
-const version = "11BQ00"
+const version = "11BS00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -359,6 +361,9 @@ func main() {
 
 		//	最強ファンランキングリスト
 		http.HandleFunc(rootPath+"/listvgs", ShowroomCGIlib.HandlerListFanGiftScore)
+
+		//	ギフトランキング貢献ランキングリスト
+		http.HandleFunc(rootPath+"/listgsc", ShowroomCGIlib.HandlerListGiftScoreCntrb)
 
 		//	イベント獲得ポイント上位ルーム
 		http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)
