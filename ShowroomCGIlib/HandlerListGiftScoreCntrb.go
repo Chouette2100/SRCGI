@@ -153,6 +153,9 @@ func HandlerListGiftScoreCntrb(w http.ResponseWriter, req *http.Request) {
 		maxacq = 10
 	}
 
+	ifgr, _ := srdblib.Dbmap.Get(srdblib.GiftRanking{}, gscheader.Campaignid, grid)
+	ifuser, _ := srdblib.Dbmap.Get(srdblib.User{}, userno)
+
 	//	err := GetGiftRanking(&gsheader, grid, "liver")
 	//	if err != nil {
 	//		err = fmt.Errorf("GetGiftRanking(): error %w", err)
@@ -202,7 +205,9 @@ func HandlerListGiftScoreCntrb(w http.ResponseWriter, req *http.Request) {
 	//	gsheader.Eventid = eventid
 	//	gsheader.GiftRanking = giftranking
 	gscheader.Grid = grid
+	gscheader.Grname = ifgr.(*srdblib.GiftRanking).Grname
 	gscheader.Userno = userno
+	gscheader.Username = ifuser.(*srdblib.User).User_name
 	gscheader.Maxacq = maxacq
 	gscheader.Limit = limit
 	//	gsheader.Eventname = eventinf.Event_name

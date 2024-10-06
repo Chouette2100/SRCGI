@@ -39,6 +39,7 @@ type GsHeader struct {
 	Grid         int
 	Grname       string
 	Grtype       string
+	Cntrblst     int
 	Eventname    string
 	Period       string
 	Maxpoint     int
@@ -585,7 +586,7 @@ func GetGiftRanking(
 ) (
 	err error,
 ) {
-	sqlst := "select grid, grname, grtype from giftranking "
+	sqlst := "select grid, grname, grtype, cntrblst from giftranking "
 	//	sqlst += " where campaignid = ? and grtype = ? order by norder "
 	sqlst += " where campaignid = ? and grtype = ? order by endedat desc, startedat desc, norder "
 	rows, err := srdblib.Dbmap.Select(srdblib.GiftRanking{}, sqlst, gsheader.Campaignid, grtype)
@@ -601,6 +602,7 @@ func GetGiftRanking(
 			gsheader.Grid = vgr.Grid
 			gsheader.Grname = vgr.Grname
 			gsheader.Grtype = vgr.Grtype
+			gsheader.Cntrblst = vgr.Cntrblst
 		}
 	}
 
@@ -608,6 +610,7 @@ func GetGiftRanking(
 		gsheader.Grid = gsheader.GiftRanking[0].Grid
 		gsheader.Grname = gsheader.GiftRanking[0].Grname
 		gsheader.Grtype = gsheader.GiftRanking[0].Grtype
+		gsheader.Cntrblst = gsheader.GiftRanking[0].Cntrblst
 	}
 
 	return

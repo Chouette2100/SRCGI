@@ -1,5 +1,7 @@
 
 {{ $i := .Ncr }}
+{{ $g := .Grid }}
+{{ $c := .Cntrblst }}
 {{ range .Gslist }}
 	<tr>
 	<td align="right">
@@ -24,7 +26,11 @@
 	{{end}}
 	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.User_name}}</a>（{{ .Rank }}）</td>
 	<td align="right">
-		<a href="https://www.showroom-live.com/r/{{.Url}}">Live</a> <a href="/closedevents?userno={{.Userno}}&mode=0&path=5">イベント履歴</a>
+		{{ if eq $c 1 }}
+		<a href="/listgsc?giftid={{$g}}&userno={{.Userno}}">貢献ランキング</a>・
+		{{ end }}
+		<a href="https://www.showroom-live.com/r/{{.Url}}">Live</a>・
+		<a href="/closedevents?userno={{.Userno}}&mode=0&path=5">イベント履歴</a>
 	</td>
 	</tr>
 {{end}}

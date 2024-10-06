@@ -10,7 +10,7 @@
       <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
     </tr>
     <tr>
-      <td><button type="button" onclick="location.href='listgs'">ギフトランキング</button></td>
+      <td><button type="button" onclick="location.href='listgs?giftid={{.Grid}}'">ギフトランキングにもどる</button></td>
       <td></td>
       <td></td>
       <td></td>
@@ -18,7 +18,7 @@
 </table>
 <br>
 <p><a href="{{ .Url }}">{{ .Campaignname }}</a>（{{ .Campaignid }}）</p>
-<p>　　{{ .Grname }}（{{ .Grid }}）</p>
+<p>　　{{ .Grname }}（{{ .Grid }}）　　　{{ .Username }}（ {{ .Userno }} ）</p>
 <br>
 <form>
 {{/*
