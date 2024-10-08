@@ -1,6 +1,6 @@
-//	Copyright © 2024 chouette.21.00@gmail.com
-//	Released under the MIT license
-//	https://opensource.org/licenses/mit-license.php
+// Copyright © 2024 chouette.21.00@gmail.com
+// Released under the MIT license
+// https://opensource.org/licenses/mit-license.php
 package ShowroomCGIlib
 
 import (
@@ -45,151 +45,149 @@ import (
 )
 
 /*
-
-	0100L1	安定版（～2021.12.26）
-	0100M0	vscodeでの指摘箇所の修正
-	0101A0	LinuxとMySQL8.0に対応する。
-	0101B0	OSとWebサーバに応じた処理を行うようにする。アクセスログを作成する。
-	0101B1	実行時パラメータをファイルから与えるように変更する。
-	0101C0	GetRoomInfoByAPI()に配信開始時刻の取得を追加する。
-	0101D0	詳細なランク情報の導入（Nrank）
-	0101D1	"Next Live"の表示を追加する。
-	0101D2	GetScoreEvery5Minutes RU20E4 に適合するバージョン
-	0101D3	ランクをshow_rank_subdividedからleague_labe + lshow_rank_subdivided にする。
-	0101E1	環境設定ファイルをyaml形式に変更する。
-	0101G0	配信枠別貢献ポイントを導入する。
-	0101G1	list-last.gtplでは維新枠別貢献ポイントの記録があるルームのみリンクを作成する。
-	0101G2	list-last.gtplにジャンルを追加した。
-	0101G3	リスナー貢献ポイントの履歴の表示(list-cntrbH)を作成する。
-	0101G4	一つの貢献ポイントランキングの表示(list-cntrbS)を作成する(リスナー名の突き合わせのチェックが主目的)
-	0101G5	list-lasth.gtplのリロード予告の表示でデータ取得間隔が5分と固定されていたものを設定値に合わせるように変更する。
-	0101G6	ModminがIntervalminに対して不適切な値のときは修正して保存する。
-	0101G7	ランクに関しnext_scoreに加えprev_scoreの表示を追加する。ファンの数の表示を追加する。
-	0101H0	ファンレベル(/fanlevel)に関する画面を追加する。
-	0101J0	ファンダム王イベント参加者のファン数ランキングを作成する。
-	0101J2	終了したイベントについては無条件にルーム詳細情報（ランキング、フォロワ、レベル、ファン数）を出力しない。
-	0101J2a	"ルーム詳細情報”の説明を追加した。
-	0101J3	イベントリストのRoom_IDに変えてルーム名を表示する。表示数を6から10にする。
-	0101J4	NewDocument()をNewDocumentFromReader()に変更する。list-last_h.gtplにルーム情報詳細表示/非表示のボタンを追加する。
-	0101J5	イベント選択（最近のイベント）にnobasisが0のイベントも表示する（テーブルuserにusernoが0のデータを追加することが必要）
-	10AA00	枠別貢献ポイントの「目標値(推定)」を追加する。
-	10AB00	枠別貢献ポイントのポイント、増分の表示でhumanaizeを使用する。リスナー別貢献ポイント履歴に達成状況欄を追加する。
-	10AB01	WebserverをDbconfig.Webserverに置き換える。枠別貢献ポイントのGTPLを変更する。GTPLのCRLFをLFに変更する。
-	10AC00	イベント一覧にModminとModsecを追加する。
-	10AD00	longnameの初期値をusernameに変更する。Apache2LinuxをApache2Ubuntuに訂正する。
-	10AD01	HandlerGraphPerDay()とHandlerGraphPerSlot()のApache2LinuxをApache2Ubuntuに訂正する。
-	10AD02	SelectScoreList()で前配信期間、獲得ポイントのデータがないとき上位のデータがコピーして使われないようにする。
-	10AE00	1. 貢献ポイントランキングの表示を詳細化する。　2. イベント情報ページの内容を表示できるようにする（次回更新準備）
-	10AE00a	ルーム情報に下位ランクとの差を追加する（GTPLのみの変更）
-	10AF00	ブロックランキングに対応する（Event_id=30030のみの暫定対応）
-	10AF01	基準となる配信者のリストのサイズが0のときは対応する処理を行わない（異常終了対策、通常の運用では起きない）
-	10AG00	イベントリストの取得件数を10から20に変更する。
-	10AH00	stmt,err := Db.Prepare("...")　と対になる defer stmt.Close() を追加する。
-	10AJ00	ブロックランキングに仮対応（Event_id=30030以外に拡張）する。イベントリストの表示イベント数を設定可能とする。
-	10AK00	ブロックランキングのイベント名にblockidを追加する。獲得ポイントの取得時刻の初期値を分散させる。
-	------------------------------------- 以下公開版 ----------------------------------------------
-	10AL00	イベント情報にieventid（本来のイベントID、5桁程度の整数）を追加する。
-	10AL01	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントデータを取得する設定とする。
-	10AL02	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントを表示する設定とする。
-	10AM00	Room_url_keyから取り除く文字列を"/"から"/r/"に変更する。
-	10AN00	ブロックランキングで貢献ポイントランキングへのリンクを作るときはイベントIDのからブロックIDを取り除く。
-	10AP00	DBサーバーに接続するときSSHの使用を可能にする。
-	10AQ00	GetWeightedCnt()で周回数の多い獲得ポイントの採用率が上がるように調整する。
-	10AQ01	MakePointPerSlot()のperslotの変数宣言をループの中に入れる（毎回初期化されるように）
-	11AA0l	データベースへのアクセスをsrdblibに移行しつつある。グラフ表示で縮尺の設定を可能とする。
-	11AA02	intervalmin の値を5固定とする（異常終了に対する緊急対応）
-	11AA03	intervalminとintervalmin の適正でない入力を排除する。
-	11AB00	Event_Infの参照先をsrdblibからexsrapiに変更する。
-	11AB01	データベース保存時、Intervalminが0のときは強制的に5にする。
-	11AB02	データベース保存時、Intervalminが5でないときは強制的に5にする。
-	11AC00	開催中イベント一覧の機能を作成し関連箇所を修正する。
-	11AC01 FindPtPerSlot()でPrepare()に対するdefer Close()の抜けを補う。
-	11AC02 HandleListCntrb()でボーナスポイントに対する対応を行う。
-	11AC03 currentevent.gtpl 1行おきに背景色を変える。list-last_h.gtpl 結果が反映される時刻を正す。
-	11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。
-	11AE00	HandlerEventRoomList()でブロックイベントの参加ルーム一覧も表示できるようにする。
-	11AF00	開催予定イベント一覧の機能を追加する（HandlerScheduledEvent()）
-	11AF01	新規イベントの登録ができなくなった問題（＝11AD00の修正で発生したデグレード）に対応する
-	11AG00	srdblib.SelectFromEvent()の実行前にはsrdblib.Tevent = "event"を行う。 これはSelectFromEvent()の引数とすべき。
-	11AH00	HandlerCurrentEvent()で全イベント表示、データ取得中イベントのみ表示の切り替えを可能にする。
-	11AJ00	終了イベント一覧の作成でルームによる絞り込みを可能にする。
-	11AJ01	終了イベント一覧の作成でルームによる絞り込みを可能にする（不具合の修正）
-	11AJ02	開催中イベント、終了イベントに関する機能へのリンク切れを解消する。
-	11AJ03	終了イベントリスト、終了イベントルームリストの表示を改善する。
-	11AJ04	ページ遷移のレイアウトの共通化を行い、トップ画面を簡素化する。
-	11AK00	終了イベントでイベントIDとルームIDによる検索を可能にする。
-	11AL00	画面遷移のためのリンクを新しい機能に合わせる。list-cntrbSで目標値を変更できるようにする。
-	11AM00	開始前のイベントの登録は開催予定イベントのリストから行い、ルームの登録はイベント開始まで行わない件についてGetAndInsertEventRoomInfo()のフローを変更する。
-	11AN00	順位に関わりなくデータ取得の対象とするルームの追加でルーム検索を可能とするための準備を行う。
-	11AN01	api/room/profileでエラーを起きたときエラーの内容をログ出力する。
-	11AN02	HandlerNewUser() DBにユーザデータが存在しないときlongname、shortnameにAPIで取得した値をセットする。
-	11AP00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
-	11AP01	HandlerTopRoom()で日時範囲と表示数の設定を可能にする。
-	11AP02	GetUserInf()の抜けを補う。
-	11AQ00	掲示板機能を追加する。
-	11AQ01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
-	11AQ02	HandlerDispBbs()に関して掲示板ページに直接来てもログが表示されるようにする。
-	11AQ03	終了イベント一覧の表示：51件表示し、50件ずつスクロールする。
-	11AQ04	ログメッセージを変更する（HandleListCntrb(),HandleListCntrbD(),HandleListCntrbH()）
-			「(DB登録済み)イベント参加ルーム一覧（確認・編集）」で一覧にないルームを追加した直後の更新の不具合を修正する。
-			掲示板の「前ページ」、「次ページ」の操作を終了イベント一覧と同様にする。
-	11AQ05	Prepare()のあとのdefer stmt.Close()とdefer rows.Close()の抜けを補う。
-	11AR00	「枠別貢献ポイント一覧表」でリスナーさんの配信枠別貢献ポイントの履歴が表示されないことがある問題の修正。
-			ボット等からの接続を拒否（できるように）する。
-	11AS00	配信枠別貢献ポイントランキングでボット等から適正でないパラメータの要求を検出する。
-	11AT00	「イベント獲得ポイントランキング」でジャンルの指定を可能にする。
-	11AT01	MakePointPerDay()のログ出力を間引きする。
-	11AU00	終了したイベントの検索で、ルーム名、ルームIDで検索したとき、イベントの獲得ポイント上位のリストからイベント情報を見たとき該当ルームがどれかわかりやすくする。
-	11AV00	HandlerListLast()で確定値が発表されていないルームも表示するようにする。
-	11AV01	説明書きや表の項目名の修正
-	11AV02	scheduled-event.gtpl データ取得開始設定の説明を追加する。
-	11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
-	11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
-	11AW02	説明書きや表の項目名の修正(追加)
-	11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とする方法に変える。
-	11AY00	HandlerShowRank()（SHOWランク上位配信者を表示する）を導入する。gorpを導入する。
-	11AZ00	userテーブルへのINSERTはsrdblib.InsertIntoUser()を用い、userテーブルのPDATEは原則として行わない。
-	11BA00	Genre, GenreIDの変更にともなう暫定対応（HandlerTopRoom()）+ showrank.gtpl の説明を追加する。
-	11BB00	未使用の関数GetIsOnliveByAPI()の定義を削除する。グラフ画像ファイル名を生成順の連番とする。
-	11BB01	過去イベントの検索でルーム名、IDから絞り込む場合は開催中のイベントも検索対象に含める。
-	11BB02	画像ファイル名はCGIの場合は連番、独立したWebサーバーの場合はPIDの下３桁とする。
-	11BC00	JSONのデコードが失敗したときのもとデータ（bufstr）のログ出力をやめる（APIが期待する結果を戻さない場合があることがわかっているから）
-	11BC01	終了済イベントのソート順はendtime descを優先する。
-	11BD00	UpdateRoomInf()でistargetとiscntrbpointを"N"に設定することを禁止する。
-	11BD01	獲得ポイント取得対象ルームの範囲を指定しての登録は1〜20に限定する。
-	11BD02	獲得ポイントの推移のグラフの画面に「表示するルームを選ぶ」というボタンを追加する。
-	11BD03	獲得ポイントの推移のグラフの画面の「表示するルームを選ぶ」に「グラフの色を変える」を追加する。
-			グラフ表示の最大ルーム数のデフォルト値を10から20に変更する。
-	11BE00	長期間に渡るイベントのグラフの表示方法を調整する。
-	11BE01	グラフ表示の最大ルーム数のデフォルト値を10から20に変更する（修正）
-	11BE02	list-last_h.gtplで「このページはブックマーク可能です」の文言を追加する。
-	11BF00	GraphScore01()でデータが連続していないとき（点になるとき）はcanvas.Circle()で描画する。
-	11BG00	GetAndInsertEventRoomInfo()でルーム情報の取得をGetEventsRankingByApi()を使う。block_id=0に対応する。
-	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
-	11BH01	HandlerAddEvent()で起きているエラーの原因を特定するための情報を出力する。
-	11BH02	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
-	11BH02a	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
-	11BJ00	GetUserInf()でハンドラーが呼ばれたときのパラメータを表示する
-	11BJ01	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
-	11BK00	HandlerEventList()がApiRoomStatus()とApiRoomNext()でエラーを起こしても処理を継続する。
-	11BM00	HandlerListGiftScore()を作成する
-	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
-	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする準備をする。
-	11BN02	HandlerListGiftScore()でmaxacqとlimitを可変にする。
-	11BN03	HandlerListFanGiftScore()でmaxacqとlimitを可変にする。
-	11BN04	DrawLineGraph()を作成する準備をする。
-	11BN05	list-gs-h1.gtpl, list-vgs-h1.gtpl のレイアウトを調整する。
-	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
-	11BQ01	top.gtpl ギフトランキングのタイトルをより具体的にする
-	11BQ02	X軸の最小値を10,000から1,000に変更する
-	11BQ03	Viewerから（本来なかった）Ordernoを削除したことに対しSelectViewerid2Order()を修正する。
-	11BR00	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）を作成する
-	11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
-	11BS01	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）をギフトランキングから呼び出す
-
+0100L1	安定版（～2021.12.26）
+0100M0	vscodeでの指摘箇所の修正
+0101A0	LinuxとMySQL8.0に対応する。
+0101B0	OSとWebサーバに応じた処理を行うようにする。アクセスログを作成する。
+0101B1	実行時パラメータをファイルから与えるように変更する。
+0101C0	GetRoomInfoByAPI()に配信開始時刻の取得を追加する。
+0101D0	詳細なランク情報の導入（Nrank）
+0101D1	"Next Live"の表示を追加する。
+0101D2	GetScoreEvery5Minutes RU20E4 に適合するバージョン
+0101D3	ランクをshow_rank_subdividedからleague_labe + lshow_rank_subdivided にする。
+0101E1	環境設定ファイルをyaml形式に変更する。
+0101G0	配信枠別貢献ポイントを導入する。
+0101G1	list-last.gtplでは維新枠別貢献ポイントの記録があるルームのみリンクを作成する。
+0101G2	list-last.gtplにジャンルを追加した。
+0101G3	リスナー貢献ポイントの履歴の表示(list-cntrbH)を作成する。
+0101G4	一つの貢献ポイントランキングの表示(list-cntrbS)を作成する(リスナー名の突き合わせのチェックが主目的)
+0101G5	list-lasth.gtplのリロード予告の表示でデータ取得間隔が5分と固定されていたものを設定値に合わせるように変更する。
+0101G6	ModminがIntervalminに対して不適切な値のときは修正して保存する。
+0101G7	ランクに関しnext_scoreに加えprev_scoreの表示を追加する。ファンの数の表示を追加する。
+0101H0	ファンレベル(/fanlevel)に関する画面を追加する。
+0101J0	ファンダム王イベント参加者のファン数ランキングを作成する。
+0101J2	終了したイベントについては無条件にルーム詳細情報（ランキング、フォロワ、レベル、ファン数）を出力しない。
+0101J2a	"ルーム詳細情報”の説明を追加した。
+0101J3	イベントリストのRoom_IDに変えてルーム名を表示する。表示数を6から10にする。
+0101J4	NewDocument()をNewDocumentFromReader()に変更する。list-last_h.gtplにルーム情報詳細表示/非表示のボタンを追加する。
+0101J5	イベント選択（最近のイベント）にnobasisが0のイベントも表示する（テーブルuserにusernoが0のデータを追加することが必要）
+10AA00	枠別貢献ポイントの「目標値(推定)」を追加する。
+10AB00	枠別貢献ポイントのポイント、増分の表示でhumanaizeを使用する。リスナー別貢献ポイント履歴に達成状況欄を追加する。
+10AB01	WebserverをDbconfig.Webserverに置き換える。枠別貢献ポイントのGTPLを変更する。GTPLのCRLFをLFに変更する。
+10AC00	イベント一覧にModminとModsecを追加する。
+10AD00	longnameの初期値をusernameに変更する。Apache2LinuxをApache2Ubuntuに訂正する。
+10AD01	HandlerGraphPerDay()とHandlerGraphPerSlot()のApache2LinuxをApache2Ubuntuに訂正する。
+10AD02	SelectScoreList()で前配信期間、獲得ポイントのデータがないとき上位のデータがコピーして使われないようにする。
+10AE00	1. 貢献ポイントランキングの表示を詳細化する。　2. イベント情報ページの内容を表示できるようにする（次回更新準備）
+10AE00a	ルーム情報に下位ランクとの差を追加する（GTPLのみの変更）
+10AF00	ブロックランキングに対応する（Event_id=30030のみの暫定対応）
+10AF01	基準となる配信者のリストのサイズが0のときは対応する処理を行わない（異常終了対策、通常の運用では起きない）
+10AG00	イベントリストの取得件数を10から20に変更する。
+10AH00	stmt,err := Db.Prepare("...")　と対になる defer stmt.Close() を追加する。
+10AJ00	ブロックランキングに仮対応（Event_id=30030以外に拡張）する。イベントリストの表示イベント数を設定可能とする。
+10AK00	ブロックランキングのイベント名にblockidを追加する。獲得ポイントの取得時刻の初期値を分散させる。
+------------------------------------- 以下公開版 ----------------------------------------------
+10AL00	イベント情報にieventid（本来のイベントID、5桁程度の整数）を追加する。
+10AL01	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントデータを取得する設定とする。
+10AL02	イベントの配信者リストを取得するとき、順位にかかわらず獲得ポイントを表示する設定とする。
+10AM00	Room_url_keyから取り除く文字列を"/"から"/r/"に変更する。
+10AN00	ブロックランキングで貢献ポイントランキングへのリンクを作るときはイベントIDのからブロックIDを取り除く。
+10AP00	DBサーバーに接続するときSSHの使用を可能にする。
+10AQ00	GetWeightedCnt()で周回数の多い獲得ポイントの採用率が上がるように調整する。
+10AQ01	MakePointPerSlot()のperslotの変数宣言をループの中に入れる（毎回初期化されるように）
+11AA0l	データベースへのアクセスをsrdblibに移行しつつある。グラフ表示で縮尺の設定を可能とする。
+11AA02	intervalmin の値を5固定とする（異常終了に対する緊急対応）
+11AA03	intervalminとintervalmin の適正でない入力を排除する。
+11AB00	Event_Infの参照先をsrdblibからexsrapiに変更する。
+11AB01	データベース保存時、Intervalminが0のときは強制的に5にする。
+11AB02	データベース保存時、Intervalminが5でないときは強制的に5にする。
+11AC00	開催中イベント一覧の機能を作成し関連箇所を修正する。
+11AC01 FindPtPerSlot()でPrepare()に対するdefer Close()の抜けを補う。
+11AC02 HandleListCntrb()でボーナスポイントに対する対応を行う。
+11AC03 currentevent.gtpl 1行おきに背景色を変える。list-last_h.gtpl 結果が反映される時刻を正す。
+11AD00 「SHOWROOMイベント情報ページからDBへのイベント参加ルーム情報の追加と更新」でイベントパラーメータがクリアされる問題を解決する。
+11AE00	HandlerEventRoomList()でブロックイベントの参加ルーム一覧も表示できるようにする。
+11AF00	開催予定イベント一覧の機能を追加する（HandlerScheduledEvent()）
+11AF01	新規イベントの登録ができなくなった問題（＝11AD00の修正で発生したデグレード）に対応する
+11AG00	srdblib.SelectFromEvent()の実行前にはsrdblib.Tevent = "event"を行う。 これはSelectFromEvent()の引数とすべき。
+11AH00	HandlerCurrentEvent()で全イベント表示、データ取得中イベントのみ表示の切り替えを可能にする。
+11AJ00	終了イベント一覧の作成でルームによる絞り込みを可能にする。
+11AJ01	終了イベント一覧の作成でルームによる絞り込みを可能にする（不具合の修正）
+11AJ02	開催中イベント、終了イベントに関する機能へのリンク切れを解消する。
+11AJ03	終了イベントリスト、終了イベントルームリストの表示を改善する。
+11AJ04	ページ遷移のレイアウトの共通化を行い、トップ画面を簡素化する。
+11AK00	終了イベントでイベントIDとルームIDによる検索を可能にする。
+11AL00	画面遷移のためのリンクを新しい機能に合わせる。list-cntrbSで目標値を変更できるようにする。
+11AM00	開始前のイベントの登録は開催予定イベントのリストから行い、ルームの登録はイベント開始まで行わない件についてGetAndInsertEventRoomInfo()のフローを変更する。
+11AN00	順位に関わりなくデータ取得の対象とするルームの追加でルーム検索を可能とするための準備を行う。
+11AN01	api/room/profileでエラーを起きたときエラーの内容をログ出力する。
+11AN02	HandlerNewUser() DBにユーザデータが存在しないときlongname、shortnameにAPIで取得した値をセットする。
+11AP00	「最近のイベントの獲得ポイント上位のルーム」（HandlerTopRoom()）の機能を追加する。
+11AP01	HandlerTopRoom()で日時範囲と表示数の設定を可能にする。
+11AP02	GetUserInf()の抜けを補う。
+11AQ00	掲示板機能を追加する。
+11AQ01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
+11AQ02	HandlerDispBbs()に関して掲示板ページに直接来てもログが表示されるようにする。
+11AQ03	終了イベント一覧の表示：51件表示し、50件ずつスクロールする。
+11AQ04	ログメッセージを変更する（HandleListCntrb(),HandleListCntrbD(),HandleListCntrbH()）
+〃     「(DB登録済み)イベント参加ルーム一覧（確認・編集）」で一覧にないルームを追加した直後の更新の不具合を修正する。
+〃	    掲示板の「前ページ」、「次ページ」の操作を終了イベント一覧と同様にする。
+11AQ05	Prepare()のあとのdefer stmt.Close()とdefer rows.Close()の抜けを補う。
+11AR00	「枠別貢献ポイント一覧表」でリスナーさんの配信枠別貢献ポイントの履歴が表示されないことがある問題の修正。
+〃    	ボット等からの接続を拒否（できるように）する。
+11AS00	配信枠別貢献ポイントランキングでボット等から適正でないパラメータの要求を検出する。
+11AT00	「イベント獲得ポイントランキング」でジャンルの指定を可能にする。
+11AT01	MakePointPerDay()のログ出力を間引きする。
+11AU00	終了したイベントの検索で、ルーム名、ルームIDで検索したとき、イベントの獲得ポイント上位のリストからイベント情報を見たとき該当ルームがどれかわかりやすくする。
+11AV00	HandlerListLast()で確定値が発表されていないルームも表示するようにする。
+11AV01	説明書きや表の項目名の修正
+11AV02	scheduled-event.gtpl データ取得開始設定の説明を追加する。
+11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
+11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
+11AW02	説明書きや表の項目名の修正(追加)
+11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とする方法に変える。
+11AY00	HandlerShowRank()（SHOWランク上位配信者を表示する）を導入する。gorpを導入する。
+11AZ00	userテーブルへのINSERTはsrdblib.InsertIntoUser()を用い、userテーブルのPDATEは原則として行わない。
+11BA00	Genre, GenreIDの変更にともなう暫定対応（HandlerTopRoom()）+ showrank.gtpl の説明を追加する。
+11BB00	未使用の関数GetIsOnliveByAPI()の定義を削除する。グラフ画像ファイル名を生成順の連番とする。
+11BB01	過去イベントの検索でルーム名、IDから絞り込む場合は開催中のイベントも検索対象に含める。
+11BB02	画像ファイル名はCGIの場合は連番、独立したWebサーバーの場合はPIDの下３桁とする。
+11BC00	JSONのデコードが失敗したときのもとデータ（bufstr）のログ出力をやめる（APIが期待する結果を戻さない場合があることがわかっているから）
+11BC01	終了済イベントのソート順はendtime descを優先する。
+11BD00	UpdateRoomInf()でistargetとiscntrbpointを"N"に設定することを禁止する。
+11BD01	獲得ポイント取得対象ルームの範囲を指定しての登録は1〜20に限定する。
+11BD02	獲得ポイントの推移のグラフの画面に「表示するルームを選ぶ」というボタンを追加する。
+11BD03	獲得ポイントの推移のグラフの画面の「表示するルームを選ぶ」に「グラフの色を変える」を追加する。
+〃	    グラフ表示の最大ルーム数のデフォルト値を10から20に変更する。
+11BE00	長期間に渡るイベントのグラフの表示方法を調整する。
+11BE01	グラフ表示の最大ルーム数のデフォルト値を10から20に変更する（修正）
+11BE02	list-last_h.gtplで「このページはブックマーク可能です」の文言を追加する。
+11BF00	GraphScore01()でデータが連続していないとき（点になるとき）はcanvas.Circle()で描画する。
+11BG00	GetAndInsertEventRoomInfo()でルーム情報の取得をGetEventsRankingByApi()を使う。block_id=0に対応する。
+11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
+11BH01	HandlerAddEvent()で起きているエラーの原因を特定するための情報を出力する。
+11BH02	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
+11BH02a	GetAndInsertEventRoomInfo()でeregがルーム数より大きいときはeregをルーム数に変更する。
+11BJ00	GetUserInf()でハンドラーが呼ばれたときのパラメータを表示する
+11BJ01	top21.gtplで登録できる順位を20から50に拡張する（new-event0.gtplは20のままとする）
+11BK00	HandlerEventList()がApiRoomStatus()とApiRoomNext()でエラーを起こしても処理を継続する。
+11BM00	HandlerListGiftScore()を作成する
+11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
+11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする準備をする。
+11BN02	HandlerListGiftScore()でmaxacqとlimitを可変にする。
+11BN03	HandlerListFanGiftScore()でmaxacqとlimitを可変にする。
+11BN04	DrawLineGraph()を作成する準備をする。
+11BN05	list-gs-h1.gtpl, list-vgs-h1.gtpl のレイアウトを調整する。
+11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
+11BQ01	top.gtpl ギフトランキングのタイトルをより具体的にする
+11BQ02	X軸の最小値を10,000から1,000に変更する
+11BQ03	Viewerから（本来なかった）Ordernoを削除したことに対しSelectViewerid2Order()を修正する。
+11BR00	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）を作成する
+11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
+11BS01	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）をギフトランキングから呼び出す
+11BS02	グラフの凡例（ルーム名）の前に順位を表示する（すべてのルームのデータを表示するわけではないので）
 */
-
-const Version = "11BS01"
+const Version = "11BS02"
 
 /*
 type Event_Inf struct {
@@ -1468,7 +1466,6 @@ func GetAndInsertEventRoomInfo(
 		status = -1
 		return
 	}
-	
 
 	lenpr := len(pranking.Ranking)
 	if lenpr != 0 {
@@ -1479,13 +1476,13 @@ func GetAndInsertEventRoomInfo(
 		for i := breg; i <= ereg; i++ {
 			rinf := pranking.Ranking[i-1]
 			roominf := RoomInfo{
-				Name:       rinf.Room.Name,
-				ID:         strconv.Itoa(rinf.Room.RoomID),
-				Userno:		rinf.Room.RoomID,
-				Account:		"",
-				Point:		rinf.Point,
-				Order:		rinf.Rank,
-				Irank:		888888888,
+				Name:    rinf.Room.Name,
+				ID:      strconv.Itoa(rinf.Room.RoomID),
+				Userno:  rinf.Room.RoomID,
+				Account: "",
+				Point:   rinf.Point,
+				Order:   rinf.Rank,
+				Irank:   888888888,
 			}
 			*roominfolist = append(*roominfolist, roominf)
 		}
@@ -1509,17 +1506,17 @@ func GetAndInsertEventRoomInfo(
 
 	}
 
-	for i, rminf := range(*roominfolist) {
+	for i, rminf := range *roominfolist {
 		if rminf.Point < 0 {
 			(*roominfolist)[i].Spoint = ""
 		} else {
 			(*roominfolist)[i].Spoint = humanize.Comma(int64(rminf.Point))
 		}
 
-			if ( rminf.Userno ==  eventinfo.Nobasis ) {
-				(*eventinfo).Pntbasis = rminf.Point
-				(*eventinfo).Ordbasis = i
-			}
+		if rminf.Userno == eventinfo.Nobasis {
+			(*eventinfo).Pntbasis = rminf.Point
+			(*eventinfo).Ordbasis = i
+		}
 	}
 
 	//	ここまで新規作成
@@ -1711,7 +1708,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 		//	log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
 		user := new(srdblib.User)
 		user.Userno = (*roominfolist)[i].Userno
-		err := srdblib.UpinsUserSetProperty(client, tnow , user, 1440*5, 200)
+		err := srdblib.UpinsUserSetProperty(client, tnow, user, 1440*5, 200)
 		if err != nil {
 			log.Printf("srdblib.UpinsUserSetProperty(): err=%v\n", err)
 			return
@@ -3134,36 +3131,43 @@ func SelectLastEventList() (eventlist []Event, status int) {
 /*
 func OpenDb() (status int) {
 
-	status = 0
+		status = 0
 
-	if (*Dbconfig).Dbhost == "" {
-		(*Dbconfig).Dbhost = "localhost"
-	}
-	if (*Dbconfig).Dbport == "" {
-		(*Dbconfig).Dbport = "3306"
-	}
-	cnc := "@tcp"
-	if Dbconfig.UseSSH {
-		Dialer.Hostname = Sshconfig.Hostname
-		Dialer.Port = Sshconfig.Port
-		Dialer.Username = Sshconfig.Username
-		Dialer.Password = Sshconfig.Password
-		Dialer.PrivateKey = Sshconfig.PrivateKey
+		if (*Dbconfig).Dbhost == "" {
+			(*Dbconfig).Dbhost = "localhost"
+		}
+		if (*Dbconfig).Dbport == "" {
+			(*Dbconfig).Dbport = "3306"
+		}
+		cnc := "@tcp"
+		if Dbconfig.UseSSH {
+			Dialer.Hostname = Sshconfig.Hostname
+			Dialer.Port = Sshconfig.Port
+			Dialer.Username = Sshconfig.Username
+			Dialer.Password = Sshconfig.Password
+			Dialer.PrivateKey = Sshconfig.PrivateKey
 
-		mysqldrv.New(&Dialer).RegisterDial("ssh+tcp")
-		cnc = "@ssh+tcp"
-	}
-	cnc += "(" + Dbconfig.Dbhost + ":" + Dbconfig.Dbport + ")"
-	Db, Err = sql.Open("mysql", Dbconfig.Dbuser+":"+Dbconfig.Dbpw+cnc+"/"+Dbconfig.Dbname+"?parseTime=true&loc=Asia%2FTokyo")
+			mysqldrv.New(&Dialer).RegisterDial("ssh+tcp")
+			cnc = "@ssh+tcp"
+		}
+		cnc += "(" + Dbconfig.Dbhost + ":" + Dbconfig.Dbport + ")"
+		Db, Err = sql.Open("mysql", Dbconfig.Dbuser+":"+Dbconfig.Dbpw+cnc+"/"+Dbconfig.Dbname+"?parseTime=true&loc=Asia%2FTokyo")
 
-	if Err != nil {
-		status = -1
+		if Err != nil {
+			status = -1
+		}
+		return
 	}
-	return
-}
 */
+type IdAndRank struct {
+	Userno int
+	Rank   int
+}
 
-func SelectEventInfAndRoomList() (IDlist []int, status int) {
+func SelectEventInfAndRoomList() (
+	idandranklist []IdAndRank,
+	status int,
+) {
 
 	status = 0
 
@@ -3224,13 +3228,15 @@ func SelectEventInfAndRoomList() (IDlist []int, status int) {
 	//	log.Printf("MaxPoint=%d\n", Event_inf.MaxPoint)
 
 	//	-------------------------------------------------------------------
-	//	sql := "select user_id from points where event_id = ? and idx = ( select max(idx) from points where event_id = ? ) order by point desc"
-	sql = " select userno from eventuser "
-	sql += " where graph = 'Y' "
-	//	sql += " and eventno = ? "
-	sql += " and eventid = ? "
-	sql += " order by point desc"
-	stmt, err := srdblib.Db.Prepare(sql)
+	//	sql = " select userno from eventuser "
+	//	sql += " where graph = 'Y' "
+	//	//	sql += " and eventno = ? "
+	//	sql += " and eventid = ? "
+	//	sql += " order by point desc"
+	sqlst := "select p.user_id, p.`rank` from points p join eventuser eu on p.user_id = eu.userno and p.eventid = eu.eventid "
+	sqlst += " where p.eventid = ? and eu.graph = 'Y' "
+	sqlst += " and p.ts = ( select max(ts) from points where eventid = ? ) order by p.point desc "
+	stmt, err := srdblib.Db.Prepare(sqlst)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -3239,7 +3245,7 @@ func SelectEventInfAndRoomList() (IDlist []int, status int) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(Event_inf.Event_ID)
+	rows, err := stmt.Query(Event_inf.Event_ID, Event_inf.Event_ID)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -3248,17 +3254,18 @@ func SelectEventInfAndRoomList() (IDlist []int, status int) {
 	}
 	defer rows.Close()
 
-	id := 0
 	i := 0
+	userno := 0
+	rank := 0
 	for rows.Next() {
-		err := rows.Scan(&id)
+		err := rows.Scan(&userno, &rank)
 		if err != nil {
 			//	log.Fatal(err)
 			log.Printf("err=[%s]\n", err.Error())
 			status = -1
 			return
 		}
-		IDlist = append(IDlist, id)
+		idandranklist = append(idandranklist, IdAndRank{Userno: userno, Rank: rank})
 		i++
 		if i == Event_inf.Maxdsp {
 			break
@@ -4139,8 +4146,13 @@ func GraphDfr(eventid string) (filename string, status int) {
 	return
 }
 */
-
-func GraphScore01(filename string, IDlist []int, eventname string, period string, maxpoint int) {
+//	グラフを描画する＝SVGを作成する
+func GraphScore01(
+	filename string,
+	eventname string,
+	idandranklist []IdAndRank,
+	period string, maxpoint int,
+) {
 
 	//	描画領域を決定する
 	width := 3840.0
@@ -4151,6 +4163,7 @@ func GraphScore01(filename string, IDlist []int, eventname string, period string
 	lhmargin := height / 15.0
 	bstroke := width / 800.0
 
+	//  描画範囲の大きさ
 	vwidth := width - lwmargin - rwmargin
 	vheight := height - uhmargin - lhmargin
 
@@ -4308,11 +4321,11 @@ func GraphScore01(filename string, IDlist []int, eventname string, period string
 	//	獲得ポイントデータを描画する
 
 	j := 0
-	for _, id := range IDlist {
+	for _, iar := range idandranklist {
 
-		_, cvalue, _ := SelectUserColor(id, Event_inf.Event_ID)
+		_, cvalue, _ := SelectUserColor(iar.Userno, Event_inf.Event_ID)
 
-		x, y := SelectScoreList(id)
+		x, y := SelectScoreList(iar.Userno)
 		maxp := 20
 
 		//	no := len(*x)
@@ -4370,35 +4383,42 @@ func GraphScore01(filename string, IDlist []int, eventname string, period string
 			canvas.Circle(xo[0], yo[0], bstroke*1.5, "fill=\""+cvalue+"\" stroke=\""+cvalue+"\"")
 		}
 
-		xln := xorigin + vwidth + bstroke*30.0
+		//	凡例
+		xln := xorigin + vwidth + bstroke*10.0
 		yln := yorigin - vheight + bstroke*10*float64(j)
 
-		canvas.Line(xln, yln, xln+rwmargin/4.0, yln, "stroke=\""+cvalue+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
+		canvas.Line(xln, yln, xln+bstroke*20.0, yln, "stroke=\""+cvalue+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
 		//	canvas.Text(xln+rwmargin/3.0, yln+bstroke*2.5, fmt.Sprintf("%d", IDlist[j]),
 		//		"text-anchor:start;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-		longname, _, _, _, _, _, _, _, _, _, sts := SelectUserName(IDlist[j])
+		longname, _, _, _, _, _, _, _, _, _, sts := SelectUserName(idandranklist[j].Userno)
 		if sts != 0 {
-			longname = fmt.Sprintf("%d", IDlist[j])
+			longname = fmt.Sprintf("%d", idandranklist[j].Userno)
 		}
-		canvas.Text(xln+rwmargin/3.0, yln+bstroke*2.5, longname,
+		srank := "  -."
+		if idandranklist[j].Rank > 0 {
+			srank = fmt.Sprintf("%3d.", idandranklist[j].Rank)
+
+		}
+		canvas.Text(xln+bstroke*25.0, yln+bstroke*2.5, srank+longname,
 			"text-anchor:start;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
 
 		j++
 	}
-	xln := xorigin + vwidth + bstroke*30.0
+
+	//  ターゲットラインの凡例
+	xln := xorigin + vwidth + bstroke*10.0
 	yln := yorigin - vheight + bstroke*10*float64(j)
 
-	canvas.Line(xln, yln, xln+rwmargin/4.0, yln, `stroke="white" stroke-width="`+fmt.Sprintf("%.2f", bstroke*0.5)+`" stroke-dasharray="20,10"`)
+	canvas.Line(xln, yln, xln+bstroke*20.0, yln, `stroke="white" stroke-width="`+fmt.Sprintf("%.2f", bstroke*0.5)+`" stroke-dasharray="20,10"`)
 	//	canvas.Text(xln+rwmargin/3.0, yln+bstroke*2.5, fmt.Sprintf("%d", IDlist[j]),
 	//		"text-anchor:start;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-	canvas.Text(xln+rwmargin/3.0, yln+bstroke*2.5, "Target",
+	canvas.Text(xln+bstroke*25.0, yln+bstroke*2.5, "Target",
 		"text-anchor:start;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
 
 	canvas.End()
 
 	bw.Flush()
 	file.Close()
-
 }
 
 var Nfseq int
@@ -4409,7 +4429,7 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 
 	Event_inf.Event_ID = eventid
 
-	IDlist, sts := SelectEventInfAndRoomList()
+	idandranklist, sts := SelectEventInfAndRoomList()
 
 	if sts != 0 {
 		log.Printf("status of SelectEventInfAndRoomList() =%d\n", sts)
@@ -4424,16 +4444,18 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 	UpdateEventInf(&Event_inf)
 
 	if Serverconfig.WebServer == "None" {
+		//	Webサーバーとして起動するときは、起動した直後を0とする連番（の下3桁）とする
 		filename = fmt.Sprintf("%03d.svg", Nfseq)
 		Nfseq = (Nfseq + 1) % 1000
 	} else {
+		//	CGIのときはプロセスID（の下3桁）とする。
 		filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)
 		//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		//	filename = fmt.Sprintf("%0d.svg", r.Intn(100))
 
 	}
-
-	GraphScore01(filename, IDlist, eventname, period, maxpoint)
+	//	グラフを描画する
+	GraphScore01(filename, eventname, idandranklist, period, maxpoint)
 
 	/*
 		fmt.Printf("Content-type:text/html\n\n")
@@ -4948,11 +4970,11 @@ func GetUserInf(r *http.Request) (
 	if err := r.ParseForm(); err != nil {
 		log.Printf("Error: %v\n", err)
 		return
-    }
+	}
 
-    for k, v := range r.Form {
-        log.Printf("%12v : %v\n", k, v)
-    }
+	for k, v := range r.Form {
+		log.Printf("%12v : %v\n", k, v)
+	}
 
 	return
 }
@@ -5272,12 +5294,16 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 
 	eventid := req.FormValue("eventid")
 	//	maxpoint, _ := strconv.Atoi(req.FormValue("maxpoint"))
+
+	//	描画するポイントの上限を指定する（0であれば制限しない）
 	smaxpoint := req.FormValue("maxpoint")
 	maxpoint, _ := strconv.Atoi(smaxpoint)
 	if maxpoint < 10000 {
 		maxpoint = 0
 		smaxpoint = "0"
 	}
+
+	//　縮尺、ブラウザの横幅100%としたときの縮尺、0指定または指定なしは100%とみなす。
 	sgscale := req.FormValue("gscale")
 	if sgscale == "" || sgscale == "0" {
 		sgscale = "100"
@@ -5301,15 +5327,21 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 			gschk100 = "checked"
 		}
 	*/
+	//	resetcolor=on であればグラフの描画色をColorlist1またはColorlist2で初期化する
 	resetcolor := req.FormValue("resetcolor")
 
 	log.Printf("      eventid=%s maxpoint=%d(%s) resetcolor=[%s]\n", eventid, maxpoint, smaxpoint, resetcolor)
 
 	if resetcolor == "on" {
+		//	グラフの描画色を初期化する
+		log.Printf("      Resetcolor(): eventid=%s\n", eventid)
 		Resetcolor(eventid)
 	}
 
+	//		グラフを作成する
 	filename, _ := GraphTotalPoints(eventid, maxpoint, gscale)
+
+	//	環境に応じてファイルのパスを決定する（Webサーバーとして起動した場合、パス指定がなければ/publicを参照する）
 	if Serverconfig.WebServer == "nginxSakura" {
 		rootPath := os.Getenv("SCRIPT_NAME")
 		rootPathFields := strings.Split(rootPath, "/")
@@ -5351,23 +5383,23 @@ func Resetcolor(eventid string) error {
 
 	rows, err := srdblib.Dbmap.Select(srdblib.Eventuser{},
 		"select * from eventuser where eventid = ? order by point desc", eventid)
-    if err != nil {
-        err = fmt.Errorf("Resetcolor(): %w", err)
+	if err != nil {
+		err = fmt.Errorf("Resetcolor(): %w", err)
 		return err
-    }
+	}
 
-    for i, row := range rows {
+	for i, row := range rows {
 		if erow.(*srdblib.Event).Cmap == 1 {
-			row.(*srdblib.Eventuser).Color = Colorlist1[i % len(Colorlist1)].Name
+			row.(*srdblib.Eventuser).Color = Colorlist1[i%len(Colorlist1)].Name
 		} else {
-			row.(*srdblib.Eventuser).Color = Colorlist2[i % len(Colorlist2)].Name
+			row.(*srdblib.Eventuser).Color = Colorlist2[i%len(Colorlist2)].Name
 		}
-			_, err = srdblib.Dbmap.Update(row)
-			if err != nil {
-				err = fmt.Errorf("Resetcolor(): %w", err)
-				return err
-			}
-    }
+		_, err = srdblib.Dbmap.Update(row)
+		if err != nil {
+			err = fmt.Errorf("Resetcolor(): %w", err)
+			return err
+		}
+	}
 	return nil
 }
 
@@ -5771,7 +5803,7 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 			values["Msg2color"] = "red"
 		} else {
 			_, _, _, peventid := GetPointsByAPI(roomid)
-			if strings.Contains(eventid , "?block_id=0") {
+			if strings.Contains(eventid, "?block_id=0") {
 				eida := strings.Split(eventid, "?")
 				if strings.Contains(peventid, eida[0]) {
 					//	block_id=0 はブロックイベントの全体を意味するのでいかなるblock_idのルームもこれに属する。
