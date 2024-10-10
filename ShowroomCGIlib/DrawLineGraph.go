@@ -61,6 +61,7 @@ func DrawLineGraph(
 	target int, //	目標ポイント
 	start_time time.Time, //	イベント開始時刻
 	end_time time.Time, //	イベント終了時刻
+	cmap int, // グラフの描画に使用するカラーマップ
 	deltax float64,	//	データ間隔がこの時間を超えたら接続しない(day)
 	IDlist []int,
 	xydata *[]Xydata,
@@ -235,7 +236,7 @@ func DrawLineGraph(
 	for idx := range IDlist {
 
 		//	_, cvalue, _ := SelectUserColor(id, eventid)
-		cvalue := Colorlist1[idx % len(Colorlist1)].Value
+		cvalue := Colormaplist[cmap][idx % len(Colormaplist[cmap])].Value
 
 		//	x, y := SelectScoreList(id)
 		x := &(*xydata)[j].X

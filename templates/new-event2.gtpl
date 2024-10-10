@@ -2,6 +2,7 @@
 <tr><td></td><td>最大表示数</td><td><input type="text" name="maxdsp" value="25" size="2" required pattern="[0-9]+"></td></tr>
 <tr><td></td><td>カラーマップ</td><td>
 <select name="cmap">
+<option value="0">0</option>
 <option value="1">1</option>
 <option value="2" selected>2</option>
 </select>

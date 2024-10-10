@@ -228,6 +228,7 @@ func GraphGiftScore(
 		target,                //	目標ポイント
 		giftranking.Startedat, //	イベント開始時刻 time.Time
 		giftranking.Endedat,   //	イベント終了時刻 time.Time
+		0, // グラフ描画に使用するカラーマップ
 		1.1,                   //	データ間隔がこの時間を超えたら接続しない(day)
 		IDlist,
 		&xydata,

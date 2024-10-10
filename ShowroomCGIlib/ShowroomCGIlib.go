@@ -186,8 +186,9 @@ import (
 11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
 11BS01	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）をギフトランキングから呼び出す
 11BS02	グラフの凡例（ルーム名）の前に順位を表示する（すべてのルームのデータを表示するわけではないので）
+11BS03	グラフ表示にあたらしいカラーマップを追加し、カラーマップの扱い方を変更する
 */
-const Version = "11BS02"
+const Version = "11BS03"
 
 /*
 type Event_Inf struct {
@@ -384,9 +385,87 @@ type Color struct {
 	Name  string
 	Value string
 }
+type Colormap []Color
 
 // https://www.fukushihoken.metro.tokyo.lg.jp/kiban/machizukuri/kanren/color.files/colorudguideline.pdf
-var Colorlist2 []Color = []Color{
+var Colormaplist []Colormap = []Colormap{
+	{
+		{"#00FFFF", "#00FFFF"},
+		{"#FF00FF", "#FF00FF"},
+		{"#FFFF00", "#FFFF00"},
+		//	-----
+		{"#7F7FFF", "#7F7FFF"},
+		{"#FF7F7F", "#FF7F7F"},
+		{"#7FFF7F", "#7FFF7F"},
+
+		{"#7FBFFF", "#7FBFFF"},
+		{"#FF7FBF", "#FF7FBF"},
+		{"#BFFF7F", "#BFFF7F"},
+
+		{"#7FFFFF", "#7FFFFF"},
+		{"#FF7FFF", "#FF7FFF"},
+		{"#FFFF7F", "#FFFF7F"},
+
+		{"#7FFFBF", "#7FFFBF"},
+		{"#BF7FFF", "#BF7FFF"},
+		{"#FFBF7F", "#FFBF7F"},
+		//	-----
+		{"#ADADFF", "#ADADFF"},
+		{"#FFADAD", "#FFADAD"},
+		{"#ADFFAD", "#7FFFAD"},
+
+		{"#ADD6FF", "#ADD6FF"},
+		{"#FFADD6", "#FFADD6"},
+		{"#D6FFAD", "#D6FFAD"},
+
+		{"#ADFFFF", "#ADFFFF"},
+		{"#FFADFF", "#FFADFF"},
+		{"#FFFFAD", "#FFFFAD"},
+
+		{"#ADFFD6", "#ADFFD6"},
+		{"#D6ADFF", "#D6ADFF"},
+		{"#FFD6AD", "#FFD6AD"},
+	},
+	{
+		{"cyan", "cyan"},
+		{"magenta", "magenta"},
+		{"yellow", "yellow"},
+		{"royalblue", "royalblue"},
+		{"coral", "coral"},
+		{"khaki", "khaki"},
+		{"deepskyblue", "deepskyblue"},
+		{"crimson", "crimson"},
+		{"orange", "orange"},
+		{"lightsteelblue", "lightsteelblue"},
+		{"pink", "pink"},
+		{"sienna", "sienna"},
+		{"springgreen", "springgreen"},
+		{"blueviolet", "blueviolet"},
+		{"salmon", "salmon"},
+		{"lime", "lime"},
+		{"red", "red"},
+		{"darkorange", "darkorange"},
+		{"skyblue", "skyblue"},
+		{"lightpink", "lightpink"},
+	},
+	{
+		{"red", "#FF2800"},
+		{"yellow", "#FAF500"},
+		{"green", "#35A16B"},
+		{"blue", "#0041FF"},
+		{"skyblue", "#66CCFF"},
+		{"lightpink", "#FFD1D1"},
+		{"orange", "#FF9900"},
+		{"purple", "#9A0079"},
+		{"brown", "#663300"},
+		{"lightgreen", "#87D7B0"},
+		{"white", "#FFFFFF"},
+		{"gray", "#77878F"},
+	},
+}
+
+/*
+var Colorlist2 Colormap = []Color{
 	{"red", "#FF2800"},
 	{"yellow", "#FAF500"},
 	{"green", "#35A16B"},
@@ -423,6 +502,7 @@ var Colorlist1 []Color = []Color{
 	{"skyblue", "skyblue"},
 	{"lightpink", "lightpink"},
 }
+*/
 
 type Event struct {
 	EventID   string
@@ -1068,17 +1148,19 @@ func SelectEventRoomInfList(
 	}
 	defer rows.Close()
 
-	ColorlistA := Colorlist2
-	ColorlistB := Colorlist1
-	if Event_inf.Cmap == 1 {
-		ColorlistA = Colorlist1
-		ColorlistB = Colorlist2
-	}
+	//	ColorlistA := Colormaplist[Event_inf.Cmap]
+	//	ColorlistB := Colormaplist[1]
+	//	if Event_inf.Cmap == 1 {
+	//		ColorlistA = Colormaplist[1]
+	//		ColorlistB = Colormaplist[2]
+	//	}
 
+	//	色コードから色名に変換するマップを作る
+	//	FIXME: Colormap とは違う、まぎらわしい
 	colormap := make(map[string]int)
-
-	for i := 0; i < len(ColorlistA); i++ {
-		colormap[ColorlistA[i].Name] = i
+	cmap := Event_inf.Cmap
+	for i := 0; i < len(Colormaplist[cmap]); i++ {
+		colormap[Colormaplist[cmap][i].Name] = i
 	}
 
 	var roominf RoomInfo
@@ -1104,23 +1186,34 @@ func SelectEventRoomInfList(
 			&roominf.Iscntrbpoint,
 			&roominf.Point,
 		)
-
+		//	FIXME: 色コードでない色名を使えることが問題ではないか？
+		//	色名を色コードに変換する
 		ci := 0
-		for ; ci < len(ColorlistA); ci++ {
-			if ColorlistA[ci].Name == roominf.Color {
-				roominf.Colorvalue = ColorlistA[ci].Value
+		for ; ci < len(Colormaplist[cmap]); ci++ {
+			if Colormaplist[cmap][ci].Name == roominf.Color {
+				roominf.Colorvalue = Colormaplist[cmap][ci].Value
 				break
 			}
 		}
-		if ci == len(ColorlistA) {
-			ci := 0
-			for ; ci < len(ColorlistB); ci++ {
-				if ColorlistB[ci].Name == roominf.Color {
-					roominf.Colorvalue = ColorlistB[ci].Value
+		ii := 0
+		if ci == len(Colormaplist[cmap]) {
+			var cii int
+			for ; ii < len(Colormaplist); ii++ {
+				if ii == Event_inf.Cmap {
+					continue
+				}
+				cii = 0
+				for ; cii < len(Colormaplist[ii]); cii++ {
+					if Colormaplist[ii][cii].Name == roominf.Color {
+						roominf.Colorvalue = Colormaplist[ii][cii].Value
+						break
+					}
+				}
+				if cii != len(Colormaplist[ii]) {
 					break
 				}
 			}
-			if ci == len(ColorlistB) {
+			if cii == len(Colormaplist[ii]) {
 				roominf.Colorvalue = roominf.Color
 			}
 		}
@@ -1156,11 +1249,11 @@ func SelectEventRoomInfList(
 			return
 		}
 		//	var colorinf ColorInf
-		colorinflist := make([]ColorInf, len(ColorlistA))
+		colorinflist := make([]ColorInf, len(Colormaplist[cmap]))
 
-		for i := 0; i < len(ColorlistA); i++ {
-			colorinflist[i].Color = ColorlistA[i].Name
-			colorinflist[i].Colorvalue = ColorlistA[i].Value
+		for i := 0; i < len(Colormaplist[cmap]); i++ {
+			colorinflist[i].Color = Colormaplist[cmap][i].Name
+			colorinflist[i].Colorvalue = Colormaplist[cmap][i].Value
 		}
 
 		roominf.Colorinflist = colorinflist
@@ -1998,10 +2091,7 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 		return
 	}
 
-	Colorlist := Colorlist2
-	if Event_inf.Cmap == 1 {
-		Colorlist = Colorlist1
-	}
+	Colorlist := Colormaplist[Event_inf.Cmap]
 
 	if nrow == 0 {
 		sql := "INSERT INTO eventuser(eventid, userno, istarget, graph, color, iscntrbpoints, point) VALUES(?,?,?,?,?,?,?)"
@@ -2571,10 +2661,7 @@ func SelectUserColor(userno int, eventid string) (
 	status int,
 ) {
 
-	Colorlist := Colorlist2
-	if Event_inf.Cmap == 1 {
-		Colorlist = Colorlist1
-	}
+	Colorlist := Colormaplist[Event_inf.Cmap]
 
 	status = 0
 
@@ -5335,7 +5422,7 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 	if resetcolor == "on" {
 		//	グラフの描画色を初期化する
 		log.Printf("      Resetcolor(): eventid=%s\n", eventid)
-		Resetcolor(eventid)
+		Resetcolor(eventid, -1)
 	}
 
 	//		グラフを作成する
@@ -5373,12 +5460,20 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func Resetcolor(eventid string) error {
+//	グラフの色設定を初期化する。
+//  指定されたカラーマップを1位から順番にわりあてる。
+func Resetcolor(
+	eventid string,	//	色設定初期化の対象となるイベントのイベントID
+	cmap int,	//	初期化に使うカラーマップ番号、 −1のときはEvent情報からカラーマップ番号を取得する
+) error {
 
-	erow, err := srdblib.Dbmap.Get(srdblib.Event{}, eventid)
-	if err != nil {
-		err = fmt.Errorf("Resetcolor(): %w", err)
-		return err
+	if cmap < 0 {
+		erow, err := srdblib.Dbmap.Get(srdblib.Event{}, eventid)
+		if err != nil {
+			err = fmt.Errorf("Resetcolor(): %w", err)
+			return err
+		}
+		cmap = erow.(*srdblib.Event).Cmap
 	}
 
 	rows, err := srdblib.Dbmap.Select(srdblib.Eventuser{},
@@ -5387,14 +5482,9 @@ func Resetcolor(eventid string) error {
 		err = fmt.Errorf("Resetcolor(): %w", err)
 		return err
 	}
-
 	for i, row := range rows {
-		if erow.(*srdblib.Event).Cmap == 1 {
-			row.(*srdblib.Eventuser).Color = Colorlist1[i%len(Colorlist1)].Name
-		} else {
-			row.(*srdblib.Eventuser).Color = Colorlist2[i%len(Colorlist2)].Name
-		}
-		_, err = srdblib.Dbmap.Update(row)
+		row.(*srdblib.Eventuser).Color = Colormaplist[cmap][i%len(Colormaplist[cmap])].Name
+		_, err = srdblib.Dbmap.Update(row.(*srdblib.Eventuser))
 		if err != nil {
 			err = fmt.Errorf("Resetcolor(): %w", err)
 			return err
@@ -6038,6 +6128,8 @@ func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
 
 		"Stm": fmt.Sprintf("%d", stm),
 		"Sts": fmt.Sprintf("%d", sts),
+
+		"Maxcmap": strconv.Itoa(len(Colormaplist)),
 	}
 
 	var eventinf exsrapi.Event_Inf
@@ -6186,7 +6278,11 @@ func HandlerParamEventC(w http.ResponseWriter, r *http.Request) {
 	eventinf.Nobasis, _ = strconv.Atoi(r.FormValue("nobasis"))
 	eventinf.Target, _ = strconv.Atoi(r.FormValue("target"))
 	eventinf.Maxdsp, _ = strconv.Atoi(r.FormValue("maxdsp"))
-	eventinf.Cmap, _ = strconv.Atoi(r.FormValue("cmap"))
+	ncmap, _ := strconv.Atoi(r.FormValue("cmap"))
+	if eventinf.Cmap != ncmap {
+		Resetcolor(eventinf.Event_ID, ncmap)
+		eventinf.Cmap = ncmap
+	}
 
 	//	UpdateEventInf(&eventinf)
 	UpdateEventInf(eventinf)

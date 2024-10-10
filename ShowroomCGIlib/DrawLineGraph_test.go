@@ -81,6 +81,7 @@ func TestDrawLineGraph(t *testing.T) {
 		target     int
 		start_time time.Time
 		end_time   time.Time
+		cmap       int
 		deltax     float64
 		IDlist     []int
 		xydata     *[]Xydata
@@ -141,9 +142,10 @@ func TestDrawLineGraph(t *testing.T) {
 				target:     12000,
 				start_time: ts,
 				end_time:   te,
+				cmap:       0,
 				deltax:     1.1,
 				IDlist:     []int{87911, 111004, 75721},
-				xydata: &[]Xydata {
+				xydata: &[]Xydata{
 					{
 						X: []float64{1.0, 2.0, 5.0},
 						Y: []float64{200.0, 1000.0, 2000.0},
@@ -161,7 +163,7 @@ func TestDrawLineGraph(t *testing.T) {
 			wantErr: false,
 		},
 	}
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := DrawLineGraph(
@@ -174,10 +176,12 @@ func TestDrawLineGraph(t *testing.T) {
 				tt.args.target,
 				tt.args.start_time,
 				tt.args.end_time,
+				tt.args.cmap,
 				tt.args.deltax,
 				tt.args.IDlist,
 				tt.args.xydata); (err != nil) != tt.wantErr {
 				t.Errorf("DrawLineGraph() error = %v, wantErr %v", err, tt.wantErr)
-		}})
+			}
+		})
 	}
 }

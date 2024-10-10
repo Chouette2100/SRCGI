@@ -80,7 +80,7 @@
         <a href="scheduledevents">開催予定イベント一覧</a> （1.獲得ポイントデータを取得の予約を行うイベントを選択する）
     </p>
     <p style="padding-left:2em">
-        <a href="closedevents">終了イベント一覧</a> （1.過去のイベントを検索し結果を参照する）
+        <a href="closedevents">終了イベント一覧</a> （1.過去のイベントを検索し結果を参照する<span style="color: red">、ルームによる検索は開催中イベントも検索対象</span>）
     </p>
     <br>
     <p style="padding-left:2em">
