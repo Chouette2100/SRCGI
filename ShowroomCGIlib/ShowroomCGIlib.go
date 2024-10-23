@@ -187,8 +187,9 @@ import (
 11BS01	ギフトランキング貢献ランキング（HandlerGiftScoreCntrb()）をギフトランキングから呼び出す
 11BS02	グラフの凡例（ルーム名）の前に順位を表示する（すべてのルームのデータを表示するわけではないので）
 11BS03	グラフ表示にあたらしいカラーマップを追加し、カラーマップの扱い方を変更する
+11BT00	localhostからログインしたときは開催予定のイベントのルームを登録できる
 */
-const Version = "11BS03"
+const Version = "11BT00"
 
 /*
 type Event_Inf struct {
@@ -1546,21 +1547,27 @@ func GetAndInsertEventRoomInfo(
 
 	//	ここから
 
+	lenpr := 0
 	eid := eventid
-	if strings.Contains(eventid, "?block_id=0") {
-		//	Block_id=0 は特殊で、ブロックイベントを構成するイベントの一つということではなくイベント全体を示す
-		eid = strings.ReplaceAll(eventid, "?block_id=0", "")
-	}
+	//	if strings.Contains(eventid, "?block_id=0") {
+	//		//	Block_id=0 は特殊で、ブロックイベントを構成するイベントの一つということではなくイベント全体を示す
+	//		eid = strings.ReplaceAll(eventid, "?block_id=0", "")
+	//	}
 	//	ランキングイベントの1〜50位の結果を取得する。
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
 	pranking, err := srdblib.GetEventsRankingByApi(client, eid, 2)
-	if err != nil {
+	if err != nil && !Localhost {
 		log.Printf("GetAndInsertEventRoomInfo() GetEventsRankingByApi(client, %s, 2) err=%s\n", eid, err.Error())
 		status = -1
 		return
+	} else {
+		if Localhost {
+			lenpr = 0
+		} else {
+			lenpr = len(pranking.Ranking)
+		}
 	}
 
-	lenpr := len(pranking.Ranking)
 	if lenpr != 0 {
 		//	for _, rinf := range(pranking.Ranking) {
 		if ereg > lenpr {
@@ -1644,7 +1651,7 @@ func GetAndInsertEventRoomInfo(
 	log.Println("GetAndInsertEventRoomInfo() after InsertEventIinf() or UpdateEventInf")
 	log.Println(*eventinfo)
 
-	if eventinfo.Start_time.After(time.Now()) {
+	if eventinfo.Start_time.After(time.Now()) && !Localhost {
 		//	イベント開始前のルームの登録は行わない。
 		return
 	}
@@ -5017,6 +5024,8 @@ func Mark(j int, canvas *svg.SVG, x0, y0, d float64, color string) {
 /*
 ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 */
+var Localhost bool
+
 func GetUserInf(r *http.Request) (
 	ra string,
 	ua string,
@@ -5041,8 +5050,15 @@ func GetUserInf(r *http.Request) (
 		ra = rapa[0]
 	} else {
 		ra = "127.0.0.1"
+		Localhost = true
 	}
 	ua = r.UserAgent()
+
+	if ra == "127.0.0.1" {
+		Localhost = true
+	} else {
+		Localhost = false
+	}
 
 	log.Printf("  *** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 	//	fmt.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
@@ -5460,11 +5476,11 @@ func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//	グラフの色設定を初期化する。
-//  指定されたカラーマップを1位から順番にわりあてる。
+//		グラフの色設定を初期化する。
+//	 指定されたカラーマップを1位から順番にわりあてる。
 func Resetcolor(
-	eventid string,	//	色設定初期化の対象となるイベントのイベントID
-	cmap int,	//	初期化に使うカラーマップ番号、 −1のときはEvent情報からカラーマップ番号を取得する
+	eventid string, //	色設定初期化の対象となるイベントのイベントID
+	cmap int, //	初期化に使うカラーマップ番号、 −1のときはEvent情報からカラーマップ番号を取得する
 ) error {
 
 	if cmap < 0 {
@@ -5828,20 +5844,22 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("eventname=%s, period=%s\n", Event_inf.Event_name, Event_inf.Period)
 
-	genre, rank, nrank, prank, level, followers, fans, fans_lst, roomname, roomurlkey, _, status := GetRoomInfoByAPI(roomid)
+	genre, rank, nrank, prank, level, followers, fans, fans_lst, roomname, roomurlkey, _, status_api := GetRoomInfoByAPI(roomid)
 	log.Printf("genre=%s, level=%d, followers=%d, fans=%d, fans_lst=%d, roomname=%s, roomurlkey=%s, status=%d\n",
-		genre, level, followers, fans, fans_lst, roomname, roomurlkey, status)
+		genre, level, followers, fans, fans_lst, roomname, roomurlkey, status_api)
 
 	userno, _ := strconv.Atoi(roomid)
-	roominf, status := SelectRoomInf(userno)
+	roominf, status_room := SelectRoomInf(userno)
 
 	longname := roominf.Longname
 	shortname := roominf.Shortname
-	if status != 0 {
+	status_col := -1
+	if status_api != 0 {
 		longname = roomname
 		shortname = fmt.Sprintf("%d", userno%100)
 	} else {
-		_, _, status = SelectUserColor(userno, Event_inf.Event_ID)
+		//	eventuserから色割当を取得する　=> 取得できなければ未登録、取得できればイベントに登録済み
+		_, _, status_col = SelectUserColor(userno, Event_inf.Event_ID)
 	}
 
 	values := map[string]string{
@@ -5864,19 +5882,25 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 		"Submit":     "submit",
 		"Label":      "登録しない",
 		"Msg1":       "の参加ルームとして",
-		"Msg2":       "を登録しますか？",
+		"Msg2":       "を登録しますか？（（実害はありませんが）ブロックイベントはblock_idが違っていても登録されるので注意してください）",
 		"Msg2color":  "black",
 	}
 
-	if status == 0 {
+	if status_col == 0 {
 		values["Submit"] = "hidden"
 		values["Label"] = "戻る"
 		values["Msg1"] = "の参加ルームとして"
 		values["Msg2"] = "すでに登録されています"
 		values["Msg2color"] = "red"
+	} else if status_room != 0 {
+		values["Submit"] = "hidden"
+		values["Label"] = "戻る"
+		values["Msg1"] = ""
+		values["Msg2"] = "ルーム情報がDB未登録です"
+		values["Msg2color"] = "red"
 	} else {
 
-		if roomname == "" {
+		if roomname == "" { //	status_api != 0 と等価
 			values["Roomname"] = ""
 			values["Roomurlkey"] = ""
 			values["Genre"] = ""
@@ -5889,11 +5913,11 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 			values["Submit"] = "hidden"
 			values["Label"] = "戻る"
 			values["Msg1"] = ""
-			values["Msg2"] = "指定したルームIDのルームは存在しません。"
+			values["Msg2"] = "指定したルームIDのルームは存在しないか、ルーム情報の取得ができません"
 			values["Msg2color"] = "red"
 		} else {
 			_, _, _, peventid := GetPointsByAPI(roomid)
-			if strings.Contains(eventid, "?block_id=0") {
+			if strings.Contains(eventid, "?block_id=") {
 				eida := strings.Split(eventid, "?")
 				if strings.Contains(peventid, eida[0]) {
 					//	block_id=0 はブロックイベントの全体を意味するのでいかなるblock_idのルームもこれに属する。
@@ -5975,8 +5999,12 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	srdblib.Tevent = "event"
 		eventinf, _ = srdblib.SelectFromEvent("event", eventid)
 
-		log.Println("  Called. not 'from new-event'")
-		log.Println(eventinf)
+		//	w.Write([]byte("Called. not 'from new-event'\n"))
+		log.Printf("  Called. not 'from new-event'\n")
+
+		bufstr := fmt.Sprintf("eventinf=%+v\n", eventinf)
+		//	w.Write([]byte(bufstr))
+		log.Printf("%s\n", bufstr)
 	} else {
 		//	新規にイベントを登録するとき
 		//	eventinf = &exsrapi.Event_Inf{}
@@ -6022,7 +6050,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 	starttimeafternow := false
 	status := 0
-	if eventinf.Start_time.After(time.Now()) {
+	if eventinf.Start_time.After(time.Now()) && !Localhost {
 		//	開催予定のイベント
 		starttimeafternow = true
 		status = InsertEventInf(eventinf)
@@ -6049,7 +6077,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 		values := map[string]string{
 			"Msg001":   "入力したイベントID( ",
-			"Msg002":   " )をもつイベントは存在しません！",
+			"Msg002":   " )をもつ開催中のイベントは存在しません！",
 			"ReturnTo": "top",
 			"Eventid":  eventid,
 		}
@@ -6062,7 +6090,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		if err := tpl.ExecuteTemplate(w, "add-event1.gtpl", eventinf); err != nil {
 			log.Println(err)
 		}
-		if starttimeafternow {
+		if starttimeafternow && !Localhost {
 			if iereg > len(roominfolist) {
 				iereg = len(roominfolist)
 			}
