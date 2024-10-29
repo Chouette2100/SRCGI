@@ -120,6 +120,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 	status := 0
 	if !inprogress && !localhost {
+	//	if !inprogress || localhost {
 		//	イベントが開催前であり、かつローカルホストからの実行でもないとき
 		//	イベント参加ルームの登録はできない
 		status = InsertEventInf(localhost, eventinf)
@@ -345,6 +346,10 @@ func GetAndInsertEventRoomInfo(
 		}
 		for i := breg; i <= ereg; i++ {
 			rinf := pranking.Ranking[i-1]
+			if rinf.Point == 0 {
+				ereg = i - 1
+				break
+			}
 			roominf := RoomInfo{
 				Name:    rinf.Room.Name,
 				ID:      strconv.Itoa(rinf.Room.RoomID),
@@ -374,6 +379,10 @@ func GetAndInsertEventRoomInfo(
 			for i := breg - 1; i < ereg; i++ {
 				point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
 				if eventid == (*eventinfo).Event_ID {
+					if (*roominfolist)[i].Point == 0 {
+						ereg = i
+						break
+					}
 					(*roominfolist)[i].Point = point
 					UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
 				} else {

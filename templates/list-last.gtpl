@@ -13,7 +13,7 @@
 	<td>level</td><td>followers</td><tr>
 */}}
 <tr align="center">
-	<td>順位</td>
+	<td>順位/<br>レベル</td>
 	<td>配信者<br>(プロフィール)</td>
 	<td>獲得<br>ポイント</td>
 	<td>ポイントの差</td><td style="border-right-style:none;">現配信開始</td>
@@ -42,7 +42,9 @@
         <td align="right">n/a</td>
         {{ else if eq .Srank "-1" }}
         <td align="right">-</td>
-        {{ else }}
+        {{ else if lt .Rank -1}}
+        <td align="right">{{ Add .Rank 10000}}</td>
+		{{ else }}
         <td align="right">{{.Srank}}</td>
         {{ end }}
 

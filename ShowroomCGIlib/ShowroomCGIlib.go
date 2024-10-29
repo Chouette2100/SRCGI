@@ -189,8 +189,10 @@ import (
 11BS03	グラフ表示にあたらしいカラーマップを追加し、カラーマップの扱い方を変更する
 11BT00	localhostからログインしたときは開催予定のイベントのルームを登録できる
 11BU00	HandlerAddEvent()を分離し、バグを修正する。
+11BT00	参加ルームの登録を行うときpoint==0のルームは除外する
+11BW00	〃、獲得ポイント一覧（HandlerListLast()）でレベルイベントは順位のかわりにレベルを表示する
 */
-const Version = "11BU00"
+const Version = "11BW00"
 
 /*
 type Event_Inf struct {
@@ -5033,6 +5035,7 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 				return eid
 			}
 		},
+		"Add":func(a1, a2 int) int { return a1 + a2 },
 	}
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-last.gtpl", "templates/list-last_h.gtpl"))
 
