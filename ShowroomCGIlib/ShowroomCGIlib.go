@@ -191,14 +191,15 @@ import (
 11BU00	HandlerAddEvent()を分離し、バグを修正する。
 11BT00	参加ルームの登録を行うときpoint==0のルームは除外する
 11BW00	〃、獲得ポイント一覧（HandlerListLast()）でレベルイベントは順位のかわりにレベルを表示する
+11BW01	HandlerAddEvent()）でレベルイベントの獲得ポイント0で除外したルームがルーム一覧に表示されないようにする。
 */
-const Version = "11BW00"
+const Version = "11BW01"
 
 /*
 type Event_Inf struct {
 	Event_ID    string
 	I_Event_ID  int
-	Event_name  string
+	Event_name  strin(*roominfolist)[i].Status = "更新"g
 	Event_no    int
 	MaxPoint    int
 	Start_time  time.Time

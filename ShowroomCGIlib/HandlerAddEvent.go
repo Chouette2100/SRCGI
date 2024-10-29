@@ -142,7 +142,9 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//      すべての処理が終了したらcookiejarを保存する。
 		defer jar.Save()
 
-		status = GetAndInsertEventRoomInfo(client, localhost, inprogress, eventid, ibreg, iereg, eventinf, &roominfolist)
+		var ril *RoomInfoList
+		ril, status = GetAndInsertEventRoomInfo(client, localhost, inprogress, eventid, ibreg, iereg, eventinf, &roominfolist)
+		roominfolist = *ril
 	}
 	if status != 0 {
 
@@ -242,6 +244,7 @@ func GetAndInsertEventRoomInfo(
 	eventinfo *exsrapi.Event_Inf,
 	roominfolist *RoomInfoList,
 ) (
+	ril *RoomInfoList,
 	status int,
 ) {
 
@@ -379,7 +382,7 @@ func GetAndInsertEventRoomInfo(
 			for i := breg - 1; i < ereg; i++ {
 				point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
 				if eventid == (*eventinfo).Event_ID {
-					if (*roominfolist)[i].Point == 0 {
+					if point == 0 {
 						ereg = i
 						break
 					}
@@ -464,6 +467,8 @@ func GetAndInsertEventRoomInfo(
 
 		}
 	}
+
+	ril = roominfolist
 
 	return
 }
