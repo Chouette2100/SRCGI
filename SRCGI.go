@@ -95,11 +95,12 @@ import (
 	11BP00	旧URL（https/chouette2100.com:8443/cgi-bin/SRCGI/top）に対応する
 	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
 	11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
+	11BV00	獲得ポイント全データのダウンロード機能（HandlerDlAllPoints()）を追加する。
 
 
 */
 
-const version = "11BS00"
+const version = "11BV00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -253,7 +254,10 @@ func main() {
 	log.Printf("%+v\n", dbconfig)
 
 	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
-	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db, Dialect: dial, ExpandSliceArgs: true}
+	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db,
+		Dialect: dial,
+    	ExpandSliceArgs: true, //スライス引数展開オプションを有効化する 
+	}
 	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
@@ -300,6 +304,8 @@ func main() {
 		http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.HandlerListLevel)
 
 		http.HandleFunc(rootPath+"/list-last", ShowroomCGIlib.HandlerListLast)
+
+		http.HandleFunc(rootPath+"/dl-all-points", ShowroomCGIlib.HandlerDlAllPoints)
 
 		http.HandleFunc(rootPath+"/graph-total", ShowroomCGIlib.HandlerGraphTotal)
 		http.HandleFunc(rootPath+"/csv-total", ShowroomCGIlib.HandlerCsvTotal)

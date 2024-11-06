@@ -192,8 +192,9 @@ import (
 11BT00	参加ルームの登録を行うときpoint==0のルームは除外する
 11BW00	〃、獲得ポイント一覧（HandlerListLast()）でレベルイベントは順位のかわりにレベルを表示する
 11BW01	HandlerAddEvent()）でレベルイベントの獲得ポイント0で除外したルームがルーム一覧に表示されないようにする。
+11BV00	獲得ポイント全データのダウンロード機能（HandlerDlAllPoints()）を追加する。
 */
-const Version = "11BW01"
+const Version = "11BV00"
 
 /*
 type Event_Inf struct {
@@ -431,6 +432,45 @@ var Colormaplist []Colormap = []Colormap{
 		{"#D6ADFF", "#D6ADFF"},
 		{"#FFD6AD", "#FFD6AD"},
 	},
+	/*
+	{
+		{"C0", "#00FFFF"},
+		{"M0", "#FF00FF"},
+		{"Y0", "#FFFF00"},
+		//	-----
+		{"C11", "#7F7FFF"},
+		{"M11", "#FF7F7F"},
+		{"Y11", "#7FFF7F"},
+
+		{"C12", "#7FBFFF"},
+		{"M12", "#FF7FBF"},
+		{"Y12", "#BFFF7F"},
+
+		{"C13", "#7FFFFF"},
+		{"M13", "#FF7FFF"},
+		{"Y13", "#FFFF7F"},
+
+		{"C14", "#7FFFBF"},
+		{"M14", "#BF7FFF"},
+		{"Y14", "#FFBF7F"},
+		//	-----
+		{"C21", "#ADADFF"},
+		{"M21", "#FFADAD"},
+		{"Y21", "#7FFFAD"},
+
+		{"C22", "#ADD6FF"},
+		{"M22", "#FFADD6"},
+		{"Y22", "#D6FFAD"},
+
+		{"C23", "#ADFFFF"},
+		{"M23", "#FFADFF"},
+		{"Y23", "#FFFFAD"},
+
+		{"C24", "#ADFFD6"},
+		{"M24", "#D6ADFF"},
+		{"Y24", "#FFD6AD"},
+	},
+	*/
 	{
 		{"cyan", "cyan"},
 		{"magenta", "magenta"},

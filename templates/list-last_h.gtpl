@@ -44,9 +44,33 @@
 <tr><td align="center"><a href="https://www.showroom-live.com/event/{{.Eventid}}">{{.EventName}}</a>（{{.Eventid}}）</td></tr>
 <tr><td align="center">{{.Period}}</td></tr>
 </table>
+<table>
+<tr>
+<td>
 {{ if eq .Detail "1" }}
 <button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.userno}}&detail=0'">ルーム詳細情報を表示しない</button>
 {{ else }}
 <button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.userno}}&detail=1'">ルーム詳細情報を表示する</button>
 {{ end }}
+</td>
+<td>
+　　　　　　　　　　　　　　　　　　　　
+</td>
+<td>
+<style>
+.hilight input[type="submit"]{
+    background: #007f7f;
+    border: none;
+    color: #FFFFFF;
+}
+</style>
+<form class='hilight'>
+    <input type="hidden" id="eventid" name="eventid" value="{{ .Eventid }}" />
+    <input type="number" name="breg" id="breg" value="1" size='3' min='1' required />位から
+    <input type="number" name="ereg" id="ereg" value="10" size='3' min='1' required />位まで
+    <input type="submit" formaction='dl-all-points' color='yellow' value="獲得ポイントデータをダウンロードする" />
+</form>
+</td>
+</tr>
+</table>
 {{end}}
