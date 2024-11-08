@@ -7,9 +7,9 @@ import (
 	"fmt"
 	//	"html"
 	"log"
-	"strconv"
-	//	"strings"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize"
@@ -120,7 +120,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 	status := 0
 	if !inprogress && !localhost {
-	//	if !inprogress || localhost {
+		//	if !inprogress || localhost {
 		//	イベントが開催前であり、かつローカルホストからの実行でもないとき
 		//	イベント参加ルームの登録はできない
 		status = InsertEventInf(localhost, eventinf)
@@ -144,7 +144,11 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 
 		var ril *RoomInfoList
 		ril, status = GetAndInsertEventRoomInfo(client, localhost, inprogress, eventid, ibreg, iereg, eventinf, &roominfolist)
-		roominfolist = *ril
+		if ril != nil {
+			roominfolist = *ril
+		} else {
+			roominfolist = RoomInfoList{}
+		}
 	}
 	if status != 0 {
 
@@ -325,17 +329,27 @@ func GetAndInsertEventRoomInfo(
 	//	ランキングイベントの1〜50位の結果を取得する。
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
 	pranking, err := srdblib.GetEventsRankingByApi(client, eid, 2)
+	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
 	//	if err != nil && !localhost {
+	bnoroom := false
 	if err != nil {
 		log.Printf("GetAndInsertEventRoomInfo() GetEventsRankingByApi(client, %s, 2) err=%s\n", eid, err.Error())
-		status = -1
-		return
+		if !strings.Contains(err.Error(), "has no room") {
+			status = 1
+			return
+		} else {
+			bnoroom = true
+		}
 	}
 	//	} else {
 	//	if localhost {
 	//		lenpr = 0
 	//	} else {
-	lenpr = len(pranking.Ranking)
+	if bnoroom {
+		lenpr = 0
+	} else {
+		lenpr = len(pranking.Ranking)
+	}
 	//	}
 	//	}
 
@@ -376,9 +390,9 @@ func GetAndInsertEventRoomInfo(
 			ereg = lenpr
 		}
 		if breg > ereg {
-			breg = ereg
+			breg = 1
 		}
-		if inprogress {
+		if inprogress && lenpr != 0 {
 			for i := breg - 1; i < ereg; i++ {
 				point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
 				if eventid == (*eventinfo).Event_ID {
@@ -394,10 +408,13 @@ func GetAndInsertEventRoomInfo(
 
 			}
 		}
-
-		nroominfolist := (*roominfolist)[breg-1 : ereg]
-		roominfolist = &nroominfolist
-
+		if lenpr == 0 {
+			nroominfolist := RoomInfoList{}
+			roominfolist = &nroominfolist
+		} else {
+			nroominfolist := (*roominfolist)[breg-1 : ereg]
+			roominfolist = &nroominfolist
+		}
 	}
 
 	for i, rminf := range *roominfolist {

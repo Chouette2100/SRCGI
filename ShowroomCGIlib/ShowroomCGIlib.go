@@ -193,8 +193,10 @@ import (
 11BW00	〃、獲得ポイント一覧（HandlerListLast()）でレベルイベントは順位のかわりにレベルを表示する
 11BW01	HandlerAddEvent()）でレベルイベントの獲得ポイント0で除外したルームがルーム一覧に表示されないようにする。
 11BV00	獲得ポイント全データのダウンロード機能（HandlerDlAllPoints()）を追加する。
+11BX00	HandlerAddEvent()でweventを使ったあとeventに戻すようにする（獲得ポイントグラフの配色の初期化ができない問題の解決）
+		ルームがなくてもイベント登録ができるようにする。
 */
-const Version = "11BV00"
+const Version = "11BX00"
 
 /*
 type Event_Inf struct {
@@ -1590,7 +1592,7 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoList) {
 
 	log.Printf("  *** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
-	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+	//	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	tnow := time.Now().Truncate(time.Second)
 	for i := 0; i < len(*roominfolist); i++ {
 		//	log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
@@ -5272,8 +5274,13 @@ func Resetcolor(
 			return err
 		}
 		cmap = erow.(*srdblib.Event).Cmap
+		if cmap == 0  {
+			log.Printf("%+v\n", erow.(*srdblib.Event))
+		}
 	}
-
+	log.Printf("      Resetcolor(): eventid=%s cmap=%d\n", eventid, cmap)
+	clm := Colormaplist[cmap]
+	lclm := len(clm)
 	rows, err := srdblib.Dbmap.Select(srdblib.Eventuser{},
 		"select * from eventuser where eventid = ? order by point desc", eventid)
 	if err != nil {
@@ -5281,8 +5288,9 @@ func Resetcolor(
 		return err
 	}
 	for i, row := range rows {
-		row.(*srdblib.Eventuser).Color = Colormaplist[cmap][i%len(Colormaplist[cmap])].Name
-		_, err = srdblib.Dbmap.Update(row.(*srdblib.Eventuser))
+		eu := row.(*srdblib.Eventuser)
+		eu.Color = clm[i%lclm].Name
+		_, err = srdblib.Dbmap.Update(eu)
 		if err != nil {
 			err = fmt.Errorf("Resetcolor(): %w", err)
 			return err
