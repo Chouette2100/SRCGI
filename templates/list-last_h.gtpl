@@ -1,7 +1,7 @@
 {{define "list-last_h"}}
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
-<meta http-equiv="refresh" content="{{.SecondsToReload}}; URL=list-last?eventid={{.Eventid}}&userno={{.userno}}&detail={{.Detail}}">
+<meta http-equiv="refresh" content="{{.SecondsToReload}}; URL=list-last?eventid={{.Eventid}}&userno={{.userno}}&limit={{.Limit}}&detail={{.Detail}}">
 {{ $detail := .Detail }}
 <html>
 <head>
@@ -48,9 +48,9 @@
 <tr>
 <td>
 {{ if eq .Detail "1" }}
-<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.userno}}&detail=0'">ルーム詳細情報を表示しない</button>
+<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.userno}}&limit={{.Limit}}&detail=0'">ルーム詳細情報を表示しない</button>
 {{ else }}
-<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.userno}}&detail=1'">ルーム詳細情報を表示する</button>
+<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.userno}}&limit={{.Limit}}&detail=1'">ルーム詳細情報を表示する</button>
 {{ end }}
 </td>
 <td>

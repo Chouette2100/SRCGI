@@ -93,6 +93,22 @@
 	</tr>
 {{ end }}
 </table>
+{{ if gt .NoRooms 14}}
+	<form action="list-last" method="get" class="hilight">
+		<input type="hidden" name="eventid" value="{{ .Eventid }}" />
+		{{ if eq .Limit "TopRooms"}}
+			<input type="hidden" name="limit" value="AllRooms" />
+		{{ else }}
+			<input type="hidden" name="limit" value="TopRooms" />
+		{{ end }}
+		<input type="hidden" name="detail" value="{{.Detail}}" />
+		{{ if eq .Limit "TopRooms"}}
+	    	<input type="submit" value="もっと見る" />
+		{{ else }}
+	    	<input type="submit" value="上位ルームだけ見る" />
+		{{ end }}
+	</form>
+{{ end }}
 <p style="padding-left:2em"><span style="color:red;">レベルイベントは最終レベルを達成したあとは正しい獲得ポイントは（取得できないので）表示されません。</span><br>
 イベント終盤になると表示される順位も正確ではなくなります。これについては今後改善予定です。
 <p style="padding-left:2em"><span style="color:red;">表に空白行があるとき</span><br>
