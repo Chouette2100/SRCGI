@@ -60,7 +60,8 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 		Detail    string
 		Isover    string
 		Limit     string
-		NoRooms     int
+		Maxrooms  int
+		NoRooms   int
 		Roomid    int
 		Scorelist []CurrentScore
 	}
@@ -93,6 +94,12 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 	if list_last.Limit == "" {
 		list_last.Limit = "TopRooms"
 	}
+	if list_last.Limit == "TopRooms" {
+		list_last.Maxrooms = 15
+	} else {
+		// "AllRooms"
+		list_last.Maxrooms = 0
+	}
 
 	log.Printf("      eventid=%s, detail=%s\n", eventid, list_last.Detail)
 	//	Event_inf, _ = SelectEventInf(eventid)
@@ -109,8 +116,11 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 	}
 	Event_inf = *eventinf
 
-	tdata, eventname, period, scorelist, status := SelectCurrentScore(eventid, list_last.Limit)
+	tdata, eventname, period, scorelist, status := SelectCurrentScore(eventid, list_last.Maxrooms)
 	list_last.NoRooms = len(scorelist)
+	if list_last.Limit == "TopRooms" && list_last.NoRooms > list_last.Maxrooms {
+		scorelist = scorelist[:list_last.Maxrooms]
+	}
 	list_last.Scorelist = scorelist
 	for i := 0; i < len(scorelist); i++ {
 		switch scorelist[i].Roomgenre {
@@ -183,7 +193,7 @@ func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 }
 func SelectCurrentScore(
 	eventid string,
-	limit string, // "TopRooms" or "AllRooms"
+	maxrooms int,
 ) (
 	gtime time.Time,
 	eventname string,
@@ -269,8 +279,8 @@ func SelectCurrentScore(
 	sql2 += " FROM points p JOIN user u where p.eventid = ? AND p.user_id = u.userno "
 	sql2 += " AND (p.user_id , p.ts) IN (SELECT user_id, MAX(ts) FROM points WHERE eventid = ? AND ts > ? GROUP BY user_id) "
 	sql2 += " ORDER BY p.point desc "
-	if limit == "TopRooms" {
-		sql2 += " LIMIT 15 "
+	if maxrooms != 0 {
+		sql2 += " LIMIT " + strconv.Itoa(maxrooms+1)
 	}
 
 	stmt2, err := srdblib.Db.Prepare(sql2)

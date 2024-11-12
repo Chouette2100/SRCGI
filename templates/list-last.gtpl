@@ -93,7 +93,7 @@
 	</tr>
 {{ end }}
 </table>
-{{ if gt .NoRooms 14}}
+{{ if gt .NoRooms .Maxrooms }}
 	<form action="list-last" method="get" class="hilight">
 		<input type="hidden" name="eventid" value="{{ .Eventid }}" />
 		{{ if eq .Limit "TopRooms"}}

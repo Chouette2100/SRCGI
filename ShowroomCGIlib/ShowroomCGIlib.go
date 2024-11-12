@@ -196,8 +196,9 @@ import (
 11BX00	HandlerAddEvent()でweventを使ったあとeventに戻すようにする（獲得ポイントグラフの配色の初期化ができない問題の解決）
 		ルームがなくてもイベント登録ができるようにする。
 11BY00	HandlerListLast()でのデフォルトの表示を上位１５ルームにする。
+11BY01	HandlerListLast()で15ルームのときは「もっと見る」ボタンを表示しない。
 */
-const Version = "11BY00"
+const Version = "11BY01"
 
 /*
 type Event_Inf struct {
