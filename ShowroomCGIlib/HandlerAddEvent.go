@@ -489,3 +489,54 @@ func GetAndInsertEventRoomInfo(
 
 	return
 }
+func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoList) {
+
+	log.Printf("  *** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
+	//	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+	tnow := time.Now().Truncate(time.Second)
+	for i := 0; i < len(*roominfolist); i++ {
+		//	log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
+		user := new(srdblib.User)
+		user.Userno = (*roominfolist)[i].Userno
+		err := srdblib.UpinsUserSetProperty(client, tnow, user, 1440*5, 200)
+		if err != nil {
+			log.Printf("srdblib.UpinsUserSetProperty(): err=%v\n", err)
+			return
+		}
+		//	InsertIntoOrUpdateUser(client, tnow, eventid, (*roominfolist)[i])
+		status := InsertIntoEventUser(i, eventid, (*roominfolist)[i])
+		if status == 0 {
+			(*roominfolist)[i].Status = "更新"
+			(*roominfolist)[i].Statuscolor = "black"
+		} else if status == 1 {
+			(*roominfolist)[i].Status = "新規"
+			(*roominfolist)[i].Statuscolor = "green"
+
+			/* この処理はInsertIntoEventUser()に含まれている
+			userno, _ := strconv.Atoi((*roominfolist)[i].ID)
+			eventinf, _ := srdblib.SelectFromEvent("event", eventid)
+			sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
+			_, srdblib.Dberr = srdblib.Db.Exec(
+				sqlip,
+				eventinf.Start_time.Truncate(time.Second),
+				userno,
+				eventid,
+				0,
+				1,
+				0,
+				"=",
+			)
+			if srdblib.Dberr != nil {
+				err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
+				log.Printf("err=[%s]\n", err.Error())
+			}
+			*/
+
+		} else {
+			(*roominfolist)[i].Status = "エラー"
+			(*roominfolist)[i].Statuscolor = "red"
+		}
+	}
+	log.Printf("  *** end of InsertRoomInf() ***********\n")
+}
+
