@@ -198,8 +198,9 @@ import (
 11BY00	HandlerListLast()でのデフォルトの表示を上位１５ルームにする。
 11BY01	HandlerListLast()で15ルームのときは「もっと見る」ボタンを表示しない。
 11BY02	HandlerListLast()で15ルームのときは「もっと見る」ボタンを表示しない。HadlerNewUser()を分離する。
+11BX00	データ取得対象範囲の修正にともなってHandlerAddEvent()の一部機能をメンテナンス中とする。
 */
-const Version = "11BY02"
+const Version = "11BX00"
 
 /*
 type Event_Inf struct {

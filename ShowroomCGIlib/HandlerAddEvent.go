@@ -69,6 +69,11 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		bufstr := fmt.Sprintf("eventinf=%+v\n", eventinf)
 		//	w.Write([]byte(bufstr))
 		log.Printf("%s\n", bufstr)
+		w.Write([]byte("すでに獲得ポイント取得の対象となったイベントに対しては、この機能はメンテナンス中のため使用できません。\n"))
+		w.Write([]byte("特定のルームを対象として追加したいときは「イベントトップ」=>「(DB登録済み)イベント参加ルーム一覧（確認・編集）」=>「一覧にないルームの追加」をお使いください。\n"))
+		w.Write([]byte("また「イベントトップ」=>「イベントパラメータの設定」=>「ＤＢに登録する順位の範囲」での対象範囲の変更は有効です\n"))
+		w.Write([]byte("メンテナンスは掲示板のNo.1239【お知らせ】「イベント獲得ポイントデータ取得範囲について」に関連する処理の修正中であるためです）"))
+		return
 	} else {
 		//	新規にイベントを登録するとき
 		//	eventinf = &exsrapi.Event_Inf{}
