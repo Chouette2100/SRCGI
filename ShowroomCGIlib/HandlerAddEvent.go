@@ -4,13 +4,17 @@
 package ShowroomCGIlib
 
 import (
+	"bytes"
 	"fmt"
 	//	"html"
 	"log"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 
 	"github.com/dustin/go-humanize"
 
@@ -57,8 +61,10 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 	iereg, _ := strconv.Atoi(ereg)
 	log.Printf(" eventid =[%s], ibreg=%d, iereg=%d\n", eventid, ibreg, iereg)
 
+	bnew := true
 	if r.FormValue("from") != "new-event" {
 		//	すでに登録済みのイベントの参加ルームの更新を行うとき
+		bnew = false
 		//	eventinf, _ = SelectEventInf(eventid)
 		//	srdblib.Tevent = "event"
 		eventinf, _ = srdblib.SelectFromEvent("event", eventid)
@@ -66,14 +72,14 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	w.Write([]byte("Called. not 'from new-event'\n"))
 		log.Printf("  Called. not 'from new-event'\n")
 
-		bufstr := fmt.Sprintf("eventinf=%+v\n", eventinf)
+		//	bufstr := fmt.Sprintf("eventinf=%+v\n", eventinf)
 		//	w.Write([]byte(bufstr))
-		log.Printf("%s\n", bufstr)
-		w.Write([]byte("すでに獲得ポイント取得の対象となったイベントに対しては、この機能はメンテナンス中のため使用できません。\n"))
-		w.Write([]byte("特定のルームを対象として追加したいときは「イベントトップ」=>「(DB登録済み)イベント参加ルーム一覧（確認・編集）」=>「一覧にないルームの追加」をお使いください。\n"))
-		w.Write([]byte("また「イベントトップ」=>「イベントパラメータの設定」=>「ＤＢに登録する順位の範囲」での対象範囲の変更は有効です\n"))
-		w.Write([]byte("メンテナンスは掲示板のNo.1239【お知らせ】「イベント獲得ポイントデータ取得範囲について」に関連する処理の修正中であるためです）"))
-		return
+		//	log.Printf("%s\n", bufstr)
+		//	w.Write([]byte("すでに獲得ポイント取得の対象となったイベントに対しては、この機能はメンテナンス中のため使用できません。\n"))
+		//	w.Write([]byte("特定のルームを対象として追加したいときは「イベントトップ」=>「(DB登録済み)イベント参加ルーム一覧（確認・編集）」=>「一覧にないルームの追加」をお使いください。\n"))
+		//	w.Write([]byte("また「イベントトップ」=>「イベントパラメータの設定」=>「ＤＢに登録する順位の範囲」での対象範囲の変更は有効です\n"))
+		//	w.Write([]byte("メンテナンスは掲示板のNo.1239【お知らせ】「イベント獲得ポイントデータ取得範囲について」に関連する処理の修正中であるためです）"))
+		//	return
 	} else {
 		//	新規にイベントを登録するとき
 		//	eventinf = &exsrapi.Event_Inf{}
@@ -113,6 +119,8 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		eventinf.Target, _ = strconv.Atoi(r.FormValue("target"))
 		eventinf.Maxdsp, _ = strconv.Atoi(r.FormValue("maxdsp"))
 		eventinf.Cmap, _ = strconv.Atoi(r.FormValue("cmap"))
+
+		SetThdata(eventinf)
 	}
 	eventinf.Fromorder = ibreg
 	eventinf.Toorder = iereg
@@ -128,7 +136,9 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		//	if !inprogress || localhost {
 		//	イベントが開催前であり、かつローカルホストからの実行でもないとき
 		//	イベント参加ルームの登録はできない
-		status = InsertEventInf(localhost, eventinf)
+		if bnew {
+			status = InsertEventInf(localhost, eventinf)
+		}
 	} else {
 		//	イベントが開催中であるかローカルホストでの実行のとき
 		//	イベント参加ルームの登録ができる
@@ -148,7 +158,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		defer jar.Save()
 
 		var ril *RoomInfoList
-		ril, status = GetAndInsertEventRoomInfo(client, localhost, inprogress, eventid, ibreg, iereg, eventinf, &roominfolist)
+		ril, status = GetAndInsertEventRoomInfo(client, localhost, inprogress, bnew, eventid, ibreg, iereg, eventinf, &roominfolist)
 		if ril != nil {
 			roominfolist = *ril
 		} else {
@@ -192,8 +202,8 @@ func InsertEventInf(localhot bool, eventinf *exsrapi.Event_Inf) (
 	if _, _, sts := SelectEventNoAndName((*eventinf).Event_ID); sts != 0 {
 		sql := "INSERT INTO event(eventid, ieventid, event_name, period, starttime, endtime, noentry,"
 		sql += " intervalmin, modmin, modsec, "
-		sql += " Fromorder, Toorder, Resethh, Resetmm, Nobasis, Maxdsp, Cmap, target, maxpoint "
-		sql += ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+		sql += " Fromorder, Toorder, Resethh, Resetmm, Nobasis, Maxdsp, Cmap, target, maxpoint, thinit, thdelta "
+		sql += ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 		log.Printf("db.Prepare(sql)\n")
 		stmt, err := srdblib.Db.Prepare(sql)
 		if err != nil {
@@ -229,6 +239,8 @@ func InsertEventInf(localhot bool, eventinf *exsrapi.Event_Inf) (
 			(*eventinf).Cmap,
 			(*eventinf).Target,
 			(*eventinf).Maxpoint+eventinf.Gscale,
+			eventinf.Thinit,
+			eventinf.Thdelta,
 		)
 
 		if err != nil {
@@ -247,6 +259,7 @@ func GetAndInsertEventRoomInfo(
 	client *http.Client,
 	localhost bool,
 	inprogress bool,
+	bnew bool,
 	eventid string,
 	breg int,
 	ereg int,
@@ -262,75 +275,8 @@ func GetAndInsertEventRoomInfo(
 
 	status = 0
 
-	//	イベントに参加しているルームの一覧を取得します。
-	//	ルーム名、ID、URLを取得しますが、イベント終了直後の場合の最終獲得ポイントが表示されている場合はそれも取得します。
-
-	/*	ここから
-		if strings.Contains(eventid, "?") {
-			status = GetEventInfAndRoomListBR(client, eventid, breg, ereg, eventinfo, roominfolist)
-			eia := strings.Split(eventid, "?")
-			bka := strings.Split(eia[1], "=")
-			eventinfo.Event_name = eventinfo.Event_name + "(" + bka[1] + ")"
-		} else {
-			status = GetEventInfAndRoomList(eventid, breg, ereg, eventinfo, roominfolist)
-		}
-
-		if status != 0 {
-			log.Printf("GetEventInfAndRoomList() returned %d\n", status)
-			return
-		}
-
-		//	各ルームのジャンル、ランク、レベル、フォロワー数を取得します。
-		for i := 0; i < (*eventinfo).NoRoom; i++ {
-			(*roominfolist)[i].Genre, (*roominfolist)[i].Rank,
-				(*roominfolist)[i].Nrank,
-				(*roominfolist)[i].Prank,
-				(*roominfolist)[i].Level,
-				(*roominfolist)[i].Followers,
-				(*roominfolist)[i].Fans,
-				(*roominfolist)[i].Fans_lst,
-				_, _, _, _ = GetRoomInfoByAPI((*roominfolist)[i].ID)
-
-		}
-
-		//	各ルームの獲得ポイントを取得します。
-		for i := 0; i < (*eventinfo).NoRoom; i++ {
-			point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
-			if eventid == (*eventinfo).Event_ID {
-				(*roominfolist)[i].Point = point
-				UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
-				if point < 0 {
-					(*roominfolist)[i].Spoint = ""
-				} else {
-					(*roominfolist)[i].Spoint = humanize.Comma(int64(point))
-				}
-			} else {
-				log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
-			}
-
-			if (*roominfolist)[i].ID == fmt.Sprintf("%d", (*eventinfo).Nobasis) {
-				(*eventinfo).Pntbasis = point
-				(*eventinfo).Ordbasis = i
-			}
-
-			//	log.Printf(" followers=<%d> level=<%d> nrank=<%s> genre=<%s> point=%d\n",
-			//	(*roominfolist)[i].Followers,
-			//	(*roominfolist)[i].Level,
-			//	(*roominfolist)[i].Nrank,
-			//	(*roominfolist)[i].Genre,
-			//	(*roominfolist)[i].Point)
-		}
-
-		ここまで修正対象	*/
-
-	//	ここから
-
 	lenpr := 0
 	eid := eventid
-	//	if strings.Contains(eventid, "?block_id=0") {
-	//		//	Block_id=0 は特殊で、ブロックイベントを構成するイベントの一つということではなくイベント全体を示す
-	//		eid = strings.ReplaceAll(eventid, "?block_id=0", "")
-	//	}
 	//	ランキングイベントの1〜50位の結果を取得する。
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
 	pranking, err := srdblib.GetEventsRankingByApi(client, eid, 2)
@@ -346,17 +292,17 @@ func GetAndInsertEventRoomInfo(
 			bnoroom = true
 		}
 	}
-	//	} else {
-	//	if localhost {
-	//		lenpr = 0
-	//	} else {
+
 	if bnoroom {
 		lenpr = 0
 	} else {
 		lenpr = len(pranking.Ranking)
 	}
-	//	}
-	//	}
+
+	hh := time.Since(eventinfo.Start_time).Hours()
+	thpoint := eventinfo.Thdelta*(int(hh)) + eventinfo.Thinit
+	log.Printf("%s Starttime=%s Hours=%7.2f\n", eventid, eventinfo.Start_time.Format("2006-01-02 15:04:05"), hh)
+	log.Printf("%s hh=%d thpoint=%d\n", eventid, int(hh), thpoint)
 
 	if lenpr != 0 {
 		//	for _, rinf := range(pranking.Ranking) {
@@ -368,7 +314,7 @@ func GetAndInsertEventRoomInfo(
 		}
 		for i := breg; i <= ereg; i++ {
 			rinf := pranking.Ranking[i-1]
-			if rinf.Point == 0 {
+			if rinf.Point < thpoint {
 				ereg = i - 1
 				break
 			}
@@ -401,7 +347,7 @@ func GetAndInsertEventRoomInfo(
 			for i := breg - 1; i < ereg; i++ {
 				point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
 				if eventid == (*eventinfo).Event_ID {
-					if point == 0 {
+					if point < thpoint {
 						ereg = i
 						break
 					}
@@ -456,13 +402,16 @@ func GetAndInsertEventRoomInfo(
 
 	log.Println("GetAndInsertEventRoomInfo() before InsertEventIinf()")
 	log.Println(*eventinfo)
-	status = InsertEventInf(localhost, eventinfo)
 
-	if status == 1 {
+	if bnew {
+		status = InsertEventInf(localhost, eventinfo)
+	} else {
 		log.Println("InsertEventInf() returned 1.")
 		UpdateEventInf(eventinfo)
 		status = 0
+
 	}
+
 	log.Println("GetAndInsertEventRoomInfo() after InsertEventIinf() or UpdateEventInf")
 	log.Println(*eventinfo)
 
@@ -545,3 +494,282 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 	log.Printf("  *** end of InsertRoomInf() ***********\n")
 }
 
+func SetThdata(eventinf *exsrapi.Event_Inf) {
+	type Ptdata struct {
+		Elm     [2]string
+		Thinit  int
+		Thdelta int
+	}
+	/*
+		pt := []Ptdata{
+			{
+				Elm:    []string{"beginner_official_vol", ""},
+				Thinit:  1000,
+				Thdelta: 100,
+			},
+			{
+				Elm:    []string{"birthday", ""},
+				Thinit:  1000,
+				Thdelta: 100,
+			},
+			{
+				Elm:    []string{"kumagurumi_", ""},
+				Thinit:  1000,
+				Thdelta: 100,
+			},
+			{
+				Elm:    []string{"mattari_fireworks", ""},
+				Thinit:  10000,
+				Thdelta: 1000,
+			},
+			{
+				Elm:    []string{"sr_liver_support68", ""},
+				Thinit:  300,
+				Thdelta: 30,
+			},
+			{
+				Elm:    []string{"listenerupupup_showroom", ""},
+				Thinit:  2500,
+				Thdelta: 250,
+			},
+			{
+				Elm:    []string{"block_id=", "[B-4]"},
+				Thinit:  1500,
+				Thdelta: 150,
+			},
+			{
+				Elm:    []string{"block_id=0", "[C-1~B-3]"},
+				Thinit:  80,
+				Thdelta: 8,
+			},
+		}
+	*/
+
+	var pt Ptdata
+	pt.Elm[0] = "block_id=0"
+	pt.Elm[1] = "None"
+	log.Printf("pt=%+v\n", pt)
+	ptlist := make([]Ptdata, 0)
+
+	file, err := os.Open("thpoint.txt")
+	if err != nil {
+		log.Printf("ReadThpoint() err=%s\n", err.Error())
+		return
+	}
+	defer file.Close()
+
+	for {
+		n, err := fmt.Fscanf(file, "%s%s%d%d\n", &pt.Elm[0], &pt.Elm[1], &pt.Thinit, &pt.Thdelta)
+		if  err != nil {
+			log.Printf("ReadTpoint() err=%s\n", err.Error())
+			break
+		}else if n != 4  {
+			log.Printf("ReadTpoint() n=%d\n", n)
+			continue
+		}
+		ptlist = append(ptlist, pt)
+	}
+	log.Printf("thmap=%+v\n", ptlist)
+
+	eventinf.Thinit = 50
+	eventinf.Thdelta = 5
+	for _, v := range ptlist {
+		if strings.Contains(eventinf.Event_ID, v.Elm[0]) {
+			if v.Elm[1] == "None" || strings.Contains(eventinf.Event_name, v.Elm[1]) {
+				eventinf.Thinit = v.Thinit
+				eventinf.Thdelta = v.Thdelta
+				break
+			}
+		}
+	}
+}
+
+func GetEventInfAndRoomList(
+	eventid string,
+	breg int,
+	ereg int,
+	eventinfo *exsrapi.Event_Inf,
+	roominfolist *RoomInfoList,
+) (
+	status int,
+) {
+
+	//	画面からのデータ取得部分は次を参考にしました。
+	//		はじめてのGo言語：Golangでスクレイピングをしてみた
+	//		https://qiita.com/ryo_naka/items/a08d70f003fac7fb0808
+
+	//	_url := "https://www.showroom-live.com/event/" + EventID
+	//	_url = "file:///C:/Users/kohei47/Go/src/EventRoomList03/20210128-1143.html"
+	//	_url = "file:20210128-1143.html"
+
+	var doc *goquery.Document
+	var err error
+
+	inputmode := "url"
+	eventidorfilename := eventid
+	maxroom := ereg
+
+	status = 0
+
+	if inputmode == "file" {
+
+		//	ファイルからドキュメントを作成します
+		f, e := os.Open(eventidorfilename)
+		if e != nil {
+			//	log.Fatal(e)
+			log.Printf("err=[%s]\n", e.Error())
+			status = -1
+			return
+		}
+		defer f.Close()
+		doc, err = goquery.NewDocumentFromReader(f)
+		if err != nil {
+			//	log.Fatal(err)
+			log.Printf("err=[%s]\n", err.Error())
+			status = -1
+			return
+		}
+
+		content, _ := doc.Find("head > meta:nth-child(6)").Attr("content")
+		content_div := strings.Split(content, "/")
+		(*eventinfo).Event_ID = content_div[len(content_div)-1]
+
+	} else {
+		//	URLからドキュメントを作成します
+		_url := "https://www.showroom-live.com/event/" + eventidorfilename
+		/*
+			doc, err = goquery.NewDocument(_url)
+		*/
+		resp, error := http.Get(_url)
+		if error != nil {
+			log.Printf("GetEventInfAndRoomList() http.Get() err=%s\n", error.Error())
+			status = 1
+			return
+		}
+		defer resp.Body.Close()
+
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+
+		//	bufstr := buf.String()
+		//	log.Printf("%s\n", bufstr)
+
+		//	doc, error = goquery.NewDocumentFromReader(resp.Body)
+		doc, error = goquery.NewDocumentFromReader(buf)
+		if error != nil {
+			log.Printf("GetEventInfAndRoomList() goquery.NewDocumentFromReader() err=<%s>.\n", error.Error())
+			status = 1
+			return
+		}
+
+		(*eventinfo).Event_ID = eventidorfilename
+	}
+	//	log.Printf(" eventid=%s\n", (*eventinfo).Event_ID)
+
+	cevent_id, exists := doc.Find("#eventDetail").Attr("data-event-id")
+	if !exists {
+		log.Printf("data-event-id not found. Event_ID=%s\n", (*eventinfo).Event_ID)
+		status = -1
+		return
+	}
+	eventinfo.I_Event_ID, _ = strconv.Atoi(cevent_id)
+
+	selector := doc.Find(".detail")
+	(*eventinfo).Event_name = selector.Find(".tx-title").Text()
+	if (*eventinfo).Event_name == "" {
+		log.Printf("Event not found. Event_ID=%s\n", (*eventinfo).Event_ID)
+		status = -1
+		return
+	}
+	(*eventinfo).Period = selector.Find(".info").Text()
+	eventinfo.Period = strings.Replace(eventinfo.Period, "\u202f", " ", -1)
+	period := strings.Split((*eventinfo).Period, " - ")
+	if inputmode == "url" {
+		(*eventinfo).Start_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[0]+" JST")
+		(*eventinfo).End_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[1]+" JST")
+	} else {
+		(*eventinfo).Start_time, _ = time.Parse("2006/01/02 15:04 MST", period[0]+" JST")
+		(*eventinfo).End_time, _ = time.Parse("2006/01/02 15:04 MST", period[1]+" JST")
+	}
+
+	(*eventinfo).EventStatus = "BeingHeld"
+	if (*eventinfo).Start_time.After(time.Now()) {
+		(*eventinfo).EventStatus = "NotHeldYet"
+	} else if (*eventinfo).End_time.Before(time.Now()) {
+		(*eventinfo).EventStatus = "Over"
+	}
+
+	//	イベントに参加しているルームの数を求めます。
+	//	参加ルーム数と表示されているルームの数は違うので、ここで取得したルームの数を以下の処理で使うわけではありません。
+	SNoEntry := doc.Find("p.ta-r").Text()
+	fmt.Sscanf(SNoEntry, "%d", &((*eventinfo).NoEntry))
+	log.Printf("[%s]\n[%s] [%s] (*event).EventStatus=%s NoEntry=%d\n",
+		(*eventinfo).Event_name,
+		(*eventinfo).Start_time.Format("2006/01/02 15:04 MST"),
+		(*eventinfo).End_time.Format("2006/01/02 15:04 MST"),
+		(*eventinfo).EventStatus, (*eventinfo).NoEntry)
+	log.Printf("breg=%d ereg=%d\n", breg, ereg)
+
+	//	eventno, _, _ := SelectEventNoAndName(eventidorfilename)
+	//	log.Printf(" eventno=%d\n", eventno)
+	//	(*eventinfo).Event_no = eventno
+
+	//	抽出したルームすべてに対して処理を繰り返す(が、イベント開始後の場合の処理はルーム数がbreg、eregの範囲に限定）
+	//	イベント開始前のときはすべて取得し、ソートしたあてで範囲を限定する）
+	doc.Find(".listcardinfo").EachWithBreak(func(i int, s *goquery.Selection) bool {
+		//	log.Printf("i=%d\n", i)
+		if (*eventinfo).Start_time.Before(time.Now()) {
+			if i < breg-1 {
+				return true
+			}
+			if i == maxroom {
+				return false
+			}
+		}
+
+		var roominfo RoomInfo
+
+		roominfo.Name = s.Find(".listcardinfo-main-text").Text()
+
+		spoint1 := strings.Split(s.Find(".listcardinfo-sub-single-right-text").Text(), ": ")
+
+		var point int64
+		if spoint1[0] != "" {
+			spoint2 := strings.Split(spoint1[1], "pt")
+			fmt.Sscanf(spoint2[0], "%d", &point)
+
+		} else {
+			point = -1
+		}
+		roominfo.Point = int(point)
+
+		ReplaceString := ""
+
+		selection_c := s.Find(".listcardinfo-menu")
+
+		account, _ := selection_c.Find(".room-url").Attr("href")
+		if inputmode == "file" {
+			ReplaceString = "https://www.showroom-live.com/"
+		} else {
+			ReplaceString = "/r/"
+		}
+		roominfo.Account = strings.Replace(account, ReplaceString, "", -1)
+		roominfo.Account = strings.Replace(roominfo.Account, ReplaceString, "/", -1)
+
+		roominfo.ID, _ = selection_c.Find(".js-follow-btn").Attr("data-room-id")
+		roominfo.Userno, _ = strconv.Atoi(roominfo.ID)
+
+		*roominfolist = append(*roominfolist, roominfo)
+
+		//	log.Printf("%11s %-20s %-10s %s\n",
+		//		humanize.Comma(int64(roominfo.Point)), roominfo.Account, roominfo.ID, roominfo.Name)
+		return true
+
+	})
+
+	(*eventinfo).NoRoom = len(*roominfolist)
+
+	log.Printf(" GetEventInfAndRoomList() len(*roominfolist)=%d\n", len(*roominfolist))
+
+	return
+}

@@ -96,11 +96,12 @@ import (
 	11BQ00	ギフトランキングのグラフ（HandlerGraphGiftScore()）を作成する。
 	11BS00	「修羅の道ランキング」（Giftid=13）のために表示の変更（獲得ポイントが取得できないため）
 	11BV00	獲得ポイント全データのダウンロード機能（HandlerDlAllPoints()）を追加する。
+	11BZ00	アクセスログをDBに保存する
 
 
 */
 
-const version = "11BV00"
+const version = "11BZ00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -270,6 +271,7 @@ func main() {
 
 	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
 	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
+	srdblib.Dbmap.AddTableWithName(srdblib.Accesslog{}, "accesslog").SetKeys(false, "Ts", "Eventid")
 
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。

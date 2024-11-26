@@ -194,13 +194,17 @@ import (
 11BW01	HandlerAddEvent()）でレベルイベントの獲得ポイント0で除外したルームがルーム一覧に表示されないようにする。
 11BV00	獲得ポイント全データのダウンロード機能（HandlerDlAllPoints()）を追加する。
 11BX00	HandlerAddEvent()でweventを使ったあとeventに戻すようにする（獲得ポイントグラフの配色の初期化ができない問題の解決）
-		ルームがなくてもイベント登録ができるようにする。
+
+	ルームがなくてもイベント登録ができるようにする。
+
 11BY00	HandlerListLast()でのデフォルトの表示を上位１５ルームにする。
 11BY01	HandlerListLast()で15ルームのときは「もっと見る」ボタンを表示しない。
 11BY02	HandlerListLast()で15ルームのときは「もっと見る」ボタンを表示しない。HadlerNewUser()を分離する。
 11BX00	データ取得対象範囲の修正にともなってHandlerAddEvent()の一部機能をメンテナンス中とする。
+11BX01	イベント単位で"足切り"を行う
+11BZ00	アクセスログをDBに保存する。開催中イベント一覧でアクセス数の多いイベントをマークアップする。
 */
-const Version = "11BX00"
+const Version = "11BZ00"
 
 /*
 type Event_Inf struct {
@@ -439,43 +443,43 @@ var Colormaplist []Colormap = []Colormap{
 		{"#FFD6AD", "#FFD6AD"},
 	},
 	/*
-	{
-		{"C0", "#00FFFF"},
-		{"M0", "#FF00FF"},
-		{"Y0", "#FFFF00"},
-		//	-----
-		{"C11", "#7F7FFF"},
-		{"M11", "#FF7F7F"},
-		{"Y11", "#7FFF7F"},
+		{
+			{"C0", "#00FFFF"},
+			{"M0", "#FF00FF"},
+			{"Y0", "#FFFF00"},
+			//	-----
+			{"C11", "#7F7FFF"},
+			{"M11", "#FF7F7F"},
+			{"Y11", "#7FFF7F"},
 
-		{"C12", "#7FBFFF"},
-		{"M12", "#FF7FBF"},
-		{"Y12", "#BFFF7F"},
+			{"C12", "#7FBFFF"},
+			{"M12", "#FF7FBF"},
+			{"Y12", "#BFFF7F"},
 
-		{"C13", "#7FFFFF"},
-		{"M13", "#FF7FFF"},
-		{"Y13", "#FFFF7F"},
+			{"C13", "#7FFFFF"},
+			{"M13", "#FF7FFF"},
+			{"Y13", "#FFFF7F"},
 
-		{"C14", "#7FFFBF"},
-		{"M14", "#BF7FFF"},
-		{"Y14", "#FFBF7F"},
-		//	-----
-		{"C21", "#ADADFF"},
-		{"M21", "#FFADAD"},
-		{"Y21", "#7FFFAD"},
+			{"C14", "#7FFFBF"},
+			{"M14", "#BF7FFF"},
+			{"Y14", "#FFBF7F"},
+			//	-----
+			{"C21", "#ADADFF"},
+			{"M21", "#FFADAD"},
+			{"Y21", "#7FFFAD"},
 
-		{"C22", "#ADD6FF"},
-		{"M22", "#FFADD6"},
-		{"Y22", "#D6FFAD"},
+			{"C22", "#ADD6FF"},
+			{"M22", "#FFADD6"},
+			{"Y22", "#D6FFAD"},
 
-		{"C23", "#ADFFFF"},
-		{"M23", "#FFADFF"},
-		{"Y23", "#FFFFAD"},
+			{"C23", "#ADFFFF"},
+			{"M23", "#FFADFF"},
+			{"Y23", "#FFFFAD"},
 
-		{"C24", "#ADFFD6"},
-		{"M24", "#D6ADFF"},
-		{"Y24", "#FFD6AD"},
-	},
+			{"C24", "#ADFFD6"},
+			{"M24", "#D6ADFF"},
+			{"Y24", "#FFD6AD"},
+		},
 	*/
 	{
 		{"cyan", "cyan"},
@@ -1516,8 +1520,6 @@ func GetRoomInfoAndPoint(
 	return
 }
 
-
-
 func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 	status int,
 ) {
@@ -1592,7 +1594,6 @@ func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 
 	return
 }
-
 
 func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string, roominf RoomInfo) (status int) {
 
@@ -1902,196 +1903,6 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 	}
 	return
 
-}
-
-func GetEventInfAndRoomList(
-	eventid string,
-	breg int,
-	ereg int,
-	eventinfo *exsrapi.Event_Inf,
-	roominfolist *RoomInfoList,
-) (
-	status int,
-) {
-
-	//	画面からのデータ取得部分は次を参考にしました。
-	//		はじめてのGo言語：Golangでスクレイピングをしてみた
-	//		https://qiita.com/ryo_naka/items/a08d70f003fac7fb0808
-
-	//	_url := "https://www.showroom-live.com/event/" + EventID
-	//	_url = "file:///C:/Users/kohei47/Go/src/EventRoomList03/20210128-1143.html"
-	//	_url = "file:20210128-1143.html"
-
-	var doc *goquery.Document
-	var err error
-
-	inputmode := "url"
-	eventidorfilename := eventid
-	maxroom := ereg
-
-	status = 0
-
-	if inputmode == "file" {
-
-		//	ファイルからドキュメントを作成します
-		f, e := os.Open(eventidorfilename)
-		if e != nil {
-			//	log.Fatal(e)
-			log.Printf("err=[%s]\n", e.Error())
-			status = -1
-			return
-		}
-		defer f.Close()
-		doc, err = goquery.NewDocumentFromReader(f)
-		if err != nil {
-			//	log.Fatal(err)
-			log.Printf("err=[%s]\n", err.Error())
-			status = -1
-			return
-		}
-
-		content, _ := doc.Find("head > meta:nth-child(6)").Attr("content")
-		content_div := strings.Split(content, "/")
-		(*eventinfo).Event_ID = content_div[len(content_div)-1]
-
-	} else {
-		//	URLからドキュメントを作成します
-		_url := "https://www.showroom-live.com/event/" + eventidorfilename
-		/*
-			doc, err = goquery.NewDocument(_url)
-		*/
-		resp, error := http.Get(_url)
-		if error != nil {
-			log.Printf("GetEventInfAndRoomList() http.Get() err=%s\n", error.Error())
-			status = 1
-			return
-		}
-		defer resp.Body.Close()
-
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-
-		//	bufstr := buf.String()
-		//	log.Printf("%s\n", bufstr)
-
-		//	doc, error = goquery.NewDocumentFromReader(resp.Body)
-		doc, error = goquery.NewDocumentFromReader(buf)
-		if error != nil {
-			log.Printf("GetEventInfAndRoomList() goquery.NewDocumentFromReader() err=<%s>.\n", error.Error())
-			status = 1
-			return
-		}
-
-		(*eventinfo).Event_ID = eventidorfilename
-	}
-	//	log.Printf(" eventid=%s\n", (*eventinfo).Event_ID)
-
-	cevent_id, exists := doc.Find("#eventDetail").Attr("data-event-id")
-	if !exists {
-		log.Printf("data-event-id not found. Event_ID=%s\n", (*eventinfo).Event_ID)
-		status = -1
-		return
-	}
-	eventinfo.I_Event_ID, _ = strconv.Atoi(cevent_id)
-
-	selector := doc.Find(".detail")
-	(*eventinfo).Event_name = selector.Find(".tx-title").Text()
-	if (*eventinfo).Event_name == "" {
-		log.Printf("Event not found. Event_ID=%s\n", (*eventinfo).Event_ID)
-		status = -1
-		return
-	}
-	(*eventinfo).Period = selector.Find(".info").Text()
-	eventinfo.Period = strings.Replace(eventinfo.Period, "\u202f", " ", -1)
-	period := strings.Split((*eventinfo).Period, " - ")
-	if inputmode == "url" {
-		(*eventinfo).Start_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[0]+" JST")
-		(*eventinfo).End_time, _ = time.Parse("Jan 2, 2006 3:04 PM MST", period[1]+" JST")
-	} else {
-		(*eventinfo).Start_time, _ = time.Parse("2006/01/02 15:04 MST", period[0]+" JST")
-		(*eventinfo).End_time, _ = time.Parse("2006/01/02 15:04 MST", period[1]+" JST")
-	}
-
-	(*eventinfo).EventStatus = "BeingHeld"
-	if (*eventinfo).Start_time.After(time.Now()) {
-		(*eventinfo).EventStatus = "NotHeldYet"
-	} else if (*eventinfo).End_time.Before(time.Now()) {
-		(*eventinfo).EventStatus = "Over"
-	}
-
-	//	イベントに参加しているルームの数を求めます。
-	//	参加ルーム数と表示されているルームの数は違うので、ここで取得したルームの数を以下の処理で使うわけではありません。
-	SNoEntry := doc.Find("p.ta-r").Text()
-	fmt.Sscanf(SNoEntry, "%d", &((*eventinfo).NoEntry))
-	log.Printf("[%s]\n[%s] [%s] (*event).EventStatus=%s NoEntry=%d\n",
-		(*eventinfo).Event_name,
-		(*eventinfo).Start_time.Format("2006/01/02 15:04 MST"),
-		(*eventinfo).End_time.Format("2006/01/02 15:04 MST"),
-		(*eventinfo).EventStatus, (*eventinfo).NoEntry)
-	log.Printf("breg=%d ereg=%d\n", breg, ereg)
-
-	//	eventno, _, _ := SelectEventNoAndName(eventidorfilename)
-	//	log.Printf(" eventno=%d\n", eventno)
-	//	(*eventinfo).Event_no = eventno
-
-	//	抽出したルームすべてに対して処理を繰り返す(が、イベント開始後の場合の処理はルーム数がbreg、eregの範囲に限定）
-	//	イベント開始前のときはすべて取得し、ソートしたあてで範囲を限定する）
-	doc.Find(".listcardinfo").EachWithBreak(func(i int, s *goquery.Selection) bool {
-		//	log.Printf("i=%d\n", i)
-		if (*eventinfo).Start_time.Before(time.Now()) {
-			if i < breg-1 {
-				return true
-			}
-			if i == maxroom {
-				return false
-			}
-		}
-
-		var roominfo RoomInfo
-
-		roominfo.Name = s.Find(".listcardinfo-main-text").Text()
-
-		spoint1 := strings.Split(s.Find(".listcardinfo-sub-single-right-text").Text(), ": ")
-
-		var point int64
-		if spoint1[0] != "" {
-			spoint2 := strings.Split(spoint1[1], "pt")
-			fmt.Sscanf(spoint2[0], "%d", &point)
-
-		} else {
-			point = -1
-		}
-		roominfo.Point = int(point)
-
-		ReplaceString := ""
-
-		selection_c := s.Find(".listcardinfo-menu")
-
-		account, _ := selection_c.Find(".room-url").Attr("href")
-		if inputmode == "file" {
-			ReplaceString = "https://www.showroom-live.com/"
-		} else {
-			ReplaceString = "/r/"
-		}
-		roominfo.Account = strings.Replace(account, ReplaceString, "", -1)
-		roominfo.Account = strings.Replace(roominfo.Account, ReplaceString, "/", -1)
-
-		roominfo.ID, _ = selection_c.Find(".js-follow-btn").Attr("data-room-id")
-		roominfo.Userno, _ = strconv.Atoi(roominfo.ID)
-
-		*roominfolist = append(*roominfolist, roominfo)
-
-		//	log.Printf("%11s %-20s %-10s %s\n",
-		//		humanize.Comma(int64(roominfo.Point)), roominfo.Account, roominfo.ID, roominfo.Name)
-		return true
-
-	})
-
-	(*eventinfo).NoRoom = len(*roominfolist)
-
-	log.Printf(" GetEventInfAndRoomList() len(*roominfolist)=%d\n", len(*roominfolist))
-
-	return
 }
 
 func GetEventInfAndRoomListBR(
@@ -2521,7 +2332,6 @@ func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, stat
 
 	return
 }
-
 
 func SelectUserList() (userlist []User, status int) {
 
@@ -4561,6 +4371,10 @@ func Mark(j int, canvas *svg.SVG, x0, y0, d float64, color string) {
 ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 */
 //	var Localhost bool
+type KV struct {
+	K string
+	V []string
+}
 
 func GetUserInf(r *http.Request) (
 	ra string,
@@ -4604,8 +4418,34 @@ func GetUserInf(r *http.Request) (
 		return
 	}
 
-	for k, v := range r.Form {
-		log.Printf("%12v : %v\n", k, v)
+	var al srdblib.Accesslog
+	al.Ts = time.Now().Truncate(time.Second)
+	al.Handler = fna[len(fna)-1]
+	al.Remoteaddress = ra
+	al.Useragent = ua
+
+	kvlist := make([]KV, len(r.Form))
+	i := 0
+	for kvlist[i].K, kvlist[i].V = range r.Form {
+		log.Printf("%12v : %v\n", kvlist[i].K, kvlist[i].V)
+		switch kvlist[i].K {
+		case "eventid":
+			al.Eventid = kvlist[i].V[0]
+		case "userno", "userid", "user_id", "roomid":
+			al.Roomid, _ = strconv.Atoi(kvlist[i].V[0])
+		default:
+		}
+		i++
+	}
+	jd, err := json.Marshal(kvlist)
+	if err != nil {
+		log.Printf(" GetUserInf(): %s\n", err.Error())
+	}
+	al.Formvalues = string(jd)
+
+	err = srdblib.Dbmap.Insert(&al)
+	if err != nil {
+		log.Printf(" GetUserInf(): %s\n", err.Error())
 	}
 
 	return
@@ -4613,6 +4453,7 @@ func GetUserInf(r *http.Request) (
 
 // 入力フォーム画面
 func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
+
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -4896,7 +4737,7 @@ func Resetcolor(
 			return err
 		}
 		cmap = erow.(*srdblib.Event).Cmap
-		if cmap == 0  {
+		if cmap == 0 {
 			log.Printf("%+v\n", erow.(*srdblib.Event))
 		}
 	}
@@ -5228,7 +5069,6 @@ func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
 func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
@@ -5248,7 +5088,6 @@ func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-
 
 /*
 MakeSampleTime()

@@ -12,6 +12,7 @@ import (
 	"log"
 	"strconv"
 	"time"
+
 	//	"io" //　ログ出力設定用。必要に応じて。
 	//	"sort" //	ソート用。必要に応じて。
 
@@ -21,6 +22,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi"
+	"github.com/Chouette2100/srdblib"
 	//	"github.com/Chouette2100/srdblib"
 	//	"github.com/Chouette2100/srapi"
 )
@@ -124,6 +126,15 @@ func HandlerCurrentEvents(
 	}
 	top.Totalcount = len(top.Eventinflist)
 
+	emap := srdblib.GetFeaturedEvents(24, 13)
+
+	for i,v := range(top.Eventinflist) {
+		if _,ok := emap[v.Event_ID]; ok {
+			top.Eventinflist[i].Aclr = 1
+		} else {
+			top.Eventinflist[i].Aclr = 0
+		}
+	}
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {
 		err = fmt.Errorf("FindHistoricalData(): %w", err)

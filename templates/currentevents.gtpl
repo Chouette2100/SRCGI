@@ -71,12 +71,20 @@
         {{ $i := 0 }}
         {{ range .Eventinflist }}
         {{ if eq $i 1 }}
-        <tr bgcolor="gainsboro">
-            {{ $i = 0 }}
+            {{ if eq .Aclr 0 }}
+            <tr bgcolor="gainsboro">
             {{ else }}
-        <tr>
-            {{ $i = 1 }}
+            <tr bgcolor="palegreen">
             {{ end }}
+            {{ $i = 0 }}
+        {{ else }}
+            {{ if eq .Aclr 0 }}
+            <tr>
+            {{ else }}
+            <tr bgcolor="lightblue">
+            {{ end }}
+            {{ $i = 1 }}
+        {{ end }}
             <td>
                 <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
             </td>
