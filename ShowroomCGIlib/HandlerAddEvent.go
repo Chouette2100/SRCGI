@@ -120,7 +120,7 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		eventinf.Maxdsp, _ = strconv.Atoi(r.FormValue("maxdsp"))
 		eventinf.Cmap, _ = strconv.Atoi(r.FormValue("cmap"))
 
-		SetThdata(eventinf)
+		exsrapi.SetThdata(eventinf)
 	}
 	eventinf.Fromorder = ibreg
 	eventinf.Toorder = iereg
@@ -494,95 +494,6 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 	log.Printf("  *** end of InsertRoomInf() ***********\n")
 }
 
-func SetThdata(eventinf *exsrapi.Event_Inf) {
-	type Ptdata struct {
-		Elm     [2]string
-		Thinit  int
-		Thdelta int
-	}
-	/*
-		pt := []Ptdata{
-			{
-				Elm:    []string{"beginner_official_vol", ""},
-				Thinit:  1000,
-				Thdelta: 100,
-			},
-			{
-				Elm:    []string{"birthday", ""},
-				Thinit:  1000,
-				Thdelta: 100,
-			},
-			{
-				Elm:    []string{"kumagurumi_", ""},
-				Thinit:  1000,
-				Thdelta: 100,
-			},
-			{
-				Elm:    []string{"mattari_fireworks", ""},
-				Thinit:  10000,
-				Thdelta: 1000,
-			},
-			{
-				Elm:    []string{"sr_liver_support68", ""},
-				Thinit:  300,
-				Thdelta: 30,
-			},
-			{
-				Elm:    []string{"listenerupupup_showroom", ""},
-				Thinit:  2500,
-				Thdelta: 250,
-			},
-			{
-				Elm:    []string{"block_id=", "[B-4]"},
-				Thinit:  1500,
-				Thdelta: 150,
-			},
-			{
-				Elm:    []string{"block_id=0", "[C-1~B-3]"},
-				Thinit:  80,
-				Thdelta: 8,
-			},
-		}
-	*/
-
-	var pt Ptdata
-	pt.Elm[0] = "block_id=0"
-	pt.Elm[1] = "None"
-	log.Printf("pt=%+v\n", pt)
-	ptlist := make([]Ptdata, 0)
-
-	file, err := os.Open("thpoint.txt")
-	if err != nil {
-		log.Printf("ReadThpoint() err=%s\n", err.Error())
-		return
-	}
-	defer file.Close()
-
-	for {
-		n, err := fmt.Fscanf(file, "%s%s%d%d\n", &pt.Elm[0], &pt.Elm[1], &pt.Thinit, &pt.Thdelta)
-		if  err != nil {
-			log.Printf("ReadTpoint() err=%s\n", err.Error())
-			break
-		}else if n != 4  {
-			log.Printf("ReadTpoint() n=%d\n", n)
-			continue
-		}
-		ptlist = append(ptlist, pt)
-	}
-	log.Printf("thmap=%+v\n", ptlist)
-
-	eventinf.Thinit = 50
-	eventinf.Thdelta = 5
-	for _, v := range ptlist {
-		if strings.Contains(eventinf.Event_ID, v.Elm[0]) {
-			if v.Elm[1] == "None" || strings.Contains(eventinf.Event_name, v.Elm[1]) {
-				eventinf.Thinit = v.Thinit
-				eventinf.Thdelta = v.Thdelta
-				break
-			}
-		}
-	}
-}
 
 func GetEventInfAndRoomList(
 	eventid string,

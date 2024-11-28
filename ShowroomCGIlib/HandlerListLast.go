@@ -278,7 +278,14 @@ func SelectCurrentScore(
 	sql2 := "SELECT p.user_id, u.userid, p.rank, p.point, p.pstatus, p.ptime, p.qstatus, p.qtime "
 	sql2 += " FROM points p JOIN user u where p.eventid = ? AND p.user_id = u.userno "
 	sql2 += " AND (p.user_id , p.ts) IN (SELECT user_id, MAX(ts) FROM points WHERE eventid = ? AND ts > ? GROUP BY user_id) "
-	sql2 += " ORDER BY p.point desc "
+
+	// HACK: 本来はランキングイベントか否かで処理をわけるべきところだし、別のソートキー（API結果での出現順？）を用意すべき。
+	if strings.Contains(eventid, "mattari_fireworks") {
+		sql2 += " ORDER BY p.`rank` desc, p.point desc "
+	} else {
+		sql2 += " ORDER BY p.point desc "
+	}
+	// HACK: --------------------
 	if maxrooms != 0 {
 		sql2 += " LIMIT " + strconv.Itoa(maxrooms+1)
 	}

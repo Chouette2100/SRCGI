@@ -203,8 +203,9 @@ import (
 11BX00	データ取得対象範囲の修正にともなってHandlerAddEvent()の一部機能をメンテナンス中とする。
 11BX01	イベント単位で"足切り"を行う
 11BZ00	アクセスログをDBに保存する。開催中イベント一覧でアクセス数の多いイベントをマークアップする。
+11BZ01	SetThdata()をexsrapiへ移動する。HandlerListLast()でレベルイベントの表示順を検討する。
 */
-const Version = "11BZ00"
+const Version = "11BZ01"
 
 /*
 type Event_Inf struct {
