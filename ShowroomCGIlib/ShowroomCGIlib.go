@@ -204,8 +204,9 @@ import (
 11BX01	イベント単位で"足切り"を行う
 11BZ00	アクセスログをDBに保存する。開催中イベント一覧でアクセス数の多いイベントをマークアップする。
 11BZ01	SetThdata()をexsrapiへ移動する。HandlerListLast()でレベルイベントの表示順を検討する。
+11BZ02	HandlerCurrentEvents()での強調表示の対象選択を変更する。
 */
-const Version = "11BZ01"
+const Version = "11BZ02"
 
 /*
 type Event_Inf struct {

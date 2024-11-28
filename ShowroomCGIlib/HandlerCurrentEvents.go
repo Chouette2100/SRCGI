@@ -126,7 +126,7 @@ func HandlerCurrentEvents(
 	}
 	top.Totalcount = len(top.Eventinflist)
 
-	emap := srdblib.GetFeaturedEvents(24, 13)
+	emap := srdblib.GetFeaturedEvents(24, 18, 10)
 
 	for i,v := range(top.Eventinflist) {
 		if _,ok := emap[v.Event_ID]; ok {
