@@ -1,4 +1,16 @@
-# eventidに含まれる文字列 event_nameに含まれる文字列 基準値の初期値 基準値の１時間あたりの増分
+# 1行目
+# Hh: 指定した時間内に始まるイベントを対象にする（0だと開催中のみ）
+# From: Fromorder
+# To: Toorder 0だとデータ収集の対象としない
+# Hh From To
+0 1 3
+#
+# イベントIDあるいはイベント名が特定の条件を満たす場合は、その条件に対応する基準値を設定する
+# word1 word2 thinit thdelta　　イベントIDにword1が含まれ、イベントネームにword2が含まれるとき
+# word1 None  thinit thdelta　　イベントIDにword1が含まれるとき
+# None  word2 thinit thdelta　　イベント名にword2が含まれるとき
+# None  None  thinit thdelta    既出の条件に一致するものがないとき（デフォルト値）
+dear_listener_care_sr None 1000 100
 enjoykaraoke_vol None 1600 160
 beginner_official_vol None 1000 100
 birthday24 None 1000 100
@@ -20,4 +32,4 @@ block_id= ~S-2] 20000 2000
 block_id= ~S-1] 20000 2000
 block_id= ~B-5] 10000 1000
 block_id= ~B-4] 1500 150
-None None 50 5
+None None 80 8

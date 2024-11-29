@@ -120,7 +120,16 @@ func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
 		eventinf.Maxdsp, _ = strconv.Atoi(r.FormValue("maxdsp"))
 		eventinf.Cmap, _ = strconv.Atoi(r.FormValue("cmap"))
 
-		exsrapi.SetThdata(eventinf)
+		thdata, err := exsrapi.ReadThdata()
+		if err != nil {
+			err = fmt.Errorf("ReadThdata: %w", err)
+			w.Write([]byte(err.Error()))
+		}
+		err = exsrapi.SetThdata(eventinf, thdata)
+		if err != nil {
+			err = fmt.Errorf("SetThdata: %w", err)
+			w.Write([]byte(err.Error()))
+		}
 	}
 	eventinf.Fromorder = ibreg
 	eventinf.Toorder = iereg

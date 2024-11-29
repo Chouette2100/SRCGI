@@ -205,8 +205,9 @@ import (
 11BZ00	アクセスログをDBに保存する。開催中イベント一覧でアクセス数の多いイベントをマークアップする。
 11BZ01	SetThdata()をexsrapiへ移動する。HandlerListLast()でレベルイベントの表示順を検討する。
 11BZ02	HandlerCurrentEvents()での強調表示の対象選択を変更する。
+11BZ03	SetThdata()をReadThdata()とSetThdata()に分離する（SRGCIと共通）、HadlerNewEvent.goｗ別ファイルとする。
 */
-const Version = "11BZ02"
+const Version = "11BZ03"
 
 /*
 type Event_Inf struct {
@@ -5091,120 +5092,6 @@ func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*
-MakeSampleTime()
-獲得ポイントを取得するタイミングをランダムに返す
-
-5分に一回を前提として、240秒±40秒のように設定する。
-*/
-func MakeSampleTime(
-	cval int, // ex. 240
-	cvar int, // ex. 40
-) (stm, sts int) {
-
-	st := cval + int(time.Now().UnixNano()%int64(cvar*2)) - cvar
-
-	stm = st / 60
-	sts = st % 60
-
-	return stm, sts
-}
-func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
-
-	_, _, isallow := GetUserInf(r)
-	if !isallow {
-		fmt.Fprintf(w, "Access Denied\n")
-		return
-	}
-
-	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
-		"templates/new-event0.gtpl",
-		"templates/new-event1.gtpl",
-		"templates/new-event2.gtpl",
-	))
-
-	eventid := r.FormValue("eventid")
-	suserno := r.FormValue("userno")
-	userno, _ := strconv.Atoi(suserno)
-
-	log.Printf("      eventid=%s\n", eventid)
-
-	stm, sts := MakeSampleTime(240, 40)
-
-	values := map[string]string{
-		"Eventid":   r.FormValue("eventid"),
-		"Eventname": "",
-		"Period":    "",
-		"Noroom":    "",
-		"Msgcolor":  "blue",
-
-		"Stm": fmt.Sprintf("%d", stm),
-		"Sts": fmt.Sprintf("%d", sts),
-
-		"Maxcmap": strconv.Itoa(len(Colormaplist)),
-	}
-
-	var eventinf exsrapi.Event_Inf
-
-	eia := strings.Split(eventid, "?")
-	if len(eia) == 2 {
-		eventid = eia[0]
-	}
-
-	status := GetEventInf(eventid, &eventinf)
-	if status == -1 {
-		values["Msg"] = "このイベントはすでに登録されています。"
-		values["Submit"] = "hidden"
-		values["Msgcolor"] = "red"
-		//	Event_inf, _ = SelectEventInf(eventid)
-		//	srdblib.Tevent = "event"
-		eventinf, _ := srdblib.SelectFromEvent("event", eventid)
-		Event_inf = *eventinf
-
-		values["Eventname"] = Event_inf.Event_name
-		values["Period"] = Event_inf.Period
-	} else if status == -2 {
-		values["Msg"] = "指定したIDのイベントは存在しません"
-		values["Submit"] = "hidden"
-		values["Msgcolor"] = "red"
-	} else if status < -2 {
-		values["Msg"] = "イベント情報を取得できませんでした（エラーコード＝" + fmt.Sprintf("%d", status) + "）"
-		values["Submit"] = "hidden"
-		values["Msgcolor"] = "red"
-	} else {
-		values["Msg"] = "このイベントを登録しますか？"
-		values["Submit"] = "submit"
-		values["Eventname"] = eventinf.Event_name
-		values["Period"] = eventinf.Period
-		values["Noroom"] = "　" + humanize.Comma(int64(eventinf.NoEntry))
-	}
-	/*
-		var Eventinflist []Event_Inf
-		GetEventListByAPI(&Eventinflist)
-	*/
-
-	userlist, _ := SelectUserList()
-	userlist[0].Userlongname = "基準とする配信者を設定しない"
-	for i := 0; i < len(userlist); i++ {
-		if userlist[i].Userno == userno {
-			userlist[i].Selected = "Selected"
-		} else {
-			userlist[i].Selected = ""
-		}
-	}
-
-	if err := tpl.ExecuteTemplate(w, "new-event0.gtpl", values); err != nil {
-		log.Println(err)
-	}
-	if err := tpl.ExecuteTemplate(w, "new-event1.gtpl", userlist); err != nil {
-		log.Println(err)
-	}
-	if err := tpl.ExecuteTemplate(w, "new-event2.gtpl", values); err != nil {
-		log.Println(err)
-	}
-
-}
 
 func HandlerParamEvent(w http.ResponseWriter, r *http.Request) {
 
