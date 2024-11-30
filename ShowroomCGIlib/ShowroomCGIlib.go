@@ -206,44 +206,9 @@ import (
 11BZ01	SetThdata()をexsrapiへ移動する。HandlerListLast()でレベルイベントの表示順を検討する。
 11BZ02	HandlerCurrentEvents()での強調表示の対象選択を変更する。
 11BZ03	SetThdata()をReadThdata()とSetThdata()に分離する（SRGCIと共通）、HadlerNewEvent.goｗ別ファイルとする。
+11BZ04	コメント化されたソースを削除する。
 */
-const Version = "11BZ03"
-
-/*
-type Event_Inf struct {
-	Event_ID    string
-	I_Event_ID  int
-	Event_name  strin(*roominfolist)[i].Status = "更新"g
-	Event_no    int
-	MaxPoint    int
-	Start_time  time.Time
-	Sstart_time string
-	Start_date  float64
-	End_time    time.Time
-	Send_time   string
-	Period      string
-	Dperiod     float64
-	Intervalmin int
-	Modmin      int
-	Modsec      int
-	Fromorder   int
-	Toorder     int
-	Resethh     int
-	Resetmm     int
-	Nobasis     int
-	Maxdsp      int
-	NoEntry     int
-	NoRoom      int    //	ルーム数
-	EventStatus string //	"Over", "BeingHeld", "NotHeldYet"
-	Pntbasis    int
-	Ordbasis    int
-	League_ids  string
-	Cmap        int
-	Target      int
-	Maxpoint    int
-	//	Status		string		//	"Confirmed":	イベント終了日翌日に確定した獲得ポイントが反映されている。
-}
-*/
+const Version = "11BZ04"
 
 type LongName struct {
 	Name string
@@ -391,10 +356,6 @@ var Dialer sshql.Dialer
 
 var Event_inf exsrapi.Event_Inf
 
-/*
-var Db *sql.DB
-var Err error
-*/
 
 var OS string
 
@@ -521,46 +482,6 @@ var Colormaplist []Colormap = []Colormap{
 		{"gray", "#77878F"},
 	},
 }
-
-/*
-var Colorlist2 Colormap = []Color{
-	{"red", "#FF2800"},
-	{"yellow", "#FAF500"},
-	{"green", "#35A16B"},
-	{"blue", "#0041FF"},
-	{"skyblue", "#66CCFF"},
-	{"lightpink", "#FFD1D1"},
-	{"orange", "#FF9900"},
-	{"purple", "#9A0079"},
-	{"brown", "#663300"},
-	{"lightgreen", "#87D7B0"},
-	{"white", "#FFFFFF"},
-	{"gray", "#77878F"},
-}
-
-var Colorlist1 []Color = []Color{
-	{"cyan", "cyan"},
-	{"magenta", "magenta"},
-	{"yellow", "yellow"},
-	{"royalblue", "royalblue"},
-	{"coral", "coral"},
-	{"khaki", "khaki"},
-	{"deepskyblue", "deepskyblue"},
-	{"crimson", "crimson"},
-	{"orange", "orange"},
-	{"lightsteelblue", "lightsteelblue"},
-	{"pink", "pink"},
-	{"sienna", "sienna"},
-	{"springgreen", "springgreen"},
-	{"blueviolet", "blueviolet"},
-	{"salmon", "salmon"},
-	{"lime", "lime"},
-	{"red", "red"},
-	{"darkorange", "darkorange"},
-	{"skyblue", "skyblue"},
-	{"lightpink", "lightpink"},
-}
-*/
 
 type Event struct {
 	EventID   string
@@ -870,57 +791,6 @@ func GetPointsByAPI(id string) (Point, Rank, Gap int, EventID string) {
 	return
 }
 
-/*
- */
-/*
-func GetIsOnliveByAPI(room_id string) (
-	isonlive bool, //	true:	配信中
-	startedat time.Time, //	配信開始時刻（isonliveがtrueのときだけ意味があります）
-	status int,
-) {
-
-	status = 0
-
-	//	https://qiita.com/takeru7584/items/f4ba4c31551204279ed2
-	url := "https://www.showroom-live.com/api/room/profile?room_id=" + room_id
-
-	resp, err := http.Get(url)
-	if err != nil {
-		//	一時的にデータが取得できない。
-		//	resp.Body.Close()
-		//		panic(err)
-		status = -1
-		return
-	}
-	defer resp.Body.Close()
-
-	//	JSONをデコードする。
-	//	次の記事を参考にさせていただいております。
-	//		Go言語でJSONに泣かないためのコーディングパターン
-	//		https://qiita.com/msh5/items/dc524e38073ed8e3831b
-
-	var result interface{}
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&result); err != nil {
-		//	panic(err)
-		status = -2
-		return
-	}
-
-	//	配信中か？
-	isonlive, _ = result.(map[string]interface{})["is_onlive"].(bool)
-
-	if isonlive {
-		//	配信開始時刻の取得
-		value, _ := result.(map[string]interface{})["current_live_started_at"].(float64)
-		startedat = time.Unix(int64(value), 0).Truncate(time.Second)
-		//	log.Printf("current_live_stared_at %f %v\n", value, startedat)
-	}
-
-	return
-
-}
-*/
 
 func GetAciveFanByAPI(room_id string, yyyymm string) (nofan int) {
 
@@ -1206,13 +1076,6 @@ func SelectEventRoomInfList(
 	}
 	defer rows.Close()
 
-	//	ColorlistA := Colormaplist[Event_inf.Cmap]
-	//	ColorlistB := Colormaplist[1]
-	//	if Event_inf.Cmap == 1 {
-	//		ColorlistA = Colormaplist[1]
-	//		ColorlistB = Colormaplist[2]
-	//	}
-
 	//	色コードから色名に変換するマップを作る
 	//	FIXME: Colormap とは違う、まぎらわしい
 	colormap := make(map[string]int)
@@ -1335,32 +1198,6 @@ func SelectEventRoomInfList(
 		SortByFollowers = false
 	}
 	sort.Sort(*roominfolist)
-
-	/*
-		for i := 0; i < len(*roominfolist); i++ {
-
-			sql = "select max(point) from points where "
-			sql += " user_id = " + fmt.Sprintf("%d", (*roominfolist)[i].Userno)
-			//	sql += " and event_id = " + fmt.Sprintf("%d", eventno)
-			sql += " and event_id = " + eventid
-
-			err = Db.QueryRow(sql).Scan(&(*roominfolist)[i].Point)
-			(*roominfolist)[i].Spoint = humanize.Comma(int64((*roominfolist)[i].Point))
-
-			if err == nil {
-				continue
-			} else {
-				log.Printf("err=[%s]\n", err.Error())
-				if err.Error() != "sql: no rows in result set" {
-					eventno = -2
-					continue
-				} else {
-					(*roominfolist)[i].Point = -1
-					(*roominfolist)[i].Spoint = ""
-				}
-			}
-		}
-	*/
 
 	return
 }
@@ -1506,20 +1343,6 @@ func GetRoomInfoAndPoint(
 		log.Printf(" %s %s %d\n", Event_inf.Event_ID, peventid, point)
 	}
 
-	/*
-		if (*roominfolist)[i].ID == idbasis {
-			(*eventinfo).Pntbasis = point
-			(*eventinfo).Ordbasis = i
-		}
-	*/
-
-	//	log.Printf(" followers=<%d> level=<%d> nrank=<%s> genre=<%s> point=%d\n",
-	//	(*roominfolist)[i].Followers,
-	//	(*roominfolist)[i].Level,
-	//	(*roominfolist)[i].Nrank,
-	//	(*roominfolist)[i].Genre,
-	//	(*roominfolist)[i].Point)
-
 	return
 }
 
@@ -1616,208 +1439,9 @@ func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string,
 		return
 	}
 
-	//	name := ""
-	//	genre := ""
-	//	rank := ""
-	//	nrank := ""
-	//	prank := ""
-	//	level := 0
-	//	followers := 0
-	//	fans := -1
-	//	fans_lst := -1
-
 	if nrow == 0 {
-
 		srdblib.InsertIntoUser(client, tnow, userno)
-
-		/*
-			//	isnew = true
-
-				log.Printf("insert into userhistory(*new*) userno=%d rank=<%s> nrank=<%s> prank=<%s> level=%d, followers=%d, fans=%d, fans_lst=%d\n",
-					userno, roominf.Rank, roominf.Nrank, roominf.Prank, roominf.Level, roominf.Followers, fans, fans_lst)
-
-				sql := "INSERT INTO user(userno, userid, user_name, longname, shortname, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts, currentevent)"
-				sql += " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-
-				//	log.Printf("sql=%s\n", sql)
-				stmt, err := srdblib.Db.Prepare(sql)
-				if err != nil {
-					log.Printf("InsertIntoOrUpdateUser() error() (INSERT/Prepare) err=%s\n", err.Error())
-					status = -1
-					return
-				}
-				defer stmt.Close()
-
-				lenid := len(roominf.ID)
-				_, err = stmt.Exec(
-					userno,
-					roominf.Account,
-					roominf.Name,
-					//	roominf.ID,
-					roominf.Name,
-					roominf.ID[lenid-2:lenid],
-					roominf.Genre,
-					roominf.Rank,
-					roominf.Nrank,
-					roominf.Prank,
-					roominf.Level,
-					roominf.Followers,
-					roominf.Fans,
-					roominf.Fans_lst,
-					tnow,
-					eventid,
-				)
-
-				if err != nil {
-					log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
-					//	status = -2
-					_, err = stmt.Exec(
-						userno,
-						roominf.Account,
-						roominf.Account,
-						roominf.ID,
-						roominf.ID[lenid-2:lenid],
-						roominf.Genre,
-						roominf.Rank,
-						roominf.Nrank,
-						roominf.Prank,
-						roominf.Level,
-						roominf.Followers,
-						roominf.Fans,
-						roominf.Fans_lst,
-						tnow,
-						eventid,
-					)
-					if err != nil {
-						log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
-						status = -2
-					}
-				}
-		*/
-
 	}
-
-	/*
-		else {
-
-			sql := "select user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst from user where userno = ?"
-			err = srdblib.Db.QueryRow(sql, userno).Scan(&name, &genre, &rank, &nrank, &prank, &level, &followers, &fans, &fans_lst)
-			if err != nil {
-				log.Printf("err=[%s]\n", err.Error())
-				status = -1
-			}
-			//	log.Printf("current userno=%d name=%s, nrank=%s, prank=%s level=%d, followers=%d\n", userno, name, nrank, prank, level, followers)
-
-			if roominf.Genre != genre ||
-				roominf.Rank != rank ||
-				//	roominf.Nrank != nrank ||
-				//	roominf.Prank != prank ||
-				roominf.Level != level ||
-				roominf.Followers != followers ||
-				roominf.Fans != fans {
-
-				isnew = true
-
-				log.Printf("insert into userhistory(*changed*) userno=%d level=%d, followers=%d, fans=%d\n",
-					userno, roominf.Level, roominf.Followers, roominf.Fans)
-				sql := "update user set userid=?,"
-				sql += "user_name=?,"
-				sql += "genre=?,"
-				sql += "`rank`=?,"
-				sql += "nrank=?,"
-				sql += "prank=?,"
-				sql += "level=?,"
-				sql += "followers=?,"
-				sql += "fans=?,"
-				sql += "fans_lst=?,"
-				sql += "ts=?,"
-				sql += "currentevent=? "
-				sql += "where userno=?"
-				stmt, err := srdblib.Db.Prepare(sql)
-
-				if err != nil {
-					log.Printf("InsertIntoOrUpdateUser() error(Update/Prepare) err=%s\n", err.Error())
-					status = -1
-					return
-				}
-				defer stmt.Close()
-
-				_, err = stmt.Exec(
-					roominf.Account,
-					roominf.Name,
-					roominf.Genre,
-					roominf.Rank,
-					roominf.Nrank,
-					roominf.Prank,
-					roominf.Level,
-					roominf.Followers,
-					roominf.Fans,
-					roominf.Fans_lst,
-					tnow,
-					eventid,
-					roominf.ID,
-				)
-
-				if err != nil {
-					log.Printf("error(InsertIntoOrUpdateUser() Update/Exec) err=%s\n", err.Error())
-					status = -2
-				}
-			}
-
-		}
-	*/
-
-	/*
-		if isnew {
-			sql := "INSERT INTO userhistory(userno, user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts)"
-			sql += " VALUES(?,?,?,?,?,?,?,?,?,?,?)"
-			//	log.Printf("sql=%s\n", sql)
-			stmt, err := srdblib.Db.Prepare(sql)
-			if err != nil {
-				log.Printf("error(INSERT into userhistory/Prepare) err=%s\n", err.Error())
-				status = -1
-				return
-			}
-			defer stmt.Close()
-
-			_, err = stmt.Exec(
-				userno,
-				roominf.Name,
-				roominf.Genre,
-				roominf.Rank,
-				roominf.Nrank,
-				roominf.Prank,
-				roominf.Level,
-				roominf.Followers,
-				roominf.Fans,
-				roominf.Fans_lst,
-				tnow,
-			)
-
-			if err != nil {
-				log.Printf("error(Insert Into into userhistory INSERT/Exec) err=%s\n", err.Error())
-				//	status = -2
-				_, err = stmt.Exec(
-					userno,
-					roominf.Account,
-					roominf.Genre,
-					roominf.Rank,
-					roominf.Nrank,
-					roominf.Prank,
-					roominf.Level,
-					roominf.Followers,
-					roominf.Fans,
-					roominf.Fans_lst,
-					tnow,
-				)
-				if err != nil {
-					log.Printf("error(Insert Into into userhistory INSERT/Exec) err=%s\n", err.Error())
-					status = -2
-				}
-			}
-
-		}
-	*/
 
 	return
 
@@ -1829,14 +1453,6 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 	userno, _ := strconv.Atoi(roominf.ID)
 
 	nrow := 0
-	/*
-		sql := "select count(*) from eventuser where "
-		sql += "userno =" + roominf.ID + " and "
-		//	sql += "eventno = " + fmt.Sprintf("%d", eventno)
-		sql += "eventid = " + eventid
-		//	log.Printf("sql=%s\n", sql)
-		err := Db.QueryRow(sql).Scan(&nrow)
-	*/
 	sql := "select count(*) from eventuser where userno =? and eventid = ?"
 	err := srdblib.Db.QueryRow(sql, roominf.ID, eventid).Scan(&nrow)
 
@@ -1868,19 +1484,6 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 			"N",
 			roominf.Point,
 		)
-		/*
-			} else {
-				_, err = stmt.Exec(
-					eventid,
-					userno,
-					"Y",	//	"N"から変更する＝順位に関わらず獲得ポイントデータを取得する。
-					"N",
-					Colorlist[i%len(Colorlist)].Name,
-					"N",
-					roominf.Point,
-				)
-			}
-		*/
 
 		if err != nil {
 			log.Printf("error(InsertIntoOrUpdateUser() INSERT/Exec) err=%s\n", err.Error())
@@ -2012,11 +1615,6 @@ func GetEventInfAndRoomListBR(
 	bia := strings.Split(eia[1], "=")
 	blockid, _ := strconv.Atoi(bia[1])
 
-	/*
-		event_id := 30030
-		event_id := 31947
-	*/
-
 	ebr, err := srapi.GetEventBlockRanking(client, event_id, blockid, breg, ereg)
 	if err != nil {
 		log.Printf("GetEventBlockRanking() err=%s\n", err.Error())
@@ -2071,15 +1669,6 @@ func GetEventInf(
 	eventidorfilename := eventid
 
 	status = 0
-
-	/*
-		_, _, status := SelectEventNoAndName(eventidorfilename)
-		log.Printf(" status=%d\n", status)
-		if status != 0 {
-			return
-		}
-		(*eventinfo).Event_no = eventno
-	*/
 
 	if inputmode == "file" {
 
@@ -2278,24 +1867,6 @@ func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, stat
 	}
 	defer rows.Close()
 
-	/*
-	   type RoomLevel struct {
-	   	User_name  string
-	   	Genre      string
-	   	Rank       string
-	   	Nrank       string
-	   	Level      int
-	   	Followeres int
-	   	Sts        string
-	   }
-
-	   type RoomLevelInf struct {
-	   	Userno        int
-	   	User_name      string
-	   	RoomLevelList []RoomLevel
-	   }
-	*/
-
 	var roomlevel RoomLevel
 
 	roomlevelinf.Userno = userno
@@ -2447,14 +2018,6 @@ func SelectEventList(userno int) (eventlist []Event, status int) {
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	/*
-		if userno != 0 {
-			stmt, Err = Db.Prepare("select eventid, event_name from event where endtime IS not null and nobasis = ? order by endtime desc")
-		} else {
-			stmt, Err = Db.Prepare("select eventid, event_name from event where endtime IS not null order by endtime desc")
-		}
-	*/
-
 	stmt, srdblib.Dberr = srdblib.Db.Prepare("select eventid, event_name from event where endtime IS not null and nobasis = ? order by endtime desc")
 	if srdblib.Dberr != nil {
 		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
@@ -2463,13 +2026,6 @@ func SelectEventList(userno int) (eventlist []Event, status int) {
 	}
 	defer stmt.Close()
 
-	/*
-		if userno != 0 {
-			rows, Err = stmt.Query(userno)
-		} else {
-			rows, Err = stmt.Query()
-		}
-	*/
 	rows, srdblib.Dberr = stmt.Query(userno)
 	if srdblib.Dberr != nil {
 		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
@@ -2489,11 +2045,6 @@ func SelectEventList(userno int) (eventlist []Event, status int) {
 		}
 		eventlist = append(eventlist, event)
 		i++
-		/*
-			if i == 10 {
-				break
-			}
-		*/
 	}
 	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
 		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
@@ -2571,37 +2122,6 @@ func SelectLastEventList() (eventlist []Event, status int) {
 
 }
 
-/*
-func OpenDb() (status int) {
-
-		status = 0
-
-		if (*Dbconfig).Dbhost == "" {
-			(*Dbconfig).Dbhost = "localhost"
-		}
-		if (*Dbconfig).Dbport == "" {
-			(*Dbconfig).Dbport = "3306"
-		}
-		cnc := "@tcp"
-		if Dbconfig.UseSSH {
-			Dialer.Hostname = Sshconfig.Hostname
-			Dialer.Port = Sshconfig.Port
-			Dialer.Username = Sshconfig.Username
-			Dialer.Password = Sshconfig.Password
-			Dialer.PrivateKey = Sshconfig.PrivateKey
-
-			mysqldrv.New(&Dialer).RegisterDial("ssh+tcp")
-			cnc = "@ssh+tcp"
-		}
-		cnc += "(" + Dbconfig.Dbhost + ":" + Dbconfig.Dbport + ")"
-		Db, Err = sql.Open("mysql", Dbconfig.Dbuser+":"+Dbconfig.Dbpw+cnc+"/"+Dbconfig.Dbname+"?parseTime=true&loc=Asia%2FTokyo")
-
-		if Err != nil {
-			status = -1
-		}
-		return
-	}
-*/
 type IdAndRank struct {
 	Userno int
 	Rank   int
@@ -2614,23 +2134,6 @@ func SelectEventInfAndRoomList() (
 
 	status = 0
 
-	/*
-		//	sql := "select eventno, event_name, period, starttime, endtime from event where eventid ='"+Event_inf.Event_ID+"'"
-		sql := "select eventno, event_name, period, starttime, endtime from event where eventid = ?"
-		err := Db.QueryRow(sql, Event_inf.Event_ID).Scan(&Event_inf.Event_no, &Event_inf.Event_name, &Event_inf.Period, &Event_inf.Start_time, &Event_inf.End_time)
-
-		if err != nil {
-			log.Printf("select eventno, starttime, endtime from event where eventid ='%s'\n", Event_inf.Event_ID)
-			log.Printf("err=[%s]\n", err.Error())
-			//	if err.Error() != "sql: no rows in result set" {
-			status = -1
-			return
-			//	}
-		}
-	*/
-
-	//	Event_inf, _ = SelectEventInf(Event_inf.Event_ID)
-	//	srdblib.Tevent = "event"
 	eventinf, err := srdblib.SelectFromEvent("event", Event_inf.Event_ID)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
@@ -2655,8 +2158,6 @@ func SelectEventInfAndRoomList() (
 
 	//	log.Printf("Start_data=%f Dperiod=%f\n", Event_inf.Start_date, Event_inf.Dperiod)
 
-	//	err = Db.QueryRow("select max(point) from points where event_id = '" + fmt.Sprintf("%d", Event_inf.Event_no) + "'").Scan(&Event_inf.MaxPoint)
-	//	sql := "select max(point) from eventuser where eventno = ? and graph = 'Y'"
 	sql := "select max(point) from eventuser where eventid = ? and graph = 'Y'"
 	err = srdblib.Db.QueryRow(sql, Event_inf.Event_ID).Scan(&Event_inf.MaxPoint)
 	//	err = srdblib.Db.QueryRow(sql, Event_inf.Event_ID).Scan(&Event_inf.Maxpoint)
@@ -2670,12 +2171,6 @@ func SelectEventInfAndRoomList() (
 
 	//	log.Printf("MaxPoint=%d\n", Event_inf.MaxPoint)
 
-	//	-------------------------------------------------------------------
-	//	sql = " select userno from eventuser "
-	//	sql += " where graph = 'Y' "
-	//	//	sql += " and eventno = ? "
-	//	sql += " and eventid = ? "
-	//	sql += " order by point desc"
 	sqlst := "select p.user_id, p.`rank` from points p join eventuser eu on p.user_id = eu.userno and p.eventid = eu.eventid "
 	sqlst += " where p.eventid = ? and eu.graph = 'Y' "
 	sqlst += " and p.ts = ( select max(ts) from points where eventid = ? ) order by p.point desc "
@@ -2724,60 +2219,6 @@ func SelectEventInfAndRoomList() (
 	return
 }
 
-/*
-func SelectEventInf(eventid string) (eventinf Event_Inf, status int) {
-
-	status = 0
-
-	sql := "select eventid,ieventid,event_name, period, starttime, endtime, noentry, intervalmin, modmin, modsec, "
-	sql += " Fromorder, Toorder, Resethh, Resetmm, Nobasis, Maxdsp, cmap, target, maxpoint "
-	sql += " from event where eventid = ?"
-	err := Db.QueryRow(sql, eventid).Scan(
-		&eventinf.Event_ID,
-		&eventinf.I_Event_ID,
-		&eventinf.Event_name,
-		&eventinf.Period,
-		&eventinf.Start_time,
-		&eventinf.End_time,
-		&eventinf.NoEntry,
-		&eventinf.Intervalmin,
-		&eventinf.Modmin,
-		&eventinf.Modsec,
-		&eventinf.Fromorder,
-		&eventinf.Toorder,
-		&eventinf.Resethh,
-		&eventinf.Resetmm,
-		&eventinf.Nobasis,
-		&eventinf.Maxdsp,
-		&eventinf.Cmap,
-		&eventinf.Target,
-		&eventinf.Maxpoint,
-	)
-
-	if err != nil {
-		log.Printf("%s\n", sql)
-		log.Printf("err=[%s]\n", err.Error())
-		//	if err.Error() != "sql: no rows in result set" {
-		status = -1
-		return
-		//	}
-	}
-
-	//	log.Printf("eventno=%d\n", Event_inf.Event_no)
-
-	start_date := eventinf.Start_time.Truncate(time.Hour).Add(-time.Duration(eventinf.Start_time.Hour()) * time.Hour)
-	end_date := eventinf.End_time.Truncate(time.Hour).Add(-time.Duration(eventinf.End_time.Hour())*time.Hour).AddDate(0, 0, 1)
-
-	//	log.Printf("start_t=%v\nstart_d=%v\nend_t=%v\nend_t=%v\n", Event_inf.Start_time, start_date, Event_inf.End_time, end_date)
-
-	eventinf.Start_date = float64(start_date.Unix()) / 60.0 / 60.0 / 24.0
-	eventinf.Dperiod = float64(end_date.Unix())/60.0/60.0/24.0 - Event_inf.Start_date
-
-	//	log.Printf("Start_data=%f Dperiod=%f\n", eventinf.Start_date, eventinf.Dperiod)
-
-	return
-}
-*/
 
 func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp *[]int) {
 
@@ -2900,16 +2341,6 @@ func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, s
 
 	status = 0
 
-	/*
-		Event_inf.Event_ID = eventid
-		_, sts := SelectEventInfAndRoomList()
-
-		if sts != 0 {
-			log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
-			status = sts
-			return
-		}
-	*/
 
 	dstart := Event_inf.Start_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.Start_time.Hour()) * time.Hour)
 	if Event_inf.Start_time.Hour()*60+Event_inf.Start_time.Minute() > Event_inf.Resethh*60+Event_inf.Resetmm {
@@ -3360,235 +2791,6 @@ func DetXaxScale(
 	return
 }
 
-/*
-func GraphDfr01(filename string, IDlist []int) {
-
-	//	描画領域を決定する
-	width := 3840.0
-	height := 2160.0
-	lwmargin := width / 24.0
-	rwmargin := width / 6.0
-	uhmargin := height / 7.5
-	lhmargin := height / 15.0
-	bstroke := width / 800.0
-
-	vwidth := width - lwmargin - rwmargin
-	vheight := height - uhmargin - lhmargin
-
-	xorigin := lwmargin
-	yorigin := height - lhmargin
-
-	//	SVG出力ファイルを設定し、背景色を決める。
-	file, err := os.OpenFile("public/"+filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		//	panic(err)
-		return
-	}
-
-	bw := bufio.NewWriter(file)
-
-	canvas := svg.New(bw)
-
-	//	canvas := svg.New(os.Stdout)
-
-	canvas.Start(width, height)
-
-
-	canvas.Rect(1.0, 1.0, width-1.0, height-1.0, "stroke=\"black\" stroke-width=\"0.1\"")
-
-	//	y軸（ポイント軸）の縮尺を決める
-	yupper, yscales, yscalel, _ := DetYaxScale(Event_inf.MaxPoint)
-
-	yscale := -vheight / float64(yupper)
-
-	//	log.Printf("yupper=%d yscale=%f dyl=%f\n", yupper, yscale, dyl)
-
-	//	グラフタイトルとイベント情報を出力する
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5-8*1.5), "獲得ポイントの推移",
-		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
-
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, eventname,
-		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
-
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5+8*1.5), period,
-		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
-
-	//	y軸（ポイント軸）を描画する
-
-	dyl := float64(yscales) * yscale
-	value := int64(0)
-	yl := 0.0
-	for i := 0; ; i++ {
-		wstr := 0.15
-		if i%yscalel == 0 {
-			wstr = 0.3
-
-			canvas.Text(xorigin-bstroke*5.0, yorigin+yl+bstroke*2.5, humanize.Comma(value),
-				"text-anchor:end;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-
-		}
-		canvas.Line(xorigin, yorigin+yl, xorigin+vwidth, yorigin+yl, "stroke=\"white\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*wstr)+"\"")
-		yl += dyl
-		if -yl > vheight+10 {
-			break
-		}
-		value += int64(yscales)
-
-	}
-
-	//	------------------------------------------
-
-	//	x軸（時間軸）を描画する
-
-	xupper := Event_inf.Dperiod
-	xscale := vwidth / float64(xupper)
-	xscaled, xscalet, _ := DetXaxScale(xupper)
-	//	log.Printf("xupper=%f xscale=%f dxl=%f xscalet=%d\n", xupper, xscale, dxl, xscalet)
-
-	dxl := 1.0 / float64(xscaled) * xscale
-	tval := Event_inf.Start_time
-	xl := 0.0
-	for i := 0; ; i++ {
-		wstr := 0.15
-		if i%xscaled == 0 {
-			wstr = 0.3
-			if i%(xscaled*xscalet) == 0 {
-				canvas.Text(xorigin+xl, yorigin+bstroke*7.5, tval.Format("1/2"),
-					"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-				tval = tval.AddDate(0, 0, xscalet)
-			}
-
-		}
-		canvas.Line(xorigin+xl, yorigin, xorigin+xl, yorigin-vheight, "stroke=\"white\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*wstr)+"\"")
-		xl += dxl
-		if xl > vwidth+10 {
-			break
-		}
-	}
-
-	//	獲得ポイントデータを描画する
-
-	onemin := 1.0 / 24.0 / 60.0
-	xb, yb := SelectScoreList(Event_inf.Nobasis)
-
-	j := 0
-	for _, id := range IDlist {
-
-		color, _ := SelectUserColor(id, Event_inf.Event_ID)
-
-		x, y := SelectScoreList(id)
-		maxp := 20
-
-		//	no := len(*x)
-
-		xo := make([]float64, maxp)
-		yo := make([]float64, maxp)
-		tl := 999.0
-		yl := -1000000.0
-		k := 0
-
-		ib := 0
-		flat := false
-		if yb[ib+1] == yb[ib] {
-			flat = true
-		}
-
-		for i := 0; i < len(*x); i++ {
-			//	fmt.Printf("(%7.1f,%10.1f)\n", (*x)[i], (*y)[i])
-
-			if math.Abs(y[i]-yb[ib]) < onemin {
-
-			}
-
-			xt := xorigin + (*x)[i]*xscale
-			yt := yorigin + (*y)[i]*yscale
-			//	fmt.Printf("(*x).[i]=%.3f tl=%.3f (*x)[i]-tl=%.3f\n", (*x)[i], tl, (*x)[i]-tl)
-			if (*x)[i]-tl > 0.011 && (*y)[i]-yl > 1.0 {
-				canvas.Polyline(xo[0:k], yo[0:k], "fill=\"none\" stroke=\""+color+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
-				xo[0] = xt
-				yo[0] = yt
-				tl = (*x)[i]
-				yl = (*y)[i]
-				k = 1
-				continue
-			}
-			xo[k] = xt
-			yo[k] = yt
-			tl = (*x)[i]
-			yl = (*y)[i]
-			k++
-			if k == maxp {
-				canvas.Polyline(xo, yo, "fill=\"none\" stroke=\""+color+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
-				xo[0] = xt
-				yo[0] = yt
-				k = 1
-			}
-		}
-		if k > 1 {
-			canvas.Polyline(xo[0:k], yo[0:k], "fill=\"none\" stroke=\""+color+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
-		}
-
-		xln := xorigin + vwidth + bstroke*30.0
-		yln := yorigin - vheight + bstroke*10*float64(j)
-
-		canvas.Line(xln, yln, xln+rwmargin/4.0, yln, "stroke=\""+color+"\" stroke-width=\""+fmt.Sprintf("%.2f", bstroke*1.0)+"\"")
-		//	canvas.Text(xln+rwmargin/3.0, yln+bstroke*2.5, fmt.Sprintf("%d", IDlist[j]),
-		//		"text-anchor:start;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-		longname, _, _, _, _, sts := SelectUserName(IDlist[j])
-		if sts != 0 {
-			longname = fmt.Sprintf("%d", IDlist[j])
-		}
-		canvas.Text(xln+rwmargin/3.0, yln+bstroke*2.5, longname,
-			"text-anchor:start;font-size:"+fmt.Sprintf("%.1f", bstroke*5.0)+"px;fill:white;")
-
-		j++
-	}
-
-	canvas.End()
-
-	bw.Flush()
-	file.Close()
-
-	return
-}
-
-func GraphDfr(eventid string) (filename string, status int) {
-
-	status = 0
-
-	Event_inf, status = SelectEventInf(eventid)
-	if status != 0 {
-		return
-	}
-	eventname := Event_inf.Event_name
-	period := Event_inf.Period
-
-	IDlist, sts := SelectEventInfAndRoomList()
-
-	if sts != 0 {
-		log.Printf("status of SelectEventInfAndRoomList() =%d\n", sts)
-		status = sts
-		return
-	}
-
-	ibasis := 0
-	for ; ibasis < len(IDlist); ibasis++ {
-		if IDlist[ibasis] == Event_inf.Nobasis {
-			break
-		}
-	}
-	if ibasis == len(IDlist) {
-		status = 1
-		return
-	}
-
-	filename = fmt.Sprintf("%0d.svg", os.Getpid()%100)
-
-	GraphDfr01(filename, IDlist)
-
-	return
-}
-*/
 //	グラフを描画する＝SVGを作成する
 func GraphScore01(
 	filename string,
