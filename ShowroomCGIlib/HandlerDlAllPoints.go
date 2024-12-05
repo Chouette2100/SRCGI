@@ -187,7 +187,7 @@ func MakeFileOfAllPoints(
 
 	//	ファイル名の決定
 	if Serverconfig.WebServer == "None" {
-		hd.Filename = fmt.Sprintf("%d_%s.csv", hd.Eventinf.Ieventid, time.Now().Format("20060202-150405"))
+		hd.Filename = fmt.Sprintf("%d_%s.csv", hd.Eventinf.Ieventid, time.Now().Format("20060102-150405"))
 		Nfseq = (Nfseq + 1) % 1000
 	} else {
 		hd.Filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)

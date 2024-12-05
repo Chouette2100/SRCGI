@@ -207,8 +207,9 @@ import (
 11BZ02	HandlerCurrentEvents()での強調表示の対象選択を変更する。
 11BZ03	SetThdata()をReadThdata()とSetThdata()に分離する（SRGCIと共通）、HadlerNewEvent.goｗ別ファイルとする。
 11BZ04	コメント化されたソースを削除する。
+11BZ05	獲得ポイントダウンロードでのファイル名の誤り（yyyydddd）を正す（yyyymmdd）
 */
-const Version = "11BZ04"
+const Version = "11BZ05"
 
 type LongName struct {
 	Name string
