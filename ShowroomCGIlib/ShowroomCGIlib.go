@@ -208,8 +208,10 @@ import (
 11BZ03	SetThdata()をReadThdata()とSetThdata()に分離する（SRGCIと共通）、HadlerNewEvent.goｗ別ファイルとする。
 11BZ04	コメント化されたソースを削除する。
 11BZ05	獲得ポイントダウンロードでのファイル名の誤り（yyyydddd）を正す（yyyymmdd）
+--------- v2.0.0 ---------------
+11BZ06	list-last_h.gtplで出力範囲を○位から○位までを○番目から○番目までに変更する。
 */
-const Version = "11BZ05"
+const Version = "11BZ06"
 
 type LongName struct {
 	Name string

@@ -66,8 +66,8 @@
 </style>
 <form class='hilight'>
     <input type="hidden" id="eventid" name="eventid" value="{{ .Eventid }}" />
-    <input type="number" name="breg" id="breg" value="1" size='3' min='1' required />位から
-    <input type="number" name="ereg" id="ereg" value="10" size='3' min='1' required />位まで
+    <input type="number" name="breg" id="breg" value="1" size='3' min='1' required />番目から
+    <input type="number" name="ereg" id="ereg" value="10" size='3' min='1' required />番目まで
     <input type="submit" formaction='dl-all-points' color='yellow' value="獲得ポイントデータをダウンロードする" />
 </form>
 </td>
