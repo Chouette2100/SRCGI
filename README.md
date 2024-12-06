@@ -32,10 +32,10 @@ Windowsであれば
 |SRDB|SQL|v2.0.0|データベース作成用スキーマ|
 |SRCGI|daemon<br>Webサーバ|v2.0.0|獲得ポイントデータの取得の設定、データの参照<br>（ShowroomCGI は使用しない）|
 |SRGSE5M|daemon|v2.0.0|獲得ポイントデータの取得<br>(GetScoreEvery5minutes は使用しない)|
-|SRGPC|daemon|v-.-.-|配信枠別リスナー別貢献ポイントの算出<br>（GetPointsCont01 は使用しない）|
+|SRGPC|daemon|v2.0.0|配信枠別リスナー別貢献ポイントの算出<br>（GetPointsCont01 は使用しない）|
 |SRGCE|cron|v2.0.0|新規イベントデータ追加、ブロックイベント・イベントボックスの展開<br>srAddNewOnesはこちらに統合した|
-|UpdateUserSetProperty|cron|v-.-.-|配信者属性の更新<br>おもにSHOWRANK上位ルームの一覧を作るために使用する<br>（SRUUI/SRUEUI は使用しない）|
-|SRGGR|cron|v-.-.-|ライバー王決定戦等の結果データを取得する|
+|UpdateUserSetProperty|cron|v2.0.0|配信者属性の更新<br>おもにSHOWRANK上位ルームの一覧を作るために使用する<br>（SRUUI/SRUEUI は使用しない）|
+|SRGGR|cron|v2.0.0|ライバー王決定戦等の結果データを取得する|
 |srapi|library|v2.0.1|SHOWROOMのAPIのラッパー|
 |exsrapi|library|v2.0.0|共通ライブラリ|
 |srdblib|library|v2.0.0|DBのアクセスのためのライブラリ|
