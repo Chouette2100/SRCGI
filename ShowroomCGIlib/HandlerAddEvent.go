@@ -309,9 +309,13 @@ func GetAndInsertEventRoomInfo(
 	}
 
 	hh := time.Since(eventinfo.Start_time).Hours()
-	thpoint := eventinfo.Thdelta*(int(hh)) + eventinfo.Thinit
+	//	thpoint := eventinfo.Thdelta*(int(hh)) + eventinfo.Thinit
+	thpoint := eventinfo.Thdelta*(int(hh))
+	if thpoint < eventinfo.Thinit {
+		thpoint = eventinfo.Thinit
+	}
 	log.Printf("%s Starttime=%s Hours=%7.2f\n", eventid, eventinfo.Start_time.Format("2006-01-02 15:04:05"), hh)
-	log.Printf("%s hh=%d thpoint=%d\n", eventid, int(hh), thpoint)
+	log.Printf("%s hh=%d Thinit=%d Thdelta=%d thpoint=%d\n", eventid, int(hh), eventinfo.Thinit, eventinfo.Thdelta, thpoint)
 
 	if lenpr != 0 {
 		//	for _, rinf := range(pranking.Ranking) {

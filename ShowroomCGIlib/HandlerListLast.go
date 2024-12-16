@@ -44,6 +44,32 @@ import (
 	"github.com/Chouette2100/srdblib"
 )
 
+type CurrentScore struct {
+	Rank      int
+	Srank     string
+	Userno    int
+	Shorturl  string
+	Eventid   string
+	Username  string
+	Roomgenre string
+	Roomrank  string
+	Roomnrank string
+	Roomprank string
+	Roomlevel string
+	Followers string
+	Fans      int
+	Fans_lst  int
+	NextLive  string
+	Point     int
+	Spoint    string
+	Sdfr      string
+	Pstatus   string
+	Ptime     string
+	Qstatus   string
+	Qtime     string
+	Bcntrb    bool
+}
+
 func HandlerListLast(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)

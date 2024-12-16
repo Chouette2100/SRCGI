@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 	//	"io" //　ログ出力設定用。必要に応じて。
 	//	"sort" //	ソート用。必要に応じて。
@@ -21,7 +22,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	//	"github.com/Chouette2100/exsrapi"
-	//	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib"
 	//	"github.com/Chouette2100/srapi"
 )
 
@@ -201,4 +202,72 @@ func HandlerClosedEvents(
 		log.Printf("tpl.ExecuteTemplate() returned error: %s\n", err.Error())
 	}
 
+}
+
+func SelectRoomInf(
+	userno int,
+) (
+	roominf RoomInfo,
+	status int,
+) {
+
+	status = 0
+
+	sql := "select distinct u.userno, userid, user_name, longname, shortname, genre, nrank, prank, level, followers, fans, fans_lst, e.istarget,e.graph, e.color, e.iscntrbpoints, e.point "
+	sql += " from user u join eventuser e "
+	//	sql += " where u.userno = e.userno and u.userno = " + fmt.Sprintf("%d", userno)
+	sql += " where u.userno = e.userno and u.userno = ? "
+
+	stmt, err := srdblib.Db.Prepare(sql)
+	if err != nil {
+		log.Printf("SelectRoomInf() Prepare() err=%s\n", err.Error())
+		status = -5
+		return
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRow(userno).Scan(&roominf.Userno,
+		&roominf.Account,
+		&roominf.Name,
+		&roominf.Longname,
+		&roominf.Shortname,
+		&roominf.Genre,
+		&roominf.Nrank,
+		&roominf.Prank,
+		&roominf.Level,
+		&roominf.Followers,
+		&roominf.Fans,
+		&roominf.Fans_lst,
+		&roominf.Istarget,
+		&roominf.Graph,
+		&roominf.Color,
+		&roominf.Iscntrbpoint,
+		&roominf.Point,
+	)
+	if err != nil {
+		log.Printf("SelectRoomInf() Query() (6) err=%s\n", err.Error())
+		status = -6
+		return
+	}
+	if roominf.Istarget == "Y" {
+		roominf.Istarget = "Checked"
+	} else {
+		roominf.Istarget = ""
+	}
+	if roominf.Graph == "Y" {
+		roominf.Graph = "Checked"
+	} else {
+		roominf.Graph = ""
+	}
+	if roominf.Iscntrbpoint == "Y" {
+		roominf.Iscntrbpoint = "Checked"
+	} else {
+		roominf.Iscntrbpoint = ""
+	}
+	roominf.Slevel = humanize.Comma(int64(roominf.Level))
+	roominf.Sfollowers = humanize.Comma(int64(roominf.Followers))
+	roominf.Spoint = humanize.Comma(int64(roominf.Point))
+	roominf.Name = strings.ReplaceAll(roominf.Name, "'", "’")
+
+	return
 }
