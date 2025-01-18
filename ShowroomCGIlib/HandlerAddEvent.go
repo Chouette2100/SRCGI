@@ -308,9 +308,14 @@ func GetAndInsertEventRoomInfo(
 		lenpr = len(pranking.Ranking)
 	}
 
+	ignorethpoint := false
+	if lenpr > 0 && lenpr <= 30 {
+		ignorethpoint = true
+	}
+
 	hh := time.Since(eventinfo.Start_time).Hours()
 	//	thpoint := eventinfo.Thdelta*(int(hh)) + eventinfo.Thinit
-	thpoint := eventinfo.Thdelta*(int(hh))
+	thpoint := eventinfo.Thdelta * (int(hh))
 	if thpoint < eventinfo.Thinit {
 		thpoint = eventinfo.Thinit
 	}
@@ -327,7 +332,7 @@ func GetAndInsertEventRoomInfo(
 		}
 		for i := breg; i <= ereg; i++ {
 			rinf := pranking.Ranking[i-1]
-			if rinf.Point < thpoint {
+			if !ignorethpoint && rinf.Point < thpoint {
 				ereg = i - 1
 				break
 			}
@@ -506,7 +511,6 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 	}
 	log.Printf("  *** end of InsertRoomInf() ***********\n")
 }
-
 
 func GetEventInfAndRoomList(
 	eventid string,
