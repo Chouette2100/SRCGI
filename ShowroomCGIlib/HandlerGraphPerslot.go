@@ -14,10 +14,10 @@ import (
 	//	"math/rand"
 	// "sort"
 	//	"strconv"
-	"strings"
-	"time"
 	"os"
-
+	"strings"
+	"strconv"
+	"time"
 
 	// "runtime"
 
@@ -63,7 +63,6 @@ type PerSlotInf struct {
 	Perslotlist []PerSlot
 }
 
-
 func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
@@ -78,7 +77,7 @@ func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
 	eventid := r.FormValue("eventid")
 	log.Printf("      eventid=%s\n", eventid)
 
-	perslotinflist, _ := MakePointPerSlot(eventid)
+	perslotinflist, _ := MakePointPerSlot(eventid, 0)
 
 	filename, _ := GraphPerSlot(eventid, &perslotinflist)
 	if Serverconfig.WebServer == "nginxSakura" {
@@ -117,6 +116,12 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 		"templates/list-perslot2.gtpl",
 	))
 
+	roomid := 0
+	sroomid := r.FormValue("roomid")
+	if sroomid != "" {
+		roomid, _ = strconv.Atoi(sroomid)
+	}	
+
 	eventid := r.FormValue("eventid")
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
@@ -136,7 +141,8 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	perslotinflist, _ := MakePointPerSlot(eventid)
+	perslotinflist, _ := MakePointPerSlot(eventid, roomid)
+
 
 	if err := tpl.ExecuteTemplate(w, "list-perslot2.gtpl", perslotinflist); err != nil {
 		log.Println(err)
@@ -144,7 +150,7 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func MakePointPerSlot(eventid string) (perslotinflist []PerSlotInf, status int) {
+func MakePointPerSlot(eventid string, roomid int) (perslotinflist []PerSlotInf, status int) {
 
 	var perslotinf PerSlotInf
 
@@ -156,12 +162,21 @@ func MakePointPerSlot(eventid string) (perslotinflist []PerSlotInf, status int) 
 
 	var roominfolist RoomInfoList
 
-	_, sts := SelectEventRoomInfList(eventid, &roominfolist)
-
-	if sts != 0 {
-		log.Printf("status of SelectEventRoomInfList() =%d\n", sts)
-		status = sts
-		return
+	if roomid == 0 {
+		_, sts := SelectEventRoomInfList(eventid, &roominfolist)
+		if sts != 0 {
+			log.Printf("status of SelectEventRoomInfList() =%d\n", sts)
+			status = sts
+			return
+		}
+	} else {
+		roominfolist = make(RoomInfoList, 1)
+		intf, _ := srdblib.Dbmap.Get(srdblib.User{}, roomid)
+		roominfolist[0] = RoomInfo{
+			Userno: roomid,
+			Name:   intf.(*srdblib.User).User_name,
+			Graph: "Checked",
+		} 
 	}
 
 	for i := 0; i < len(roominfolist); i++ {
@@ -274,9 +289,7 @@ func MakePointPerSlot(eventid string) (perslotinflist []PerSlotInf, status int) 
 	return
 }
 
-
 var Nfseq int
-
 
 func GraphPerSlot(
 	eventid string,

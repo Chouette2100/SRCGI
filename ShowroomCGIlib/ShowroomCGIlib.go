@@ -212,10 +212,11 @@ import (
 11BZ06	list-last_h.gtplで出力範囲を○位から○位までを○番目から○番目までに変更する。
 11CA00	ShowroomCGIlib.goを機能別に分離する。thpoint = max(thinit, thdelta * hh) とする
 11CB00	HandlerAddEvent()で、イベント開始後でもエントリー数が30以下のときはすべてのルームを登録する。
+11CC00	累積・獲得ポイントの概要(HandlerGraphSum())を追加する
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CB00"
+const Version = "11CC00"
 
 type LongName struct {
 	Name string
