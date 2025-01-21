@@ -2,7 +2,6 @@
 <html>
 
 <head>
-    <title>Go + Chart.js グラフ</title>
     {{/*
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
@@ -84,7 +83,8 @@
                                     displayFormats: {
                                         // day: 'yyyy-MM-dd' // 表示フォーマット
                                         day: 'MM-dd' // 表示フォーマット
-                                    }
+                                    },
+                                    tooltipFormat: 'yyyy-MM-dd HH-mm', // ツールチップのフォーマット
                                 },
                                 {{/*
                                 time: {

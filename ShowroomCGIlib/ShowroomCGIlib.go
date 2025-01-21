@@ -213,10 +213,11 @@ import (
 11CA00	ShowroomCGIlib.goを機能別に分離する。thpoint = max(thinit, thdelta * hh) とする
 11CB00	HandlerAddEvent()で、イベント開始後でもエントリー数が30以下のときはすべてのルームを登録する。
 11CC00	累積・獲得ポイントの概要(HandlerGraphSum())を追加する
+11CD00	累積・獲得ポイントの詳細(HandlerGraphSum2())を追加する
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CC00"
+const Version = "11CD00"
 
 type LongName struct {
 	Name string

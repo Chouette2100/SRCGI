@@ -98,11 +98,10 @@ import (
 	11BV00	獲得ポイント全データのダウンロード機能（HandlerDlAllPoints()）を追加する。
 	11BZ00	アクセスログをDBに保存する
 	11CC00	累積・獲得ポイントの概要(HandlerGraphSum())を追加する
-
-
+	11CD00	累積・獲得ポイントの詳細(HandlerGraphSum2())を追加する
 */
 
-const version = "11CC00"
+const version = "11CD00"
 
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
@@ -322,6 +321,9 @@ func main() {
 		http.HandleFunc(rootPath+"/list-perslot", ShowroomCGIlib.HandlerListPerslot)
 		http.HandleFunc(rootPath+"/graph-sum", ShowroomCGIlib.HandlerGraphSum)
 		http.HandleFunc(rootPath+"/graph-sum-data", ShowroomCGIlib.HandlerGraphSumData)
+		http.HandleFunc(rootPath+"/graph-sum2", ShowroomCGIlib.HandlerGraphSum2)
+		http.HandleFunc(rootPath+"/graph-sum-data1", ShowroomCGIlib.HandlerGraphSumData1)
+		http.HandleFunc(rootPath+"/graph-sum-data2", ShowroomCGIlib.HandlerGraphSumData2)
 
 		http.HandleFunc(rootPath+"/add-event", ShowroomCGIlib.HandlerAddEvent)
 		http.HandleFunc(rootPath+"/edit-user", ShowroomCGIlib.HandlerEditUser)
