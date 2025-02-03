@@ -1,3 +1,10 @@
+.vscode
+.node_modules
+node_modules
+settings.json
+package.json
+package-lock.json
+.prettierrc
 *.exe
 *.bak
 *.csv
@@ -7,9 +14,10 @@ SRCGI.20*
 ??????_??????_??????_????????.txt
 SRCGI
 SRCGI_maint
+SRCGI.2024*
 ShowroomCGI
 ShowroomCGI_det
-workspace.code-workspace
+*-workspace
 *.tar
 *.tar.gz
 *.csh

@@ -99,10 +99,10 @@ import (
 	11BZ00	アクセスログをDBに保存する
 	11CC00	累積・獲得ポイントの概要(HandlerGraphSum())を追加する
 	11CD00	累積・獲得ポイントの詳細(HandlerGraphSum2())を追加する
+	11CE00	グラフ画像のファイル名の連番の発行はチャンネルを介して行う。
 */
 
-const version = "11CD00"
-
+const version = "11CE00"
 // 日付けが変わったらログファイルの名前を変える
 func NewLogfileName(logfile *os.File) {
 
@@ -235,6 +235,21 @@ func main() {
 		defer srdblib.Dialer.Close()
 	}
 
+	//  =============================================
+	// 画像ファイル名の連番を発行する
+	go func() {
+		no := 0
+		ShowroomCGIlib.Chimgfn = make(chan int)
+		for {
+			ShowroomCGIlib.Chimgfn <- no
+			no++
+			if no > 999 {
+				no = 0
+			}
+		}
+	}()
+	//  =============================================
+
 	//	http://dsas.blog.klab.org/archives/2018-02/configure-sql-db.html
 	//	https://qiita.com/hgsgtk/items/770c51559f374b36da3f
 	//	http://dsas.blog.klab.org/archives/pixiv-isucon2016-2.html
@@ -256,8 +271,8 @@ func main() {
 
 	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
 	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db,
-		Dialect: dial,
-    	ExpandSliceArgs: true, //スライス引数展開オプションを有効化する 
+		Dialect:         dial,
+		ExpandSliceArgs: true, //スライス引数展開オプションを有効化する
 	}
 	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
@@ -298,7 +313,7 @@ func main() {
 		}
 	*/
 
-	if ! ShowroomCGIlib.Serverconfig.Maintenance {
+	if !ShowroomCGIlib.Serverconfig.Maintenance {
 		/*	Maintenance */
 
 		http.HandleFunc(rootPath+"/top", ShowroomCGIlib.HandlerTopForm)
@@ -536,4 +551,3 @@ func Handlert009top(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("<a href=\"https://chouette2100.com/t009top\">https://chouette2100.com/t009top</a>"))
 	w.Write([]byte("</html>"))
 }
-

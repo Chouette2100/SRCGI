@@ -218,6 +218,7 @@ import (
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
 const Version = "11CD00"
+var Chimgfn chan int
 
 type LongName struct {
 	Name string

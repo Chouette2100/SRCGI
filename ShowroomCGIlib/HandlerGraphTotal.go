@@ -193,7 +193,7 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 
 	if Serverconfig.WebServer == "None" {
 		//	Webサーバーとして起動するときは、起動した直後を0とする連番（の下3桁）とする
-		filename = fmt.Sprintf("%03d.svg", Nfseq)
+		filename = fmt.Sprintf("%03d.svg", <- Chimgfn)
 		Nfseq = (Nfseq + 1) % 1000
 	} else {
 		//	CGIのときはプロセスID（の下3桁）とする。
