@@ -253,6 +253,7 @@
                 <td>獲得ポイント<br>推移図</td>
                 <td>日々の<br>獲得pt</td>
                 <td>枠毎の<br>獲得pt</td>
+                <td>貢献<br>pt</td>
 
             </tr>
             {{ $i := 0 }}
@@ -301,6 +302,11 @@
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
                     <a href="list-perslot?eventid={{ .Event_ID }}">枠毎pt</a>
+                    {{ end }}
+                </td>
+                <td style="text-align: center;">
+                    {{ if ne $userno 0 }}
+                    <a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Event_ID }}?room_id={{$userno}}">貢献pt</a>
                     {{ end }}
                 </td>
             </tr>

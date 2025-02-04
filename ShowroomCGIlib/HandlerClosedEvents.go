@@ -27,11 +27,9 @@ import (
 )
 
 /*
+終了イベント一覧を作るためのハンドラー
 
-	終了イベント一覧を作るためのハンドラー
-
-	Ver. 0.1.0
-
+Ver. 0.1.0
 */
 func HandlerClosedEvents(
 	w http.ResponseWriter,
@@ -39,12 +37,10 @@ func HandlerClosedEvents(
 ) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	//      テーブルは"w"で始まるものを操作の対象とする。
 	//	srdblib.Tevent = "wevent"
@@ -60,6 +56,14 @@ func HandlerClosedEvents(
 
 		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
 		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
+		"DelBlockID": func(eid string) string {
+			eia := strings.Split(eid, "?")
+			if len(eia) == 2 {
+				return eia[0]
+			} else {
+				return eid
+			}
+		},
 	}
 
 	// テンプレートをパースする
@@ -87,7 +91,7 @@ func HandlerClosedEvents(
 		top.Offset, _ = strconv.Atoi(soffset)
 	}
 
-	//	ページ操作	
+	//	ページ操作
 	action := r.FormValue("action")
 	if action == "next" {
 		//	次ページを表示する。
@@ -157,19 +161,19 @@ func HandlerClosedEvents(
 			}
 			ri, _ := SelectRoomInf(top.Userno)
 			top.Keywordrm = ri.Name
-			top.Roomlist = & []Room { {Userno: ri.Userno, User_name: "(" + strconv.Itoa(ri.Userno) + ")" + ri.Name} }
+			top.Roomlist = &[]Room{{Userno: ri.Userno, User_name: "(" + strconv.Itoa(ri.Userno) + ")" + ri.Name}}
 		}
 	case 5:
-			//	ルームIDによる絞り込み
-			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
-			if err != nil {
-				err = fmt.Errorf("MakeListOfPoints(): %w", err)
-				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
-				top.ErrMsg = err.Error()
-			}
-			ri, _ := SelectRoomInf(top.Userno)
-			top.Keywordrm = ri.Name
-			top.Roomlist = & []Room { {Userno: ri.Userno, User_name: "(" + strconv.Itoa(ri.Userno) + ")" + ri.Name} }
+		//	ルームIDによる絞り込み
+		top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
+		if err != nil {
+			err = fmt.Errorf("MakeListOfPoints(): %w", err)
+			log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
+			top.ErrMsg = err.Error()
+		}
+		ri, _ := SelectRoomInf(top.Userno)
+		top.Keywordrm = ri.Name
+		top.Roomlist = &[]Room{{Userno: ri.Userno, User_name: "(" + strconv.Itoa(ri.Userno) + ")" + ri.Name}}
 	default:
 	}
 
