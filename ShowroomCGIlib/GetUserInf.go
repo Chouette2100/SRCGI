@@ -121,10 +121,24 @@ func GetUserInf(r *http.Request) (
 	}
 	al.Formvalues = string(jd)
 
-	err = srdblib.Dbmap.Insert(&al)
-	if err != nil {
-		log.Printf(" GetUserInf(): %s\n", err.Error())
-	}
+	Chlog <- &al
+
+	/*
+		err = srdblib.Dbmap.Insert(&al)
+		if err != nil {
+			log.Printf(" GetUserInf(): %s\n", err.Error())
+		}
+	*/
 
 	return
+}
+
+// func logWorker(db *sql.DB, logCh chan string, done chan struct{}) {
+func LogWorker() {
+	for {
+		al := <-Chlog
+		if err := srdblib.Dbmap.Insert(al); err != nil {
+			log.Printf(" GetUserInf(): %s\n", err.Error())
+		}
+	}
 }

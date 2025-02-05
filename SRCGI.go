@@ -100,10 +100,12 @@ import (
 	11CC00	累積・獲得ポイントの概要(HandlerGraphSum())を追加する
 	11CD00	累積・獲得ポイントの詳細(HandlerGraphSum2())を追加する
 	11CE00	グラフ画像のファイル名の連番の発行はチャンネルを介して行う。
+	11CE02	Accesslogへの書き込みを非同期化する。
 */
 
-const version = "11CE00"
-// 日付けが変わったらログファイルの名前を変える
+const version = "11CE02"
+
+
 func NewLogfileName(logfile *os.File) {
 
 	var err error
@@ -156,6 +158,10 @@ func main() {
 	// log.SetOutput(io.MultiWriter(logfile, os.Stdout))
 
 	go NewLogfileName(logfile)
+
+	ShowroomCGIlib.Chlog = make(chan *srdblib.Accesslog, 100)
+	defer close(ShowroomCGIlib.Chlog)
+	go ShowroomCGIlib.LogWorker()
 
 	//	https://ssabcire.hatenablog.com/entry/2019/02/13/000722
 	//	https://konboi.hatenablog.com/entry/2016/04/12/100903

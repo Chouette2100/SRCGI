@@ -215,11 +215,14 @@ import (
 11CC00	累積・獲得ポイントの概要(HandlerGraphSum())を追加する
 11CD00	累積・獲得ポイントの詳細(HandlerGraphSum2())を追加する
 11CE01	HadleerClosedEvent()の一覧に貢献ポイントランキングへのリンクを追加する。
+11CE02	Accesslogへの書き込みを非同期化する。
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CE01"
+const Version = "11CE02"
 var Chimgfn chan int
+var Chlog chan *srdblib.Accesslog
+
 
 type LongName struct {
 	Name string
