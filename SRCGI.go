@@ -101,9 +101,10 @@ import (
 	11CD00	累積・獲得ポイントの詳細(HandlerGraphSum2())を追加する
 	11CE00	グラフ画像のファイル名の連番の発行はチャンネルを介して行う。
 	11CE02	Accesslogへの書き込みを非同期化する。
+	11CF00	貢献ランキングのCSVファイル出力を追加する
 */
 
-const version = "11CE02"
+const version = "11CF00"
 
 
 func NewLogfileName(logfile *os.File) {
@@ -289,6 +290,8 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
+	srdblib.Dbmap.AddTableWithName(ShowroomCGIlib.Contribution{}, "contribution").SetKeys(false, "Ieventid", "Roomid", "Viewerid")
+
 
 	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
 	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
@@ -381,6 +384,7 @@ func main() {
 
 		//	終了イベント一覧
 		http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.HandlerClosedEvents)
+		http.HandleFunc(rootPath+"/contributors", ShowroomCGIlib.HandlerContributors)
 
 		//	イベント最終結果
 		http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.HandlerClosedEventRoomList)

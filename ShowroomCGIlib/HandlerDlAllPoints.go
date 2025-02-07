@@ -186,14 +186,13 @@ func MakeFileOfAllPoints(
 	//	取得した結果をファイルに書き出す
 
 	//	ファイル名の決定
-	if Serverconfig.WebServer == "None" {
-		hd.Filename = fmt.Sprintf("%d_%s.csv", hd.Eventinf.Ieventid, time.Now().Format("20060102-150405"))
-		Nfseq = (Nfseq + 1) % 1000
-	} else {
-		hd.Filename = fmt.Sprintf("%03d.svg", os.Getpid()%1000)
-		//	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		//	filename = fmt.Sprintf("%0d.svg", r.Intn(100))
-	}
+	uqn := ""
+	// if Serverconfig.WebServer == "None" {
+		uqn = time.Now().Format("20060102-15040500")
+	// } else {
+	// 	uqn = fmt.Sprintf("%03d", os.Getpid()%1000)
+	// }
+	hd.Filename = fmt.Sprintf("%d_%s.csv", hd.Eventinf.Ieventid, uqn)
 
 	file, err := os.OpenFile("public/"+hd.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {

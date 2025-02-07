@@ -306,7 +306,8 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if ne $userno 0 }}
-                    <a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Event_ID }}?room_id={{$userno}}">貢献pt</a>
+                    <a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Event_ID }}?room_id={{$userno}}">公式</a> /
+                    <a href="contributors?ieventid={{.I_Event_ID}}&roomid={{$userno}}">CSV</a>
                     {{ end }}
                 </td>
             </tr>
