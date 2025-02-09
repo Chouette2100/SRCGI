@@ -217,10 +217,13 @@ import (
 11CE01	HadleerClosedEvent()の一覧に貢献ポイントランキングへのリンクを追加する。
 11CE02	Accesslogへの書き込みを非同期化する。
 11CF00	貢献ランキングのCSVファイル出力を追加する
+11CF01	CSVファイル出力の文字化けに対応する。攻撃的アクセスに対応する。終了イベント一覧に過去のイベントを追加・参照する機能を追加する（作成中）
+11CF02	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
+
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CF00"
+const Version = "11CF01"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 

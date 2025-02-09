@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 	"strconv"
-	//	"strings"
+	"strings"
 	//	"sort"
 	"time"
 
@@ -128,10 +128,10 @@ func MakeFileOfAllPoints(
 	//	Eventid := hd.Eventinf.Eventid
 	//	argmap := map[string]interface{}{"Users": []int{429729,431217,417115}, "Eventid": "mattari_fireworks201"}
 	//	log.Printf("argmap = %+v\n", argmap)
-	//	itfc, err = srdblib.Dbmap.Select(timelist{}, sqlstmt, 
+	//	itfc, err = srdblib.Dbmap.Select(timelist{}, sqlstmt,
 	//	map[string]interface{}{"Users": []int{429729,431217,417115}, "Eventid": "mattari_fireworks201"})
 	itfctl, err := srdblib.Dbmap.Select(Timelist{}, sqlstmt, map[string]interface{}{"Users": Ul, "Eventid": hd.Eventinf.Eventid})
-	//	itfctl, err := srdblib.Dbmap.Select(Timelist{}, sqlstmt) 
+	//	itfctl, err := srdblib.Dbmap.Select(Timelist{}, sqlstmt)
 	if err != nil {
 		err = fmt.Errorf("srdblib.Dbmap.Select(timelist{}, %s) err=%w", eventid, err)
 		return nil, err
@@ -174,12 +174,12 @@ func MakeFileOfAllPoints(
 			udl[i].Pd[tlmap[tpd.(*Pointdata).Ts]] = *tpd.(*Pointdata)
 		}
 		/*
-		for j := 2; j < len(tl); j++ {
-			if udl[i].Pd[j].Point == -1 {
-				udl[i].Pd[j].Point = udl[i].Pd[j-1].Point
-				udl[i].Pd[j].Rank = udl[i].Pd[j-1].Rank
+			for j := 2; j < len(tl); j++ {
+				if udl[i].Pd[j].Point == -1 {
+					udl[i].Pd[j].Point = udl[i].Pd[j-1].Point
+					udl[i].Pd[j].Rank = udl[i].Pd[j-1].Rank
+				}
 			}
-		}
 		*/
 	}
 
@@ -188,56 +188,69 @@ func MakeFileOfAllPoints(
 	//	ファイル名の決定
 	uqn := ""
 	// if Serverconfig.WebServer == "None" {
-		uqn = time.Now().Format("20060102-15040500")
+	uqn = time.Now().Format("20060102-150405.00")
+	uqn = strings.Replace(uqn, ".", "", -1)
 	// } else {
 	// 	uqn = fmt.Sprintf("%03d", os.Getpid()%1000)
 	// }
-	hd.Filename = fmt.Sprintf("%d_%s.csv", hd.Eventinf.Ieventid, uqn)
+	hd.Filename = fmt.Sprintf("%d_%s", hd.Eventinf.Ieventid, uqn)
 
-	file, err := os.OpenFile("public/"+hd.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		err = fmt.Errorf("os.OpenFile(public/%s) err=%w", hd.Filename, err)
-		return
-	}
-
-	ebuf := ""
-	ubufno := ""
-	ubufnm := ""
-	for j := 0; j < len(Ul); j++ {
-		ebuf += ","
-
-		itfc, err = srdblib.Dbmap.Get(srdblib.User{}, Ul[j])
-
+	for i := 0; i < 2; i++ {
+		fn := "public/" + hd.Filename + "-1.csv"
+		if i == 1 {
+			fn = "public/" + hd.Filename + "-2.csv"
+		}
+		var file *os.File
+		file, err = os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 		if err != nil {
-			err = fmt.Errorf("srdblib.Dbmap.Get(User{}, %d) err=%w", Ul[j], err)
+			err = fmt.Errorf("os.OpenFile(%s) err=%w", fn, err)
 			return
 		}
-		ubufnm += ",\"" + itfc.(*srdblib.User).Longname + "\""
-		ubufno += fmt.Sprintf(",(%d)", Ul[j])
-	}
+		//	ファイルを閉じる
+		defer file.Close()
 
-	fmt.Fprintf(file, "\"%s\"%s\n", hd.Eventinf.Event_name, ebuf)
-	fmt.Fprintf(file, "\"%s\"%s\n", hd.Eventinf.Eventid, ebuf)
-	fmt.Fprintf(file, "%d%s\n", hd.Eventinf.Ieventid, ebuf)
-	fmt.Fprintf(file, "\"%s\"%s\n", hd.Eventinf.Period, ebuf)
-	fmt.Fprintf(file, "\n")
-	fmt.Fprintf(file, "%s\n", ubufno)
-	fmt.Fprintf(file, "%s\n", ubufnm)
-
-	buf := tl[0].Format("2006/01/02 15:04:05")
-	fmt.Fprintf(file, "%s\n", buf+ebuf)
-	for i := 1; i < len(tl); i++ {
-		buf := tl[i].Format("2006/01/02 15:04:05")
-		for j := 0; j < len((Ul)); j++ {
-			buf += ","
-			if udl[j].Pd[i].Point != -1 {
-				buf += fmt.Sprintf("%d", udl[j].Pd[i].Point)
-			}
+		if i == 1 {
+			file.Write([]byte{0xEF, 0xBB, 0xBF}) // UTF-8 BOM
 		}
-		fmt.Fprintf(file, "%s\n", buf)
+
+		ebuf := ""
+		ubufno := ""
+		ubufnm := ""
+		for j := 0; j < len(Ul); j++ {
+			ebuf += ","
+
+			itfc, err = srdblib.Dbmap.Get(srdblib.User{}, Ul[j])
+
+			if err != nil {
+				err = fmt.Errorf("srdblib.Dbmap.Get(User{}, %d) err=%w", Ul[j], err)
+				return
+			}
+			ubufnm += ",\"" + itfc.(*srdblib.User).Longname + "\""
+			ubufno += fmt.Sprintf(",%d", Ul[j])
+		}
+
+		fmt.Fprintf(file, "\"%s\"%s\n", hd.Eventinf.Event_name, ebuf)
+		fmt.Fprintf(file, "\"%s\"%s\n", hd.Eventinf.Eventid, ebuf)
+		fmt.Fprintf(file, "%d%s\n", hd.Eventinf.Ieventid, ebuf)
+		fmt.Fprintf(file, "\"%s\"%s\n", hd.Eventinf.Period, ebuf)
+		fmt.Fprintf(file, "\n")
+		fmt.Fprintf(file, "%s\n", ubufno)
+		fmt.Fprintf(file, "%s\n", ubufnm)
+
+		buf := tl[0].Format("2006/01/02 15:04:05")
+		fmt.Fprintf(file, "%s\n", buf+ebuf)
+		for i := 1; i < len(tl); i++ {
+			buf := tl[i].Format("2006/01/02 15:04:05")
+			for j := 0; j < len((Ul)); j++ {
+				buf += ","
+				if udl[j].Pd[i].Point != -1 {
+					buf += fmt.Sprintf("%d", udl[j].Pd[i].Point)
+				}
+			}
+			fmt.Fprintf(file, "%s\n", buf)
+		}
+		file.Close()
 	}
-	//	ファイルを閉じる
-	err = file.Close()
 
 	return
 }

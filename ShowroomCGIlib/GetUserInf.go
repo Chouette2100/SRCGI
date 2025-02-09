@@ -7,7 +7,7 @@ import (
 	//	"SRCGI/ShowroomCGIlib"
 	//	"bufio"
 	// "bytes"
-	//	"fmt"
+	// "fmt"
 	//	"html"
 	"log"
 
@@ -19,6 +19,7 @@ import (
 	//	"os"
 
 	"runtime"
+	"sync"
 
 	// "encoding/json"
 
@@ -54,6 +55,10 @@ type KV struct {
 	V []string
 }
 
+var LAlog sync.Map = sync.Map{}
+
+const wait = time.Millisecond * 1500
+
 func GetUserInf(r *http.Request) (
 	ra string,
 	ua string,
@@ -64,7 +69,7 @@ func GetUserInf(r *http.Request) (
 
 	pt, _, _, ok := runtime.Caller(1) //	スタックトレースへのポインターを得る。1は一つ上のファンクション。
 
-	fn := ""
+	var fn string
 	if !ok {
 		fn = "unknown"
 	}
@@ -82,13 +87,15 @@ func GetUserInf(r *http.Request) (
 	ua = r.UserAgent()
 
 	log.Printf("  *** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
-	//	fmt.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
+	//	log.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 
-	if !IsAllowIp(ra) {
-		log.Printf("%s is on the Blacklist(%s)", ra, ua)
-		isallow = false
-		return
-	}
+	/*
+		if !IsAllowIp(ra) {
+			log.Printf("%s is on the Blacklist(%s)", ra, ua)
+			isallow = false
+			return
+		}
+	*/
 
 	//	パラメータを表示する
 	if err := r.ParseForm(); err != nil {
@@ -129,6 +136,30 @@ func GetUserInf(r *http.Request) (
 			log.Printf(" GetUserInf(): %s\n", err.Error())
 		}
 	*/
+
+	if ll, ok := LAlog.Load(ra); ok {
+		tnow := time.Now()
+		na := ll.(time.Time)
+		if tnow.After(na) {
+			na = tnow.Add(wait)
+			LAlog.Store(ra, na)
+			log.Printf("  === %20s %s set Nextaccess to %s ( tnow =%s)\n",
+				fna[len(fna)-1],ra, na.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+		} else {
+			nna := na.Add(wait)
+			LAlog.Store(ra, nna)
+			log.Printf("  === %20s %s set Nextaccess to %s ( tnow =%s)\n",
+				fna[len(fna)-1],ra, nna.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+			time.Sleep(na.Sub(tnow))
+		}
+	} else {
+		tnow := time.Now()
+		na := tnow.Add(wait)
+		// LAlog.Store(ra, Lastaccess{na})
+		LAlog.Store(ra, na)
+		log.Printf("  === %20s %s set Nextaccess to %s ( tnow =%s)\n",
+			fna[len(fna)-1],ra, na.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+	}
 
 	return
 }

@@ -74,15 +74,15 @@ func HandlerContributors(
 	seventid := r.FormValue("ieventid")
 	ieventid, _ := strconv.Atoi(seventid)
 
-        var intf []interface{}
+	var intf []interface{}
 	intf, err = srdblib.Dbmap.Select(&srdblib.Wevent{}, "SELECT * FROM wevent WHERE ieventid = ?", ieventid)
-        if err != nil {
+	if err != nil {
 		err = fmt.Errorf("srdblib.Dbmap.Select(): %s", err.Error())
 		log.Printf("err=%s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
-        event := *(intf[0].(*srdblib.Wevent))
+	event := *(intf[0].(*srdblib.Wevent))
 
 	sroomid := r.FormValue("roomid")
 	roomid, _ := strconv.Atoi(sroomid)
@@ -107,8 +107,8 @@ func HandlerContributors(
 
 	if err = MakeFileOfContributors(client, &hcntrbinf); err != nil {
 		err = fmt.Errorf("MakeFileOfContributors(): %w", err)
-                log.Printf("err=%s\n", err.Error())
-                w.Write([]byte(err.Error()))
+		log.Printf("err=%s\n", err.Error())
+		w.Write([]byte(err.Error()))
 		return
 	}
 
@@ -119,8 +119,8 @@ func HandlerContributors(
 
 	if err := tpl.ExecuteTemplate(w, "contributors.gtpl", hcntrbinf); err != nil {
 		err = fmt.Errorf("tpl.ExceuteTemplate(w,\"contributors.gtpl\", hcntrbinf) err=%s", err.Error())
-                log.Printf("err=%s\n", err.Error())
-                w.Write([]byte(err.Error()))
+		log.Printf("err=%s\n", err.Error())
+		w.Write([]byte(err.Error()))
 	}
 
 }
@@ -178,7 +178,7 @@ func GetAndSaveContributors(
 			if err = srdblib.Dbmap.Insert(&contribution); err != nil {
 				err = fmt.Errorf("Insert(): %w", err)
 				// log.Printf("Insert(): %s\n", err.Error())
-                                return
+				return
 			}
 
 		}
@@ -231,22 +231,37 @@ func MakeFileOfContributors(
 	} else {
 		uqn = fmt.Sprintf("%03d", os.Getpid()%1000)
 	}
-	hc.Filename = fmt.Sprintf("%s_%d_%d_%s.csv", hc.Eventid, hc.Ieventid, hc.Roomid, uqn)
+	hc.Filename = fmt.Sprintf("%s_%d_%d_%s", hc.Eventid, hc.Ieventid, hc.Roomid, uqn)
 
-	file, err := os.OpenFile("public/"+hc.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		err = fmt.Errorf("os.OpenFile(public/%s) err=%w", hc.Filename, err)
-		return
-	}
-	defer file.Close()
+	var file *os.File
+	for i := 0; i < 2; i++ {
 
-	// ファイルに書き出す
-	fmt.Fprintf(file, "%d, %s, \"%s\"\n", hc.Ieventid, hc.Eventid, hc.Event_name)
-	fmt.Fprintf(file, ",Period, \"%s\"\n", hc.Period)
-	fmt.Fprintf(file, ",Roomid, %d\n", hc.Roomid)
-	fmt.Fprintf(file, "Rank,Viewerid,Viewername,Point\n")
-	for _, r := range hc.Result {
-		fmt.Fprintf(file, "%d,%d,%s,%d\n", r.Irank, r.Viewerid, r.Name, r.Point)
+		// ファイルを開く
+		fn := "public/" + hc.Filename
+		if i == 0 {
+			fn = fn + "-1.csv"
+		} else {
+			fn = fn + "-2.csv"
+		}
+		file, err = os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			err = fmt.Errorf("os.OpenFile(public/%s) err=%w", hc.Filename, err)
+			return
+		}
+		defer file.Close()
+
+		if i == 1 {
+			file.Write([]byte{0xEF, 0xBB, 0xBF}) // UTF-8 BOM
+		}
+
+		// ファイルに書き出す
+		fmt.Fprintf(file, "%d, %s, \"%s\"\n", hc.Ieventid, hc.Eventid, hc.Event_name)
+		fmt.Fprintf(file, ",Period, \"%s\"\n", hc.Period)
+		fmt.Fprintf(file, ",Roomid, %d\n", hc.Roomid)
+		fmt.Fprintf(file, "Rank,Viewerid,Viewername,Point\n")
+		for _, r := range hc.Result {
+			fmt.Fprintf(file, "%d,%d,%d,\"%s\"\n", r.Irank, r.Viewerid, r.Point, r.Name)
+		}
 	}
 
 	return

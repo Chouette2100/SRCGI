@@ -19,9 +19,16 @@
   </tr>
 </table>
 <br><br>
-<a href="{{ $f }}" download="{{ $f }}">『{{ .Event_name }}』（{{.Eventid}} / {{.Ieventid}}）獲得ポイントデータのダウンロード</a>
+<a href="{{ $f }}-1.csv" download="{{ $f }}-1.csv">1. 『{{ .Event_name }}』（{{.Eventid}} / {{.Ieventid}}）獲得ポイントデータのダウンロード(CSV)</a>
+<br><br>
+<a href="{{ $f }}-2.csv" download="{{ $f }}-2.csv">2. 『{{ .Event_name }}』（{{.Eventid}} / {{.Ieventid}}）獲得ポイントデータのダウンロード(UTF-8 BOMつきCSV)</a>
   {{ end }}
+<br><br>
 <br>
+※ 1.はふつうのCSVファイルです。LibreOffice Calc、Googleスプレッドシートなどで開けます。<br>
+※ 2.はUTF-8 BOM(注)付きのCSVファイルです。Microsoft Excelのために用意しましたが、LibreOffice Calc、Googleスプレッドシートなどでも開けます。<br>
+<br>
+注 UTF-8 BOM ... ファイル先頭に0xEF, 0xBB, 0xBFの3バイトを付加しています。これが問題になる場合は1.を使ってください。<br>
 <br>
 <br>
 ・獲得ポイントに変化がないところのデータはありませせん（いろんな事情でデータが出力されていることもあります）

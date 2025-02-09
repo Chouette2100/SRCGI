@@ -102,9 +102,11 @@ import (
 	11CE00	グラフ画像のファイル名の連番の発行はチャンネルを介して行う。
 	11CE02	Accesslogへの書き込みを非同期化する。
 	11CF00	貢献ランキングのCSVファイル出力を追加する
+	11CF01	CSVファイル出力の文字化けに対応する。攻撃的アクセスに対応する。終了イベント一覧に過去のイベントを追加・参照する機能を追加する（作成中）
+	11CF02	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
 */
 
-const version = "11CF00"
+const version = "11CF01"
 
 
 func NewLogfileName(logfile *os.File) {
@@ -384,6 +386,7 @@ func main() {
 
 		//	終了イベント一覧
 		http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.HandlerClosedEvents)
+		http.HandleFunc(rootPath+"/oldevents", ShowroomCGIlib.HandlerOldEvents)
 		http.HandleFunc(rootPath+"/contributors", ShowroomCGIlib.HandlerContributors)
 
 		//	イベント最終結果
