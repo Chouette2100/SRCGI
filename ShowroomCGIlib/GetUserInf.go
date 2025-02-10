@@ -137,28 +137,47 @@ func GetUserInf(r *http.Request) (
 		}
 	*/
 
+	twait := wait
+
+	// 	クローラーの場合は待ち時間を10秒とする
+	if strings.Contains(ua, "SemrushBot") || strings.Contains(ua, "Googlebot") {
+		twait = 10 * time.Second
+	}
+
 	if ll, ok := LAlog.Load(ra); ok {
+		// 待ち時間情報がある場合
 		tnow := time.Now()
 		na := ll.(time.Time)
 		if tnow.After(na) {
-			na = tnow.Add(wait)
+			// 待ち時間を過ぎている場合
+			na = tnow.Add(twait)
 			LAlog.Store(ra, na)
-			log.Printf("  === %20s %s set Nextaccess to %s ( tnow =%s)\n",
-				fna[len(fna)-1],ra, na.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+			log.Printf("     === %20s %s set Nextaccess to %s ( tnow =%s)\n",
+				fna[len(fna)-1], ra, na.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
 		} else {
-			nna := na.Add(wait)
+			// 待ち時間を過ぎていない場合
+			nna := na.Add(twait)
 			LAlog.Store(ra, nna)
+			if nna.Sub(tnow) > twait*6 {
+				// 待ち時間が待ち時間単位の6倍を超えた場合は処理を許可しない
+				// これは、待ち時間が長くなるのは、処理が終わる前にリクエストが来ていることを意味する。
+				log.Printf("     === %20s %s set Nextaccess to %s ( tnow =%s)\n", fna[len(fna)-1],
+					ra, nna.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+				isallow = false
+				return
+			}
 			log.Printf("  === %20s %s set Nextaccess to %s ( tnow =%s)\n",
-				fna[len(fna)-1],ra, nna.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+				fna[len(fna)-1], ra, nna.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
 			time.Sleep(na.Sub(tnow))
 		}
 	} else {
+		// 待ち時間情報がない場合
 		tnow := time.Now()
-		na := tnow.Add(wait)
+		na := tnow.Add(twait)
 		// LAlog.Store(ra, Lastaccess{na})
 		LAlog.Store(ra, na)
-		log.Printf("  === %20s %s set Nextaccess to %s ( tnow =%s)\n",
-			fna[len(fna)-1],ra, na.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
+		log.Printf("     === %20s %s set Nextaccess to %s ( tnow =%s)\n",
+			fna[len(fna)-1], ra, na.Format("2006-01-02 15:04:05.000"), tnow.Format("2006-01-02 15:04:05.000"))
 	}
 
 	return
