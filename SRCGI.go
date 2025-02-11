@@ -8,13 +8,18 @@ import (
 	//	"strconv"
 	"time"
 
+	"context"
 	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
+
+	"crypto/tls"
 
 	//	"html/template"
 	"net/http"
 
-	"net/http/cgi"
+	// "net/http/cgi"
 
 	//	"github.com/dustin/go-humanize"
 
@@ -104,10 +109,10 @@ import (
 	11CF00	貢献ランキングのCSVファイル出力を追加する
 	11CF01	CSVファイル出力の文字化けに対応する。攻撃的アクセスに対応する。終了イベント一覧に過去のイベントを追加・参照する機能を追加する（作成中）
 	11CF02	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
+	11CG00	commonMiddleware()を導入し、コンテクストとグレースフルシャットダウンを導入する。
 */
 
-const version = "11CF01"
-
+const version = "11CG00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -147,6 +152,30 @@ func NewLogfileName(logfile *os.File) {
 		time.Sleep(1 * time.Second)
 	}
 }
+
+// 共通の処理を行うミドルウェア
+// =============================================
+func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        // 共通の処理をここで行う
+        log.Println("Common processing")
+
+        // 次のハンドラーを呼び出す
+        next(w, r)
+    }
+}
+// =============================================
+
+
+// =============================================
+// サーバー構成
+type ServerConfig struct {
+	HTTPport string
+	SSLcrt   string
+	SSLkey   string
+}
+
+// =============================================
 
 // 入力内容の確認画面
 func main() {
@@ -294,7 +323,6 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
 	srdblib.Dbmap.AddTableWithName(ShowroomCGIlib.Contribution{}, "contribution").SetKeys(false, "Ieventid", "Roomid", "Viewerid")
 
-
 	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
 	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Accesslog{}, "accesslog").SetKeys(false, "Ts", "Eventid")
@@ -324,106 +352,122 @@ func main() {
 		}
 	*/
 
+	// =============================================
+	// メインコンテキストとキャンセル関数を作成
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// シグナルチャンネルを作成
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	// ゴルーチンでシグナルを待機
+	go func() {
+		sig := <-sigs
+		log.Println("Received signal:", sig)
+		cancel()
+	}()
+	// =============================================
+
 	if !ShowroomCGIlib.Serverconfig.Maintenance {
 		/*	Maintenance */
 
-		http.HandleFunc(rootPath+"/top", ShowroomCGIlib.HandlerTopForm)
+		http.HandleFunc(rootPath+"/top", commonMiddleware(ShowroomCGIlib.HandlerTopForm))
 
-		http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.HandlerListLevel)
+		http.HandleFunc(rootPath+"/list-level", commonMiddleware(ShowroomCGIlib.HandlerListLevel))
 
-		http.HandleFunc(rootPath+"/list-last", ShowroomCGIlib.HandlerListLast)
+		http.HandleFunc(rootPath+"/list-last", commonMiddleware(ShowroomCGIlib.HandlerListLast))
 
-		http.HandleFunc(rootPath+"/dl-all-points", ShowroomCGIlib.HandlerDlAllPoints)
+		http.HandleFunc(rootPath+"/dl-all-points", commonMiddleware(ShowroomCGIlib.HandlerDlAllPoints))
 
-		http.HandleFunc(rootPath+"/graph-total", ShowroomCGIlib.HandlerGraphTotal)
-		http.HandleFunc(rootPath+"/csv-total", ShowroomCGIlib.HandlerCsvTotal)
+		http.HandleFunc(rootPath+"/graph-total", commonMiddleware(ShowroomCGIlib.HandlerGraphTotal))
+		http.HandleFunc(rootPath+"/csv-total", commonMiddleware(ShowroomCGIlib.HandlerCsvTotal))
 
-		http.HandleFunc(rootPath+"/graph-dfr", ShowroomCGIlib.HandlerGraphDfr)
+		http.HandleFunc(rootPath+"/graph-dfr", commonMiddleware(ShowroomCGIlib.HandlerGraphDfr))
 
-		http.HandleFunc(rootPath+"/graph-perday", ShowroomCGIlib.HandlerGraphPerday)
-		http.HandleFunc(rootPath+"/list-perday", ShowroomCGIlib.HandlerListPerday)
+		http.HandleFunc(rootPath+"/graph-perday", commonMiddleware(ShowroomCGIlib.HandlerGraphPerday))
+		http.HandleFunc(rootPath+"/list-perday", commonMiddleware(ShowroomCGIlib.HandlerListPerday))
 
-		http.HandleFunc(rootPath+"/graph-perslot", ShowroomCGIlib.HandlerGraphPerslot)
-		http.HandleFunc(rootPath+"/list-perslot", ShowroomCGIlib.HandlerListPerslot)
-		http.HandleFunc(rootPath+"/graph-sum", ShowroomCGIlib.HandlerGraphSum)
-		http.HandleFunc(rootPath+"/graph-sum-data", ShowroomCGIlib.HandlerGraphSumData)
-		http.HandleFunc(rootPath+"/graph-sum2", ShowroomCGIlib.HandlerGraphSum2)
-		http.HandleFunc(rootPath+"/graph-sum-data1", ShowroomCGIlib.HandlerGraphSumData1)
-		http.HandleFunc(rootPath+"/graph-sum-data2", ShowroomCGIlib.HandlerGraphSumData2)
+		http.HandleFunc(rootPath+"/graph-perslot", commonMiddleware(ShowroomCGIlib.HandlerGraphPerslot))
+		http.HandleFunc(rootPath+"/list-perslot", commonMiddleware(ShowroomCGIlib.HandlerListPerslot))
+		http.HandleFunc(rootPath+"/graph-sum", commonMiddleware(ShowroomCGIlib.HandlerGraphSum))
+		http.HandleFunc(rootPath+"/graph-sum-data", commonMiddleware(ShowroomCGIlib.HandlerGraphSumData))
+		http.HandleFunc(rootPath+"/graph-sum2", commonMiddleware(ShowroomCGIlib.HandlerGraphSum2))
+		http.HandleFunc(rootPath+"/graph-sum-data1", commonMiddleware(ShowroomCGIlib.HandlerGraphSumData1))
+		http.HandleFunc(rootPath+"/graph-sum-data2", commonMiddleware(ShowroomCGIlib.HandlerGraphSumData2))
 
-		http.HandleFunc(rootPath+"/add-event", ShowroomCGIlib.HandlerAddEvent)
-		http.HandleFunc(rootPath+"/edit-user", ShowroomCGIlib.HandlerEditUser)
-		http.HandleFunc(rootPath+"/new-user", ShowroomCGIlib.HandlerNewUser)
+		http.HandleFunc(rootPath+"/add-event", commonMiddleware(ShowroomCGIlib.HandlerAddEvent))
+		http.HandleFunc(rootPath+"/edit-user", commonMiddleware(ShowroomCGIlib.HandlerEditUser))
+		http.HandleFunc(rootPath+"/new-user", commonMiddleware(ShowroomCGIlib.HandlerNewUser))
 
-		http.HandleFunc(rootPath+"/param-event", ShowroomCGIlib.HandlerParamEvent)
-		http.HandleFunc(rootPath+"/param-eventc", ShowroomCGIlib.HandlerParamEventC)
+		http.HandleFunc(rootPath+"/param-event", commonMiddleware(ShowroomCGIlib.HandlerParamEvent))
+		http.HandleFunc(rootPath+"/param-eventc", commonMiddleware(ShowroomCGIlib.HandlerParamEventC))
 
-		http.HandleFunc(rootPath+"/new-event", ShowroomCGIlib.HandlerNewEvent)
+		http.HandleFunc(rootPath+"/new-event", commonMiddleware(ShowroomCGIlib.HandlerNewEvent))
 
-		http.HandleFunc(rootPath+"/param-global", ShowroomCGIlib.HandlerParamGlobal)
+		http.HandleFunc(rootPath+"/param-global", commonMiddleware(ShowroomCGIlib.HandlerParamGlobal))
 
-		http.HandleFunc(rootPath+"/list-cntrb", ShowroomCGIlib.HandlerListCntrb)
+		http.HandleFunc(rootPath+"/list-cntrb", commonMiddleware(ShowroomCGIlib.HandlerListCntrb))
 
-		http.HandleFunc(rootPath+"/list-cntrbS", ShowroomCGIlib.HandlerListCntrbS)
+		http.HandleFunc(rootPath+"/list-cntrbS", commonMiddleware(ShowroomCGIlib.HandlerListCntrbS))
 
-		http.HandleFunc(rootPath+"/list-cntrbH", ShowroomCGIlib.HandlerListCntrbH)
+		http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(ShowroomCGIlib.HandlerListCntrbH))
 
-		http.HandleFunc(rootPath+"/fanlevel", ShowroomCGIlib.HandlerFanLevel)
+		http.HandleFunc(rootPath+"/fanlevel", commonMiddleware(ShowroomCGIlib.HandlerFanLevel))
 
-		http.HandleFunc(rootPath+"/flranking", ShowroomCGIlib.HandlerFlRanking)
+		http.HandleFunc(rootPath+"/flranking", commonMiddleware(ShowroomCGIlib.HandlerFlRanking))
 
-		http.HandleFunc(rootPath+"/currentdistrb", ShowroomCGIlib.HandlerCurrentDistributors)
+		http.HandleFunc(rootPath+"/currentdistrb", commonMiddleware(ShowroomCGIlib.HandlerCurrentDistributors))
 
-		http.HandleFunc(rootPath+"/currentevents", ShowroomCGIlib.HandlerCurrentEvents)
+		http.HandleFunc(rootPath+"/currentevents", commonMiddleware(ShowroomCGIlib.HandlerCurrentEvents))
 
-		http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.HandlerEventRoomList)
+		http.HandleFunc(rootPath+"/eventroomlist", commonMiddleware(ShowroomCGIlib.HandlerEventRoomList))
 
 		//	開催予定イベント一覧
-		http.HandleFunc(rootPath+"/scheduledevents", ShowroomCGIlib.HandlerScheduledEvents)
+		http.HandleFunc(rootPath+"/scheduledevents", commonMiddleware(ShowroomCGIlib.HandlerScheduledEvents))
 
 		//	開催予定イベント一覧（サーバーから取得）
-		http.HandleFunc(rootPath+"/scheduledeventssvr", ShowroomCGIlib.HandlerScheduledEventsSvr)
+		http.HandleFunc(rootPath+"/scheduledeventssvr", commonMiddleware(ShowroomCGIlib.HandlerScheduledEventsSvr))
 
 		//	終了イベント一覧
-		http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.HandlerClosedEvents)
-		http.HandleFunc(rootPath+"/oldevents", ShowroomCGIlib.HandlerOldEvents)
-		http.HandleFunc(rootPath+"/contributors", ShowroomCGIlib.HandlerContributors)
+		http.HandleFunc(rootPath+"/closedevents", commonMiddleware(ShowroomCGIlib.HandlerClosedEvents))
+		http.HandleFunc(rootPath+"/oldevents", commonMiddleware(ShowroomCGIlib.HandlerOldEvents))
+		http.HandleFunc(rootPath+"/contributors", commonMiddleware(ShowroomCGIlib.HandlerContributors))
 
 		//	イベント最終結果
-		http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.HandlerClosedEventRoomList)
+		http.HandleFunc(rootPath+"/closedeventroomlist", commonMiddleware(ShowroomCGIlib.HandlerClosedEventRoomList))
 
-		http.HandleFunc(rootPath+"/apiroomstatus", srhandler.HandlerApiRoomStatus)
+		http.HandleFunc(rootPath+"/apiroomstatus", commonMiddleware(srhandler.HandlerApiRoomStatus))
 
 		//	ギフトランキングリスト
-		http.HandleFunc(rootPath+"/listgs", ShowroomCGIlib.HandlerListGiftScore)
+		http.HandleFunc(rootPath+"/listgs", commonMiddleware(ShowroomCGIlib.HandlerListGiftScore))
 
 		//	ギフトランキンググラフ
-		http.HandleFunc(rootPath+"/graphgs", ShowroomCGIlib.HandlerGraphGiftScore)
+		http.HandleFunc(rootPath+"/graphgs", commonMiddleware(ShowroomCGIlib.HandlerGraphGiftScore))
 
 		//	最強ファンランキングリスト
-		http.HandleFunc(rootPath+"/listvgs", ShowroomCGIlib.HandlerListFanGiftScore)
+		http.HandleFunc(rootPath+"/listvgs", commonMiddleware(ShowroomCGIlib.HandlerListFanGiftScore))
 
 		//	ギフトランキング貢献ランキングリスト
-		http.HandleFunc(rootPath+"/listgsc", ShowroomCGIlib.HandlerListGiftScoreCntrb)
+		http.HandleFunc(rootPath+"/listgsc", commonMiddleware(ShowroomCGIlib.HandlerListGiftScoreCntrb))
 
 		//	イベント獲得ポイント上位ルーム
-		http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.HandlerTopRoom)
+		http.HandleFunc(rootPath+"/toproom", commonMiddleware(ShowroomCGIlib.HandlerTopRoom))
 
 		//	SHOWランク上位配信者一覧表
-		http.HandleFunc(rootPath+"/showrank", ShowroomCGIlib.HandlerShowRank)
+		http.HandleFunc(rootPath+"/showrank", commonMiddleware(ShowroomCGIlib.HandlerShowRank))
 
 		//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
-		http.HandleFunc(rootPath+"/disp-bbs", ShowroomCGIlib.HandlerDispBbs)
+		http.HandleFunc(rootPath+"/disp-bbs", commonMiddleware(ShowroomCGIlib.HandlerDispBbs))
 
-		http.HandleFunc(rootPath+"/t008top", srhandler.HandlerT008topForm) //	http://....../t008top で呼び出される。
-		http.HandleFunc(rootPath+"/t009top", srhandler.HandlerT009topForm) //	http://....../t009top で呼び出される。
+		http.HandleFunc(rootPath+"/t008top", commonMiddleware(srhandler.HandlerT008topForm)) //	http://....../t008top で呼び出される。
+		http.HandleFunc(rootPath+"/t009top", commonMiddleware(srhandler.HandlerT009topForm)) //	http://....../t009top で呼び出される。
 
-		http.HandleFunc(rootPath+"/cgi-bin", HandlerCgiBin)
-		http.HandleFunc(rootPath+"/cgi-bin/SC1", HandlerCgiBinSc1)
-		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI", HandlerCgiBinSc1Srcgi)
-		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI/top", HandlerCgiBinSc1SrcgiTop)
-		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t008top", Handlert008top)
-		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t009top", Handlert009top)
+		http.HandleFunc(rootPath+"/cgi-bin", commonMiddleware(HandlerCgiBin))
+		http.HandleFunc(rootPath+"/cgi-bin/SC1", commonMiddleware(HandlerCgiBinSc1))
+		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI", commonMiddleware(HandlerCgiBinSc1Srcgi))
+		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI/top", commonMiddleware(HandlerCgiBinSc1SrcgiTop))
+		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t008top", commonMiddleware(Handlert008top))
+		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t009top", commonMiddleware(Handlert009top))
 
 		/* Maintenance ここまで */
 	} else {
@@ -468,7 +512,44 @@ func main() {
 		/*	Maintenance ここまで	*/
 	}
 
-	if svconfig.WebServer == "None" {
+	// =============================================
+	server := &http.Server{Addr: ":8080"}
+	// =============================================
+
+	/*
+		if svconfig.WebServer == "None" {
+			//	Webサーバーとして起動
+			//	root権限のない（特権昇格ができない）ユーザーで起動した方が安全だと思います。
+			//	その場合80や443のポートはlistenできないので、
+			//	ポートを変えてルータやOSの設定でport redirectionするか
+			//	ケーパビリティを設定してください。
+			//	# setcap cap_net_bind_service=+ep ShowroomCGI
+			//　（設置したあとこの操作を行うこと）
+			//
+			if svconfig.SSLcrt != "" {
+				//	証明書があればSSLを使う
+				log.Printf("           http.ListenAndServeTLS()\n")
+				err := http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
+				if err != nil {
+					log.Printf("%s\n", err.Error())
+				}
+			} else {
+				log.Printf("           http.ListenAndServe()\n")
+				err := http.ListenAndServe(":"+svconfig.HTTPport, nil)
+				if err != nil {
+					log.Printf("%s\n", err.Error())
+				}
+			}
+		} else { //	CGIとして使う
+			log.Printf("           cgi.Serve()\n")
+			// CGIを起動
+			//	使用するWebServerに応じて設置場所等適宜対応してください。
+			cgi.Serve(nil)
+		}
+	*/
+
+	// =============================================
+	go func() {
 		//	Webサーバーとして起動
 		//	root権限のない（特権昇格ができない）ユーザーで起動した方が安全だと思います。
 		//	その場合80や443のポートはlistenできないので、
@@ -480,23 +561,56 @@ func main() {
 		if svconfig.SSLcrt != "" {
 			//	証明書があればSSLを使う
 			log.Printf("           http.ListenAndServeTLS()\n")
-			err := http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
-			if err != nil {
-				log.Printf("%s\n", err.Error())
+			svconfig := ServerConfig{
+				HTTPport: "8080",
+				SSLcrt:   "path/to/your/cert.crt",
+				SSLkey:   "path/to/your/key.key",
 			}
+			// HTTPサーバーを設定
+			server := &http.Server{
+				Addr:      ":" + svconfig.HTTPport,
+				TLSConfig: &tls.Config{
+					// 必要に応じてTLS設定を追加
+				},
+				Handler:      http.DefaultServeMux, // ここでハンドラを指定
+				ReadTimeout:  10 * time.Second,
+				WriteTimeout: 10 * time.Second,
+			}
+
+			// サーバーをTLSで起動
+			err := server.ListenAndServeTLS(svconfig.SSLcrt, svconfig.SSLkey)
+			if err != nil {
+				log.Println("Server error:", err)
+			}
+			// =============================================
+			// err := http.ListenAndServeTLS(":"+svconfig.HTTPport, svconfig.SSLcrt, svconfig.SSLkey, nil)
+			// if err != nil {
+			// 	log.Printf("%s\n", err.Error())
+			// }
 		} else {
 			log.Printf("           http.ListenAndServe()\n")
-			err := http.ListenAndServe(":"+svconfig.HTTPport, nil)
-			if err != nil {
-				log.Printf("%s\n", err.Error())
+			server := &http.Server{Addr: ":" + svconfig.HTTPport}
+			if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Println("Server error:", err)
 			}
+			// err := http.ListenAndServe(":"+svconfig.HTTPport, nil)
+			// 	log.Printf("%s\n", err.Error())
+			// }
 		}
-	} else { //	CGIとして使う
-		log.Printf("           cgi.Serve()\n")
-		// CGIを起動
-		//	使用するWebServerに応じて設置場所等適宜対応してください。
-		cgi.Serve(nil)
+	}()
+
+	// コンテキストがキャンセルされるのを待つ
+	<-ctx.Done()
+
+	// グレースフルシャットダウン
+	ctxShutdown, cancelShutdown := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelShutdown()
+	if err := server.Shutdown(ctxShutdown); err != nil {
+		log.Println("Server shutdown error:", err)
 	}
+
+	log.Println("Server gracefully stopped")
+	// =============================================
 }
 func HandlerCgiBin(w http.ResponseWriter, r *http.Request) {
 
