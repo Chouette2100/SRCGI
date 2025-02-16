@@ -220,11 +220,12 @@ import (
 11CF01	CSVファイル出力の文字化けに対応する。攻撃的アクセスに対応する。終了イベント一覧に過去のイベントを追加・参照する機能を追加する（作成中）
 11CF02	GetUserInf()で単一のIPアドレスから複数のリクエストがあったときは一定値以上のリクエストは拒否する。
 11CG00	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
+11CG01	イベント結果確定後表示を修正する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CF02"
+const Version = "11CG01"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 

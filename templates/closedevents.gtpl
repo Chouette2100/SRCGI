@@ -149,6 +149,12 @@
                     <td align="right">
                         <input type="submit" value="ルームで絞り込む" formaction="closedevents" formmethod="GET">
                     </td>
+                    {{/*
+                    <td align="right">
+                        <input type="submit" value="このルームの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/*
+                            style="background-color: aquamarine" */}}>
+                    </td>
+                    */}}
                 </tr>
                 <tr>
                     <td style="width:4em"></td>
@@ -178,6 +184,12 @@
                         <input type="submit" value="ルームIDで絞り込む" formaction="closedevents" formmethod="GET" {{/*
                             style="background-color: aquamarine" */}}>
                     </td>
+                    {{/*
+                    <td align="right">
+                        <input type="submit" value="このルームIDの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/*
+                            style="background-color: aquamarine" */}}>
+                    </td>
+                    */}}
                 </tr>
                 <tr>
                     <td style="width:4em"></td>
@@ -275,7 +287,10 @@
                     {{ TimeToString .End_time }}
                 </td>
                 <td style="text-align: center;">
-                    {{ if ne .I_Event_ID 0 }}
+                    {{/* {{ if and (ne .I_Event_ID 0) ( ne .Aclr 0 ) }} */}}
+                    {{/* {{ if and (ne .I_Event_ID 0) ( ne .Aclr 0 ) }} */}}
+                    {{ if  ne .Aclr 0 }}
+                    {{/* {{ if ne .I_Event_ID 0 }} */}}
                     <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">最終結果</a>
                     {{ end }}
                 </td>
