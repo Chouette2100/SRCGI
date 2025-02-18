@@ -110,9 +110,10 @@ import (
 	11CF01	CSVファイル出力の文字化けに対応する。攻撃的アクセスに対応する。終了イベント一覧に過去のイベントを追加・参照する機能を追加する（作成中）
 	11CF02	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
 	11CG00	commonMiddleware()を導入し、コンテクストとグレースフルシャットダウンを導入する。
+	11CG02	サーバー起動パラメータを変更する。
 */
 
-const version = "11CG00"
+const version = "11CG02"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -561,11 +562,13 @@ func main() {
 		if svconfig.SSLcrt != "" {
 			//	証明書があればSSLを使う
 			log.Printf("           http.ListenAndServeTLS()\n")
+			/*
 			svconfig := ServerConfig{
 				HTTPport: "8080",
 				SSLcrt:   "path/to/your/cert.crt",
 				SSLkey:   "path/to/your/key.key",
 			}
+			*/
 			// HTTPサーバーを設定
 			server := &http.Server{
 				Addr:      ":" + svconfig.HTTPport,
