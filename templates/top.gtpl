@@ -96,11 +96,14 @@
     <br><a href="toproom" style="padding-left:2em">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）
     */}}
     <p style="padding-left:2em">
-    <a href="/listgs">「SHOWROOMライバー王決定戦」ギフトランキング </a>  （新規機能・テスト中）<br>
+    <a href="/listgs">「SHOWROOMライバー王決定戦」ギフトランキング </a>  （新規機能・テスト中）
+    {{/*
+    <br>
     <span style="color: red">（ジャンルランキング、決勝Sリーグ、決勝Rリーグについてはギフトの貢献ランキング200位までを追加）</span>
+    */}}
     </p>
     <p style="padding-left:2em">
-    <a href="showrank">SHOWランクが上位のルーム</a>  （データ整備中）
+    <a href="showrank">SHOWランクが上位のルーム</a> {{/* （データ整備中） */}}
     </p>
     <p style="padding-left:2em">
     <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで十数秒要します）

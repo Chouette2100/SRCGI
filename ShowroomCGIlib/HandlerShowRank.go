@@ -45,10 +45,15 @@ func SelectShowRank(
 
 	userlist = new([]srdblib.User)
 
-	sqltr := " select * from user where irank between 0 and ? order by irank "
+	// sqltr := " select * from user where irank between 0 and ? order by irank "
+	sqltr := " select * from user where irank between 0 and ? and ts > ? order by irank "
 
 	var ul []interface{}
-	ul, err = srdblib.Dbmap.Select( srdblib.User{}, sqltr, limit )
+	ul, err = srdblib.Dbmap.Select( srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour * 25))
+	if err != nil {
+		err = fmt.Errorf("srdblib.Dbmap.Select(): %w", err)
+		return
+	}
 
 	for _, v := range ul {
 		*userlist = append(*userlist, *(v.(*srdblib.User)))

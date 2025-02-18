@@ -221,11 +221,14 @@ import (
 11CF02	GetUserInf()で単一のIPアドレスから複数のリクエストがあったときは一定値以上のリクエストは拒否する。
 11CG00	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
 11CG01	イベント結果確定後表示を修正する。
+11CG03	HandlerShowRank()で過去のデータを除外する。
+		closedevents.gtplでコメント一部が表示されないようにする。
+		top.gtplで期間限定の表示を削除する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CG01"
+const Version = "11CG03"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 

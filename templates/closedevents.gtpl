@@ -151,8 +151,8 @@
                     </td>
                     {{/*
                     <td align="right">
-                        <input type="submit" value="このルームの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/*
-                            style="background-color: aquamarine" */}}>
+                        <input type="submit" value="このルームの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/=
+                            style="background-color: aquamarine" =/}}>
                     </td>
                     */}}
                 </tr>
@@ -186,8 +186,8 @@
                     </td>
                     {{/*
                     <td align="right">
-                        <input type="submit" value="このルームIDの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/*
-                            style="background-color: aquamarine" */}}>
+                        <input type="submit" value="このルームIDの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/=
+                            style="background-color: aquamarine" =/}}>
                     </td>
                     */}}
                 </tr>
