@@ -115,9 +115,10 @@ import (
 	11CG00	commonMiddleware()を導入し、コンテクストとグレースフルシャットダウンを導入する。
 	11CG02	サーバー起動パラメータを変更する。
 	11CH00  指定した配信者の過去イベントの一覧を取り込む機能の調整をする。
+	11CH01  main()のファイル名をmain.goと変更する。
 */
 
-const version = "11CH00"
+const version = "11CH01"
 
 func NewLogfileName(logfile *os.File) {
 

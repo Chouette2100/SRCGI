@@ -227,11 +227,12 @@ import (
 		closedevents.gtplでコメント一部が表示されないようにする。
 		top.gtplで期間限定の表示を削除する。
 11CH00	HandlerOldEvents()を実装する。
+11CH01	HandlerOldEvents()でイベント数に矛盾があっても処理を継続する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CH00"
+const Version = "11CH01"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 

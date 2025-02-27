@@ -122,7 +122,7 @@ func GetAndSaveOldEvents(
 	rpe, err = srapi.GetRoomsPasteventsByApi(client, roomid)
 	if err != nil {
 		err = fmt.Errorf("GetRoomsPasteventsByApi(): %w", err)
-		return
+		// return
 	}
 
 	// 取得したデータにあるイベント数と実際のイベント数が一致するか確認する

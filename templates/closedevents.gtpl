@@ -296,6 +296,10 @@
                     {{ if  ne .Aclr 0 }}
                     {{/* {{ if ne .I_Event_ID 0 }} */}}
                     <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">最終結果</a>
+                    {{ else }}
+                        {{ if ne $userno 0 }}
+                        <a href="https://showroom-live.com/api/events/{{.I_Event_ID}}/ranking?room_id={{$userno}}">API</a>
+                        {{ end }}
                     {{ end }}
                 </td>
                 <td style="text-align: center;">
