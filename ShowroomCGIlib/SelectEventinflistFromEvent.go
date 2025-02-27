@@ -33,8 +33,10 @@ func SelectEventinflistFromEvent(
 
 	tnow := time.Now().Truncate(time.Second)
 
-	sqls := "select we.eventid,we.ieventid,we.event_name, we.period, we.starttime, we.endtime, we.noentry, we.intervalmin, we.modmin, we.modsec, "
-	sqls += " we.Fromorder, we.Toorder, we.Resethh, we.Resetmm, we.Nobasis, we.Maxdsp, we.cmap, we.target, we.`rstatus`, we.maxpoint, we.achk, we.aclr "
+	sqls := "select we.eventid,we.ieventid,we.event_name, we.period, we.starttime, "
+	sqls += " we.endtime, we.noentry, we.intervalmin, we.modmin, we.modsec, "
+	sqls += " we.Fromorder, we.Toorder, we.Resethh, we.Resetmm, we.Nobasis, we.Maxdsp, "
+	sqls += " we.cmap, we.target, we.`rstatus`, we.maxpoint, we.achk, we.aclr "
 	sqls += " from wevent we"
 	if mode == 1 {
 		sqls += " join event e on we.eventid = e.eventid "

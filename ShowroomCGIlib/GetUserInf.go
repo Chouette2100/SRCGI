@@ -140,7 +140,8 @@ func GetUserInf(r *http.Request) (
 	twait := wait
 
 	// 	クローラーの場合は待ち時間を10秒とする
-	if strings.Contains(ua, "SemrushBot") || strings.Contains(ua, "Googlebot") {
+	// if strings.Contains(ua, "SemrushBot") || strings.Contains(ua, "Googlebot") {
+	if Regexpbots.MatchString(ua) {
 		twait = 10 * time.Second
 	}
 

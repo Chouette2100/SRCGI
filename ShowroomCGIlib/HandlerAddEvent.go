@@ -470,7 +470,8 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 		//	log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
 		user := new(srdblib.User)
 		user.Userno = (*roominfolist)[i].Userno
-		err := srdblib.UpinsUserSetProperty(client, tnow, user, 1440*5, 200)
+		// err := srdblib.UpinsUserSetProperty(client, tnow, user, 1440*5, 200)
+		_, err := srdblib.UpinsUser(client, tnow, user, 1440*5, 200)
 		if err != nil {
 			log.Printf("srdblib.UpinsUserSetProperty(): err=%v\n", err)
 			return

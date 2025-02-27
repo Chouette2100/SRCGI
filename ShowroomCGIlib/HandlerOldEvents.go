@@ -28,12 +28,13 @@ import (
 	"github.com/Chouette2100/srdblib"
 )
 
-/*
-終了イベント一覧を作るためのハンドラー
+type OldEvents struct {
+	User    *srdblib.Wuser
+	Wevents []srdblib.Wevent
+	ErrMsg  string
+}
 
-Ver. 0.1.0
-*/
-
+// 過去のイベントの一覧を作るためのハンドラー
 func HandlerOldEvents(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -45,21 +46,13 @@ func HandlerOldEvents(
 		return
 	}
 
-	seventid := r.FormValue("ieventid")
-	ieventid, _ := strconv.Atoi(seventid)
+	oe := OldEvents{}
+	oe.User = new(srdblib.Wuser)
 
-        var intf []interface{}
-	intf, err = srdblib.Dbmap.Select(&srdblib.Wevent{}, "SELECT * FROM wevent WHERE ieventid = ?", ieventid)
-        if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(): %s", err.Error())
-		log.Printf("err=%s\n", err.Error())
-		w.Write([]byte(err.Error()))
-		return
-	}
-        event := *(intf[0].(*srdblib.Wevent))
+	suserno := r.FormValue("userno")
+	oe.User.Userno, _ = strconv.Atoi(suserno)
 
-	sroomid := r.FormValue("roomid")
-	roomid, _ := strconv.Atoi(sroomid)
+	twuser := new(srdblib.Wuser)
 
 	client, cookiejar, err := exsrapi.CreateNewClient("")
 	if err != nil {
@@ -71,30 +64,47 @@ func HandlerOldEvents(
 	}
 	defer cookiejar.Save()
 
-	hcntrbinf := HCntrbInf{
-		Ieventid:   ieventid,
-		Eventid:    event.Eventid,
-		Event_name: event.Event_name,
-		Period:     event.Period,
-		Roomid:     roomid,
+	oe.Wevents, err = GetAndSaveOldEvents(client, oe.User.Userno)
+	if err != nil {
+		err = fmt.Errorf("GetAndSaveOldEvents(): %s", err.Error())
+		log.Printf("err=%s\n", err.Error())
+		oe.ErrMsg = err.Error()
 	}
 
-	if err = MakeFileOfContributors(client, &hcntrbinf); err != nil {
-		err = fmt.Errorf("MakeFileOfContributors(): %w", err)
-                log.Printf("err=%s\n", err.Error())
-                w.Write([]byte(err.Error()))
-		return
+	if len(oe.Wevents) == 0 {
+		// 指定した配信者が存在しない、あるいは参加したイベントがない場合
+		oe.ErrMsg = "No events or userno is invalid"
+	} else {
+		// 参加したイベントがある場合はユーザ情報を追加あるいは更新する
+		twuser.Userno = oe.User.Userno
+		oe.User = twuser
+
+		ru, err := srdblib.UpinsUser(client, time.Now().Truncate(time.Second), twuser, 14400, 5000)
+		if err != nil {
+			err = fmt.Errorf("UpinsUser(): %s", err.Error())
+			log.Printf("err=%s\n", err.Error())
+			w.Write([]byte(err.Error()))
+			return
+		}
+		oe.User = *ru
+	}
+
+	//	テンプレートで使用する関数を定義する
+	funcMap := template.FuncMap{
+		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
+		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
+		"IsTempID":      func(s string) bool { return strings.HasPrefix(s, "@@@@") },
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
-		"templates/contributors.gtpl",
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
+		"templates/oldevents.gtpl",
 	))
 
-	if err := tpl.ExecuteTemplate(w, "contributors.gtpl", hcntrbinf); err != nil {
-		err = fmt.Errorf("tpl.ExceuteTemplate(w,\"contributors.gtpl\", hcntrbinf) err=%s", err.Error())
-                log.Printf("err=%s\n", err.Error())
-                w.Write([]byte(err.Error()))
+	if err := tpl.ExecuteTemplate(w, "oldevents.gtpl", &oe); err != nil {
+		err = fmt.Errorf("tpl.ExceuteTemplate(w,\"oldevents.gtpl\", hcntrbinf) err=%s", err.Error())
+		log.Printf("err=%s\n", err.Error())
+		w.Write([]byte(err.Error()))
 	}
 
 }
@@ -103,9 +113,9 @@ func GetAndSaveOldEvents(
 	client *http.Client,
 	roomid int,
 ) (
+	wevents []srdblib.Wevent,
 	err error,
 ) {
-
 
 	// 過去のイベント一覧を取得する
 	var rpe *srapi.RoomsPastevents
@@ -119,60 +129,139 @@ func GetAndSaveOldEvents(
 	// ただし、一致しない場合でもエラーとはしない（原因はわからないが、たまに一致しないことがある）
 	log.Printf("GetRoomsPasteventsByApi(): rpe.Count=%d, len(rpe.Pastevents)=%d", rpe.TotalEntries, len(rpe.Events))
 
+	// wuser := srdblib.Wuser{
+	// 	Userno: roomid,
+	// }
+
+	// srdblib.UpinsWuserSetProperty(client, time.Now().Truncate(time.Second), &wuser, 1440, 5000)
+
 	// 取得した過去のイベント一覧のうち未保存のものをイベントテーブルに格納する
 	for _, pe := range rpe.Events {
 
-		// すでにデータがあるかどうかを確認する
-		err = srdblib.Dbmap.SelectOne(&srdblib.Wevent{}, "SELECT * FROM wevent WHERE ieventid = ?", pe.EventID)
-		if err == nil {
-			log.Printf("GetAndSaveOldEvents(): ieventid=%d is already saved(%s)\n", pe.EventID, pe.EventName)
-			continue
-		}
+		wevent := srdblib.Wevent{}
 
-		// データが存在しないときはイベント参加ユーザをユーザテーブルに格納した上でイベント情報をイベントテーブルに格納する
-		log.Printf("  ieventid=%d\n", pe.EventID)
-		
-		// イベントに参加したルームの一覧を取得する
-		var rli *srapi.RoomListInf
-		rli, err = srapi.GetRoominfFromEventByApi(client, pe.EventID, 1, 2000)
+		// すでにデータがあるかどうかを確認する
+		is_exist := false
+		var itrf []interface{}
+		itrf, err = srdblib.Dbmap.Select(&wevent, "SELECT eventid, ieventid, event_name, starttime FROM wevent WHERE ieventid = ?", pe.EventID)
 		if err != nil {
-			err = fmt.Errorf("GetRoominfFromEventByApi(): %w", err)
+			err = fmt.Errorf("Select(): %w", err)
 			return
 		}
-
-		// ユーザ情報をユーザテーブルに格納する
-		tnow := time.Now().Truncate(time.Second)
-		for _, v := range rli.RoomList {
-			suid := fmt.Sprintf("%09d", v.Room_id)
-			wuser := srdblib.Wuser {
-				Userno: v.Room_id,
-				Userid: v.Room_url_key,
-				User_name: v.Room_name,
-				Longname: v.Room_name,
-				Shortname: suid[len(suid)-2:],
-				Ts: tnow,
-			}
-			err = srdblib.UpinsWuserSetProperty(client , tnow, &wuser, 1440, 1000)
+		if len(itrf) != 0 {
+			is_exist = true
+			log.Printf("GetAndSaveOldEvents(): ieventid=%d is already saved(%s)\n", pe.EventID, pe.EventName)
+		} else {
+			sqlst := "SELECT eventid, ieventid, event_name, starttime FROM wevent "
+			sqlst += " WHERE event_name = ? and starttime = ? "
+			itrf, err = srdblib.Dbmap.Select(&wevent, sqlst, pe.EventName, time.Unix(int64(pe.StartedAt), 0))
 			if err != nil {
-				err = fmt.Errorf("UpinsWuserSetProperty() err=%w", err)
+				err = fmt.Errorf("Select(): %w", err)
 				return
 			}
+			if len(itrf) != 0 {
+				is_exist = true
+				if len(itrf) == 1 {
+					wevent = *(itrf[0].(*srdblib.Wevent))
+					var itrf1 interface{}
+					itrf1, err = srdblib.Dbmap.Get(&srdblib.Wevent{}, wevent.Eventid)
+					if err != nil {
+						err = fmt.Errorf("Get(): %w", err)
+						return
+					}
+					wevent = *(itrf1.(*srdblib.Wevent))
+					wevent.Ieventid = pe.EventID
+					_, err = srdblib.Dbmap.Update(&wevent)
+					if err != nil {
+						err = fmt.Errorf("Update(): %w", err)
+						return
+					}
+					log.Printf("GetAndSaveOldEvents(): ieventid=%d is inserted(%s)\n", pe.EventID, pe.EventName)
+				}
+			}
+		}
+		if is_exist {
+			// 参加したイベントのデータがすでに保存されている場合
+			log.Printf("GetAndSaveOldEvents(): ieventid=%d is already saved(%s)\n", pe.EventID, pe.EventName)
+			wevent = *(itrf[0].(*srdblib.Wevent))
+			eida := strings.Split(wevent.Eventid, "?")
+			if len(eida) != 1 {
+				wevent.Eventid = eida[0]
+			}
+			// イベント参加者として登録されているか？
+			var weventuser srdblib.Weventuser
+			itrf, err = srdblib.Dbmap.Select(&weventuser,
+				"SELECT * FROM weventuser WHERE eventid like ? AND userno = ?", wevent.Eventid+"%", roomid)
+			if err != nil {
+				err = fmt.Errorf("Select(): %w", err)
+				return
+			}
+			if len(itrf) == 0 {
+				// イベント参加者として登録されていない場合
+				weventuser = srdblib.Weventuser{
+					EventuserBR: srdblib.EventuserBR{
+						Eventid:       wevent.Eventid,
+						Userno:        roomid,
+						Istarget:      "Y",
+						Iscntrbpoints: "Y",
+						Vld:           0,
+						Point:         -1,
+					},
+					Status: 0,
+				}
+				srdblib.UpinsEventuserG(&weventuser, time.Now().Truncate(time.Second))
+			}
+
+		} else {
+
+			eventid := fmt.Sprintf("@@@@%06d", pe.EventID)
+			starttime := time.Unix(int64(pe.StartedAt), 0)
+			endtime := time.Unix(int64(pe.EndedAt), 0)
+			ssstarttime := starttime.Format("Jan 2, 2006 3:04 PM")
+			sendtime := endtime.Format("Jan 2, 2006 3:04 PM")
+			wevent = srdblib.Wevent{
+				Ieventid:    pe.EventID,
+				Eventid:     eventid,
+				Event_name:  pe.EventName,
+				Starttime:   starttime,
+				Endtime:     endtime,
+				Period:      ssstarttime + " - " + sendtime,
+				Intervalmin: 5,
+				Modmin:      4,
+				Modsec:      0,
+				Fromorder:   1,
+				Toorder:     3000,
+				Resethh:     4,
+				Resetmm:     0,
+				Maxdsp:      20,
+				Cmap:        2,
+			}
+			if err = srdblib.Dbmap.Insert(&wevent); err != nil {
+				err = fmt.Errorf("Insert(): %w", err)
+				return
+			}
+
 		}
 
+		wevents = append(wevents, wevent)
 
-		wevent := srdblib.Wevent{
-			Ieventid:   pe.EventID,
+		weventuser := srdblib.Weventuser{
+			EventuserBR: srdblib.EventuserBR{
+				Eventid:       wevent.Eventid,
+				Userno:        roomid,
+				Istarget:      "Y",
+				Iscntrbpoints: "Y",
+				Vld:           0,
+				Point:         -1,
+			},
+			Status: 0,
 		}
 
-		if err = srdblib.Dbmap.Insert(&wevent); err != nil {
-			err = fmt.Errorf("Insert(): %w", err)
-			return
-		}
-
-
-
+		srdblib.UpinsEventuserG(&weventuser, time.Now().Truncate(time.Second))
 		// テストのため、格納は一回だけにする
-		break
+		// if i == 0 {
+		// 	break
+		// }
 	}
 
 	return

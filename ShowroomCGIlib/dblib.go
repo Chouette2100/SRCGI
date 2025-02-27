@@ -491,7 +491,9 @@ func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string,
 	}
 
 	if nrow == 0 {
-		srdblib.InsertIntoUser(client, tnow, userno)
+		// srdblib.InsertIntoUser(client, tnow, userno)
+		xu := srdblib.User{Userno: userno}
+		srdblib.InsertUsertable(client, tnow, 200, &xu)
 	}
 
 	return

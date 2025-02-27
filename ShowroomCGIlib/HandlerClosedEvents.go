@@ -64,6 +64,7 @@ func HandlerClosedEvents(
 				return eid
 			}
 		},
+		"IsTempID": func(s string) bool { return strings.HasPrefix(s, "@@@@") },
 	}
 
 	// テンプレートをパースする

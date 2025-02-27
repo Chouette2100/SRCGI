@@ -6,9 +6,12 @@ import (
 	"log"
 
 	//	"strconv"
+
+	"golang.org/x/crypto/ssh/terminal"
 	"time"
 
 	"context"
+	"io"
 	"os"
 	"os/signal"
 	"runtime"
@@ -111,9 +114,10 @@ import (
 	11CF02	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
 	11CG00	commonMiddleware()を導入し、コンテクストとグレースフルシャットダウンを導入する。
 	11CG02	サーバー起動パラメータを変更する。
+	11CH00  指定した配信者の過去イベントの一覧を取り込む機能の調整をする。
 */
 
-const version = "11CG02"
+const version = "11CH00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -148,7 +152,19 @@ func NewLogfileName(logfile *os.File) {
 		if err != nil {
 			panic("cannnot open logfile: " + logfilename + err.Error())
 		}
-		log.SetOutput(logfile)
+
+		// フォアグラウンド（端末に接続されているか）を判定
+		isForeground := terminal.IsTerminal(int(os.Stdout.Fd()))
+
+		if isForeground {
+			// フォアグラウンドならログファイル + コンソール
+			log.SetOutput(io.MultiWriter(logfile, os.Stdout))
+		} else {
+			// バックグラウンドならログファイルのみ
+			log.SetOutput(logfile)
+		}
+
+		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 		time.Sleep(1 * time.Second)
 	}
@@ -157,16 +173,16 @@ func NewLogfileName(logfile *os.File) {
 // 共通の処理を行うミドルウェア
 // =============================================
 func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        // 共通の処理をここで行う
-        log.Println("Common processing")
+	return func(w http.ResponseWriter, r *http.Request) {
+		// 共通の処理をここで行う
+		log.Println("Common processing")
 
-        // 次のハンドラーを呼び出す
-        next(w, r)
-    }
+		// 次のハンドラーを呼び出す
+		next(w, r)
+	}
 }
-// =============================================
 
+// =============================================
 
 // =============================================
 // サーバー構成
@@ -187,8 +203,19 @@ func main() {
 		panic("cannnot open logfile: " + logfilename + err.Error())
 	}
 	defer logfile.Close()
-	log.SetOutput(logfile)
-	// log.SetOutput(io.MultiWriter(logfile, os.Stdout))
+
+	// フォアグラウンド（端末に接続されているか）を判定
+	isForeground := terminal.IsTerminal(int(os.Stdout.Fd()))
+
+	if isForeground {
+		// フォアグラウンドならログファイル + コンソール
+		log.SetOutput(io.MultiWriter(logfile, os.Stdout))
+	} else {
+		// バックグラウンドならログファイルのみ
+		log.SetOutput(logfile)
+	}
+
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	go NewLogfileName(logfile)
 
@@ -210,6 +237,8 @@ func main() {
 		svconfig.NoEvent = 30
 	}
 	log.Printf("%+v\n", svconfig)
+
+	ShowroomCGIlib.Regexpbots = ReadBots()
 
 	ShowroomCGIlib.LoadDenyIp("DenyIp.txt")
 	//	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)
@@ -314,9 +343,12 @@ func main() {
 		ExpandSliceArgs: true, //スライス引数展開オプションを有効化する
 	}
 	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+	srdblib.Dbmap.AddTableWithName(srdblib.Wuser{}, "wuser").SetKeys(false, "Userno")
 	srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
 	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
+	srdblib.Dbmap.AddTableWithName(srdblib.Wevent{}, "wevent").SetKeys(false, "Eventid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Eventuser{}, "eventuser").SetKeys(false, "Eventid", "Userno")
+	srdblib.Dbmap.AddTableWithName(srdblib.Weventuser{}, "weventuser").SetKeys(false, "Eventid", "Userno")
 
 	srdblib.Dbmap.AddTableWithName(srdblib.GiftScore{}, "giftscore").SetKeys(false, "Giftid", "Ts", "Userno")
 	srdblib.Dbmap.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
@@ -563,11 +595,11 @@ func main() {
 			//	証明書があればSSLを使う
 			log.Printf("           http.ListenAndServeTLS()\n")
 			/*
-			svconfig := ServerConfig{
-				HTTPport: "8080",
-				SSLcrt:   "path/to/your/cert.crt",
-				SSLkey:   "path/to/your/key.key",
-			}
+				svconfig := ServerConfig{
+					HTTPport: "8080",
+					SSLcrt:   "path/to/your/cert.crt",
+					SSLkey:   "path/to/your/key.key",
+				}
 			*/
 			// HTTPサーバーを設定
 			server := &http.Server{

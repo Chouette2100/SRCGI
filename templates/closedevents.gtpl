@@ -149,12 +149,12 @@
                     <td align="right">
                         <input type="submit" value="ルームで絞り込む" formaction="closedevents" formmethod="GET">
                     </td>
-                    {{/*
+                    {{/* */}}
                     <td align="right">
-                        <input type="submit" value="このルームの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/=
-                            style="background-color: aquamarine" =/}}>
+                        <input type="submit" value="このルームの過去イベントを探す(データの保存は限定的です)" formaction="oldevents" formmethod="GET" {{/*
+                            style="background-color: aquamarine" */}}>
                     </td>
-                    */}}
+                    {{/* */}}
                 </tr>
                 <tr>
                     <td style="width:4em"></td>
@@ -184,12 +184,12 @@
                         <input type="submit" value="ルームIDで絞り込む" formaction="closedevents" formmethod="GET" {{/*
                             style="background-color: aquamarine" */}}>
                     </td>
-                    {{/*
+                    {{/* */}}
                     <td align="right">
-                        <input type="submit" value="このルームIDの過去イベントを探す" formaction="oldevents" formmethod="GET" {{/=
-                            style="background-color: aquamarine" =/}}>
+                        <input type="submit" value="このルームIDの過去イベントを探す(データの保存は限定的です)" formaction="oldevents" formmethod="GET" {{/*
+                            style="background-color: aquamarine" */}}>
                     </td>
-                    */}}
+                    {{/* */}}
                 </tr>
                 <tr>
                     <td style="width:4em"></td>
@@ -278,7 +278,11 @@
                 {{ $i = 1 }}
                 {{ end }}
                 <td>
-                    <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
+                    {{ if IsTempID .Event_ID }}
+                        {{ .Event_name }} ( {{ .I_Event_ID }} )
+                    {{ else }}
+                        <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
+                    {{ end }}
                 </td>
                 <td>
                     {{ TimeToStringY .Start_time }}
@@ -321,8 +325,17 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if ne $userno 0 }}
+
+                    {{ if IsTempID .Event_ID }}
+                    ーー /
+                    {{ else }}
                     <a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Event_ID }}?room_id={{$userno}}">公式</a> /
+                    {{ end }}
+                    {{ if ne .I_Event_ID 0 }}
                     <a href="contributors?ieventid={{.I_Event_ID}}&roomid={{$userno}}">CSV</a>
+                    {{ else }}
+                    ーー
+                    {{ end }}
                     {{ end }}
                 </td>
             </tr>

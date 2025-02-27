@@ -7,6 +7,8 @@ import (
 	//	"SRCGI/ShowroomCGIlib"
 	"bytes"
 	"fmt"
+	"regexp"
+
 	//	"html"
 	"log"
 
@@ -224,11 +226,12 @@ import (
 11CG03	HandlerShowRank()で過去のデータを除外する。
 		closedevents.gtplでコメント一部が表示されないようにする。
 		top.gtplで期間限定の表示を削除する。
+11CH00	HandlerOldEvents()を実装する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CG03"
+const Version = "11CH00"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 
@@ -315,6 +318,8 @@ var Dialer sshql.Dialer
 */
 
 var Event_inf exsrapi.Event_Inf
+
+var Regexpbots *regexp.Regexp
 
 
 var OS string
