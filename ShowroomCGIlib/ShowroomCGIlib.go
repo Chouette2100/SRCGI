@@ -230,11 +230,12 @@ import (
 11CH01	HandlerOldEvents()でイベント数に矛盾があっても処理を継続する。
 11CH02	HandlerClosedEvents()でブロックイベントが2つ出力されないようにする。
 11CH03	HandlerClosedEvents()でtop.Limitを51固定とする。
+11CH04	oldevents.gtplでの処理結果の表示はやめ、確認ボタンだけを表示する(timeout対策)
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CH03"
+const Version = "11CH04"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 

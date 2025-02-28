@@ -146,12 +146,12 @@
                             {{ end }}
                         </select>
                     </td>
-                    <td align="right">
-                        <input type="submit" value="ルームで絞り込む" formaction="closedevents" formmethod="GET">
+                    <td>
+                        <input style="margin-left: 2em" type="submit" value="ルームで絞り込む" formaction="closedevents" formmethod="GET">
                     </td>
                     {{/* */}}
-                    <td align="right">
-                        <input type="submit" value="このルームの過去イベントを探す(データの保存は限定的です)" formaction="oldevents" formmethod="GET" {{/*
+                    <td>
+                        <input style="margin-left: 2em" type="submit" value="このルームの過去イベントを探す(数十秒かかることがあります)" formaction="oldevents" formmethod="GET" {{/*
                             style="background-color: aquamarine" */}}>
                     </td>
                     {{/* */}}
@@ -163,6 +163,7 @@
                         リストが表示されないときは二回クリックお願いします。<br>usernoがわかっていたら直接入力可！
                         {{*/}}
                     </td>
+                    <td></td>
                     <td></td>
                 </tr>
 
@@ -180,24 +181,25 @@
                     <td style="width:4em"></td>
                     <td>ルームID</td>
                     <td><input value="{{ .Userno }}" name="userno" type="number"></td>
-                    <td align="right">
+                    <td>
                         <input type="submit" value="ルームIDで絞り込む" formaction="closedevents" formmethod="GET" {{/*
                             style="background-color: aquamarine" */}}>
                     </td>
                     {{/* */}}
-                    <td align="right">
-                        <input type="submit" value="このルームIDの過去イベントを探す(データの保存は限定的です)" formaction="oldevents" formmethod="GET" {{/*
+                    <td>
+                        <input style="margin-left: 2em" type="submit" value="このルームIDの過去イベントを探す(数十秒かかることがあります)" formaction="oldevents" formmethod="GET" {{/*
                             style="background-color: aquamarine" */}}>
                     </td>
                     {{/* */}}
                 </tr>
                 <tr>
                     <td style="width:4em"></td>
-                    <td colspan="2">
+                    <td colspan="3">
                         ルームIDはプロフィールやファンルームのURLの最後の"room_id="の<br>
                         あとにある整数です（６桁が多い）<BR>
                         ルームIDの一部を指定しての検索はできません。
                     </td>
+                    <td></td>
                     <td></td>
                 </tr>
             </table>
