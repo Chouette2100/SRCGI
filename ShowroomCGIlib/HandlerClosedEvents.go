@@ -79,12 +79,14 @@ func HandlerClosedEvents(
 	top.Kwevid = r.FormValue("kwevid")
 	top.Userno, _ = strconv.Atoi(r.FormValue("userno"))
 
-	slimit := r.FormValue("limit")
-	if slimit == "" {
-		top.Limit = 51
-	} else {
-		top.Limit, _ = strconv.Atoi(slimit)
-	}
+	// slimit := r.FormValue("limit")
+	// if slimit == "" {
+	// 	top.Limit = 51
+	// } else {
+	// 	top.Limit, _ = strconv.Atoi(slimit)
+	// }
+	top.Limit = 51
+
 	soffset := r.FormValue("offset")
 	if soffset == "" {
 		top.Offset = 0
@@ -154,7 +156,7 @@ func HandlerClosedEvents(
 		}
 		if top.Path == 4 && top.Userno != 0 {
 			//	ルーム名による絞り込み(ルームIDに変換後)
-			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
+			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, &top.Limit, top.Offset)
 			if err != nil {
 				err = fmt.Errorf("MakeListOfPoints(): %w", err)
 				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
@@ -166,7 +168,7 @@ func HandlerClosedEvents(
 		}
 	case 5:
 		//	ルームIDによる絞り込み
-		top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, top.Limit, top.Offset)
+		top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, &top.Limit, top.Offset)
 		if err != nil {
 			err = fmt.Errorf("MakeListOfPoints(): %w", err)
 			log.Printf("MakeListOfPoints() returned error %s\n", err.Error())

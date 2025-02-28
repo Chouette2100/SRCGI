@@ -17,8 +17,8 @@ func SelectEventinflistFromEventByRoom(
 	cond int, // 抽出条件	-1:終了したイベント、0: 開催中のイベント、1: 開催予定のイベント
 	mode int, // 0: すべて、 1: データ取得中のものに限定
 	userno int, // イベント名検索キーワード
-	limit	int, // ページング制限
-	offset	int, // ページングオフセット
+	limit *int, // ページング制限
+	offset int, // ページングオフセット
 ) (
 	eventinflist []exsrapi.Event_Inf,
 	err error,
@@ -31,7 +31,6 @@ func SelectEventinflistFromEventByRoom(
 	//	srdblib.Tuserhistory = "wuserhistory"
 
 	tnow := time.Now().Truncate(time.Second)
-
 
 	sqls := "select we.eventid,we.ieventid,we.event_name, we.period, we.starttime, we.endtime, we.noentry, we.intervalmin, we.modmin, we.modsec, "
 	sqls += " we.Fromorder, we.Toorder, we.Resethh, we.Resetmm, we.Nobasis, we.Maxdsp, we.cmap, we.target, we.`rstatus`, we.maxpoint, we.achk , we.aclr "
@@ -68,6 +67,8 @@ func SelectEventinflistFromEventByRoom(
 	eventinflist = make([]exsrapi.Event_Inf, 0)
 	eventinf := exsrapi.Event_Inf{}
 
+	i := 0
+	lastieid := -1
 	for rows.Next() {
 
 		srdblib.Dberr = rows.Scan(
@@ -119,7 +120,16 @@ func SelectEventinflistFromEventByRoom(
 
 		log.Printf("eventinf=[%v]\n", eventinf)
 
-		eventinflist = append(eventinflist, eventinf)
+		if eventinf.I_Event_ID == lastieid {
+			if eventinf.Achk == 0 {
+				eventinflist[i-1] = eventinf
+			}
+			*limit--
+		} else {
+			eventinflist = append(eventinflist, eventinf)
+			lastieid = eventinf.I_Event_ID
+			i++
+		}
 
 		//	log.Printf("Start_data=%f Dperiod=%f\n", eventinf.Start_date, eventinf.Dperiod)
 	}
