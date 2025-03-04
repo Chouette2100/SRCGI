@@ -41,9 +41,9 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	"github.com/Chouette2100/exsrapi"
-	//	"github.com/Chouette2100/srapi"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/exsrapi/v2"
+	//	"github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 /*
@@ -230,7 +230,8 @@ import (
 11CH01	HandlerOldEvents()でイベント数に矛盾があっても処理を継続する。
 11CH02	HandlerClosedEvents()でブロックイベントが2つ出力されないようにする。
 11CH03	HandlerClosedEvents()でtop.Limitを51固定とする。
-11CH04	oldevents.gtplでの処理結果の表示はやめ、確認ボタンだけを表示する(timeout対策)
+11CH04	oldevents.gtplでの処理結果の表示はやめ、確認ボタンだけを表示する(timeout対策 <== WriteTimeoutが設定されていたのが原因)
+11CJ00  github.com/Chouette2100 のパッケージをすべてv2に変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。

@@ -25,10 +25,10 @@ import (
 
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib/v2"
 	"github.com/dustin/go-humanize"
 
-	//	"github.com/Chouette2100/exsrapi"
+	//	"github.com/Chouette2100/exsrapi/v2"
 )
 
 //	const MaxAcq = 5	//	表示するデータ数、とりあえず HandlerListCntrb()と同じにしてみる

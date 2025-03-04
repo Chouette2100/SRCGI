@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-gorp/gorp"
 
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 func TestJtruncate(t *testing.T) {

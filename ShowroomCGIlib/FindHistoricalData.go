@@ -2,8 +2,8 @@ package ShowroomCGIlib
 import (
 	"fmt"
 
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 /*
 	イベントがeventとwebentに共通して存在するかチェックする。

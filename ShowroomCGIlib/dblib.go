@@ -39,9 +39,9 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	"github.com/Chouette2100/exsrapi"
-	//	"github.com/Chouette2100/srapi"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/exsrapi/v2"
+	//	"github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 type Color struct {
@@ -493,7 +493,9 @@ func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string,
 	if nrow == 0 {
 		// srdblib.InsertIntoUser(client, tnow, userno)
 		xu := srdblib.User{Userno: userno}
-		srdblib.InsertUsertable(client, tnow, 200, &xu)
+		srdblib.Env.Waitmsec = 200 // FIXME: 危険
+		srdblib.InsertUsertable(client, tnow, &xu)
+		srdblib.Env.Waitmsec = 5000
 	}
 
 	return

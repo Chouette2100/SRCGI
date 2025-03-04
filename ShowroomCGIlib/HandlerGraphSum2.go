@@ -13,7 +13,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 func HandlerGraphSum2(w http.ResponseWriter, r *http.Request) {

@@ -27,8 +27,8 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/dustin/go-humanize"
 
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 type CntrbS_Header struct {

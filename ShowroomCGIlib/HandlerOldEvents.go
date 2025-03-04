@@ -22,10 +22,10 @@ import (
 
 	// "github.com/dustin/go-humanize"
 
-	//	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srapi"
-	"github.com/Chouette2100/srdblib"
+	//	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 type OldEvents struct {
@@ -79,7 +79,7 @@ func HandlerOldEvents(
 		twuser.Userno = oe.User.Userno
 		oe.User = twuser
 
-		ru, err := srdblib.UpinsUser(client, time.Now().Truncate(time.Second), twuser, 14400, 5000)
+		ru, err := srdblib.UpinsUser(client, time.Now().Truncate(time.Second), twuser)
 		if err != nil {
 			err = fmt.Errorf("UpinsUser(): %s", err.Error())
 			log.Printf("err=%s\n", err.Error())

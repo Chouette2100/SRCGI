@@ -14,7 +14,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 type HGSinf struct {

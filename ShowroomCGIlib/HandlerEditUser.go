@@ -23,8 +23,8 @@ import (
 
 	//	"database/sql"
 
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	//	"fmt"
+	"fmt"
 	//	"io"
 	"log"
 
@@ -28,9 +28,9 @@ import (
 
 	"github.com/go-gorp/gorp"
 
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
-	"github.com/Chouette2100/srhandler"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srhandler/v2"
 
 	"SRCGI/ShowroomCGIlib"
 )
@@ -116,9 +116,11 @@ import (
 	11CG02	サーバー起動パラメータを変更する。
 	11CH00  指定した配信者の過去イベントの一覧を取り込む機能の調整をする。
 	11CH01  main()のファイル名をmain.goと変更する。
+	11CH05  http.Server.WriteTimeoutの設定を10秒から30秒に変更する。
+	11CJ00  github.com/Chouette2100 のパッケージをすべてv2に変更する。
 */
 
-const version = "11CH01"
+const version = "11CJ00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -360,6 +362,14 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
 	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Accesslog{}, "accesslog").SetKeys(false, "Ts", "Eventid")
+
+	fileenv := "Env.yml"
+	err = exsrapi.LoadConfig(fileenv, &srdblib.Env)
+	if err != nil {
+		err = fmt.Errorf("exsrapi.Loadconfig(): %w", err)
+		log.Printf("%s\n", err.Error())
+		return
+	}
 
 	if svconfig.WebServer == "None" {
 		// WebServerがNoneの場合はURLにTopがないときpublic（のindex.html）が表示されるようにしておきます。
@@ -610,7 +620,7 @@ func main() {
 				},
 				Handler:      http.DefaultServeMux, // ここでハンドラを指定
 				ReadTimeout:  10 * time.Second,
-				WriteTimeout: 10 * time.Second,
+				WriteTimeout: 30 * time.Second,
 			}
 
 			// サーバーをTLSで起動

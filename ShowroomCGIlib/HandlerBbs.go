@@ -26,7 +26,7 @@ import (
 
 	"database/sql"
 
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 // 投稿の内容

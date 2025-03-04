@@ -41,9 +41,9 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	//	"github.com/Chouette2100/exsrapi"
-	// "github.com/Chouette2100/srapi"
-	"github.com/Chouette2100/srdblib"
+	//	"github.com/Chouette2100/exsrapi/v2"
+	// "github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 /*

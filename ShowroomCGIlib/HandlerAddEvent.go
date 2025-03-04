@@ -23,8 +23,8 @@ import (
 
 	//	"database/sql"
 
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 // イベントを獲得ポイントデータ取得の対象としてeventテーブルに登録する。
@@ -471,7 +471,9 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 		user := new(srdblib.User)
 		user.Userno = (*roominfolist)[i].Userno
 		// err := srdblib.UpinsUserSetProperty(client, tnow, user, 1440*5, 200)
-		_, err := srdblib.UpinsUser(client, tnow, user, 1440*5, 200)
+		srdblib.Env.Waitmsec = 200 // FIXME: 危険
+		_, err := srdblib.UpinsUser(client, tnow, user)
+		srdblib.Env.Waitmsec = 5000
 		if err != nil {
 			log.Printf("srdblib.UpinsUserSetProperty(): err=%v\n", err)
 			return

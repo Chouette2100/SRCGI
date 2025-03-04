@@ -27,7 +27,7 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	//	"github.com/dustin/go-humanize"
 
-	"github.com/Chouette2100/srdblib"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 /*

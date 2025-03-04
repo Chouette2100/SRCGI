@@ -22,10 +22,10 @@ import (
 
 	// "github.com/dustin/go-humanize"
 
-	//	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/exsrapi"
-	"github.com/Chouette2100/srapi"
-	"github.com/Chouette2100/srdblib"
+	//	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 /*
@@ -160,7 +160,7 @@ func GetAndSaveContributors(
 				Sname:    c.Name,
 				Ts:       tnow,
 			}
-			if err = srdblib.UpinsViewerSetProperty(client, tnow, &viewer, srdblib.Env.Lmin); err != nil {
+			if err = srdblib.UpinsViewerSetProperty(client, tnow, &viewer); err != nil {
 				err = fmt.Errorf("UpinsViewerSetProperty(): %w", err)
 				return
 			}
