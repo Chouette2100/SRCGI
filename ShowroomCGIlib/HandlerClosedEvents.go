@@ -85,7 +85,12 @@ func HandlerClosedEvents(
 	// } else {
 	// 	top.Limit, _ = strconv.Atoi(slimit)
 	// }
-	top.Limit = 51
+	slimit := r.FormValue("limit")
+	if slimit == "" {
+		top.Limit = 51
+	} else {
+		top.Limit, _ = strconv.Atoi(slimit)
+	}
 
 	soffset := r.FormValue("offset")
 	if soffset == "" {

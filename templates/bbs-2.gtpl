@@ -64,7 +64,10 @@
 <div style="color: {{ .Color }};">
 	No.{{.ID}}【{{ CntToName ( Add .Cntw -1 ) }}】「{{ htmlEscapeString .Title}}」({{ htmlEscapeString .Name}})
 	（{{FormatTime .CTime "2006-01-02 15:04" }}）
+	{{/*
 	<p class="p1">{{ htmlEscapeString .Body }}</p>
+	*/}}
+	<p class="p1">{{ .Body }}</p>
 	<hr>
 </div>
 {{ end }}

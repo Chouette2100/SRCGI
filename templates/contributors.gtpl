@@ -30,9 +30,21 @@
 <br><br>
 ※ 要望があればjsonあるいはyamlでのデータ出力も可能です。
 <br><br>
-念のためファイルの内容を以下に示します。<br><br>
-{{range .Result}}
-{{.Irank}},{{.Viewerid}},{{.Point}},"{{.Name}}"<br>
-{{end}}
+        <table border="1" style="border-collapse: collapse; border: 1px solid black">
+            <tr bgcolor="gainsboro" style="text-align: center">
+                <td>順位</td>
+                <td style="border-right: none;">視聴者名</td>
+                <td style="border-left: none;">ユーザID</td>
+                <td>貢献ポイント</td>
+            </tr>
+            {{range .Result}}
+            <tr style="text-align: right;">
+            <td>{{.Irank}}</td>
+            <td style="text-align: left; border-right: none;">{{.Name}}</td>
+            <td style="border-left: none;">{{.Viewerid}}</td>
+            <td>{{.Point}}</td>
+            </tr>
+            {{end}}
+        </table>
 </body>
 </html>

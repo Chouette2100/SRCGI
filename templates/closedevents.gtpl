@@ -258,7 +258,8 @@
 
         <table border="1" style="border-collapse: collapse">
             <tr bgcolor="gainsboro" style="text-align: center">
-                <td>イベント名とイベントページへのリンク</td>
+                <td style="border-right: none;">イベント名とイベントページへのリンク</td>
+                <td style="border-left: none;">イベントID</td>
                 <td>開始日時</td>
                 <td>終了日時</td>
                 <td>最終結果<br>(30位まで)</td>
@@ -279,11 +280,16 @@
             <tr>
                 {{ $i = 1 }}
                 {{ end }}
-                <td>
+                <td style="border-right: none;">
                     {{ if IsTempID .Event_ID }}
-                        {{ .Event_name }} ( {{ .I_Event_ID }} )
+                        {{ .Event_name }}
                     {{ else }}
                         <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
+                    {{ end }}
+                </td>
+                <td style="border-left: none; text-align: right;">
+                    {{ if ne .I_Event_ID 0 }}
+                        {{ .I_Event_ID }}
                     {{ end }}
                 </td>
                 <td>
