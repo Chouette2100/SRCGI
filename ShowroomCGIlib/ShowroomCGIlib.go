@@ -234,11 +234,12 @@ import (
 11CJ00  github.com/Chouette2100 のパッケージをすべてv2に変更する。
 11CK00  GetEventinf()をAPIを使う処理からDBを使う処理に変更する（現在の運用では処理対象のイベントのデータはDBに存在することを前提とできる）
 11CK01  HandlerClosedEvents()でパラメータでlimit値を指定できるようにする(暫定対応)、bbsのエスケープ処理を除く、貢献ランキングリストをテーブルに。
+11CK02  おそらくSetEventIDofOldEvents()のバグをHandlerShowRank()で暫定対応する
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CK01"
+const Version = "11CK02"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 
