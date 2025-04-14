@@ -117,9 +117,8 @@
                 <tr>
                     <td style="width:4em"></td>
                     <td colspan="2">
-                        現在のルーム名だけでなく過去のルーム名（のうち最近のもの、<br>
-                        例えば「夜風」さん）も検索対象となります。ただしルームの検索<br>
-                        結果は30件までしか表示されませんので1文字とかやめましょう。<br>
+                        現在のルーム名だけでなく過去のルーム名（のうち最近のもの）も検索対象となります。<br>
+                        ただしルームの検索結果は30件までしか表示されませんので1文字とかやめましょう。<br>
                         下の検索結果からルームを選択してください。
                     </td>
                     <td></td>
@@ -262,7 +261,7 @@
                 <td style="border-left: none;">イベントID</td>
                 <td>開始日時</td>
                 <td>終了日時</td>
-                <td>最終結果<br>(30位まで)</td>
+                <td>最終結果</td>
                 <td>表示項目<br>選択画面</td>
                 <td>最終獲得<br>ポイント表</td>
                 <td>獲得ポイント<br>推移図</td>
@@ -317,7 +316,7 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
-                    <a href="list-last?eventid={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">リスト</a>
+                    <a href="list-lastP?eventid={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">リスト</a>
                     {{ end }}
                 </td>
                 <td style="text-align: center;">

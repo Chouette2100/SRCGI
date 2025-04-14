@@ -25,7 +25,7 @@
 イベント
 
 <table>
-<tr><td style="width:4em"><td style="width:8em">イベント名</td><td><a href="https://www.showroom-live.com/event{{.Event_ID}}">{{.Event_name}}</a></td></tr>
+<tr><td style="width:4em"><td style="width:8em">イベント名</td><td><a href="https://www.showroom-live.com/event/{{.Event_ID}}">{{.Event_name}}</a></td></tr>
 <tr><td></td><td>期間</td><td>{{.Period}}</td></tr>
 </table>
 <p>

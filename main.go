@@ -7,7 +7,8 @@ import (
 
 	//	"strconv"
 
-	"golang.org/x/crypto/ssh/terminal"
+	// "golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 	"time"
 
 	"context"
@@ -118,9 +119,13 @@ import (
 	11CH01  main()のファイル名をmain.goと変更する。
 	11CH05  http.Server.WriteTimeoutの設定を10秒から30秒に変更する。
 	11CJ00  github.com/Chouette2100 のパッケージをすべてv2に変更する。
+	11CL00  closedevents.gtplでのタイトル、注釈の表示を修正する。
+        new-user.gtplでイベントへのリンクの"/"の抜けを修正する。"
+		HandlerListLast()の表示をページングしたものをHadlerListLastP()とし、終了イベントの表jに使う。
+}
 */
 
-const version = "11CJ00"
+const version = "11CL00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -157,7 +162,7 @@ func NewLogfileName(logfile *os.File) {
 		}
 
 		// フォアグラウンド（端末に接続されているか）を判定
-		isForeground := terminal.IsTerminal(int(os.Stdout.Fd()))
+		isForeground := term.IsTerminal(int(os.Stdout.Fd()))
 
 		if isForeground {
 			// フォアグラウンドならログファイル + コンソール
@@ -208,7 +213,7 @@ func main() {
 	defer logfile.Close()
 
 	// フォアグラウンド（端末に接続されているか）を判定
-	isForeground := terminal.IsTerminal(int(os.Stdout.Fd()))
+	isForeground := term.IsTerminal(int(os.Stdout.Fd()))
 
 	if isForeground {
 		// フォアグラウンドならログファイル + コンソール
@@ -420,6 +425,7 @@ func main() {
 		http.HandleFunc(rootPath+"/list-level", commonMiddleware(ShowroomCGIlib.HandlerListLevel))
 
 		http.HandleFunc(rootPath+"/list-last", commonMiddleware(ShowroomCGIlib.HandlerListLast))
+		http.HandleFunc(rootPath+"/list-lastP", commonMiddleware(ShowroomCGIlib.HandlerListLastP))
 
 		http.HandleFunc(rootPath+"/dl-all-points", commonMiddleware(ShowroomCGIlib.HandlerDlAllPoints))
 

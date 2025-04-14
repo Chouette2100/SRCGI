@@ -235,11 +235,14 @@ import (
 11CK00  GetEventinf()をAPIを使う処理からDBを使う処理に変更する（現在の運用では処理対象のイベントのデータはDBに存在することを前提とできる）
 11CK01  HandlerClosedEvents()でパラメータでlimit値を指定できるようにする(暫定対応)、bbsのエスケープ処理を除く、貢献ランキングリストをテーブルに。
 11CK02  おそらくSetEventIDofOldEvents()のバグをHandlerShowRank()で暫定対応する
+11CL00  closedevents.gtplでのタイトル、注釈の表示を修正する。
+        new-user.gtplでイベントへのリンクの"/"の抜けを修正する。"
+		HandlerListLast()の表示をページングしたものをHadlerListLastP()とし、終了イベントの表jに使う。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CK02"
+const Version = "11CL00"
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
 
