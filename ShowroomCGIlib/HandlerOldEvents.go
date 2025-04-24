@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -121,19 +122,36 @@ func GetAndSaveOldEvents(
 	var rpe *srapi.RoomsPastevents
 	rpe, err = srapi.GetRoomsPasteventsByApi(client, roomid)
 	if err != nil {
-		err = fmt.Errorf("GetRoomsPasteventsByApi(): %w", err)
-		// return
+		if err.Error() == "len(roomspastevents.Events) != TotalEntries" {
+			// 取得したデータにあるイベント数と実際のイベント数が一致しない場合でもエラーとはしない
+			// 原因はわからないが、たまに一致しないことがある
+			log.Printf("GetRoomsPasteventsByApi(): %s", err.Error())
+		} else {
+			err = fmt.Errorf("GetRoomsPasteventsByApi(): %w", err)
+			return
+		}
 	}
 
-	// 取得したデータにあるイベント数と実際のイベント数が一致するか確認する
-	// ただし、一致しない場合でもエラーとはしない（原因はわからないが、たまに一致しないことがある）
-	log.Printf("GetRoomsPasteventsByApi(): rpe.Count=%d, len(rpe.Pastevents)=%d", rpe.TotalEntries, len(rpe.Events))
+	// // 取得したデータにあるイベント数と実際のイベント数が一致するか確認する
+	// // ただし、一致しない場合でもエラーとはしない（原因はわからないが、たまに一致しないことがある）
+	// log.Printf("GetRoomsPasteventsByApi(): rpe.Count=%d, len(rpe.Pastevents)=%d", rpe.TotalEntries, len(rpe.Events))
 
 	// wuser := srdblib.Wuser{
 	// 	Userno: roomid,
 	// }
 
 	// srdblib.UpinsWuserSetProperty(client, time.Now().Truncate(time.Second), &wuser, 1440, 5000)
+
+	// 新規に登録されるイベントのEventUrlKeyを取得する
+	// これはイベントへのリンクを作るために必要である。
+	// 将来的にはイベントの貢献ポイントランキングの合計値を算出して保存するようなことなども考えられる
+	// 余裕をもって処理を行うために、非同期で実行する
+	cmd := exec.Command("/bin/bash", "/home/chouette/MyProject/Showroom/SetEventIDofOldEvents/run.sh")
+	err = cmd.Start() // 非同期実行
+	if err != nil {
+		err = fmt.Errorf("cmd.Start(): %w", err)
+		log.Printf("cmd.Start(): err=%s\n", err.Error())
+	}
 
 	// 取得した過去のイベント一覧のうち未保存のものをイベントテーブルに格納する
 	for _, pe := range rpe.Events {

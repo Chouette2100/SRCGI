@@ -224,8 +224,10 @@ import (
 11CG00	終了イベント一覧に過去のイベントを追加・参照する機能を追加する
 11CG01	イベント結果確定後表示を修正する。
 11CG03	HandlerShowRank()で過去のデータを除外する。
-		closedevents.gtplでコメント一部が表示されないようにする。
-		top.gtplで期間限定の表示を削除する。
+
+	closedevents.gtplでコメント一部が表示されないようにする。
+	top.gtplで期間限定の表示を削除する。
+
 11CH00	HandlerOldEvents()を実装する。
 11CH01	HandlerOldEvents()でイベント数に矛盾があっても処理を継続する。
 11CH02	HandlerClosedEvents()でブロックイベントが2つ出力されないようにする。
@@ -236,16 +238,19 @@ import (
 11CK01  HandlerClosedEvents()でパラメータでlimit値を指定できるようにする(暫定対応)、bbsのエスケープ処理を除く、貢献ランキングリストをテーブルに。
 11CK02  おそらくSetEventIDofOldEvents()のバグをHandlerShowRank()で暫定対応する
 11CL00  closedevents.gtplでのタイトル、注釈の表示を修正する。
-        new-user.gtplでイベントへのリンクの"/"の抜けを修正する。"
+
+	    new-user.gtplでイベントへのリンクの"/"の抜けを修正する。"
 		HandlerListLast()の表示をページングしたものをHadlerListLastP()とし、終了イベントの表jに使う。
+
+11CM00	新規に登録されるイベントのEventUrlKeyを取得するをプログラムから非同期で起動する
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CL00"
+const Version = "11CM00"
+
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
-
 
 type LongName struct {
 	Name string
@@ -332,11 +337,9 @@ var Event_inf exsrapi.Event_Inf
 
 var Regexpbots *regexp.Regexp
 
-
 var OS string
 
 //	var WebServer string
-
 
 // idで指定した配信者さんの獲得ポイントを取得する。
 // 戻り値は 獲得ポイント、順位、上位とのポイント差（1位の場合は2位とのポイント差）、イベント名
@@ -418,7 +421,6 @@ func GetPointsByAPI(id string) (Point, Rank, Gap int, EventID string) {
 
 	return
 }
-
 
 func GetAciveFanByAPI(room_id string, yyyymm string) (nofan int) {
 
@@ -582,7 +584,6 @@ func GetNextliveByAPI(room_id string) (
 
 }
 
-
 func GetRoomInfoAndPoint(
 	eventid string,
 	roomid string,
@@ -627,4 +628,3 @@ func GetRoomInfoAndPoint(
 
 	return
 }
-
