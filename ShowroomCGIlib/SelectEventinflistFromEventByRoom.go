@@ -124,7 +124,9 @@ func SelectEventinflistFromEventByRoom(
 			if eventinf.Achk == 0 {
 				eventinflist[i-1] = eventinf
 			}
-			*limit--
+			// TODO: 2025-04-29 limitを変更することは妥当か？
+			// *limit--
+			// ----- ----------
 		} else {
 			eventinflist = append(eventinflist, eventinf)
 			lastieid = eventinf.I_Event_ID

@@ -354,7 +354,10 @@
             <tr>
         </table>
 
+        {{/* // TODO: SQL取得件数が .Limit であっても、.Totalcount が必ずしも .Limit にならないことへの暫定対応
         {{ if eq .Totalcount .Limit }}
+        */}}
+        {{ if ne .Totalcount 0 }}
            <button type="button"
                 onclick="location.href='closedevents?path={{ .Path }}&mode={{ .Mode }}&keywordev={{ .Keywordev }}&keywordrm={{ .Keywordrm }}&kwevid={{ .Kwevid }}&userno={{ .Userno }}&action=next&limit={{ .Limit }}&offset={{.Offset}}'">次ページ</button>
         {{ end }}
