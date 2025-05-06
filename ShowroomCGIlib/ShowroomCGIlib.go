@@ -244,11 +244,12 @@ import (
 
 11CM00	新規に登録されるイベントのEventUrlKeyを取得するをプログラムから非同期で起動する
 11CM01	HandlerClosedEvents()での「次ページ」、「前ページ」の処理で limit を変更する処理をやめる、closedevents.gtplについても暫定対応を行う。
+11CM02	HandlerTopRoom()での表示件数を30件から50件に変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CM01"
+const Version = "11CM02"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

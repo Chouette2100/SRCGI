@@ -8,8 +8,9 @@ import (
 	//	"strconv"
 
 	// "golang.org/x/crypto/ssh/terminal"
-	"golang.org/x/term"
 	"time"
+
+	"golang.org/x/term"
 
 	"context"
 	"io"
@@ -122,10 +123,11 @@ import (
 	11CL00  closedevents.gtplでのタイトル、注釈の表示を修正する。
         new-user.gtplでイベントへのリンクの"/"の抜けを修正する。"
 		HandlerListLast()の表示をページングしたものをHadlerListLastP()とし、終了イベントの表jに使う。
+	11CM02  タイムアウトの設定を30秒から90秒に変更する。
 }
 */
 
-const version = "11CL00"
+const version = "11CM02"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -626,7 +628,7 @@ func main() {
 				},
 				Handler:      http.DefaultServeMux, // ここでハンドラを指定
 				ReadTimeout:  10 * time.Second,
-				WriteTimeout: 30 * time.Second,
+				WriteTimeout: 90 * time.Second,
 			}
 
 			// サーバーをTLSで起動

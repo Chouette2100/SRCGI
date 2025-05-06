@@ -88,8 +88,8 @@ func SelectTopRoom(
 			}
 		}
 	} else {
-	//	すべてのジャンルがチェックされていないときはunknownをのぞいてすべてチェックする。
-	//	誤入力および最初の一回目対策
+		//	すべてのジャンルがチェックされていないときはunknownをのぞいてすべてチェックする。
+		//	誤入力および最初の一回目対策
 		for i, v := range top.Genrelist {
 			cond = append(cond, v.Genre_name)
 			top.Genrelist[i].Checked = true
@@ -196,7 +196,7 @@ func HandlerTopRoom(
 
 	olim, _ := strconv.Atoi(r.FormValue("olim"))
 	if olim == 0 {
-		olim = 30
+		olim = 50
 	}
 
 	from := r.FormValue("from")

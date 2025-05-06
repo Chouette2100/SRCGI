@@ -238,21 +238,23 @@ func GetAndSaveOldEvents(
 			ssstarttime := starttime.Format("Jan 2, 2006 3:04 PM")
 			sendtime := endtime.Format("Jan 2, 2006 3:04 PM")
 			wevent = srdblib.Wevent{
-				Ieventid:    pe.EventID,
-				Eventid:     eventid,
-				Event_name:  pe.EventName,
-				Starttime:   starttime,
-				Endtime:     endtime,
-				Period:      ssstarttime + " - " + sendtime,
-				Intervalmin: 5,
-				Modmin:      4,
-				Modsec:      0,
-				Fromorder:   1,
-				Toorder:     3000,
-				Resethh:     4,
-				Resetmm:     0,
-				Maxdsp:      20,
-				Cmap:        2,
+				Event: srdblib.Event{
+					Ieventid:    pe.EventID,
+					Eventid:     eventid,
+					Event_name:  pe.EventName,
+					Starttime:   starttime,
+					Endtime:     endtime,
+					Period:      ssstarttime + " - " + sendtime,
+					Intervalmin: 5,
+					Modmin:      4,
+					Modsec:      0,
+					Fromorder:   1,
+					Toorder:     3000,
+					Resethh:     4,
+					Resetmm:     0,
+					Maxdsp:      20,
+					Cmap:        2,
+				},
 			}
 			if err = srdblib.Dbmap.Insert(&wevent); err != nil {
 				err = fmt.Errorf("Insert(): %w", err)
