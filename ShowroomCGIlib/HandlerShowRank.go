@@ -32,9 +32,7 @@ type ShowRank struct {
 	ErrMsg   string
 }
 
-/*
-SHOWランク上位ルームを抽出する
-*/
+// SHOWランク上位ルームを抽出する
 func SelectShowRank(
 	client *http.Client,
 	limit int,
@@ -50,7 +48,7 @@ func SelectShowRank(
 	sqltr := " select * from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "
 
 	var ul []interface{}
-	ul, err = srdblib.Dbmap.Select( srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour * 25))
+	ul, err = srdblib.Dbmap.Select(srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour*25))
 	if err != nil {
 		err = fmt.Errorf("srdblib.Dbmap.Select(): %w", err)
 		return
@@ -98,7 +96,7 @@ func HandlerShowRank(
 	funcMap := template.FuncMap{
 		"Comma":      func(i int) string { return humanize.Comma(int64(i)) }, //	3桁ごとに","を入れる関数。
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-		"Add": func(a int, b int) int { return a+b },
+		"Add":        func(a int, b int) int { return a + b },
 		"Showrank": func(s string) string {
 			sa := strings.Split(s, " | ")
 			return sa[len(sa)-1]
@@ -111,14 +109,16 @@ func HandlerShowRank(
 	//	showrank.Userlist, err = SelectShowRank(client, 260000000)	//	SS-5〜A-5
 	//	showrank.Userlist, err = SelectShowRank(client, 300000000)	//	SS-5〜A-1
 	var user1 srdblib.User
-	err = srdblib.Dbmap.SelectOne(&user1, "select * from user where irank = (select min(irank) from user where `rank` = 'B-5')")
+	// FIXME: irank != 0 の条件が必要な理由を明確にすること(2025-05-14)
+	// err = srdblib.Dbmap.SelectOne(&user1, "select * from user where irank = (select min(irank) from user where `rank` = 'B-5')")
+	err = srdblib.Dbmap.SelectOne(&user1, "select * from user where irank = (select min(irank) from user where `rank` = 'B-5' and irank != 0) ")
 	if err != nil {
 		err = fmt.Errorf("srdblib.Dbmap.SelectOne(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
 		return
 	}
 
-	showrank.Userlist, err = SelectShowRank(client, user1.Irank + 1)	//	SS-5〜A-1とB-5のトップ
+	showrank.Userlist, err = SelectShowRank(client, user1.Irank+1) //	SS-5〜A-1とB-5のトップ
 	if err != nil {
 		err = fmt.Errorf("SelectShowRank(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())

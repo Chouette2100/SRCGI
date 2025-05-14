@@ -1,5 +1,9 @@
-## DBサーバーのホスト名、指定しなければlocalhost
-#DBhost:
+# すでに存在するトンネルを使う
+#UseSSH: false
+#DBサーバーのホスト名、指定しなければlocalhost
+DBhost: ${DBHOST}
+DBport: ${DBPORT}
+
 # データベース名
 DBname:	${DBNAME}
 #
@@ -10,9 +14,6 @@ DBpswd:	${DBPW}
 # SSH接続を使わない
 UseSSH: false
 
-# すでに存在するトンネルを使う
-#UseSSH: false
-#DBport: 9998
 
 # SSH接続を使う
 #UseSSH: true
@@ -20,4 +21,4 @@ SSHhost: ${SSHHOST}
 SSHport: ${SSHPORT}
 SSHuser: ${SSHUSER}
 #SSHpswd: ${SSHPSWD}
-SSHprvkey: ${SSHKEY}
+SSHprvkey: ${SSHPRVKEY}

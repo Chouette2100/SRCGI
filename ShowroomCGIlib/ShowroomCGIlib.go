@@ -246,11 +246,12 @@ import (
 11CM01	HandlerClosedEvents()での「次ページ」、「前ページ」の処理で limit を変更する処理をやめる、closedevents.gtplについても暫定対応を行う。
 11CM02	HandlerTopRoom()での表示件数を30件から50件に変更する。
 11CM03	Accesslog書き込み時のチャンネル操作の時間を調べる
+11CM04	HandlerShowRank()で B-5ランクトップのユーザーを抽出するSQLの条件に irank != 0 を追加する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CM03"
+const Version = "11CM04"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

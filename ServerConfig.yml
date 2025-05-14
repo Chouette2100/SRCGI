@@ -4,7 +4,7 @@
 ## この設定はグラフを作るときSVGファイルをどこに置くかということに関係する。
 ## グラフを出力しないケースではどのような設定にしても問題ないでしょう。
 WebServer: None
-HTTPport: 8000
+HTTPport: ${HTTPPORT}
 #
 #
 # SSLに関する設定は環境変数で渡す。
@@ -12,8 +12,8 @@ HTTPport: 8000
 ## SSL証明書関連のファイルはふつうrootしか参照できない形でおかれているので
 ## その対策が必要です。
 ## 今は~/.letsencrypt にコピーしてきて使っていますが...
-#SSLcrt: ${SSLCRT}
-#SSLkey: ${SSLKEY}
+SSLcrt: ${SSLCRT}
+SSLkey: ${SSLKEY}
 #
 #
 # イベント一覧に表示するイベントの数（緊急対応でここに）

@@ -124,10 +124,11 @@ import (
         new-user.gtplでイベントへのリンクの"/"の抜けを修正する。"
 		HandlerListLast()の表示をページングしたものをHadlerListLastP()とし、終了イベントの表jに使う。
 	11CM02  タイムアウトの設定を30秒から90秒に変更する。
+	11CM04  my_script.envを導入する
 }
 */
 
-const version = "11CM02"
+const version = "11CM04"
 
 func NewLogfileName(logfile *os.File) {
 
