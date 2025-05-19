@@ -125,10 +125,11 @@ import (
 		HandlerListLast()の表示をページングしたものをHadlerListLastP()とし、終了イベントの表jに使う。
 	11CM02  タイムアウトの設定を30秒から90秒に変更する。
 	11CM04  my_script.envを導入する
+	11CM05  srdblibのバージョンをv2.3.2に変更する
 }
 */
 
-const version = "11CM04"
+const version = "11CM05"
 
 func NewLogfileName(logfile *os.File) {
 
