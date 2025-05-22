@@ -55,7 +55,7 @@ type T999Dtop struct {
 	Path         int    //	どの検索方法が使われているか？（詳細は HandlerCloesedEvnets()および関連関数を参照）
 	Keywordev    string //	検索文字列:イベント名
 	Keywordrm    string //	検索文字列:ルーム名
-	Kwevid    string //	検索文字列:イベントID
+	Kwevid       string //	検索文字列:イベントID
 	Userno       int    //	絞り込み対象のルームID
 	Limit        int    //	データ取得数
 	Offset       int    //	データ取得開始位置
@@ -65,18 +65,16 @@ type T999Dtop struct {
 
 // "/T999Dtop"に対するハンドラー
 // http://localhost:8080/T999Dtop で呼び出される
-func HandlerCurrentEvents(
+func CurrentEventsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	/*
 		client, cookiejar, err := exsrapi.CreateNewClient("")
@@ -128,8 +126,8 @@ func HandlerCurrentEvents(
 
 	emap := srdblib.GetFeaturedEvents(24, 18, 10)
 
-	for i,v := range(top.Eventinflist) {
-		if _,ok := emap[v.Event_ID]; ok {
+	for i, v := range top.Eventinflist {
+		if _, ok := emap[v.Event_ID]; ok {
 			top.Eventinflist[i].Aclr = 1
 		} else {
 			top.Eventinflist[i].Aclr = 0

@@ -78,16 +78,14 @@ type CntrbHistory []CntrbHistoryInf
 
 */
 
-func HandlerListCntrbH(w http.ResponseWriter, req *http.Request) {
+func ListCntrbHHandler(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbH-h.gtpl", "templates/list-cntrbH.gtpl"))

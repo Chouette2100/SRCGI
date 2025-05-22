@@ -18,6 +18,7 @@ import (
 	"net/http"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/dustin/go-humanize"
@@ -161,7 +162,7 @@ func SelectTopRoom(
 
 */
 // http://localhost:8080/toproom で呼び出される
-func HandlerTopRoom(
+func TopRoomHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

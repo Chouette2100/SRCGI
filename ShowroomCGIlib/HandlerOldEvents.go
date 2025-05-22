@@ -36,7 +36,7 @@ type OldEvents struct {
 }
 
 // 過去のイベントの一覧を作るためのハンドラー
-func HandlerOldEvents(
+func OldEventsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

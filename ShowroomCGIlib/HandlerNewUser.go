@@ -14,6 +14,7 @@ import (
 	//	"sort"
 	"strconv"
 	"strings"
+
 	//	"time"
 
 	//	"bufio"
@@ -44,7 +45,7 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
+func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -133,12 +134,12 @@ func HandlerNewUser(w http.ResponseWriter, r *http.Request) {
 		values["Msg1"] = "の参加ルームとして"
 		values["Msg2"] = "すでに登録されています"
 		values["Msg2color"] = "red"
-	//	} else if status_room != 0 {
-	//		values["Submit"] = "hidden"
-	//		values["Label"] = "戻る"
-	//		values["Msg1"] = ""
-	//		values["Msg2"] = "ルーム情報がDB未登録です"
-	//		values["Msg2color"] = "red"
+		//	} else if status_room != 0 {
+		//		values["Submit"] = "hidden"
+		//		values["Label"] = "戻る"
+		//		values["Msg1"] = ""
+		//		values["Msg2"] = "ルーム情報がDB未登録です"
+		//		values["Msg2color"] = "red"
 	} else {
 
 		if status_db != 0 && status_api != 0 {

@@ -27,7 +27,6 @@ import (
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/Chouette2100/srdblib/v2"
 	"github.com/dustin/go-humanize"
-
 	//	"github.com/Chouette2100/exsrapi/v2"
 )
 
@@ -92,7 +91,7 @@ type VgsInf struct {
 
 */
 
-func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
+func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
@@ -123,7 +122,6 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 		gsheader.Url = "https://campaign.showroom-live.com/kingofliver2024/"
 	}
 
-
 	grid, _ := strconv.Atoi(req.FormValue("giftid"))
 	if grid == 0 {
 		grid = 206
@@ -131,15 +129,15 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 
 	limit, _ := strconv.Atoi(req.FormValue("limit"))
 	if limit == 0 {
-			limit = 60
+		limit = 60
 	}
 
 	maxacq, _ := strconv.Atoi(req.FormValue("maxacq"))
 	if maxacq == 0 {
-			maxacq = 10
+		maxacq = 10
 	}
 
-		err := GetGiftRanking(&gsheader, grid, "fan")
+	err := GetGiftRanking(&gsheader, grid, "fan")
 	if err != nil {
 		err = fmt.Errorf("GetGiftRanking(): error %w", err)
 		log.Printf("%s", err.Error())
@@ -149,7 +147,6 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 	if grid == 0 {
 		grid = gsheader.GiftRanking[0].Grid
 	}
-
 
 	acqtimelist, _ := SelectVgsAcqTimeList(grid)
 	if len(acqtimelist) == 0 {
@@ -177,7 +174,6 @@ func HandlerListFanGiftScore(w http.ResponseWriter, req *http.Request) {
 		//	ie = maxacq - 1
 		ie = latl - 1
 	}
-
 
 	//	gsheader.Eventid = eventid
 	gsheader.Grid = grid
@@ -491,9 +487,9 @@ func SelectViewerid2Order(
 
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	type ViewerAndOrderno struct {
-			Viewerid  int
-			Sname  string
-			Orderno   int
+		Viewerid int
+		Sname    string
+		Orderno  int
 	}
 	var rows []interface{}
 	sqlst := "select v.viewerid, v.sname, vgs.orderno "
@@ -511,7 +507,7 @@ func SelectViewerid2Order(
 		vgslist = append(vgslist, VgsInf{
 			Viewerid:   vw.Viewerid,
 			Viewername: vw.Sname,
-			Orderno: vw.Orderno,
+			Orderno:    vw.Orderno,
 		})
 	}
 	/*

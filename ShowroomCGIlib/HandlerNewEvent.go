@@ -19,7 +19,8 @@ import (
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
-func HandlerNewEvent(w http.ResponseWriter, r *http.Request) {
+
+func NewEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {

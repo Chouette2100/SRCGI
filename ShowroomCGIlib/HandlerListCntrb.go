@@ -34,30 +34,30 @@ import (
 const MaxAcq = 5
 
 type CntrbHeader struct {
-	Eventid   string
-	Eventname string
-	Period    string
-	Maxpoint  int
-	Gscale    int
-	Userno    int
-	Username  string
-	ShortURL  string
-	Ier       int
-	Iel       int
-	S_stime   []string
-	S_etime   []string
-	Earned    []int
-	Total     []int
-	Target    []int
-	Ifrm      []int
-	Nof       []int
-	Nft       int	//	先頭に戻ったときの最後に表示される枠
-	Npb       int	//	1ページ戻る
-	N1b       int	//	一枠戻る
-	Ncr       int
-	N1f       int
-	Npf       int
-	Nlt       int
+	Eventid      string
+	Eventname    string
+	Period       string
+	Maxpoint     int
+	Gscale       int
+	Userno       int
+	Username     string
+	ShortURL     string
+	Ier          int
+	Iel          int
+	S_stime      []string
+	S_etime      []string
+	Earned       []int
+	Total        []int
+	Target       []int
+	Ifrm         []int
+	Nof          []int
+	Nft          int //	先頭に戻ったときの最後に表示される枠
+	Npb          int //	1ページ戻る
+	N1b          int //	一枠戻る
+	Ncr          int
+	N1f          int
+	Npf          int
+	Nlt          int
 	Cntrbinflist *[]CntrbInf
 }
 
@@ -91,16 +91,14 @@ type CntrbInf struct {
 
 */
 
-func HandlerListCntrb(w http.ResponseWriter, req *http.Request) {
+func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))

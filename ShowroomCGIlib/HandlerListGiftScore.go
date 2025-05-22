@@ -101,7 +101,7 @@ type GsInf struct {
 
 */
 
-func HandlerListGiftScore(w http.ResponseWriter, req *http.Request) {
+func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	var gsheader GsHeader
 

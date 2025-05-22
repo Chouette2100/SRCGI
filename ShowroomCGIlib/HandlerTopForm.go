@@ -18,7 +18,6 @@ import (
 	"time"
 	//	"os"
 
-
 	// "runtime"
 
 	// "encoding/json"
@@ -45,8 +44,7 @@ import (
 )
 
 // 入力フォーム画面
-func HandlerTopForm(w http.ResponseWriter, r *http.Request) {
-
+func TopFormHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {

@@ -18,7 +18,6 @@ import (
 	//	"time"
 	//	"os"
 
-
 	// "runtime"
 
 	// "encoding/json"
@@ -44,7 +43,7 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-func HandlerParamEvent(w http.ResponseWriter, r *http.Request) {
+func ParamEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -89,7 +88,7 @@ func HandlerParamEvent(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func HandlerParamEventC(w http.ResponseWriter, r *http.Request) {
+func ParamEventCHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -196,4 +195,3 @@ func SelectEventuserList(eventid string) (userlist []User, status int) {
 	return
 
 }
-

@@ -26,7 +26,8 @@ import (
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
-func HandlerEditUser(w http.ResponseWriter, r *http.Request) {
+
+func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {

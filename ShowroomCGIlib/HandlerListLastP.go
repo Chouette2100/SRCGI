@@ -44,7 +44,7 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-func HandlerListLastP(w http.ResponseWriter, req *http.Request) {
+func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
 	if !isallow {

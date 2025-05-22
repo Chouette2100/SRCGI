@@ -70,7 +70,7 @@ func SelectShowRank(
 
 */
 // http://localhost:8080/showrank で呼び出される
-func HandlerShowRank(
+func ShowRankHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

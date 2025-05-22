@@ -10,6 +10,7 @@ package ShowroomCGIlib
 import (
 	"fmt"
 	"html/template"
+
 	//	"io" //　ログ出力設定用。必要に応じて。
 	"log"
 	"net/http"
@@ -37,22 +38,19 @@ type T008top struct {
 	Eventlist  []srapi.Event
 }
 
-//	"/t008top"に対するハンドラー
-//	http://localhost:8080/t008top で呼び出される
-func HandlerScheduledEventsSvr(
+// "/t008top"に対するハンドラー
+// http://localhost:8080/t008top で呼び出される
+func ScheduledEventsSvrHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
-
 
 	client, cookiejar, err := exsrapi.CreateNewClient("")
 	if err != nil {
@@ -92,4 +90,3 @@ func HandlerScheduledEventsSvr(
 	}
 
 }
-

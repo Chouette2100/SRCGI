@@ -35,7 +35,7 @@ import (
 
 // "/ApiEventRoomList()"に対するハンドラー
 // http://localhost:8080/apieventroomlist で呼び出される
-func HandlerEventRoomList(
+func EventRoomListHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

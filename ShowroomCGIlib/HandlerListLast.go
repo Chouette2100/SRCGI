@@ -70,7 +70,7 @@ type CurrentScore struct {
 	Bcntrb    bool
 }
 
-func HandlerListLast(w http.ResponseWriter, req *http.Request) {
+func ListLastHandler(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
 	if !isallow {

@@ -13,11 +13,10 @@ import (
 
 	//	"math/rand"
 	// "sort"
+	"os"
 	"strconv"
 	"strings"
 	"time"
-	"os"
-
 
 	// "runtime"
 
@@ -44,7 +43,7 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-func HandlerGraphTotal(w http.ResponseWriter, req *http.Request) {
+func GraphTotalHandler(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
@@ -193,7 +192,7 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 
 	if Serverconfig.WebServer == "None" {
 		//	Webサーバーとして起動するときは、起動した直後を0とする連番（の下3桁）とする
-		filename = fmt.Sprintf("%03d.svg", <- Chimgfn)
+		filename = fmt.Sprintf("%03d.svg", <-Chimgfn)
 		Nfseq = (Nfseq + 1) % 1000
 	} else {
 		//	CGIのときはプロセスID（の下3桁）とする。
@@ -224,7 +223,8 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 
 	return
 }
-//	グラフを描画する＝SVGを作成する
+
+// グラフを描画する＝SVGを作成する
 func GraphScore01(
 	filename string,
 	eventname string,
@@ -575,4 +575,3 @@ func SelectScoreList(user_id int) (x *[]float64, y *[]float64) {
 
 	return
 }
-

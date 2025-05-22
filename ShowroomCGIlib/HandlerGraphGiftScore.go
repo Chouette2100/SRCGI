@@ -25,6 +25,7 @@ import (
 
 	"html/template"
 	"net/http"
+
 	//	"database/sql"
 	//	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
@@ -37,7 +38,7 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-func HandlerGraphGiftScore(w http.ResponseWriter, req *http.Request) {
+func GraphGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
@@ -228,7 +229,7 @@ func GraphGiftScore(
 		target,                //	目標ポイント
 		giftranking.Startedat, //	イベント開始時刻 time.Time
 		giftranking.Endedat,   //	イベント終了時刻 time.Time
-		0, // グラフ描画に使用するカラーマップ
+		0,                     // グラフ描画に使用するカラーマップ
 		1.1,                   //	データ間隔がこの時間を超えたら接続しない(day)
 		IDlist,
 		&xydata,

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
 	//	"sort"
 	"time"
 
@@ -33,7 +34,7 @@ type FapHeader struct {
 // イベントが開催中であれば指定した順位内のルームを取得対象として登録する。
 // イベントが開催予定のものであればルームの登録は行わない。
 // イベント開催中、開催予定にかかわらず、取得対象ルームの追加は srAddNewOnes で行われる。
-func HandlerDlAllPoints(w http.ResponseWriter, r *http.Request) {
+func DlAllPointsHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {

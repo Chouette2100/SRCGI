@@ -8,14 +8,15 @@
             "type": "shell",
             "options": {
                 "env": {
-                  "CGO_ENABLED": "0"
+                  "CGO_ENABLED": "0",
                 }
             },
             "command": "go",
             "args": [
                 "build",
                 "-v",
-                "SRCGI.go"
+                // "./..."
+                "."
             ],
             "problemMatcher": [],
             "group": {

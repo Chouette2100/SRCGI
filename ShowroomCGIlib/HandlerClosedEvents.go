@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	//	"io" //　ログ出力設定用。必要に応じて。
 	//	"sort" //	ソート用。必要に応じて。
 
@@ -31,7 +32,7 @@ import (
 
 Ver. 0.1.0
 */
-func HandlerClosedEvents(
+func ClosedEventsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

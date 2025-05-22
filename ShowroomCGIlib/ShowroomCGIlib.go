@@ -128,8 +128,8 @@ import (
 11AP01	HandlerTopRoom()で日時範囲と表示数の設定を可能にする。
 11AP02	GetUserInf()の抜けを補う。
 11AQ00	掲示板機能を追加する。
-11AQ01	掲示板機能について、HandlerWriteBbs()をHandlerDispBbs()に統合し、リモートアドレス、ユーザーエージェントを保存する。
-11AQ02	HandlerDispBbs()に関して掲示板ページに直接来てもログが表示されるようにする。
+11AQ01	掲示板機能について、HandlerWriteBbs()をDispBbsHandler()に統合し、リモートアドレス、ユーザーエージェントを保存する。
+11AQ02	DispBbsHandler()に関して掲示板ページに直接来てもログが表示されるようにする。
 11AQ03	終了イベント一覧の表示：51件表示し、50件ずつスクロールする。
 11AQ04	ログメッセージを変更する（HandleListCntrb(),HandleListCntrbD(),HandleListCntrbH()）
 〃     「(DB登録済み)イベント参加ルーム一覧（確認・編集）」で一覧にないルームを追加した直後の更新の不具合を修正する。
@@ -147,7 +147,7 @@ import (
 11AW00	SelectCurrentScore() stmtを使いまわしているとことを別の変数にする。不具合ではないと思うが誤解を招きそうなので...
 11AW01	SelectCurrentScore()の中のdeferでエラーが起きているか否かの検証を行う。
 11AW02	説明書きや表の項目名の修正(追加)
-11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とする方法に変える。
+11AX00	操作対象のテーブルをsrdblib.Teventで指定する方法から関数の引数とすべき方法に変える。
 11AY00	HandlerShowRank()（SHOWランク上位配信者を表示する）を導入する。gorpを導入する。
 11AZ00	userテーブルへのINSERTはsrdblib.InsertIntoUser()を用い、userテーブルのPDATEは原則として行わない。
 11BA00	Genre, GenreIDの変更にともなう暫定対応（HandlerTopRoom()）+ showrank.gtpl の説明を追加する。
@@ -247,11 +247,13 @@ import (
 11CM02	HandlerTopRoom()での表示件数を30件から50件に変更する。
 11CM03	Accesslog書き込み時のチャンネル操作の時間を調べる
 11CM04	HandlerShowRank()で B-5ランクトップのユーザーを抽出するSQLの条件に irank != 0 を追加する。
+11CM06  HandlerAddEvent()でGetEventInfAndRoomList()を使わず、GetEventQuestRoomsByApi()を使う。
+11CN00  ハンドラーの関数名をHandlerXXX()からXXXHandle()に変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CM04"
+const Version = "11CN00"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

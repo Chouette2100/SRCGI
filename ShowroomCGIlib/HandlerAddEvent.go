@@ -4,17 +4,17 @@
 package ShowroomCGIlib
 
 import (
-	"bytes"
+	// "bytes"
 	"fmt"
 	//	"html"
 	"log"
-	"os"
+	// "os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	// "github.com/PuerkitoBio/goquery"
 
 	"github.com/dustin/go-humanize"
 
@@ -24,6 +24,7 @@ import (
 	//	"database/sql"
 
 	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
 
@@ -31,7 +32,7 @@ import (
 // イベントが開催中であれば指定した順位内のルームを取得対象として登録する。
 // イベントが開催予定のものであればルームの登録は行わない。
 // イベント開催中、開催予定にかかわらず、取得対象ルームの追加は srAddNewOnes で行われる。
-func HandlerAddEvent(w http.ResponseWriter, r *http.Request) {
+func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	ra, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -349,34 +350,68 @@ func GetAndInsertEventRoomInfo(
 		}
 	} else {
 		//	レベルイベントのとき
-		status = GetEventInfAndRoomList(eventid, breg, ereg, eventinfo, roominfolist)
-		if status != 0 {
-			log.Printf("GetEventInfAndRoomList() returned %d\n", status)
-			return
-		}
-		lenpr = len(*roominfolist)
+		/*
+			status = GetEventInfAndRoomList(eventid, breg, ereg, eventinfo, roominfolist)
+			if status != 0 {
+				log.Printf("GetEventInfAndRoomList() returned %d\n", status)
+				return
+			}
+			lenpr = len(*roominfolist)
+		*/
+		var eqr *srapi.EventQuestRooms
+		eqr, err = srapi.GetEventQuestRoomsByApi(client, eventid, 1, eventinfo.Toorder)
+		lenpr = len(eqr.EventQuestLevelRanges[0].Rooms)
 		if ereg > lenpr {
 			ereg = lenpr
 		}
 		if breg > ereg {
 			breg = 1
 		}
-		if inprogress && lenpr != 0 {
-			for i := breg - 1; i < ereg; i++ {
-				point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
-				if eventid == (*eventinfo).Event_ID {
-					if point < thpoint {
-						ereg = i
-						break
-					}
-					(*roominfolist)[i].Point = point
-					UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
-				} else {
-					log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
-				}
 
+		roominfolist = &RoomInfoList{}
+
+		for i := breg; i <= ereg; i++ {
+			room := eqr.EventQuestLevelRanges[0].Rooms[i-1]
+			point, _, _, eventid := GetPointsByAPI(strconv.Itoa(room.RoomID))
+			if eventid == (*eventinfo).Event_ID {
+				if point < thpoint {
+					ereg = i
+					break
+				}
+				// (*roominfolist)[i].Point = point
+				roominf := RoomInfo{
+					Name:    room.RoomName,
+					ID:      strconv.Itoa(room.RoomID),
+					Userno:  room.RoomID,
+					Account: "",
+					Point:   point,
+					Order:   i,
+					Irank:   888888888,
+				}
+				*roominfolist = append(*roominfolist, roominf)
+				UpdateEventuserSetPoint(eventid, strconv.Itoa(room.RoomID), point)
+			} else {
+				log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
 			}
 		}
+
+		/*
+				for i := breg - 1; i < ereg; i++ {
+					point, _, _, eventid := GetPointsByAPI((*roominfolist)[i].ID)
+					if eventid == (*eventinfo).Event_ID {
+						if point < thpoint {
+							ereg = i
+							break
+						}
+						(*roominfolist)[i].Point = point
+						UpdateEventuserSetPoint(eventid, (*roominfolist)[i].ID, point)
+					} else {
+						log.Printf(" %s %s %d\n", (*eventinfo).Event_ID, eventid, point)
+					}
+
+				}
+			}
+		*/
 		if lenpr == 0 {
 			nroominfolist := RoomInfoList{}
 			roominfolist = &nroominfolist
@@ -515,6 +550,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 	log.Printf("  *** end of InsertRoomInf() ***********\n")
 }
 
+/*
 func GetEventInfAndRoomList(
 	eventid string,
 	breg int,
@@ -570,7 +606,7 @@ func GetEventInfAndRoomList(
 		_url := "https://www.showroom-live.com/event/" + eventidorfilename
 		/*
 			doc, err = goquery.NewDocument(_url)
-		*/
+		-/
 		resp, error := http.Get(_url)
 		if error != nil {
 			log.Printf("GetEventInfAndRoomList() http.Get() err=%s\n", error.Error())
@@ -704,3 +740,4 @@ func GetEventInfAndRoomList(
 
 	return
 }
+*/

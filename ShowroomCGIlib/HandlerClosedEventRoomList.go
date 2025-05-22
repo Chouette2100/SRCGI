@@ -36,7 +36,7 @@ type Erl struct {
 	Eventid     int
 	Eventname   string
 	Eventurl    string
-	Roomid		int
+	Roomid      int
 	Ib          int
 	Ie          int
 	Roomlistinf *srapi.RoomListInf
@@ -64,7 +64,7 @@ func SelectLastdataFromWeventuser(
 	var rows *sql.Rows
 
 	stmt, err = srdblib.Db.Prepare(sqlswe)
-	if err != nil  {
+	if err != nil {
 		err = fmt.Errorf("prepare: %s", err.Error())
 		return
 	}
@@ -105,18 +105,16 @@ func SelectLastdataFromWeventuser(
 */
 // "/ApiEventRoomList()"に対するハンドラー
 // http://localhost:8080/apieventroomlist で呼び出される
-func HandlerClosedEventRoomList(
+func ClosedEventRoomListHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	//	cookiejarがセットされたHTTPクライアントを作る
 	client, jar, err := exsrapi.CreateNewClient("XXXXXX")

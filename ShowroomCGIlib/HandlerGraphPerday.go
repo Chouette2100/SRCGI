@@ -14,10 +14,9 @@ import (
 	//	"math/rand"
 	// "sort"
 	//	"strconv"
+	"os"
 	"strings"
 	"time"
-	"os"
-
 
 	// "runtime"
 
@@ -56,7 +55,6 @@ type PointRecord struct {
 	Pointlist []Point
 }
 
-
 type PointPerDay struct {
 	Eventid         string
 	Eventname       string
@@ -68,8 +66,7 @@ type PointPerDay struct {
 	Pointrecordlist []PointRecord
 }
 
-
-func HandlerGraphPerday(w http.ResponseWriter, r *http.Request) {
+func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -116,7 +113,7 @@ func HandlerGraphPerday(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func HandlerListPerday(w http.ResponseWriter, r *http.Request) {
+func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -144,11 +141,11 @@ func HandlerListPerday(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
 // func MakePointPerDay(eventid string) (p_pointperday *PointPerDay, status int) {
 func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, status int) {
 
 	status = 0
-
 
 	dstart := Event_inf.Start_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.Start_time.Hour()) * time.Hour)
 	if Event_inf.Start_time.Hour()*60+Event_inf.Start_time.Minute() > Event_inf.Resethh*60+Event_inf.Resetmm {
@@ -456,7 +453,3 @@ func GraphPerDay(
 	return
 
 }
-
-
-
-

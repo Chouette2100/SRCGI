@@ -12,6 +12,7 @@ import (
 	"log"
 	"strconv"
 	"time"
+
 	//	"io" //　ログ出力設定用。必要に応じて。
 	//	"sort" //	ソート用。必要に応じて。
 
@@ -19,7 +20,6 @@ import (
 	"net/http"
 
 	"github.com/dustin/go-humanize"
-
 	//	"github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srdblib/v2"
 	//	"github.com/Chouette2100/srapi/v2"
@@ -52,17 +52,16 @@ type T999Dtop struct {
 
 // "/T999Dtop"に対するハンドラー
 // http://localhost:8080/T999Dtop で呼び出される
-func HandlerScheduledEvents(
+func ScheduledEventsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
 
 	/*
 		client, cookiejar, err := exsrapi.CreateNewClient("")
@@ -78,7 +77,6 @@ func HandlerScheduledEvents(
 	//	srdblib.Teventuser = "weventuser"
 	//	srdblib.Tuser = "wuser"
 	//	srdblib.Tuserhistory = "wuserhistory"
-
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
@@ -96,7 +94,7 @@ func HandlerScheduledEvents(
 	top.Mode, _ = strconv.Atoi(r.FormValue("mode"))
 
 	var err error
-	cond := 1	//	開催予定
+	cond := 1 //	開催予定
 	top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, "", "", 0, 0)
 	if err != nil {
 		err = fmt.Errorf("MakeListOfPoints(): %w", err)

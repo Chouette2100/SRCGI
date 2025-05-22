@@ -1,10 +1,12 @@
 package ShowroomCGIlib
+
 import (
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 )
+
 func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
@@ -25,9 +27,7 @@ func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
-
-func HandlerParamGlobal(w http.ResponseWriter, r *http.Request) {
+func ParamGlobalHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -47,7 +47,7 @@ func HandlerParamGlobal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func HandlerCsvTotal(w http.ResponseWriter, r *http.Request) {
+func CsvTotalHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -67,7 +67,7 @@ func HandlerCsvTotal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func HandlerGraphDfr(w http.ResponseWriter, r *http.Request) {
+func GraphDfrHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {

@@ -29,7 +29,7 @@ type HGSinf struct {
 	Gscale    int
 }
 
-func HandlerGraphSum(w http.ResponseWriter, r *http.Request) {
+func GraphSumHandler(w http.ResponseWriter, r *http.Request) {
 
 	/*
 		hgsinf := HGSinf{
@@ -61,9 +61,9 @@ func HandlerGraphSum(w http.ResponseWriter, r *http.Request) {
 		Eventname: intf.(*srdblib.Event).Event_name,
 		Period:    intf.(*srdblib.Event).Period,
 		Roomid:    roomid,
-		Maxpoint:    intf.(*srdblib.Event).Maxpoint,
+		Maxpoint:  intf.(*srdblib.Event).Maxpoint,
 		// Gscale:    intf.(*srdblib.Event).Gscale,
-		Gscale:    100,
+		Gscale: 100,
 	}
 
 	intf, _ = srdblib.Dbmap.Get(srdblib.User{}, roomid)
@@ -86,7 +86,7 @@ func HandlerGraphSum(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HandlerGraphSumData(w http.ResponseWriter, r *http.Request) {
+func GraphSumDataHandler(w http.ResponseWriter, r *http.Request) {
 
 	type Sumdata struct {
 		Dtime []string  `json:"dtime"`

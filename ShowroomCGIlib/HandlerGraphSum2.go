@@ -16,7 +16,7 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-func HandlerGraphSum2(w http.ResponseWriter, r *http.Request) {
+func GraphSum2Handler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -58,7 +58,7 @@ type Sumdata struct {
 	Value     float64 `json:"value"`
 }
 
-func HandlerGraphSumData1(w http.ResponseWriter, r *http.Request) {
+func GraphSumData1Handler(w http.ResponseWriter, r *http.Request) {
 
 	/*
 		data := []struct {
@@ -106,7 +106,7 @@ func HandlerGraphSumData1(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(sumdata1)
 }
 
-func HandlerGraphSumData2(w http.ResponseWriter, r *http.Request) {
+func GraphSumData2Handler(w http.ResponseWriter, r *http.Request) {
 
 	/*
 		sumdata := []struct {

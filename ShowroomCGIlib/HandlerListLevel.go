@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+
 	//	"strings"
 	"time"
 
@@ -41,8 +42,7 @@ type RoomLevelInf struct {
 	RoomLevelList []RoomLevel
 }
 
-
-func HandlerListLevel(w http.ResponseWriter, req *http.Request) {
+func ListLevelHandler(w http.ResponseWriter, req *http.Request) {
 
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
@@ -126,4 +126,3 @@ func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, stat
 
 	return
 }
-

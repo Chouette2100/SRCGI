@@ -22,7 +22,9 @@ import (
 	"net/http"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
+
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	//	"github.com/dustin/go-humanize"
@@ -44,20 +46,18 @@ import (
 
 
 	0101G0	配信枠別貢献ポイントを実装する。
-	0101J1	
+	0101J1
 
 */
 
-func HandlerFanLevel(w http.ResponseWriter, req *http.Request) {
+func FanLevelHandler(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(
@@ -316,10 +316,10 @@ func SelectLevelForUser(userid int, yyyy int, mm int) (lfuw LevelForUserW, statu
 	defer rows.Close()
 
 	/*
-	type NullInt64 struct {
-		Int64 int64
-		Valid bool // Valid is true if Int64 is not NULL
-	}
+		type NullInt64 struct {
+			Int64 int64
+			Valid bool // Valid is true if Int64 is not NULL
+		}
 	*/
 	var nulllevellst sql.NullInt64
 	var level LevelForUser
@@ -377,10 +377,10 @@ func SelectLevelForRoom(roomid int, yyyy int, mm int) (lfrw LevelForRoomW, statu
 	lfrw.Lfr = make([]LevelForRoom, 0)
 
 	/*
-	sql := "select l.user_id, u.user_name, l.level, l.level_lst from fanlevel l join fluser u "
-	sql += " where l.user_id = u.user_id and l.room_id = ? "
-	sql += " and yyyymm = ? "
-	sql += " order by l.level desc, l.level_lst desc "
+		sql := "select l.user_id, u.user_name, l.level, l.level_lst from fanlevel l join fluser u "
+		sql += " where l.user_id = u.user_id and l.room_id = ? "
+		sql += " and yyyymm = ? "
+		sql += " order by l.level desc, l.level_lst desc "
 	*/
 	/*
 		if time.Now().Day() > 3 {

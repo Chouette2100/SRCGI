@@ -46,20 +46,18 @@ import (
 
 
 	0101G0	配信枠別貢献ポイントを実装する。
-	0101J1	
+	0101J1
 
 */
 
-func HandlerFlRanking(w http.ResponseWriter, req *http.Request) {
+func FlRankingHandler(w http.ResponseWriter, req *http.Request) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles(

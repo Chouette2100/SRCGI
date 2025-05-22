@@ -60,7 +60,7 @@ type HCntrbInf struct {
 	Filename   string
 }
 
-func HandlerContributors(
+func ContributorsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

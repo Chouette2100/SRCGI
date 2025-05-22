@@ -15,8 +15,8 @@ import (
 	// "sort"
 	//	"strconv"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	// "runtime"
@@ -63,7 +63,7 @@ type PerSlotInf struct {
 	Perslotlist []PerSlot
 }
 
-func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
+func GraphPerslotHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -102,7 +102,7 @@ func HandlerGraphPerslot(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
+func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -120,7 +120,7 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 	sroomid := r.FormValue("roomid")
 	if sroomid != "" {
 		roomid, _ = strconv.Atoi(sroomid)
-	}	
+	}
 
 	eventid := r.FormValue("eventid")
 	//	Event_inf, _ = SelectEventInf(eventid)
@@ -142,7 +142,6 @@ func HandlerListPerslot(w http.ResponseWriter, r *http.Request) {
 	}
 
 	perslotinflist, _ := MakePointPerSlot(eventid, roomid)
-
 
 	if err := tpl.ExecuteTemplate(w, "list-perslot2.gtpl", perslotinflist); err != nil {
 		log.Println(err)
@@ -175,8 +174,8 @@ func MakePointPerSlot(eventid string, roomid int) (perslotinflist []PerSlotInf, 
 		roominfolist[0] = RoomInfo{
 			Userno: roomid,
 			Name:   intf.(*srdblib.User).User_name,
-			Graph: "Checked",
-		} 
+			Graph:  "Checked",
+		}
 	}
 
 	for i := 0; i < len(roominfolist); i++ {

@@ -96,7 +96,7 @@ type GscInf struct {
 
 */
 
-func HandlerListGiftScoreCntrb(w http.ResponseWriter, req *http.Request) {
+func ListGiftScoreCntrbHandler(w http.ResponseWriter, req *http.Request) {
 
 	var gscheader GscHeader
 
@@ -507,13 +507,14 @@ func SelectViewer2Order(
 		v := x.(*ViewerAndGsc)
 		viewerid2order[v.Viewerid] = i
 		gsclist = append(gsclist, GscInf{
-			Viewerid:    v.Viewerid,
-			Name: v.Sname,
-			Orderno:   v.Orderno,
+			Viewerid: v.Viewerid,
+			Name:     v.Sname,
+			Orderno:  v.Orderno,
 		})
 	}
 	return
 }
+
 /*
 func GetGiftScoreCntrb(
 	gscheader *GscHeader,

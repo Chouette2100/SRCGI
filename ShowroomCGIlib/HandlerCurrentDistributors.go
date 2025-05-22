@@ -10,8 +10,8 @@ package ShowroomCGIlib
 import (
 	"html/template"
 	//	"io" //　ログ出力設定用。必要に応じて。
-	"log"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -30,7 +30,6 @@ import (
 	Ver. 0.4.0 デフォルトの表示カテゴリーをFreeからOfficialに変更する。
 
 */
-
 
 type T009Config struct {
 	SR_acct      string //	SHOWROOMのアカウント名
@@ -54,22 +53,19 @@ type T009top struct {
 	Lives        []srapi.Live //	配信中ルーム情報	（V2ではポインターとはしない）
 }
 
-//	"/t009top"に対するハンドラー
-//	http://localhost:8080/t009top で呼び出される
-func HandlerCurrentDistributors(
+// "/t009top"に対するハンドラー
+// http://localhost:8080/t009top で呼び出される
+func CurrentDistributorsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(r)
-	if ! isallow {
+	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
 	}
-
-
-
 
 	top := T009top{
 		SR_acct:      "999999",
@@ -93,9 +89,9 @@ func HandlerCurrentDistributors(
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
-		"Comma":         func(i int) string { return humanize.Comma(int64(i)) },                 //	3桁ごとに","を入れる関数。
+		"Comma":                  func(i int) string { return humanize.Comma(int64(i)) },                            //	3桁ごとに","を入れる関数。
 		"UnixTimeToYYYYMMDDHHMM": func(i int64) string { return time.Unix(int64(i), 0).Format("2006-01-02 15:04") }, //	UnixTimeを時分に変換する関数。
-		"UnixTimeToHHMM": func(i int64) string { return time.Unix(int64(i), 0).Format("15:04") }, //	UnixTimeを時分に変換する関数。
+		"UnixTimeToHHMM":         func(i int64) string { return time.Unix(int64(i), 0).Format("15:04") },            //	UnixTimeを時分に変換する関数。
 		"GidToName": func(gid int) string {
 			for j := 0; j < len(roomlives.Onlives); j++ {
 				if roomlives.Onlives[j].Genre_id == gid {
@@ -181,4 +177,3 @@ func HandlerCurrentDistributors(
 	}
 
 }
-

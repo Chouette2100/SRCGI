@@ -53,7 +53,7 @@ type BBS struct {
 }
 
 // リクエストの内容によって投稿を書き込み、あるいは投稿一覧を表示する
-func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
+func DispBbsHandler(w http.ResponseWriter, r *http.Request) {
 
 	var bbs BBS
 	var logm Logm
@@ -148,7 +148,7 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 	}
 	// テンプレートをパースする
 	var tpl *template.Template
-	if ! Serverconfig.Maintenance {
+	if !Serverconfig.Maintenance {
 		tpl = template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/bbs-1_org.gtpl", "templates/bbs-2.gtpl", "templates/bbs-3.gtpl"))
 	} else {
 		/* Maintenance */
@@ -165,7 +165,7 @@ func HandlerDispBbs(w http.ResponseWriter, r *http.Request) {
 
 	bbs.Nlog = len(bbs.Loglist)
 
-	if ! Serverconfig.Maintenance {
+	if !Serverconfig.Maintenance {
 		if err := tpl.ExecuteTemplate(w, "bbs-1_org.gtpl", bbs); err != nil {
 			log.Println(err)
 		}

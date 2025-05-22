@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/Chouette2100/exsrapi/v2 v2.3.1
-	github.com/Chouette2100/srapi/v2 v2.3.1
+	github.com/Chouette2100/srapi/v2 v2.3.3
 	github.com/Chouette2100/srdblib/v2 v2.3.2
 	github.com/Chouette2100/srhandler/v2 v2.1.0
 	github.com/PuerkitoBio/goquery v1.10.3
