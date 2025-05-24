@@ -249,11 +249,12 @@ import (
 11CM04	HandlerShowRank()で B-5ランクトップのユーザーを抽出するSQLの条件に irank != 0 を追加する。
 11CM06  HandlerAddEvent()でGetEventInfAndRoomList()を使わず、GetEventQuestRoomsByApi()を使う。
 11CN00  ハンドラーの関数名をHandlerXXX()からXXXHandle()に変更する。
+11CN01  GetAndInsertEventRoomInfo()のレベルイベントの処理で獲得ポイントが0でないルームの前に0のルームがあるといったイレギュラーなケースに対する対応を行う。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CN00"
+const Version = "11CN01"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

@@ -412,11 +412,11 @@ func GetAndInsertEventRoomInfo(
 				}
 			}
 		*/
-		if lenpr == 0 {
-			nroominfolist := RoomInfoList{}
-			roominfolist = &nroominfolist
-		} else {
-			nroominfolist := (*roominfolist)[breg-1 : ereg]
+		// 	レベルイベントの処理で獲得ポイントが0でないルームの前に0のルームがあるといったイレギュラーなケースに対する対応
+		nroominfolist := RoomInfoList{}
+		lenpr = len(*roominfolist)
+		if lenpr != 0 {
+			nroominfolist = (*roominfolist)[breg-1 : ereg]
 			roominfolist = &nroominfolist
 		}
 	}
