@@ -12,6 +12,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-gorp/gorp v2.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.9.2
+	github.com/juju/persistent-cookiejar v1.0.0
 	golang.org/x/term v0.32.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -25,7 +26,6 @@ require (
 	github.com/goark/sshql/mysqldrv v0.4.0 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/juju/go4 v0.0.0-20160222163258-40d72ab9641a // indirect
-	github.com/juju/persistent-cookiejar v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/net v0.39.0 // indirect

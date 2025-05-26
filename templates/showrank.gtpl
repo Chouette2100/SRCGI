@@ -92,7 +92,47 @@
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
         </tr>
         {{ $i = Add $i 1 }}
- 
+        {{ end }}
+
+        <tr style="text-align: center">
+            <td></td>
+            <td>SHOWランク</td>
+            <td>ルーム名（イベント履歴へのリンク）</td>
+            <td>ルームレベル</td>
+            <td>フォロワー数</td>
+            <td>ファン数<br>（今月）</td>
+            <td>ファンパワー<br>（〃）</td>
+            <td>ファン数<br>（前月）</td>
+            <td>ファンパワー<br>（〃）</td>
+            <td>next_score</td>
+            <td>prev_score</td>
+            <td>データ取得日時</td>
+        </tr>
+
+        {{ range .UserlistA }}
+        {{ $n = Showrank .Rank }}
+        {{ if ne $n $l }}
+            {{ $l = $n }}
+            {{ if eq $c "lightyellow" }}
+                {{ $c = "lightcyan" }}
+            {{ else }}
+                {{ $c = "lightyellow" }}
+            {{ end }}
+        {{ end }}
+        <tr bgcolor="{{$c}}" >
+            <td align="right"></td>
+            <td align="center">{{ $n }}</td>
+            <td><a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a></td>
+            <td align="right">{{ Comma .Level }}</td>
+            <td align="right">{{ Comma .Followers }}</td>
+            <td align="right">{{ Comma .Fans }}</td>
+            <td align="right">{{ Comma .FanPower }}</td>
+            <td align="right">{{ Comma .Fans_lst }}</td>
+            <td align="right">{{ Comma .FanPower_lst }}</td>
+            <td align="right">{{ Comma .Inrank }}</td>
+            <td align="right">{{ Comma .Iprank }}</td>
+            <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
+        </tr>
         {{ end }}
     </table>
     {{/*

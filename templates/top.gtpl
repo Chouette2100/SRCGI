@@ -102,8 +102,13 @@
     <span style="color: red">（ジャンルランキング、決勝Sリーグ、決勝Rリーグについてはギフトの貢献ランキング200位までを追加）</span>
     */}}
     </p>
-    <p style="padding-left:2em">
-    <a href="showrank">SHOWランクが上位のルーム</a> {{/* （データ整備中） */}}
+    <form action="/showrank" method="get" >
+        <p style="padding-left:2em">
+        <a href="showrank">SHOWランクが上位のルーム</a>
+            　　　<label for="name">一覧に追加するルーム(ルーム番号をカンマ区切りで入力): </label>
+            <input type="text" name="unlist" id="unlist" />
+            <input type="submit" value="ルームを追加して一覧を表示する!" />
+        </form>
     </p>
     <p style="padding-left:2em">
     <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで30秒以上要します）

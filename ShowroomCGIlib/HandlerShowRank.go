@@ -11,11 +11,14 @@ import (
 	//	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
 	"html/template"
 	"net/http"
+	// "net/http/cookiejar"
+	"github.com/juju/persistent-cookiejar"
 
 	//	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
@@ -27,9 +30,10 @@ import (
 )
 
 type ShowRank struct {
-	HdrMsg   string
-	Userlist *[]srdblib.User
-	ErrMsg   string
+	HdrMsg    string
+	Userlist  *[]srdblib.User
+	UserlistA *[]srdblib.User
+	ErrMsg    string
 }
 
 // SHOWランク上位ルームを抽出する
@@ -61,6 +65,30 @@ func SelectShowRank(
 	return
 }
 
+func SelectAddedRooms(nolist []int) (
+	pul *[]srdblib.User,
+	err error,
+) {
+
+	pul = new([]srdblib.User)
+	// var intf []interface{}
+	sqltr := " select * from user where userno in (:Users) "
+	// intf, err = srdblib.Dbmap.Select(srdblib.User{}, sqltr, map[string]interface{}{"Users": nolist})
+	_, err = srdblib.Dbmap.Select(pul, sqltr, map[string]interface{}{"Users": nolist})
+	if err != nil {
+		err = fmt.Errorf("srdblib.Dbmap.Select(): %w", err)
+		log.Printf("SelectAddedRooms(): %s\n", err.Error())
+		return
+	}
+
+	// for _, v := range intf {
+	// 	addedlist = append(addedlist, *(v.(*srdblib.User)))
+	// }
+
+	return
+
+}
+
 /*
 
 	HandlerShowRank()
@@ -84,13 +112,46 @@ func ShowRankHandler(
 	showrank := &ShowRank{}
 
 	//	cookiejarがセットされたHTTPクライアントを作る
-	client, jar, err := exsrapi.CreateNewClient("XXXXXX")
+	var err error
+	var client *http.Client
+	var jar *cookiejar.Jar
+	client, jar, err = exsrapi.CreateNewClient("XXXXXX")
 	if err != nil {
 		log.Printf("CreateNewClient: %s\n", err.Error())
 		return
 	}
 	//	すべての処理が終了したらcookiejarを保存する。
 	defer jar.Save()
+
+	// SHOWランクとは無関係にランク状況を知りたいルームを追加したとき
+	unlist := r.FormValue("unlist")
+	unla := strings.Split(unlist, ",")
+
+	lmin := srdblib.Env.Lmin
+	waitmsec := srdblib.Env.Waitmsec
+	srdblib.Env.Lmin = 60
+	srdblib.Env.Waitmsec = 1000
+
+	userlist := make([]srdblib.User, 0, len(unla))
+	nolist := make([]int, 0, len(unla))
+	user := srdblib.User{}
+	for _, v := range unla {
+		un, err := strconv.Atoi(v)
+		if err != nil {
+			log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+			continue
+		}
+		user.Userno = un
+		_, err = srdblib.UpinsUser(client, time.Now(), &user)
+		if err != nil {
+			log.Printf("srdblib.UpinsUser() returned error %s\n", err.Error())
+			continue
+		}
+		userlist = append(userlist, user)
+		nolist = append(nolist, un)
+	}
+	srdblib.Env.Lmin = lmin
+	srdblib.Env.Waitmsec = waitmsec
 
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
@@ -124,6 +185,8 @@ func ShowRankHandler(
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
 		return
 	}
+
+	showrank.UserlistA, err = SelectAddedRooms(nolist)
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "showrank.gtpl", showrank); err != nil {
 		err = fmt.Errorf("Handler(): %w", err)

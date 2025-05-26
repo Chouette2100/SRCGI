@@ -250,11 +250,12 @@ import (
 11CM06  HandlerAddEvent()でGetEventInfAndRoomList()を使わず、GetEventQuestRoomsByApi()を使う。
 11CN00  ハンドラーの関数名をHandlerXXX()からXXXHandle()に変更する。
 11CN01  GetAndInsertEventRoomInfo()のレベルイベントの処理で獲得ポイントが0でないルームの前に0のルームがあるといったイレギュラーなケースに対する対応を行う。
+11CN02  list-lastの「枠別貢献」の項目名に「貢献取得」へのリンクを追加する。任意のルームのSHOWランクを表示できるようにする。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CN01"
+const Version = "11CN02"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

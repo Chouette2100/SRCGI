@@ -21,7 +21,8 @@
 	<td style="border-right-style:none;">前配信期間</td>
 	<td style="border-left-style:none;">獲得<br>ポイント</td>
 	<td>Next Live</td>
-	<td>LIVE(配信画面)<br>FC(ファンルーム)<br>Ctn1.(貢献）<br>Graph2(グラフ)<br>Graph（グラフ旧)<br>LPS(枠別獲得pt.)<br>Cnt2.(枠別貢献)</td>
+	<td>LIVE(配信画面)<br>FC(ファンルーム)<br>Ctn1.(貢献）<br>Graph2(グラフ)<br>Graph（グラフ旧)<br>LPS(枠別獲得pt.)
+		<br>Cnt2.(枠別貢献)(<a  style='color: red;' href="/edit-user?eventid={{.Eventid}}">取得設定)</a></td>
 	{{ if and (eq $Detail "1") (ne $Isover "1") }}
 	<td style="border-right-style:none;">ジャンル</td>
 	<td style="border-right-style:none;">ランク</td>
