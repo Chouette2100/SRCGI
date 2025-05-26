@@ -424,7 +424,6 @@ func main() {
 	// =============================================
 
 	if !ShowroomCGIlib.Serverconfig.Maintenance {
-		/*	Maintenance */
 
 		http.HandleFunc(rootPath+"/top", commonMiddleware(ShowroomCGIlib.TopFormHandler))
 
@@ -524,52 +523,9 @@ func main() {
 		http.HandleFunc(rootPath+"/cgi-bin/SC1/SRCGI/top", commonMiddleware(CgiBinSc1SrcgiTopHandler))
 		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t008top", commonMiddleware(T008topHandler))
 		http.HandleFunc(rootPath+"/cgi-bin/test/t009srapi/t009top", commonMiddleware(T009topHandler))
-
-		/* Maintenance ここまで */
 	} else {
-
-		http.HandleFunc(rootPath+"/top", commonMiddleware(ShowroomCGIlib.DispBbsHandler))
+		// Maintenance
 		http.HandleFunc(rootPath+"/", commonMiddleware(ShowroomCGIlib.DispBbsHandler))
-		/* Maintenance */
-		/*
-			http.HandleFunc(rootPath+"/top", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-level", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-last", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/graph-total", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/csv-total", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/graph-dfr", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/graph-perday", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-perday", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/graph-perslot", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-perslot", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/add-event", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/edit-user", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/new-user", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/param-event", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/param-eventc", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/new-event", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/param-global", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-cntrb", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-cntrbS", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/list-cntrbH", ShowroomCGIlib.ListCntrbHHandler)
-			http.HandleFunc(rootPath+"/fanlevel", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/flranking", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/currentdistrb", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/currentevents", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/eventroomlist", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/scheduledevents", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/scheduledeventssvr", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/closedevents", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/closedeventroomlist", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/apiroomstatus", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/toproom", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/showrank", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/disp-bbs", ShowroomCGIlib.DispBbsHandler)
-			http.HandleFunc(rootPath+"/t008top", ShowroomCGIlib.DispBbsHandler) //	http://....../t008top で呼び出される。
-			http.HandleFunc(rootPath+"/t009top", ShowroomCGIlib.DispBbsHandler) //	http://....../t009top で呼び出される。
-		*/
-
-		/*	Maintenance ここまで	*/
 	}
 
 	// =============================================
