@@ -251,11 +251,12 @@ import (
 11CN00  ハンドラーの関数名をHandlerXXX()からXXXHandle()に変更する。
 11CN01  GetAndInsertEventRoomInfo()のレベルイベントの処理で獲得ポイントが0でないルームの前に0のルームがあるといったイレギュラーなケースに対する対応を行う。
 11CN02  list-lastの「枠別貢献」の項目名に「貢献取得」へのリンクを追加する。任意のルームのSHOWランクを表示できるようにする。
+11CP00  srdblib.GetFeaturedEvents()の抽出条件にイベント終了日時を追加する。最終結果、獲得ポイント一覧のレイアウトを変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CN02"
+const Version = "11CP00"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

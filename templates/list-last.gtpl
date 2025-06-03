@@ -14,7 +14,8 @@
 */}}
 <tr align="center">
 	<td>順位/<br>レベル</td>
-	<td>配信者<br>(プロフィール)</td>
+	<td>配信者<br>(プロフィール)<br>
+	<a  href="/edit-user?eventid={{.Eventid}}">一覧にないルームの追加<br>表示名・枠別貢献pt取得の設定</a></td>
 	<td>獲得<br>ポイント</td>
 	<td>ポイントの差</td><td style="border-right-style:none;">現配信開始</td>
 	<td style="border-left-style:none;">獲得<br>ポイント</td>

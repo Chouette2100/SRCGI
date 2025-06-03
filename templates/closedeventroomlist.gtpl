@@ -3,6 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
     <style type="text/css">
+        {{/*
         th,
         td {
             border: solid 1px;
@@ -10,10 +11,11 @@
 
         table {
             border-collapse: collapse;
-            /*
+            /.
             width: 100%;
-            */
+            ./
         }
+        */}}
 
         .bgct {
             background-color: paleturquoise;
@@ -23,10 +25,23 @@
 
 
 <body>
-    <button type="button" onclick="location.href='top'">Top</button>　
-    <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
-    <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button>　
-    <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
+    <table style="border-width: 0;">
+            <tr>
+    <td><button type="button" onclick="location.href='top'">Top</button></td>
+    <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button></td>
+    <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧表</button></td>
+    <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button></td>
+            </tr>
+            <tr>
+      <td><button type="button" onclick="location.href='top?eventid={{.Eventurl}}'">イベントトップ</button></td>
+      <td></td>
+      <td><button type="button" onclick="location.href='list-last?eventid={{.Eventurl}}'">直近の獲得ポイント</button></td>
+      {{/*
+      <td><button type="button" onclick="location.href='graph-total?eventid={{.Eventurl}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
+      */}}
+      <td><button type="button" onclick="location.href='graph-total?eventid={{.Eventurl}}'">獲得ポイントグラフ</button></td>
+        </tr>
+    </table>
     <br>
     <br>
 
@@ -131,20 +146,19 @@
         </p>
     </form>
 
-
     <p style="padding-left: 2em;">
-    <table>
-        <tr>
-            <td>順位</td>
-            <td>ルーム名（ルーム状況へのリンク）</td>
-            <td>獲得ポイント</td>
+    <table style="border: solid 1px; border-collapse: collapse;">
+        <tr style="border-width: 1;">
+            <td style="border: solid 1px;">順位</td>
+            <td style="border: solid 1px;">ルーム名（ルーム状況へのリンク）</td>
+            <td style="border: solid 1px;">獲得ポイント</td>
             {{/*}}
             <td></td>
             {{*/}}
-            <td>Prof. / Live / FC / Cnt.</td>
-            <td>配信中？</td>
-            <td>次回配信時刻</td>
-            <td>枠別リスナー別貢献pt</td>
+            <td style="border: solid 1px;">Prof. / Live / FC / Cnt.</td>
+            <td style="border: solid 1px;">配信中？</td>
+            <td style="border: solid 1px;">次回配信時刻</td>
+            <td style="border: solid 1px;">枠別リスナー別貢献pt</td>
         </tr>
 
         {{ $e := .Eventurl }}
@@ -153,26 +167,26 @@
         {{ with .Roomlistinf }}
         {{ range .RoomList }}
         <tr {{ if eq .Room_id $r }} class=bgct {{ end }}>
-            <td style="text-align: right;">
+            <td style="text-align: right; border: solid 1px;">
                 {{ if ne .Rank -1 }}
                 {{ .Rank }}
                 {{ end }}
             </td>
-            <td><a href="/apiroomstatus?room_url_key={{ .Room_url_key }}" target="_blank" rel="noopener noreferrer">{{
+            <td style="border: solid 1px;"><a href="/apiroomstatus?room_url_key={{ .Room_url_key }}" target="_blank" rel="noopener noreferrer">{{
                     .Room_name }}</a></td>
-            <td style="text-align: right;">
+            <td style="text-align: right; border: solid 1px;">
                 {{ if ne .Point -1 }}
                 {{ Comma .Point }}
                 {{ end }}
             </td>
                 {{/*}}
-            <td style="text-align: right;">
+            <td style="text-align: right; border: solid 1px;">
                 {{ if ne .Rank 1 }}
                 {{ Comma .Gap }}
                 {{ end }}
             </td>
                 {{*/}}
-            <td><a href="https://www.showroom-live.com/room/profile?room_id={{ .Room_id }}" target="_blank"
+            <td style="border: solid 1px;"><a href="https://www.showroom-live.com/room/profile?room_id={{ .Room_id }}" target="_blank"
                     rel="noopener noreferrer">Prof.</a> /
                 <a href="https://www.showroom-live.com/{{ .Room_url_key }}" target="_blank"
                     rel="noopener noreferrer">Live</a> /
@@ -181,17 +195,17 @@
                 <a href="https://www.showroom-live.com/event/contribution/{{ $e }}?room_id={{ .Room_id }}"
                     target="_blank" rel="noopener noreferrer">Cnt.</a>
             </td>
-            <td style="text-align: center;">
+            <td style="text-align: center; border: solid 1px;">
                 {{ if eq .Islive true}}
                 {{ UnixtimeToTime .Startedat "15:04"}} 〜
                 {{ end }}
             </td>
-            <td style="text-align: center;">
+            <td style="text-align: center; border: solid 1px;">
                 {{ if ne .Nextlive 0 }}
                 {{ UnixtimeToTime .Nextlive "01/02 15:04"}}
                 {{ end }}
             </td>
-            <td style="text-align: center;">
+            <td style="text-align: center; border: solid 1px;">
                 {{ if eq .Isofficial true }}
                 <a href="/cgi-bin/SC1/SC1/list-cntrb?eventid={{$e}}&userno={{.Room_id}}">表示</a>
                 {{ end }}

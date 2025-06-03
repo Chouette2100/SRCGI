@@ -3,10 +3,10 @@ filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Chouette2100/exsrapi/v2 v2.3.1 h1:2SzilQ6oZAb4dm015RFN1AcXPvUTQB9wtlX8EmpL+E4=
 github.com/Chouette2100/exsrapi/v2 v2.3.1/go.mod h1:ShAqrBSImYKjSI5dI0xmHkKLj0hOLm8tSLsnFg/JRtE=
-github.com/Chouette2100/srapi/v2 v2.3.3 h1:4vfBtOBYKuz0PGFWCSgSXyWOCkqS06xnwuxkeQzhf+I=
-github.com/Chouette2100/srapi/v2 v2.3.3/go.mod h1:vIJVKphAHMIy+LvCYUzGmsWRgNLTMJnH2D1WOgdKabQ=
-github.com/Chouette2100/srdblib/v2 v2.3.2 h1:nNr/qjAOQ7evNKxlXwlcVqR3wruQwLr/1XHGrHs3pP4=
-github.com/Chouette2100/srdblib/v2 v2.3.2/go.mod h1:GmuRUNYUgOhFr/ZJpmT6Hg+W2jdvGSfIPuBsw1zUn5U=
+github.com/Chouette2100/srapi/v2 v2.3.4 h1:khe2Dzf/y7PaR8J9y4ZNsvoawXQ/b5mjfU/R1hQ7OwY=
+github.com/Chouette2100/srapi/v2 v2.3.4/go.mod h1:vIJVKphAHMIy+LvCYUzGmsWRgNLTMJnH2D1WOgdKabQ=
+github.com/Chouette2100/srdblib/v2 v2.3.3 h1:hxlfwN59mXgFuufrGA9DdewEDhpOtidIHXVNQeqOark=
+github.com/Chouette2100/srdblib/v2 v2.3.3/go.mod h1:rwDR9xFTg4n4QRpy+eFfVOALe5WcX917bMrfXFThjcg=
 github.com/Chouette2100/srhandler/v2 v2.1.0 h1:1nOgV5eOvIgut8WlrnR0yIF0IVzyBT1ownz6cXXIsGs=
 github.com/Chouette2100/srhandler/v2 v2.1.0/go.mod h1:wT5bqb3F/kCLiEqwfj8ydntcwYYbYJ08055hG1451Xw=
 github.com/PuerkitoBio/goquery v1.10.3 h1:pFYcNSqHxBD06Fpj/KsbStFRsgRATgnf3LeXiUkhzPo=
