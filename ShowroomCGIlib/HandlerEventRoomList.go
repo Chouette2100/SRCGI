@@ -13,7 +13,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
-	"strings"
+	// "strings"
 	"time"
 
 	"html/template"
@@ -75,6 +75,10 @@ func EventRoomListHandler(
 		Eventlist   []srapi.Event
 	}
 
+	erl.Roomlistinf = &srapi.RoomListInf{
+		RoomList: make([]srapi.Room, 0),
+	}
+
 	seventid := r.FormValue("eventid")
 	eventurlkey := r.FormValue("eventurlkey")
 	if seventid == "" {
@@ -123,22 +127,24 @@ func EventRoomListHandler(
 				erl.Ie = erl.Ib
 			}
 
-			if strings.Contains(eventurlkey, "?") {
-				erl.Roomlistinf, err = exsrapi.GetRoominfFromEventOfBR(client, erl.Eventurl, erl.Ib, erl.Ie)
-				if err != nil {
-					err = fmt.Errorf("GetRoominfFromEventOfBR(): %w", err)
-					erl.Msg = err.Error()
-					log.Printf("%s\n", erl.Msg)
+			/*
+				if strings.Contains(eventurlkey, "?") {
+					erl.Roomlistinf, err = exsrapi.GetRoominfFromEventOfBR(client, erl.Eventurl, erl.Ib, erl.Ie)
+					if err != nil {
+						err = fmt.Errorf("GetRoominfFromEventOfBR(): %w", err)
+						erl.Msg = err.Error()
+						log.Printf("%s\n", erl.Msg)
+					}
+				} else {
+					//	イベント参加ルーム一覧を取得する。
+					erl.Roomlistinf, err = srapi.GetRoominfFromEventByApi(client, erl.Eventid, erl.Ib, erl.Ie)
+					if err != nil {
+						err = fmt.Errorf("GetRoominfFromEventByApi(): %w", err)
+						erl.Msg = err.Error()
+						log.Printf("%s\n", erl.Msg)
+					}
 				}
-			} else {
-				//	イベント参加ルーム一覧を取得する。
-				erl.Roomlistinf, err = srapi.GetRoominfFromEventByApi(client, erl.Eventid, erl.Ib, erl.Ie)
-				if err != nil {
-					err = fmt.Errorf("GetRoominfFromEventByApi(): %w", err)
-					erl.Msg = err.Error()
-					log.Printf("%s\n", erl.Msg)
-				}
-			}
+			*/
 
 			//	ルーム一覧にあるそれぞれのルームについて補足的なデータを取得する。
 			do1 := true

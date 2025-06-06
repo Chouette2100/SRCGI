@@ -68,6 +68,7 @@ type CntrbInf struct {
 	ListenerName string
 	LastName     string
 	Tlsnid       int
+	Lsnid        int
 	Eventid      string
 	Userno       int
 }
@@ -346,7 +347,7 @@ func SelectCntrb(
 	var rows *sql.Rows
 
 	//	最後の貢献ポイントランキングを取得する。
-	sql := "select t_lsnid, increment from eventrank "
+	sql := "select t_lsnid, lsnid, increment from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
 	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
 
@@ -366,6 +367,7 @@ func SelectCntrb(
 	defer rows.Close()
 
 	tlsnid := 0
+	lsnid := 0
 	incremental := 0
 
 	for i := 0; i < len(*cntrbinflist); i++ {
@@ -374,7 +376,7 @@ func SelectCntrb(
 	loc := len((*cntrbinflist)[0].Incremental) - 1
 
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&tlsnid, &incremental)
+		srdblib.Dberr = rows.Scan(&tlsnid, &lsnid, &incremental)
 		if srdblib.Dberr != nil {
 			log.Printf("SelectCntrb() (7) err=%s\n", srdblib.Dberr.Error())
 			status = -7
@@ -385,6 +387,8 @@ func SelectCntrb(
 		(*cntrbinflist)[i].Incremental[loc] = incremental
 		//	(*cntrbinflist)[i].Incremental = append((*cntrbinflist)[i].Incremental, incremental)
 		//	log.Printf(" tlsnid=%d i=%d increment[%d]=%d\n", tlsnid, i, loc, incremental)
+		(*cntrbinflist)[i].Lsnid = lsnid
+
 	}
 	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
 		log.Printf("SelectCntrb() (8) err=%s\n", srdblib.Dberr.Error())

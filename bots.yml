@@ -11,3 +11,4 @@ bots:
   - "trendictionbot"
   - "MJ12bot"
   - "serpstatbot"
+  - "meta-externalagent"

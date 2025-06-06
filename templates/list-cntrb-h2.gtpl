@@ -10,6 +10,7 @@
 	{{ end }}
 	<td style="border-bottom-style:none;"></td>
 	<td style="border-bottom-style:none;"></td>
+	<td style="border-bottom-style:none;"></td>
 </tr>
 <tr align="center" style="border-top-style:none;border-bottom-style:none;">
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
@@ -21,6 +22,7 @@
 	{{ end }}
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;color=red;">過去イベントの</td>
 </tr>
 <tr align="right" style="border-top-style:none;border-bottom-style:none;">
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
@@ -30,8 +32,9 @@
 		{{ Comma . }}
 		</td>
 	{{ end }}
-	<td style="border-top-style:none;border-bottom-style:none;"></td>
-	<td style="border-top-style:none;border-bottom-style:none;"></td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">リスナー名</td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">Tlsnid</td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">貢献ポイント</td>
 </tr>
 <tr align="right" style="border-top-style:none;border-bottom-style:none;">
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
@@ -42,7 +45,8 @@
 		</td>
 	{{ end }}
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
-	<td style="border-top-style:none;border-bottom-style:none;"></td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">(履歴)</td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">履歴</td>
 </tr>
 <tr align="center" style="border-top-style:none;">
 	<td style="border-top-style:none; border-bottom-style:none;">現頁</td>
@@ -55,8 +59,9 @@
 			<a href="list-cntrbS?eventid={{ $e }}&userno={{ $u }}&ifrm={{ . }}&ie={{ $i }}">累計順</a>
 		</td>
 	{{ end }}
-	<td style="border-top-style:none;border-bottom-style:none;">リスナー名</td>
-	<td style="border-top-style:none;border-bottom-style:none;">Tlsnid</td>
+	<td style="border-top-style:none;border-bottom-style:none;"></td>
+	<td style="border-top-style:none;border-bottom-style:none;"></td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">（暫定）</td>
 </tr>
 <tr align="center" style="border-top-style:none;">
 	<td style="border-top-style:none; border-bottom-style:none;border-bottom-style:none;">順位</td>
@@ -70,7 +75,8 @@
 		</td>
 	{{ end }}
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
-	<td style="border-top-style:none;border-bottom-style:none;">(履歴)</td>
+	<td style="border-top-style:none;border-bottom-style:none;"></td>
+	<td style="border-top-style:none;border-bottom-style:none;"></td>
 </tr>
 <tr align="center" style="border-top-style:none;">
 	<td style="border-top-style:none;"></td>
@@ -80,6 +86,7 @@
 			（ {{ . }} ）
 		</td>
 	{{ end }}
+	<td style="border-top-style:none;"></td>
 	<td style="border-top-style:none;"></td>
 	<td style="border-top-style:none;"></td>
 </tr>

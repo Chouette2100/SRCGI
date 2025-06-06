@@ -129,6 +129,8 @@ func GetUserInf(r *http.Request) (
 	}
 	al.Formvalues = string(jd)
 
+	log.Printf(" length of Chlog = %d\n", len(Chlog))
+
 	Chlog <- &al
 
 	/*

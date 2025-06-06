@@ -252,11 +252,13 @@ import (
 11CN01  GetAndInsertEventRoomInfo()のレベルイベントの処理で獲得ポイントが0でないルームの前に0のルームがあるといったイレギュラーなケースに対する対応を行う。
 11CN02  list-lastの「枠別貢献」の項目名に「貢献取得」へのリンクを追加する。任意のルームのSHOWランクを表示できるようにする。
 11CP00  srdblib.GetFeaturedEvents()の抽出条件にイベント終了日時を追加する。最終結果、獲得ポイント一覧のレイアウトを変更する。
+11CP01  終了イベントのルーム名による検索に説明を追加する。EvetRoomListHandler()のルームリスト取得を最新の手法にする準備。Chlogの大きさを調べる。
+11CP02  貢献ポイント履歴のテストを行う。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CP00"
+const Version = "11CP02"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

@@ -29,6 +29,11 @@
 	<td align="right">
 		<a href="list-cntrbH?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid}}&ie={{ $i }}">{{.Tlsnid}}</a>
 	</td>
+	<td align="right">
+		{{ if gt .Lsnid 0 }}
+		<a href="list-cntrbHEx?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid}}&ie={{ $i }}">{{.Tlsnid}}</a>
+		{{ end }}
+	</td>
 	</tr>
 {{end}}
 </table>

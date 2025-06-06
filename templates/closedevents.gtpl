@@ -119,7 +119,7 @@
                     <td colspan="2">
                         現在のルーム名だけでなく過去のルーム名（のうち最近のもの）も検索対象となります。<br>
                         ただしルームの検索結果は30件までしか表示されませんので1文字とかやめましょう。<br>
-                        下の検索結果からルームを選択してください。
+                        <span style="font-weight: bold;">下の検索結果からルームを選択し決定ボタンを押してください</span>
                     </td>
                     <td></td>
                 </tr>
@@ -146,7 +146,7 @@
                         </select>
                     </td>
                     <td>
-                        <input style="margin-left: 2em" type="submit" value="ルームで絞り込む" formaction="closedevents" formmethod="GET">
+                        <input style="margin-left: 2em" type="submit" value="決定" formaction="closedevents" formmethod="GET">
                     </td>
                     {{/* */}}
                     <td>
@@ -238,7 +238,7 @@
         </div>
         */}}
         <div style="text-indent: 2rem;">
-            一覧は51件ずつ表示され、50件ずつスクロールされます。データ上最終結果が存在しても表示されないケースがあります（修正・改良予定あり）
+            一覧は51件程度ずつ表示され、50件ずつスクロールされます。データ上最終結果が存在しても表示されないケースがあります（修正・改良予定あり）
         </div>
         
         {{ if ne .Offset 0 }}

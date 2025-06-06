@@ -128,10 +128,11 @@ import (
 	11CM05  srdblibのバージョンをv2.3.2に変更する
 	11CN00  ハンドラーの関数名をHandlerXXX()からXXXHandle()に変更する。
 	11CN03  メンテナンスモードのエントリを"/"のみにする。
+	11CP02  貢献ポイント履歴のテストを行う。
 }
 */
 
-const version = "11CN03"
+const version = "11CP02"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -466,6 +467,7 @@ func main() {
 		http.HandleFunc(rootPath+"/list-cntrbS", commonMiddleware(ShowroomCGIlib.ListCntrbSHandler))
 
 		http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(ShowroomCGIlib.ListCntrbHHandler))
+		http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(ShowroomCGIlib.ListCntrbHExHandler))
 
 		http.HandleFunc(rootPath+"/fanlevel", commonMiddleware(ShowroomCGIlib.FanLevelHandler))
 
