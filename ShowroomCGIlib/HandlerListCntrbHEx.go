@@ -101,15 +101,19 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	tlsnid, _ := strconv.Atoi(req.FormValue("tlsnid"))
+	name := req.FormValue("name")
 	ie, _ := strconv.Atoi(req.FormValue("ie"))
 	log.Printf(" eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
-	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
-	if len(acqtimelist) == 0 {
-		fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
-		fmt.Fprintf(w, "Check eventid and userno\n")
-		log.Printf("No AcqTimeList\n")
-		return
+	var acqtimelist []time.Time
+	if name == "" {
+		acqtimelist, _ = SelectAcqTimeList(eventid, userno)
+		if len(acqtimelist) == 0 {
+			fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
+			fmt.Fprintf(w, "Check eventid and userno\n")
+			log.Printf("No AcqTimeList\n")
+			return
+		}
 	}
 
 	/*
@@ -150,15 +154,22 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	cntrbh_header.Username = pu.Longname
 	cntrbh_header.ShortURL = pu.Userid
 
-	tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
+	if name == "" {
+		tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
 
-	cntrbh_header.Tlsnid = tlsnid
-	cntrbh_header.Listener = tlsnidinflist[1].Listener
+		cntrbh_header.Tlsnid = tlsnid
+		cntrbh_header.Listener = tlsnidinflist[1].Listener
 
-	cntrbh_header.Tlsnid_b = tlsnidinflist[0].Tlsnid
-	cntrbh_header.Listener_b = tlsnidinflist[0].Listener
-	cntrbh_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
-	cntrbh_header.Listener_f = tlsnidinflist[2].Listener
+		cntrbh_header.Tlsnid_b = tlsnidinflist[0].Tlsnid
+		cntrbh_header.Listener_b = tlsnidinflist[0].Listener
+		cntrbh_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
+		cntrbh_header.Listener_f = tlsnidinflist[2].Listener
+	} else {
+		cntrbh_header.Tlsnid = tlsnid
+		cntrbh_header.Listener = name
+		cntrbh_header.Tlsnid_b = -1
+		cntrbh_header.Tlsnid_f = -1
+	}
 
 	if err := tpl.ExecuteTemplate(w, "list-cntrbHEx-h.gtpl", cntrbh_header); err != nil {
 		log.Println(err)

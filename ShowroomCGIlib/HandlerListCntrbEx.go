@@ -25,15 +25,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
+	"github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 )
 
-const MaxAcq = 5
-
-type CntrbHeader struct {
+type CntrbHeaderEx struct {
 	Eventid      string
 	Eventname    string
 	Period       string
@@ -44,27 +43,13 @@ type CntrbHeader struct {
 	ShortURL     string
 	Ier          int
 	Iel          int
-	S_stime      []string
-	S_etime      []string
-	Earned       []int
-	Total        []int
-	Target       []int
-	Ifrm         []int
-	Nof          []int
-	Nft          int //	先頭に戻ったときの最後に表示される枠
-	Npb          int //	1ページ戻る
-	N1b          int //	一枠戻る
-	Ncr          int
-	N1f          int
-	Npf          int
-	Nlt          int
-	Cntrbinflist *[]CntrbInf
+	Cntrbinflist *[]CntrbInfEx
 }
 
-type CntrbInf struct {
-	Ranking      int
-	Point        int
-	Incremental  []int
+type CntrbInfEx struct {
+	Ranking int
+	Point   int
+	// Incremental  []int
 	ListenerName string
 	LastName     string
 	Tlsnid       int
@@ -92,8 +77,9 @@ type CntrbInf struct {
 
 */
 
-func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
+func ListCntrbHandlerEx(w http.ResponseWriter, req *http.Request) {
 
+	var err error
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
@@ -107,7 +93,10 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 	}
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrb-h1.gtpl", "templates/list-cntrb-h2.gtpl", "templates/list-cntrb.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrb-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
+	/*
+		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex.gtpl"))
+	*/
 
 	eventid := req.FormValue("eventid")
 
@@ -116,145 +105,61 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 
-	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
-	if len(acqtimelist) == 0 {
-		fmt.Fprintf(w, "HandlerListCntrb() No AcqTimeList\n")
-		fmt.Fprintf(w, "Check eventid and userno\n")
-		log.Printf("No AcqTimeList\n")
-		return
-	}
+	log.Printf(". eventid=%s, userno=%d\n", eventid, userno)
 
-	latl := len(acqtimelist)
+	var cntrbheaderex CntrbHeaderEx
 
-	sie := req.FormValue("ie")
-	ie := 0
-	if sie != "" {
-		ie, _ = strconv.Atoi(sie)
-	} else {
-		ie = latl - 1
-	}
+	cntrbheaderex.Eventid = eventid
+	cntrbheaderex.Eventname = eventinf.Event_name
 
-	log.Printf(". eventid=%s, userno=%d, ie=%d\n", eventid, userno, ie)
+	cntrbheaderex.Maxpoint = eventinf.Maxpoint
+	cntrbheaderex.Gscale = eventinf.Gscale
 
-	ib := ie - 4
-	if ib < 0 {
-		ib = 0
-	}
-
-	var cntrbheader CntrbHeader
-
-	cntrbheader.Eventid = eventid
-	cntrbheader.Eventname = eventinf.Event_name
-
-	cntrbheader.Maxpoint = eventinf.Maxpoint
-	cntrbheader.Gscale = eventinf.Gscale
-
-	cntrbheader.Period = eventinf.Period
-	cntrbheader.Userno = userno
-
-	cntrbheader.Ncr = ie
-
-	//	戻る側の設定
-	if ie < MaxAcq {
-		cntrbheader.Nft = -1
-		cntrbheader.Npb = -1
-		cntrbheader.N1b = -1
-	} else {
-		cntrbheader.Nft = MaxAcq - 1  //	先頭にもどる
-		cntrbheader.Npb = ie - MaxAcq //	１ページ分戻る
-		if cntrbheader.Npb < MaxAcq-1 {
-			cntrbheader.Npb = MaxAcq - 1
-		}
-		cntrbheader.N1b = ie - 1 //	一枠分戻る
-	}
-
-	if ie == latl-1 {
-		cntrbheader.Nlt = -1
-		cntrbheader.Npf = -1
-		cntrbheader.N1f = -1
-	} else {
-		cntrbheader.Nlt = latl - 1    //	最後に進む
-		cntrbheader.Npf = ie + MaxAcq //	１ページ分進む
-		if cntrbheader.Npf > latl-1 {
-			cntrbheader.Npf = latl - 1
-		}
-		cntrbheader.N1f = ie + 1 //	一枠分進む
-	}
+	cntrbheaderex.Period = eventinf.Period
+	cntrbheaderex.Userno = userno
 
 	_, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
-	cntrbheader.Username = roomname
-	cntrbheader.ShortURL = roomurlkey
+	cntrbheaderex.Username = roomname
+	cntrbheaderex.ShortURL = roomurlkey
 
-	tsie := acqtimelist[ie]
-
-	cntrbinflist, tlsnid2order, status := SelectTlsnid2Order(eventid, userno, tsie)
-	if status != 0 {
-		log.Printf(" SelectCntrbLast() returned %d in HandlerListCntrb()\n", status)
+	var pranking *srapi.Contribution_ranking
+	pranking, err = srapi.ApiEventContribution_ranking(&http.Client{}, eventinf.I_Event_ID, userno)
+	if err != nil {
+		err = fmt.Errorf("srapi.ApiEventContribution_ranking(): %w\n", err)
+		log.Printf("%s\n", err.Error())
+		w.Write([]byte("err=" + err.Error()))
 		return
 	}
 
-	for i := ib; i <= ie; i++ {
-		ts := acqtimelist[i]
-		//	log.Printf(" i=%d ts=%+v\n", i, ts)
-		status = SelectCntrb(eventid, userno, ts, &cntrbinflist, tlsnid2order)
-		if status != 0 {
-			log.Printf(" SelectCntrb() returned %d in HandlerListCntrb()\n", status)
-			return
-		}
-		SelectCntrbHeader(eventid, userno, ts, &cntrbheader)
-		cntrbheader.Ifrm[i-ib] = i
-		cntrbheader.Nof[i-ib] = i + 1
+	if pranking == nil {
+		log.Printf("srapi.ApiEventContribution_ranking() returned nil\n")
+		fmt.Fprintf(w, "srapi.ApiEventContribution_ranking() returned nil\n")
+		return
 	}
 
-	if ie == latl-1 {
-		cntrbheader.Ier = -1
-	} else {
-		cntrbheader.Ier = ie + 5
-		if cntrbheader.Ier > latl-1 {
-			cntrbheader.Ier = latl - 1
-		}
+	cntrbinfex := make([]CntrbInfEx, len(pranking.Ranking))
+
+	for i, r := range pranking.Ranking {
+		cntrbinfex[i].Ranking = r.Rank
+		cntrbinfex[i].Point = r.Point
+		cntrbinfex[i].ListenerName = r.Name
+		cntrbinfex[i].LastName = r.Name
+		cntrbinfex[i].Tlsnid = r.UserID
+		cntrbinfex[i].Lsnid = r.UserID
+		cntrbinfex[i].Eventid = eventid
+		cntrbinfex[i].Userno = userno
 	}
+	cntrbheaderex.Cntrbinflist = &cntrbinfex
 
-	if ie == 0 {
-		cntrbheader.Ier = -1
-	} else {
-		cntrbheader.Iel = ie - 5
-		if cntrbheader.Iel < 0 {
-			cntrbheader.Iel = 0
-		}
-	}
-
-	//	順位のないデータ（＝ボーナスポイント）の個数を求める。
-	sqlsc := "select count(*) from eventrank where eventid = ? and userid = ? and ts = ? and nrank = 0"
-	norow := 0
-	srdblib.Db.QueryRow(sqlsc, eventid, userno, tsie).Scan(&norow)
-	if norow != 0 {
-		//	ボーナスポイントのデータがある
-		for i := range cntrbinflist {
-			if i < norow {
-				//	ボーナスポイント
-				cntrbinflist[i].Ranking = -1
-			} else if cntrbinflist[i].Ranking > 0 && cntrbinflist[i].Ranking < 999 {
-				//	獲得ポイント
-				cntrbinflist[i].Ranking -= norow
-			}
-		}
-		if cntrbinflist[1].Point == 0 {
-			//	ボーナスポイント部分の2番目でポイントが0のものは除く
-			cntrbinflist[1] = cntrbinflist[0]
-			cntrbinflist = cntrbinflist[1:]
-		}
-	}
-
-	cntrbheader.Cntrbinflist = &cntrbinflist
-
-	if err := tpl.ExecuteTemplate(w, "list-cntrb-h1.gtpl", cntrbheader); err != nil {
+	/*
+	 */
+	if err := tpl.ExecuteTemplate(w, "list-cntrb-h1.gtpl", cntrbheaderex); err != nil {
 		log.Println(err)
 	}
-	if err := tpl.ExecuteTemplate(w, "list-cntrb-h2.gtpl", cntrbheader); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrbex-h2.gtpl", cntrbheaderex); err != nil {
 		log.Println(err)
 	}
-	if err := tpl.ExecuteTemplate(w, "list-cntrb.gtpl", cntrbheader); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrbex.gtpl", cntrbheaderex); err != nil {
 		log.Println(err)
 	}
 }
@@ -270,6 +175,7 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 	        戻り値
 	        acqtimelist		[] time.Time	取得時刻一覧
 */
+/*
 func SelectAcqTimeList(eventid string, userno int) (acqtimelist []time.Time, status int) {
 
 	var stmt *sql.Stmt
@@ -317,6 +223,7 @@ func SelectAcqTimeList(eventid string, userno int) (acqtimelist []time.Time, sta
 	return
 
 }
+*/
 
 /*
 			指定したイベント、ユーザー、時刻の貢献ポイントランキングを取得する。
@@ -333,7 +240,7 @@ func SelectAcqTimeList(eventid string, userno int) (acqtimelist []time.Time, sta
 	        cntrbinflist	[] CntrbInf		貢献ポイントランキング（最終貢献ポイント順）
 			stats			int				== 0 正常終了	!= 0 データベースアクセス時のエラー
 */
-func SelectCntrb(
+func SelectCntrbEx(
 	eventid string,
 	userno int,
 	ts time.Time,
@@ -415,6 +322,7 @@ func SelectCntrb(
 	        戻り値
 			status			int				終了ステータス（ 0: 正常、　1: DBアクセスでの異常）
 */
+/*
 func SelectCntrbHeader(
 	eventid string,
 	userno int,
@@ -449,6 +357,7 @@ func SelectCntrbHeader(
 	return
 
 }
+*/
 
 /*
 	        SelectTlsnid2Order()
@@ -465,7 +374,6 @@ func SelectCntrbHeader(
 			tlsnid2order	map[int]int		仮リスナーIDと貢献ポイントランキングの対応表
 			status			int				終了ステータス（ 0: 正常、　1: DBアクセスでの異常）
 */
-/*
 func SelectTlsnid2Order(
 	eventid string,
 	userno int,
@@ -534,4 +442,3 @@ func SelectTlsnid2Order(
 	return
 
 }
-*/

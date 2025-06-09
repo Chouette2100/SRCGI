@@ -129,10 +129,11 @@ import (
 	11CN00  ハンドラーの関数名をHandlerXXX()からXXXHandle()に変更する。
 	11CN03  メンテナンスモードのエントリを"/"のみにする。
 	11CP02  貢献ポイント履歴のテストを行う。
+	11CQ00  貢献ランキングをAPIで取得して表示するListCntrbExHandler()を作成する。
 }
 */
 
-const version = "11CP02"
+const version = "11CQ02"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -463,6 +464,7 @@ func main() {
 		http.HandleFunc(rootPath+"/param-global", commonMiddleware(ShowroomCGIlib.ParamGlobalHandler))
 
 		http.HandleFunc(rootPath+"/list-cntrb", commonMiddleware(ShowroomCGIlib.ListCntrbHandler))
+		http.HandleFunc(rootPath+"/list-cntrbex", commonMiddleware(ShowroomCGIlib.ListCntrbHandlerEx))
 
 		http.HandleFunc(rootPath+"/list-cntrbS", commonMiddleware(ShowroomCGIlib.ListCntrbSHandler))
 
