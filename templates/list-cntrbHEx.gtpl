@@ -9,7 +9,12 @@
 </tr>
 
 {{ range . }}
+	{{ $e :=  FormatTime .Endtime "2006-01-02 15:04" }}
+	{{ if lt $e "2025-03-30 00:00" }}
+	<tr style="background-color: lightgray">
+	{{ else }}
 	<tr>
+	{{ end }}
 	<td style="text-align: right;">{{ Comma .Point }}</td>
 	{{/*
 	<td><a href="https://www.showroom-live.com/room/profile?room_id={{ .Roomno }}">{{ .Longname }}</a></td>
@@ -20,7 +25,7 @@
 	*/}}
 	<td><a href="/list-last?eventid={{ .Eventid }}">{{ .Eventname }}</a></td>
 	<td>{{ FormatTime .Starttime "2006-01-02 15:04" }}</td>
-	<td>{{ FormatTime .Endtime "2006-01-02 15:04" }}</td>
+	<td>{{ $e }}</td>
 	</tr>
 {{end}}
 </table>

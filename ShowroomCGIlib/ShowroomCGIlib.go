@@ -255,11 +255,12 @@ import (
 11CP01  終了イベントのルーム名による検索に説明を追加する。EvetRoomListHandler()のルームリスト取得を最新の手法にする準備。Chlogの大きさを調べる。
 11CP02  貢献ポイント履歴のテストを行う。
 11CQ00  貢献ランキングをAPIで取得して表示するListCntrbEx()を作成する。
+11CQ03  貢献ポイントイベント履歴のレイアウトを変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CQ00"
+const Version = "11CQ03"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

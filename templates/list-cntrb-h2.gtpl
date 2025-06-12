@@ -45,7 +45,7 @@
 		</td>
 	{{ end }}
 	<td style="border-top-style:none;border-bottom-style:none;"></td>
-	<td align="center" style="border-top-style:none;border-bottom-style:none;">(履歴)</td>
+	<td align="center" style="border-top-style:none;border-bottom-style:none;">枠別貢献pt一覧</td>
 	<td align="center" style="border-top-style:none;border-bottom-style:none;">履歴</td>
 </tr>
 <tr align="center" style="border-top-style:none;">
