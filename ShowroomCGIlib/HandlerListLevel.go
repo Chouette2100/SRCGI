@@ -65,23 +65,24 @@ func ListLevelHandler(w http.ResponseWriter, req *http.Request) {
 }
 func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
 	status = 0
 
 	sqlstmt := "select user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts from userhistory where userno = ? order by ts desc"
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sqlstmt)
-	if srdblib.Dberr != nil {
-		log.Printf("SelectRoomLevel() (3) err=%s\n", srdblib.Dberr.Error())
+	stmt, err = srdblib.Db.Prepare(sqlstmt)
+	if err != nil {
+		log.Printf("SelectRoomLevel() (3) err=%s\n", err.Error())
 		status = -3
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(userno)
-	if srdblib.Dberr != nil {
-		log.Printf("SelectRoomLevel() (6) err=%s\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(userno)
+	if err != nil {
+		log.Printf("SelectRoomLevel() (6) err=%s\n", err.Error())
 		status = -6
 		return
 	}
@@ -94,7 +95,7 @@ func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, stat
 	lastlevel := 0
 
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&roomlevel.User_name, &roomlevel.Genre, &roomlevel.Rank,
+		err = rows.Scan(&roomlevel.User_name, &roomlevel.Genre, &roomlevel.Rank,
 			&roomlevel.Nrank,
 			&roomlevel.Prank,
 			&roomlevel.Level,
@@ -102,8 +103,8 @@ func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, stat
 			&roomlevel.Fans,
 			&roomlevel.Fans_lst,
 			&roomlevel.ts)
-		if srdblib.Dberr != nil {
-			log.Printf("GetCurrentScore() (7) err=%s\n", srdblib.Dberr.Error())
+		if err != nil {
+			log.Printf("GetCurrentScore() (7) err=%s\n", err.Error())
 			status = -7
 			return
 		}

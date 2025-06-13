@@ -256,11 +256,12 @@ import (
 11CP02  貢献ポイント履歴のテストを行う。
 11CQ00  貢献ランキングをAPIで取得して表示するListCntrbEx()を作成する。
 11CQ03  貢献ポイントイベント履歴のレイアウトを変更する。
+11CQ04  srdblib.Dberr を errに変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CQ03"
+const Version = "11CQ04"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

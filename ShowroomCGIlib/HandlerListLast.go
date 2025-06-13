@@ -250,11 +250,11 @@ func SelectCurrentScore(
 
 	nrow := 0
 	sql0 := "select count(*) from points where eventid = ?"
-	srdblib.Dberr = srdblib.Db.QueryRow(sql0, eventid).Scan(&nrow)
+	err = srdblib.Db.QueryRow(sql0, eventid).Scan(&nrow)
 
-	if srdblib.Dberr != nil {
+	if err != nil {
 		log.Printf("select max(point) from eventuser where eventid = '%s'\n", Event_inf.Event_ID)
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+		log.Printf("err=[%s]\n", err.Error())
 		status = -11
 		return
 	}
@@ -285,9 +285,9 @@ func SelectCurrentScore(
 
 	//	idx := 0
 	//	Err = stmt.QueryRow(time.Now().Add(time.Hour), eventid).Scan(&gtime)
-	srdblib.Dberr = stmt1.QueryRow(eventid).Scan(&gtime)
-	if srdblib.Dberr != nil {
-		log.Printf("GetCurrentScore() (4) err=%s\n", srdblib.Dberr.Error())
+	err = stmt1.QueryRow(eventid).Scan(&gtime)
+	if err != nil {
+		log.Printf("GetCurrentScore() (4) err=%s\n", err.Error())
 		status = -4
 		return
 	}

@@ -190,7 +190,6 @@ type User struct {
 	Selected     string
 }
 
-
 func SelectEventRoomInfList(
 	eventid string,
 	roominfolist *RoomInfoList,
@@ -396,7 +395,6 @@ func UpdateEventuserSetPoint(eventid, userid string, point int) (status int) {
 	return
 }
 
-
 func UpdateEventInf(eventinf *exsrapi.Event_Inf) (
 	status int,
 ) {
@@ -545,7 +543,7 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 			status = -2
 		}
 		sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
-		_, srdblib.Dberr = srdblib.Db.Exec(
+		_, err = srdblib.Db.Exec(
 			sqlip,
 			Event_inf.Start_time.Truncate(time.Second),
 			userno,
@@ -555,8 +553,8 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 			0,
 			"=",
 		)
-		if srdblib.Dberr != nil {
-			err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
+		if err != nil {
+			err := fmt.Errorf("Db.Exec(sqlip,...): %w", err)
 			log.Printf("err=[%s]\n", err.Error())
 		}
 

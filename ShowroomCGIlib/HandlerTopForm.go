@@ -204,23 +204,24 @@ func TopFormHandler(w http.ResponseWriter, r *http.Request) {
 }
 func SelectLastEventList() (eventlist []Event, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
 	//	sql := "select eventid, event_name, period, starttime, endtime, nobasis, longname from event join user "
 	sql := "select eventid, event_name, period, starttime, endtime, nobasis, modmin, modsec, longname, maxpoint from event join user "
 	sql += " where nobasis = userno and endtime IS not null order by endtime desc "
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
-	if srdblib.Dberr != nil {
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+	stmt, err = srdblib.Db.Prepare(sql)
+	if err != nil {
+		log.Printf("err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query()
-	if srdblib.Dberr != nil {
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query()
+	if err != nil {
+		log.Printf("err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
@@ -229,9 +230,9 @@ func SelectLastEventList() (eventlist []Event, status int) {
 	var event Event
 	i := 0
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&event.EventID, &event.EventName, &event.Period, &event.Starttime, &event.Endtime, &event.Pntbasis, &event.Modmin, &event.Modsec, &event.Pbname, &event.Maxpoint)
-		if srdblib.Dberr != nil {
-			log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+		err = rows.Scan(&event.EventID, &event.EventName, &event.Period, &event.Starttime, &event.Endtime, &event.Pntbasis, &event.Modmin, &event.Modsec, &event.Pbname, &event.Maxpoint)
+		if err != nil {
+			log.Printf("err=[%s]\n", err.Error())
 			status = -1
 			return
 		}
@@ -243,8 +244,8 @@ func SelectLastEventList() (eventlist []Event, status int) {
 			break
 		}
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
@@ -269,20 +270,21 @@ func SelectLastEventList() (eventlist []Event, status int) {
 }
 func SelectEventList(userno int) (eventlist []Event, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	stmt, srdblib.Dberr = srdblib.Db.Prepare("select eventid, event_name from event where endtime IS not null and nobasis = ? order by endtime desc")
-	if srdblib.Dberr != nil {
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+	stmt, err = srdblib.Db.Prepare("select eventid, event_name from event where endtime IS not null and nobasis = ? order by endtime desc")
+	if err != nil {
+		log.Printf("err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(userno)
-	if srdblib.Dberr != nil {
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(userno)
+	if err != nil {
+		log.Printf("err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
@@ -291,17 +293,17 @@ func SelectEventList(userno int) (eventlist []Event, status int) {
 	var event Event
 	i := 0
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&event.EventID, &event.EventName)
-		if srdblib.Dberr != nil {
-			log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+		err = rows.Scan(&event.EventID, &event.EventName)
+		if err != nil {
+			log.Printf("err=[%s]\n", err.Error())
 			status = -1
 			return
 		}
 		eventlist = append(eventlist, event)
 		i++
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("err=[%s]\n", err.Error())
 		status = -1
 		return
 	}

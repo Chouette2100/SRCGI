@@ -283,9 +283,9 @@ func saveLog(logm *Logm) (err error) {
 	logm.ID = nrow + 1
 
 	sqlip := "insert into bbslog (id, cnt, title, name, body, ctime, color, ra, ua ) values(?,?,?,?,?,?,?,?,?)"
-	_, srdblib.Dberr = srdblib.Db.Exec(sqlip, logm.ID, logm.Cntw, logm.Title, logm.Name, logm.Body, logm.CTime, logm.Color, logm.Ra, logm.Ua)
-	if srdblib.Dberr != nil {
-		err := fmt.Errorf("Db.Exec(sqlip,...): %w", srdblib.Dberr)
+	_, err = srdblib.Db.Exec(sqlip, logm.ID, logm.Cntw, logm.Title, logm.Name, logm.Body, logm.CTime, logm.Color, logm.Ra, logm.Ua)
+	if err != nil {
+		err := fmt.Errorf("Db.Exec(sqlip,...): %w", err)
 		log.Printf("err=[%s]\n", err.Error())
 	}
 	return

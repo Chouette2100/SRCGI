@@ -144,6 +144,7 @@ type UserInf struct {
 
 func SelectFromFluser(userid int) (userinflist []UserInf, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -152,24 +153,24 @@ func SelectFromFluser(userid int) (userinflist []UserInf, status int) {
 	userinflist = make([]UserInf, 0)
 
 	if userid == 0 {
-		stmt, srdblib.Dberr = srdblib.Db.Prepare("select user_id, user_name from fluser")
+		stmt, err = srdblib.Db.Prepare("select user_id, user_name from fluser")
 	} else {
-		stmt, srdblib.Dberr = srdblib.Db.Prepare("select user_id, user_name from fluser where user_id = ?")
+		stmt, err = srdblib.Db.Prepare("select user_id, user_name from fluser where user_id = ?")
 	}
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
 	defer stmt.Close()
 
 	if userid == 0 {
-		rows, srdblib.Dberr = stmt.Query()
+		rows, err = stmt.Query()
 	} else {
-		rows, srdblib.Dberr = stmt.Query(userid)
+		rows, err = stmt.Query(userid)
 	}
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -2
 		return
 	}
@@ -177,16 +178,16 @@ func SelectFromFluser(userid int) (userinflist []UserInf, status int) {
 
 	var userinf UserInf
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&userinf.User_id, &userinf.User_name)
-		if srdblib.Dberr != nil {
-			log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+		err = rows.Scan(&userinf.User_id, &userinf.User_name)
+		if err != nil {
+			log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 			status = -3
 			return
 		}
 		userinflist = append(userinflist, userinf)
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -4
 		return
 	}
@@ -202,6 +203,7 @@ type RoomInf struct {
 
 func SelectFromFlroom(roomid int) (roominflist []RoomInf, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -210,24 +212,24 @@ func SelectFromFlroom(roomid int) (roominflist []RoomInf, status int) {
 	roominflist = make([]RoomInf, 0)
 
 	if roomid == 0 {
-		stmt, srdblib.Dberr = srdblib.Db.Prepare("select room_id, room_name from flroom")
+		stmt, err = srdblib.Db.Prepare("select room_id, room_name from flroom")
 	} else {
-		stmt, srdblib.Dberr = srdblib.Db.Prepare("select room_id, room_name from flroom where room_id = ?")
+		stmt, err = srdblib.Db.Prepare("select room_id, room_name from flroom where room_id = ?")
 	}
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
 	defer stmt.Close()
 
 	if roomid == 0 {
-		rows, srdblib.Dberr = stmt.Query()
+		rows, err = stmt.Query()
 	} else {
-		rows, srdblib.Dberr = stmt.Query(roomid)
+		rows, err = stmt.Query(roomid)
 	}
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -2
 		return
 	}
@@ -235,16 +237,16 @@ func SelectFromFlroom(roomid int) (roominflist []RoomInf, status int) {
 
 	var roominf RoomInf
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&roominf.Room_id, &roominf.Room_name)
-		if srdblib.Dberr != nil {
-			log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+		err = rows.Scan(&roominf.Room_id, &roominf.Room_name)
+		if err != nil {
+			log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 			status = -3
 			return
 		}
 		roominflist = append(roominflist, roominf)
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -4
 		return
 	}
@@ -268,6 +270,7 @@ type LevelForUserW struct {
 
 func SelectLevelForUser(userid int, yyyy int, mm int) (lfuw LevelForUserW, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -299,17 +302,17 @@ func SelectLevelForUser(userid int, yyyy int, mm int) (lfuw LevelForUserW, statu
 	sqlstmt += " join flroom r "
 	sqlstmt += " where c.user_id = ? and c.yyyymm = ? and c.room_id = r.room_id order by c.level desc, p.level_lst desc"
 
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sqlstmt)
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	stmt, err = srdblib.Db.Prepare(sqlstmt)
+	if err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(1, userid, yyyy*100+mm)
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(1, userid, yyyy*100+mm)
+	if err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -2
 		return
 	}
@@ -325,9 +328,9 @@ func SelectLevelForUser(userid int, yyyy int, mm int) (lfuw LevelForUserW, statu
 	var level LevelForUser
 	for rows.Next() {
 		//	Err = rows.Scan(&level.Room_id, &level.Room_name, &level.Level, &level.Level_lst)
-		srdblib.Dberr = rows.Scan(&level.Room_id, &level.Room_name, &level.Level, &nulllevellst)
-		if srdblib.Dberr != nil {
-			log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+		err = rows.Scan(&level.Room_id, &level.Room_name, &level.Level, &nulllevellst)
+		if err != nil {
+			log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 			status = -3
 			return
 		}
@@ -338,8 +341,8 @@ func SelectLevelForUser(userid int, yyyy int, mm int) (lfuw LevelForUserW, statu
 		}
 		lfuw.Levellist = append(lfuw.Levellist, level)
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("** SelectFromFlroom() err=[%s]\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -4
 		return
 	}
@@ -363,6 +366,7 @@ type LevelForRoomW struct {
 
 func SelectLevelForRoom(roomid int, yyyy int, mm int) (lfrw LevelForRoomW, status int) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -394,17 +398,17 @@ func SelectLevelForRoom(roomid int, yyyy int, mm int) (lfrw LevelForRoomW, statu
 	sqlstmt += " join fluser u "
 	sqlstmt += " where c.room_id = ? and c.yyyymm = ? and c.user_id = u.user_id order by c.level desc, p.level_lst desc"
 
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sqlstmt)
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectLevelForRoom() err=[%s]\n", srdblib.Dberr.Error())
+	stmt, err = srdblib.Db.Prepare(sqlstmt)
+	if err != nil {
+		log.Printf("** SelectLevelForRoom() err=[%s]\n", err.Error())
 		status = -1
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(1, roomid, yyyy*100+mm)
-	if srdblib.Dberr != nil {
-		log.Printf("** SelectLevelForRoom() err=[%s]\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(1, roomid, yyyy*100+mm)
+	if err != nil {
+		log.Printf("** SelectLevelForRoom() err=[%s]\n", err.Error())
 		status = -2
 		return
 	}
@@ -414,9 +418,9 @@ func SelectLevelForRoom(roomid int, yyyy int, mm int) (lfrw LevelForRoomW, statu
 	var level LevelForRoom
 	for rows.Next() {
 		//	Err = rows.Scan(&level.User_id, &level.User_name, &level.Level, &level.Level_lst)
-		srdblib.Dberr = rows.Scan(&level.User_id, &level.User_name, &level.Level, &nulllevellst)
-		if srdblib.Dberr != nil {
-			log.Printf("** SelectLevelForRoom() err=[%s]\n", srdblib.Dberr.Error())
+		err = rows.Scan(&level.User_id, &level.User_name, &level.Level, &nulllevellst)
+		if err != nil {
+			log.Printf("** SelectLevelForRoom() err=[%s]\n", err.Error())
 			status = -3
 			return
 		}
@@ -427,8 +431,8 @@ func SelectLevelForRoom(roomid int, yyyy int, mm int) (lfrw LevelForRoomW, statu
 		}
 		lfrw.Lfr = append(lfrw.Lfr, level)
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("** SelectLevelForRoom() err=[%s]\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("** SelectLevelForRoom() err=[%s]\n", err.Error())
 		status = -4
 		return
 	}

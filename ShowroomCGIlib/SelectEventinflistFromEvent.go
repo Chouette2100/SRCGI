@@ -75,9 +75,9 @@ func SelectEventinflistFromEvent(
 	}
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
-	stmts, srdblib.Dberr = srdblib.Db.Prepare(sqls)
-	if srdblib.Dberr != nil {
-		err = fmt.Errorf("Prepare(sqls): %w", srdblib.Dberr)
+	stmts, err = srdblib.Db.Prepare(sqls)
+	if err != nil {
+		err = fmt.Errorf("Prepare(sqls): %w", err)
 		return
 	}
 	defer stmts.Close()
@@ -91,24 +91,24 @@ func SelectEventinflistFromEvent(
 
 	switch {
 	case cond == 0 && kw == "":
-		rows, srdblib.Dberr = stmts.Query(tnow, tnow)
+		rows, err = stmts.Query(tnow, tnow)
 	case cond == 0 && kw != "":
-		rows, srdblib.Dberr = stmts.Query(tnow, tnow, "%"+kw+"%")
+		rows, err = stmts.Query(tnow, tnow, "%"+kw+"%")
 	case cond != 0 && kw == "":
 		if cond == -1 {
-			rows, srdblib.Dberr = stmts.Query(tnow, limit, offset)
+			rows, err = stmts.Query(tnow, limit, offset)
 		} else {
-			rows, srdblib.Dberr = stmts.Query(tnow)
+			rows, err = stmts.Query(tnow)
 		}
 	case cond != 0 && kw != "":
-		if cond == -1 {	
-			rows, srdblib.Dberr = stmts.Query(tnow, "%"+kw+"%", limit, offset)
+		if cond == -1 {
+			rows, err = stmts.Query(tnow, "%"+kw+"%", limit, offset)
 		} else {
-			rows, srdblib.Dberr = stmts.Query(tnow, "%"+kw+"%")
+			rows, err = stmts.Query(tnow, "%"+kw+"%")
 		}
 	}
-	if srdblib.Dberr != nil {
-		err = fmt.Errorf("Query(tnow): %w", srdblib.Dberr)
+	if err != nil {
+		err = fmt.Errorf("Query(tnow): %w", err)
 		return
 	}
 	defer rows.Close()
@@ -118,7 +118,7 @@ func SelectEventinflistFromEvent(
 
 	for rows.Next() {
 
-		srdblib.Dberr = rows.Scan(
+		err = rows.Scan(
 			&eventinf.Event_ID,
 			&eventinf.I_Event_ID,
 			&eventinf.Event_name,
@@ -143,11 +143,11 @@ func SelectEventinflistFromEvent(
 			&eventinf.Aclr,
 		)
 
-		if srdblib.Dberr != nil {
-			if srdblib.Dberr.Error() != "sql: no rows in result set" {
+		if err != nil {
+			if err.Error() != "sql: no rows in result set" {
 				return
 			} else {
-				err = fmt.Errorf("row.Exec(): %w", srdblib.Dberr)
+				err = fmt.Errorf("row.Exec(): %w", err)
 				return
 			}
 		}

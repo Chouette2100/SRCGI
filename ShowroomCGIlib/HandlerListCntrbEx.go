@@ -185,18 +185,18 @@ func SelectAcqTimeList(eventid string, userno int) (acqtimelist []time.Time, sta
 
 	//	貢献ポイントランキングを取得した時刻の一覧を取得する。
 	sql := "select sampletm2 from timetable where eventid = ? and userid = ? and status = 1 order by sampletm2"
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
+	stmt, err = srdblib.Db.Prepare(sql)
 
-	if srdblib.Dberr != nil {
-		log.Printf("SelectAcqTimeList() (5) err=%s\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("SelectAcqTimeList() (5) err=%s\n", err.Error())
 		status = -5
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(eventid, userno)
-	if srdblib.Dberr != nil {
-		log.Printf("SelectAcqTimeList() (6) err=%s\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(eventid, userno)
+	if err != nil {
+		log.Printf("SelectAcqTimeList() (6) err=%s\n", err.Error())
 		status = -6
 		return
 	}
@@ -205,17 +205,17 @@ func SelectAcqTimeList(eventid string, userno int) (acqtimelist []time.Time, sta
 	var ts time.Time
 
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&ts)
-		if srdblib.Dberr != nil {
-			log.Printf("SelectAcqTimeList() (7) err=%s\n", srdblib.Dberr.Error())
+		err = rows.Scan(&ts)
+		if err != nil {
+			log.Printf("SelectAcqTimeList() (7) err=%s\n", err.Error())
 			status = -7
 			return
 		}
 		//	log.Printf("%+v\n", cntrbinf)
 		acqtimelist = append(acqtimelist, ts)
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("SelectAcqTimeList() (8) err=%s\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("SelectAcqTimeList() (8) err=%s\n", err.Error())
 		status = -8
 		return
 	}
@@ -250,24 +250,25 @@ func SelectCntrbEx(
 	status int,
 ) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
 	//	最後の貢献ポイントランキングを取得する。
 	sql := "select t_lsnid, lsnid, increment from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
+	stmt, err = srdblib.Db.Prepare(sql)
 
-	if srdblib.Dberr != nil {
-		log.Printf("SelectCntrb() (5) err=%s\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("SelectCntrb() (5) err=%s\n", err.Error())
 		status = -5
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(eventid, userno, ts)
-	if srdblib.Dberr != nil {
-		log.Printf("SelectCntrb() (6) err=%s\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(eventid, userno, ts)
+	if err != nil {
+		log.Printf("SelectCntrb() (6) err=%s\n", err.Error())
 		status = -6
 		return
 	}
@@ -283,9 +284,9 @@ func SelectCntrbEx(
 	loc := len((*cntrbinflist)[0].Incremental) - 1
 
 	for rows.Next() {
-		srdblib.Dberr = rows.Scan(&tlsnid, &lsnid, &incremental)
-		if srdblib.Dberr != nil {
-			log.Printf("SelectCntrb() (7) err=%s\n", srdblib.Dberr.Error())
+		err = rows.Scan(&tlsnid, &lsnid, &incremental)
+		if err != nil {
+			log.Printf("SelectCntrb() (7) err=%s\n", err.Error())
 			status = -7
 			return
 		}
@@ -297,8 +298,8 @@ func SelectCntrbEx(
 		(*cntrbinflist)[i].Lsnid = lsnid
 
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("SelectCntrb() (8) err=%s\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("SelectCntrb() (8) err=%s\n", err.Error())
 		status = -8
 		return
 	}
@@ -338,11 +339,11 @@ func SelectCntrbHeader(
 	status = 0
 
 	sql := "select stime, etime, earnedpoint, totalpoint from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	srdblib.Dberr = srdblib.Db.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime, &earned, &total)
+	err = srdblib.Db.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime, &earned, &total)
 
-	if srdblib.Dberr != nil {
+	if err != nil {
 		log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
-		log.Printf("err=[%s]\n", srdblib.Dberr.Error())
+		log.Printf("err=[%s]\n", err.Error())
 		status = -11
 		return
 	}
@@ -384,6 +385,7 @@ func SelectTlsnid2Order(
 	status int,
 ) {
 
+	var err error
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -392,18 +394,18 @@ func SelectTlsnid2Order(
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	sql := "select norder, t_lsnid, point, listner, lastname from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
+	stmt, err = srdblib.Db.Prepare(sql)
 
-	if srdblib.Dberr != nil {
-		log.Printf("SelectCntrbNow() (5) err=%s\n", srdblib.Dberr.Error())
+	if err != nil {
+		log.Printf("SelectCntrbNow() (5) err=%s\n", err.Error())
 		status = -5
 		return
 	}
 	defer stmt.Close()
 
-	rows, srdblib.Dberr = stmt.Query(eventid, userno, ts)
-	if srdblib.Dberr != nil {
-		log.Printf("SelectCntrbNow() (6) err=%s\n", srdblib.Dberr.Error())
+	rows, err = stmt.Query(eventid, userno, ts)
+	if err != nil {
+		log.Printf("SelectCntrbNow() (6) err=%s\n", err.Error())
 		status = -6
 		return
 	}
@@ -417,9 +419,9 @@ func SelectTlsnid2Order(
 	i := 0
 	for rows.Next() {
 		//	Err = rows.Scan(&cntrbinf.Ranking, &cntrbinf.Tlsnid, &cntrbinf.Point, &cntrbinf.Incremental[loc], &cntrbinf.ListenerName, &cntrbinf.LastName)
-		srdblib.Dberr = rows.Scan(&cntrbinf.Ranking, &cntrbinf.Tlsnid, &cntrbinf.Point, &cntrbinf.ListenerName, &cntrbinf.LastName)
-		if srdblib.Dberr != nil {
-			log.Printf("GetCurrentScore() (7) err=%s\n", srdblib.Dberr.Error())
+		err = rows.Scan(&cntrbinf.Ranking, &cntrbinf.Tlsnid, &cntrbinf.Point, &cntrbinf.ListenerName, &cntrbinf.LastName)
+		if err != nil {
+			log.Printf("GetCurrentScore() (7) err=%s\n", err.Error())
 			status = -7
 			return
 		}
@@ -431,8 +433,8 @@ func SelectTlsnid2Order(
 		tlsnid2order[cntrbinf.Tlsnid] = i
 		i++
 	}
-	if srdblib.Dberr = rows.Err(); srdblib.Dberr != nil {
-		log.Printf("GetCurrentScore() (8) err=%s\n", srdblib.Dberr.Error())
+	if err = rows.Err(); err != nil {
+		log.Printf("GetCurrentScore() (8) err=%s\n", err.Error())
 		status = -8
 		return
 	}
