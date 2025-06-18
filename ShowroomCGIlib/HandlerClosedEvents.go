@@ -102,16 +102,17 @@ func ClosedEventsHandler(
 
 	//	ページ操作
 	action := r.FormValue("action")
-	if action == "next" {
+	switch action {
+	case "next":
 		//	次ページを表示する。
 		top.Offset += top.Limit - 1
-	} else if action == "prev" {
+	case "prev":
 		//	前ページを表示する。
 		top.Offset -= top.Limit - 1
 		if top.Offset < 0 {
 			top.Offset = 0
 		}
-	} else if action == "top" {
+	case "top":
 		//	最初から表示する。
 		top.Offset = 0
 	}

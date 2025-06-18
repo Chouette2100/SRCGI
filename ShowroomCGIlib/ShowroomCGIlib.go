@@ -257,11 +257,12 @@ import (
 11CQ00  貢献ランキングをAPIで取得して表示するListCntrbEx()を作成する。
 11CQ03  貢献ポイントイベント履歴のレイアウトを変更する。
 11CQ04  srdblib.Dberr を errに変更する。
+11CQ05  go.modを作り直す。if文をswitch文に変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CQ04"
+const Version = "11CQ05"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

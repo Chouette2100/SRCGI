@@ -91,12 +91,13 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	ppointperday, _ := MakePointPerDay(Event_inf)
 
 	filename, _ := GraphPerDay(eventid, ppointperday)
-	if Serverconfig.WebServer == "nginxSakura" {
+	switch Serverconfig.WebServer {
+	case "nginxSakura":
 		rootPath := os.Getenv("SCRIPT_NAME")
 		rootPathFields := strings.Split(rootPath, "/")
 		log.Printf("[%s] [%s] [%s]\n", rootPathFields[0], rootPathFields[1], rootPathFields[2])
 		filename = "/" + rootPathFields[1] + "/public/" + filename
-	} else if Serverconfig.WebServer == "Apache2Ubuntu" {
+	case "Apache2Ubuntu":
 		filename = "/public/" + filename
 	}
 

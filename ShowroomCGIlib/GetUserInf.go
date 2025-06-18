@@ -194,7 +194,8 @@ func LogWorker() {
 		if err := srdblib.Dbmap.Insert(al); err != nil {
 			log.Printf(" GetUserInf(): %s\n", err.Error())
 		} else {
-			log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Now().Sub(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
+			// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Now().Sub(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
+			log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
 		}
 	}
 }

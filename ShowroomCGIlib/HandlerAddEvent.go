@@ -515,10 +515,11 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 		}
 		//	InsertIntoOrUpdateUser(client, tnow, eventid, (*roominfolist)[i])
 		status := InsertIntoEventUser(i, eventid, (*roominfolist)[i])
-		if status == 0 {
+		switch status {
+		case 0:
 			(*roominfolist)[i].Status = "更新"
 			(*roominfolist)[i].Statuscolor = "black"
-		} else if status == 1 {
+		case 1:
 			(*roominfolist)[i].Status = "新規"
 			(*roominfolist)[i].Statuscolor = "green"
 
@@ -542,7 +543,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 			}
 			*/
 
-		} else {
+		default:
 			(*roominfolist)[i].Status = "エラー"
 			(*roominfolist)[i].Statuscolor = "red"
 		}

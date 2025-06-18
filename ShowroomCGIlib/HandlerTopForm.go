@@ -90,14 +90,15 @@ func TopFormHandler(w http.ResponseWriter, r *http.Request) {
 		bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
 
 		action := r.FormValue("action")
-		if action == "next" {
+		switch action {
+		case "next":
 			bbs.Offset += bbs.Limit - 1
-		} else if action == "prev." {
+		case "prev.":
 			bbs.Offset -= bbs.Limit - 1
 			if bbs.Offset < 0 {
 				bbs.Offset = 0
 			}
-		} else if action == "再表示(top)" {
+		case "再表示(top)":
 			bbs.Offset = 0
 		}
 

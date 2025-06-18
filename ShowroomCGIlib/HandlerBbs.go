@@ -112,19 +112,20 @@ func DispBbsHandler(w http.ResponseWriter, r *http.Request) {
 	bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
 
 	action := r.FormValue("action")
-	if action == "next" {
+	switch action {
+	case "next":
 		//	次ページを表示する。
 		bbs.Offset += bbs.Limit - 1
-	} else if action == "prev" {
+	case "prev":
 		//	前ページを表示する。
 		bbs.Offset -= bbs.Limit - 1
 		if bbs.Offset < 0 {
 			bbs.Offset = 0
 		}
-	} else if action == "再表示(top)" {
+	case "再表示(top)":
 		//	投稿を最初（＝投稿順としては最後）から表示する。
 		bbs.Offset = 0
-	} else {
+	default:
 		//	actionが指定されていないとき＝URL(/bbs-disp)直打ちのときは全ログを表示する。
 		bbs.Cntr = 9
 	}
