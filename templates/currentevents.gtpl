@@ -95,7 +95,10 @@
                 {{ TimeToString .End_time }}
             </td>
             <td style="text-align: center;">
+                {{/*
                 <a href="eventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">参加ルーム一覧</a>
+                */}}
+                改修中
             </td>
             <td style="text-align: center;">
                 {{ if eq .Target 1 }}

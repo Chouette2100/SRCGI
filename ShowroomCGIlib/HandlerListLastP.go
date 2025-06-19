@@ -418,13 +418,8 @@ func SelectCurrentScoreP(
 		score.Eventid = eventid
 
 		acqtimelist, _ := SelectAcqTimeList(eventid, score.Userno)
-		lenatl := len(acqtimelist)
+		score.Ncntrb = len(acqtimelist)
 		//	log.Printf(" eventid = %s userno = %d len(acqtimelist=%d\n", eventid, score.Userno, lenatl)
-		if lenatl != 0 {
-			score.Bcntrb = true
-		} else {
-			score.Bcntrb = false
-		}
 
 		scorelist = append(scorelist, score)
 		i++

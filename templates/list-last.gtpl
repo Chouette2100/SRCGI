@@ -70,10 +70,12 @@
 			<a href="graph-sum2?eventid={{.Eventid}}&roomid={{.Userno}}">GSum2</a>/
 			<a href="graph-sum?eventid={{.Eventid}}&roomid={{.Userno}}">GSum.</a>/
 			<a href="list-perslot?eventid={{.Eventid}}&roomid={{.Userno}}">LPS</a>/
-			{{ if .Bcntrb }}
+			{{ if ge .Ncntrb 1 }}
 				<a href="list-cntrb?eventid={{.Eventid}}&userno={{.Userno}}">Cnt2.</a>
-			{{ else }}
+			{{ else if ne .Spoint "0" }}
 				<a href="list-cntrbex?eventid={{.Eventid}}&userno={{.Userno}}">※</a>
+			{{ else }}
+			    ----
 			{{ end }}
 		{{ end }}
 	</td>

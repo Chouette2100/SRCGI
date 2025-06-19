@@ -258,11 +258,12 @@ import (
 11CQ03  貢献ポイントイベント履歴のレイアウトを変更する。
 11CQ04  srdblib.Dberr を errに変更する。
 11CQ05  go.modを作り直す。if文をswitch文に変更する。
+11CQ06  貢献ランキング履歴の表示で現在開催中のイベントの表示は背景を黄色にする。「参加ルーム一覧」を「改修中」とする。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CQ05"
+const Version = "11CQ06"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
