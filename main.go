@@ -130,10 +130,11 @@ import (
 	11CN03  メンテナンスモードのエントリを"/"のみにする。
 	11CP02  貢献ポイント履歴のテストを行う。
 	11CQ00  貢献ランキングをAPIで取得して表示するListCntrbExHandler()を作成する。
+	11CR00  特定useragentに対してメンテナンス中のレスポンスを返すようにする。
 }
 */
 
-const version = "11CQ02"
+const version = "11CR02"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -191,8 +192,37 @@ func NewLogfileName(logfile *os.File) {
 func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 共通の処理をここで行う
-		log.Println("Common processing")
 
+		userAgent := r.Header.Get("User-Agent")
+
+		// 例: 特定のUser-Agent（例えば、古いバージョンのアプリや特定のボットなど）に対してメンテナンスメッセージを返す
+		if userAgent == "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)" ||
+			userAgent == "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)" ||
+			userAgent == "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36" {
+			log.Printf("Common processing: %s\n", userAgent)
+			// メンテナンス中のステータスコードを設定
+			w.WriteHeader(http.StatusServiceUnavailable)
+
+			// メンテナンス中のメッセージをレスポンスボディに書き込む
+			// Content-Typeをtext/htmlに設定すると、ブラウザでHTMLとして表示されます
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			fmt.Fprintln(w, `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>メンテナンス中</title>
+</head>
+<body>
+    <h1>現在メンテナンス中です</h1>
+    <p>ご迷惑をおかけいたしますが、しばらくお待ちください。</p>
+</body>
+</html>`)
+			return // ここで処理を終了
+		} else {
+			log.Println("Common processing")
+		}
+
+		// 通常の処理
 		// 次のハンドラーを呼び出す
 		next(w, r)
 	}
