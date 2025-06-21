@@ -1,11 +1,11 @@
 package ShowroomCGIlib
 
 import (
-	//	"fmt"
-	//	"io/ioutil"
-	//	"os"
+//	"fmt"
+//	"io/ioutil"
+//	"os"
 
-	//	"gopkg.in/yaml.v2"
+// "gopkg.in/yaml.v2"
 )
 
 /*
@@ -32,8 +32,9 @@ type ServerConfig struct {
 	//	Dbuser    string `yaml:"Dbuser"`
 	//	Dbpw      string `yaml:"Dbpw"`
 	//	UseSSH    bool   `yaml:"UseSSH"`
-	NoEvent   int    `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
+	NoEvent     int  `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
 	Maintenance bool `yaml:"Maintenance"`
+	LvlBots     int  `yaml:"LvlBots"` //	Bot排除のレベル、0:なし、1:低、2:中、3:高
 }
 
 type SSHConfig struct {

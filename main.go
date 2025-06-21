@@ -130,11 +130,12 @@ import (
 	11CN03  メンテナンスモードのエントリを"/"のみにする。
 	11CP02  貢献ポイント履歴のテストを行う。
 	11CQ00  貢献ランキングをAPIで取得して表示するListCntrbExHandler()を作成する。
-	11CR00  特定useragentに対してメンテナンス中のレスポンスを返すようにする。
+	11CR00-2  特定useragentに対してメンテナンス中のレスポンスを返すようにする。
+	11CR03  ShowroomCGIlib.ServerConfig.LvlBotsを追加し、ボットの排除レベルを設定できるようにする。
 }
 */
 
-const version = "11CR02"
+const version = "11CR03"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -194,9 +195,14 @@ func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// 共通の処理をここで行う
 
 		userAgent := r.Header.Get("User-Agent")
+		ignBots := false
+		if ShowroomCGIlib.Serverconfig.LvlBots == 3 && ShowroomCGIlib.Regexpbots.MatchString(userAgent) {
+			ignBots = true
+		}
 
 		// 例: 特定のUser-Agent（例えば、古いバージョンのアプリや特定のボットなど）に対してメンテナンスメッセージを返す
-		if userAgent == "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)" ||
+		if ignBots ||
+			userAgent == "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)" ||
 			userAgent == "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)" ||
 			userAgent == "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36" {
 			log.Printf("Common processing: %s\n", userAgent)
@@ -231,12 +237,12 @@ func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 // =============================================
 
 // =============================================
-// サーバー構成
-type ServerConfig struct {
-	HTTPport string
-	SSLcrt   string
-	SSLkey   string
-}
+// // サーバー構成
+// type ServerConfig struct {
+// 	HTTPport string
+// 	SSLcrt   string
+// 	SSLkey   string
+// }
 
 // =============================================
 
