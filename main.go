@@ -5,7 +5,7 @@ import (
 	//	"io"
 	"log"
 
-	//	"strconv"
+	"strings"
 
 	// "golang.org/x/crypto/ssh/terminal"
 	"time"
@@ -16,6 +16,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"reflect"
 	"runtime"
 	"syscall"
 
@@ -132,10 +133,12 @@ import (
 	11CQ00  貢献ランキングをAPIで取得して表示するListCntrbExHandler()を作成する。
 	11CR00-2  特定useragentに対してメンテナンス中のレスポンスを返すようにする。
 	11CR03  ShowroomCGIlib.ServerConfig.LvlBotsを追加し、ボットの排除レベルを設定できるようにする。
+	11CR04  ShowroomCGIlib.ServerConfig.LvlBots == 3 のときはボットは無条件に排除する、　== 2 のときは特定のハンドラー(entry)のときボットを排除する。
+	11CR05  排除したボットアクセス情報にハンドラー名を追加する。
 }
 */
 
-const version = "11CR03"
+const version = "11CR05"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -192,20 +195,53 @@ func NewLogfileName(logfile *os.File) {
 // =============================================
 func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// 共通の処理をここで行う
+		// 共通のo処理をここで行う
 
-		userAgent := r.Header.Get("User-Agent")
+		ua := r.UserAgent()
+
+		var entry string
+
+		// next 関数の名前を取得
+		// reflect.ValueOf(next).Pointer() で関数のエントリポイントのアドレスを取得
+		// runtime.FuncForPC() でそのアドレスに対応する runtime.Func を取得
+		funcPtr := reflect.ValueOf(next).Pointer()
+		handlerFunc := runtime.FuncForPC(funcPtr)
+		entry = "unknown" // デフォルト値
+
+		if handlerFunc != nil {
+			// runtime.FuncForPC().Name() は通常 "package/path.FunctionName" の形式を返します。
+			// 例: "github.com/your/repo/ShowroomCGIlib.ListCntrbHExHandler"
+			fullFuncName := handlerFunc.Name()
+
+			// ユーザーが求めている "ShowroomCGIlib.ListCntrbHExHandler" のような形式は、
+			// runtime.FuncForPC().Name() の出力からパス部分を除去した形に一致することが多いです。
+			// 最後の '/' の位置を探します。
+			lastSlashIndex := strings.LastIndex(fullFuncName, ".")
+			if lastSlashIndex != -1 {
+				// スラッシュより後ろの部分を取得します。
+				// 例: "ShowroomCGIlib.ListCntrbHExHandler"
+				entry = fullFuncName[lastSlashIndex+1:]
+				// } else {
+				// 	// スラッシュがない場合はそのままの名前を使います (mainパッケージなど)。
+				// 	// 例: "main.ListCntrbHExHandler"
+				// 	handlerName = fullFuncName
+			}
+		}
+
+		// userAgent := r.Header.Get("User-Agent")
 		ignBots := false
-		if ShowroomCGIlib.Serverconfig.LvlBots == 3 && ShowroomCGIlib.Regexpbots.MatchString(userAgent) {
+		lvlbots := ShowroomCGIlib.Serverconfig.LvlBots
+		if bmatch := ShowroomCGIlib.Regexpbots.MatchString(ua); (lvlbots == 3 || lvlbots == 2) && bmatch {
 			ignBots = true
 		}
 
 		// 例: 特定のUser-Agent（例えば、古いバージョンのアプリや特定のボットなど）に対してメンテナンスメッセージを返す
-		if ignBots ||
-			userAgent == "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)" ||
-			userAgent == "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)" ||
-			userAgent == "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36" {
-			log.Printf("Common processing: %s\n", userAgent)
+		// if ignBots ||
+		// 	userAgent == "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)" ||
+		// 	userAgent == "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)" ||
+		// 	userAgent == "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36" {
+		if _, ok := ShowroomCGIlib.NontargetEntry[entry]; ignBots && (lvlbots == 3 || ok) {
+			log.Printf("Common processing: %s: %s\n", entry, ua)
 			// メンテナンス中のステータスコードを設定
 			w.WriteHeader(http.StatusServiceUnavailable)
 
@@ -291,6 +327,7 @@ func main() {
 	log.Printf("%+v\n", svconfig)
 
 	ShowroomCGIlib.Regexpbots = ReadBots()
+	ReadEntry()
 
 	ShowroomCGIlib.LoadDenyIp("DenyIp.txt")
 	//	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)

@@ -57,7 +57,7 @@ type CntrbHistoryExInf struct {
 	Eventname string
 	Starttime time.Time
 	Endtime   time.Time
-	Stnow     string
+	Stnow     time.Time
 }
 
 type CntrbHistoryEx []CntrbHistoryExInf
@@ -267,9 +267,9 @@ func SelectCntrbHistoryEx(
 	err error,
 ) {
 
-	sqlst := " SELECT point, roomno, longname, eventid, eventname, starttime, endtime, stnow "
+	sqlst := " SELECT point, roomno, longname, eventid, eventname, starttime, endtime, NOW() as stnow "
 	sqlst += " FROM ( "
-	sqlst += "   SELECT er.point, er.userid as roomno, u.longname, er.eventid, e.event_name as eventname, e.starttime, e.endtime, NOW() as stnow, "
+	sqlst += "   SELECT er.point, er.userid as roomno, u.longname, er.eventid, e.event_name as eventname, e.starttime, e.endtime, "
 	sqlst += "     ROW_NUMBER() "
 	sqlst += "       OVER (PARTITION BY er.eventid, er.userid ORDER BY er.ts DESC) as rn " // eventidとuseridの組み合わせごとに、tsの降順で順位を付ける
 	sqlst += "   FROM eventrank er "

@@ -260,11 +260,12 @@ import (
 11CQ05  go.modを作り直す。if文をswitch文に変更する。
 11CQ06  貢献ランキング履歴の表示で現在開催中のイベントの表示は背景を黄色にする。「参加ルーム一覧」を「改修中」とする。
 11CR03  ShowroomCGIlib.ServerConfig.LvlBotsを追加し、ボットの排除レベルを設定できるようにする。
+11CR04  ShowroomCGIlib.ServerConfig.LvlBots == 3 のときはボットは無条件に排除する、　== 2 のときは特定のハンドラー(entry)のときボットを排除する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CR03"
+const Version = "11CR04"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
@@ -353,6 +354,7 @@ var Dialer sshql.Dialer
 var Event_inf exsrapi.Event_Inf
 
 var Regexpbots *regexp.Regexp
+var NontargetEntry map[string]int
 
 var OS string
 
