@@ -1,13 +1,14 @@
+ClosedEventsHandler: 100
 ClosedEventRoomListHandler: 100
 ContributorsHandler: 100
 GraphSum2Handler: 100
 GraphSumHandler: 100
-ListCntrbHExHandler: 100
 ListCntrbHHandler: 100
+ListCntrbHExHandler: 100
 ListCntrbHandlerEx: 100
+ListCntrbExHandler: 100
 ListPerdayHandler: 100
 ListPerslotHandler: 100
 ListCntrbHandler: 100
 ListCntrbSHandler: 100
-ClosedEventsHandler: 100
 ListLastPHandler: 100

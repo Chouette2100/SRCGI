@@ -77,7 +77,7 @@ type CntrbInfEx struct {
 
 */
 
-func ListCntrbHandlerEx(w http.ResponseWriter, req *http.Request) {
+func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 
 	var err error
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。

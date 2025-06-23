@@ -135,10 +135,11 @@ import (
 	11CR03  ShowroomCGIlib.ServerConfig.LvlBotsを追加し、ボットの排除レベルを設定できるようにする。
 	11CR04  ShowroomCGIlib.ServerConfig.LvlBots == 3 のときはボットは無条件に排除する、　== 2 のときは特定のハンドラー(entry)のときボットを排除する。
 	11CR05  排除したボットアクセス情報にハンドラー名を追加する。
+	11CR06  ListCntrbHandlerEx()の関数名をListCntrbExHandler()とする、bots.ymlとnotargetentry.ymlのデータを更新する。
 }
 */
 
-const version = "11CR05"
+const version = "11CR06"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -537,7 +538,7 @@ func main() {
 		http.HandleFunc(rootPath+"/param-global", commonMiddleware(ShowroomCGIlib.ParamGlobalHandler))
 
 		http.HandleFunc(rootPath+"/list-cntrb", commonMiddleware(ShowroomCGIlib.ListCntrbHandler))
-		http.HandleFunc(rootPath+"/list-cntrbex", commonMiddleware(ShowroomCGIlib.ListCntrbHandlerEx))
+		http.HandleFunc(rootPath+"/list-cntrbex", commonMiddleware(ShowroomCGIlib.ListCntrbHandler))
 
 		http.HandleFunc(rootPath+"/list-cntrbS", commonMiddleware(ShowroomCGIlib.ListCntrbSHandler))
 

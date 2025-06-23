@@ -261,11 +261,12 @@ import (
 11CQ06  貢献ランキング履歴の表示で現在開催中のイベントの表示は背景を黄色にする。「参加ルーム一覧」を「改修中」とする。
 11CR03  ShowroomCGIlib.ServerConfig.LvlBotsを追加し、ボットの排除レベルを設定できるようにする。
 11CR04  ShowroomCGIlib.ServerConfig.LvlBots == 3 のときはボットは無条件に排除する、　== 2 のときは特定のハンドラー(entry)のときボットを排除する。
+11CR06  ListCntrbHandlerEx()の関数名をListCntrbExHandler()とする、bots.ymlとnotargetentry.ymlのデータを更新する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CR04"
+const Version = "11CR06"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
