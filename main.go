@@ -136,10 +136,11 @@ import (
 	11CR04  ShowroomCGIlib.ServerConfig.LvlBots == 3 のときはボットは無条件に排除する、　== 2 のときは特定のハンドラー(entry)のときボットを排除する。
 	11CR05  排除したボットアクセス情報にハンドラー名を追加する。
 	11CR06  ListCntrbHandlerEx()の関数名をListCntrbExHandler()とする、bots.ymlとnotargetentry.ymlのデータを更新する。
+	11CS00  fail2banのログファイルをログ出力するようにする。GetUserInf()でのウェイト処理をやめる。
 }
 */
 
-const version = "11CR06"
+const version = "11CS00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -198,11 +199,22 @@ func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 共通のo処理をここで行う
 
+		// remoteaddressを取得
+		var ra string
+		rap := r.RemoteAddr
+		rapa := strings.Split(rap, ":")
+		if rapa[0] != "[" {
+			ra = rapa[0]
+		} else {
+			ra = "127.0.0.1"
+		}
+
+		// useragentを取得
 		ua := r.UserAgent()
 
 		var entry string
 
-		// next 関数の名前を取得
+		// next 関数(ハンドラー)の名前を取得
 		// reflect.ValueOf(next).Pointer() で関数のエントリポイントのアドレスを取得
 		// runtime.FuncForPC() でそのアドレスに対応する runtime.Func を取得
 		funcPtr := reflect.ValueOf(next).Pointer()
@@ -266,6 +278,11 @@ func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// 通常の処理
+		botInfo := "unknown"
+		if ignBots {
+			botInfo = "notabot"
+		}
+		LogForFail2ban(ra, entry, botInfo)
 		// 次のハンドラーを呼び出す
 		next(w, r)
 	}
@@ -292,6 +309,7 @@ func main() {
 		panic("cannnot open logfile: " + logfilename + err.Error())
 	}
 	defer logfile.Close()
+	defer LogFile_f2b.Close() // LogForFail2ban()で開いたファイルを閉じる
 
 	// フォアグラウンド（端末に接続されているか）を判定
 	isForeground := term.IsTerminal(int(os.Stdout.Fd()))
