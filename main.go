@@ -137,10 +137,11 @@ import (
 	11CR05  排除したボットアクセス情報にハンドラー名を追加する。
 	11CR06  ListCntrbHandlerEx()の関数名をListCntrbExHandler()とする、bots.ymlとnotargetentry.ymlのデータを更新する。
 	11CS00  fail2banのログファイルをログ出力するようにする。GetUserInf()でのウェイト処理をやめる。
+	11CS01  ボットとボットでない場合ののログ出力をunknownとnotabotに分ける。
 }
 */
 
-const version = "11CS00"
+const version = "11CS01"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -244,7 +245,8 @@ func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// userAgent := r.Header.Get("User-Agent")
 		ignBots := false
 		lvlbots := ShowroomCGIlib.Serverconfig.LvlBots
-		if bmatch := ShowroomCGIlib.Regexpbots.MatchString(ua); (lvlbots == 3 || lvlbots == 2) && bmatch {
+		bmatch := false
+		if bmatch = ShowroomCGIlib.Regexpbots.MatchString(ua); (lvlbots == 3 || lvlbots == 2) && bmatch {
 			ignBots = true
 		}
 
@@ -278,9 +280,9 @@ func commonMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// 通常の処理
-		botInfo := "unknown"
-		if ignBots {
-			botInfo = "notabot"
+		botInfo := "notabot"
+		if bmatch {
+			botInfo = "unknown"
 		}
 		LogForFail2ban(ra, entry, botInfo)
 		// 次のハンドラーを呼び出す
