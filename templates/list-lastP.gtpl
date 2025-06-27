@@ -64,9 +64,13 @@
 			<a href="https://www.showroom-live.com/{{.Shorturl}}">LIVE</a>/
 			<a href="https://www.showroom-live.com/room/fan_club?room_id={{.Userno}}">FC</a>/
 			<a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Eventid }}?room_id={{.Userno}}">Cnt1.</a>/
-			<a href="graph-sum2?eventid={{.Eventid}}&roomid={{.Userno}}">GSum2</a>/
-			<a href="graph-sum?eventid={{.Eventid}}&roomid={{.Userno}}">GSum.</a>/
-			<a href="list-perslot?eventid={{.Eventid}}&roomid={{.Userno}}">LPS</a>/
+			{{ if ne .Nperslot 0 }}
+				<a href="graph-sum2?eventid={{.Eventid}}&roomid={{.Userno}}">GSum2</a>/
+				<a href="graph-sum?eventid={{.Eventid}}&roomid={{.Userno}}">GSum.</a>/
+				<a href="list-perslot?eventid={{.Eventid}}&roomid={{.Userno}}">LPS</a>/
+			{{ else }}
+				GSum2/&nbsp;GSum./&nbsp;LPS/
+			{{ end }}
 			{{ if gt .Ncntrb 1 }}
 				<a href="list-cntrb?eventid={{.Eventid}}&userno={{.Userno}}">Cnt2.</a>
 			{{ else if eq .Ncntrb 1 }}

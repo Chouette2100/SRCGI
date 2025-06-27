@@ -264,12 +264,13 @@ import (
 11CR06  ListCntrbHandlerEx()の関数名をListCntrbExHandler()とする、bots.ymlとnotargetentry.ymlのデータを更新する。
 11CS00  fail2banのログファイルをログ出力するようにする。GetUserInf()でのウェイト処理をやめる。
 11CT00  短時間の連続的なアクセスに対してレート制限を行う。
-11CT01  サーバー設定の初期値を行う（MaxChlog: ログ出力待ちチャンネルのバッファ数の定義の追加を含む）
+11CT01  サーバー設定の初期化を行う（MaxChlog: ログ出力待ちチャンネルのバッファ数の定義の追加を含む）
+11CT02  Gsum2, Gsum, LPSは枠別獲得ptデータがあるときだけリンクを有効にする。GsumData, Gsumdata1, Gsumdata2は監視対象外とする。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CT01"
+const Version = "11CT02"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

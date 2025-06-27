@@ -421,6 +421,9 @@ func SelectCurrentScoreP(
 		score.Ncntrb = len(acqtimelist)
 		//	log.Printf(" eventid = %s userno = %d len(acqtimelist=%d\n", eventid, score.Userno, lenatl)
 
+		perslotinflist, _ := MakePointPerSlot(eventid, score.Userno)
+		score.Nperslot = len(perslotinflist)
+
 		scorelist = append(scorelist, score)
 		i++
 		/*

@@ -68,6 +68,7 @@ type CurrentScore struct {
 	Qstatus   string
 	Qtime     string
 	Ncntrb    int
+	Nperslot  int
 }
 
 func ListLastHandler(w http.ResponseWriter, req *http.Request) {
@@ -413,6 +414,9 @@ func SelectCurrentScore(
 		acqtimelist, _ := SelectAcqTimeList(eventid, score.Userno)
 		score.Ncntrb = len(acqtimelist)
 		//	log.Printf(" eventid = %s userno = %d len(acqtimelist=%d\n", eventid, score.Userno, lenatl)
+
+		perslotinflist, _ := MakePointPerSlot(eventid, score.Userno)
+		score.Nperslot = len(perslotinflist)
 
 		scorelist = append(scorelist, score)
 		i++
