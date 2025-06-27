@@ -22,21 +22,16 @@ import (
 const VerFileIOlib = "11AA00"
 
 type ServerConfig struct {
-	WebServer string `yaml:"WebServer"`
-	HTTPport  string `yaml:"HTTPport"`
-	SSLcrt    string `yaml:"SSLcrt"`
-	SSLkey    string `yaml:"SSLkey"`
-	//	Dbhost    string `yaml:"Dbhost"`
-	//	Dbport    string `yaml:"Dbport"`
-	//	Dbname    string `yaml:"Dbname"`
-	//	Dbuser    string `yaml:"Dbuser"`
-	//	Dbpw      string `yaml:"Dbpw"`
-	//	UseSSH    bool   `yaml:"UseSSH"`
-	NoEvent     int  `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
-	Maintenance bool `yaml:"Maintenance"`
-	LvlBots     int  `yaml:"LvlBots"`     //	Bot排除のレベル、0:なし、1:低、2:中、3:高
-	AccessLimit int  `yaml:"AccessLimit"` //	時間枠のアクセス回数上限
-	TimeWindow  int  `yaml:"TimeWindow"`  //	アクセス回数制限の時間枠（秒単位）
+	WebServer   string `yaml:"WebServer"`
+	HTTPport    string `yaml:"HTTPport"`
+	SSLcrt      string `yaml:"SSLcrt"`
+	SSLkey      string `yaml:"SSLkey"`
+	NoEvent     int    `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
+	Maintenance bool   `yaml:"Maintenance"`
+	LvlBots     int    `yaml:"LvlBots"`     //	Bot排除のレベル、0:なし、1:低、2:中、3:高
+	AccessLimit int    `yaml:"AccessLimit"` //	時間枠のアクセス回数上限
+	TimeWindow  int    `yaml:"TimeWindow"`  //	アクセス回数制限の時間枠（秒単位）
+	MaxChlog    int    `yaml:"MacChlog"`    //	ログ出力待ちチャンネルのバッファ数（＝同時実行ハンドラー数）
 }
 
 type SSHConfig struct {

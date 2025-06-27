@@ -142,10 +142,11 @@ import (
 	11CS00  fail2banのログファイルをログ出力するようにする。GetUserInf()でのウェイト処理をやめる。
 	11CS01  ボットとボットでない場合ののログ出力をunknownとnotabotに分ける。
 	11CT00  短時間の連続的なアクセスに対してレート制限を行う。
+	11CT01  サーバー設定の初期値を行う（MaxChlog: ログ出力待ちチャンネルのバッファ数の定義の追加を含む）
 }
 */
 
-const version = "11CT00"
+const version = "11CT01"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -390,7 +391,18 @@ func main() {
 	//	https://ssabcire.hatenablog.com/entry/2019/02/13/000722
 	//	https://konboi.hatenablog.com/entry/2016/04/12/100903
 
-	svconfig := ShowroomCGIlib.ServerConfig{}
+	svconfig := ShowroomCGIlib.ServerConfig{
+		HTTPport:    "8080",
+		SSLcrt:      "/home/username/.ssh/server.crt",
+		SSLkey:      "/home/username/.ssh/server.key",
+		WebServer:   "nginxSakura",
+		NoEvent:     30,    // イベントの表示数
+		Maintenance: false, // メンテナンスモード
+		LvlBots:     2,     // ボット排除のレベル、0:なし、1:低、2:中、3:高
+		AccessLimit: 3,     // タイムウィンドウあたりのリクエスト上限
+		TimeWindow:  1,     // タイムウィンドウの長さ（秒）
+		MaxChlog:    10,    // ログ出力待ちチャンネルのバッファ数
+	}
 	ShowroomCGIlib.Serverconfig = &svconfig
 	err = exsrapi.LoadConfig("ServerConfig.yml", ShowroomCGIlib.Serverconfig)
 	if err != nil {
