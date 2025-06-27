@@ -13,7 +13,7 @@ import (
 
 	//	"math/rand"
 	// "sort"
-	"strconv"
+	// "strconv"
 	"strings"
 	"time"
 
@@ -29,7 +29,7 @@ import (
 
 	// "database/sql"
 
-	"encoding/json"
+	// "encoding/json"
 
 	// _ "github.com/go-sql-driver/mysql"
 
@@ -51,10 +51,10 @@ import (
 ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 */
 //	var Localhost bool
-type KV struct {
-	K string
-	V []string
-}
+// type KV struct {
+// 	K string
+// 	V []string
+// }
 
 var LAlog sync.Map = sync.Map{}
 
@@ -104,34 +104,36 @@ func GetUserInf(r *http.Request) (
 		return
 	}
 
-	var al srdblib.Accesslog
-	al.Ts = time.Now().Truncate(time.Second)
-	al.Handler = fna[len(fna)-1]
-	al.Remoteaddress = ra
-	al.Useragent = ua
+	/*
+		var al srdblib.Accesslog
+		al.Ts = time.Now().Truncate(time.Second)
+		al.Handler = fna[len(fna)-1]
+		al.Remoteaddress = ra
+		al.Useragent = ua
 
-	kvlist := make([]KV, len(r.Form))
-	i := 0
-	for kvlist[i].K, kvlist[i].V = range r.Form {
-		log.Printf("%12v : %v\n", kvlist[i].K, kvlist[i].V)
-		switch kvlist[i].K {
-		case "eventid":
-			al.Eventid = kvlist[i].V[0]
-		case "userno", "userid", "user_id", "roomid":
-			al.Roomid, _ = strconv.Atoi(kvlist[i].V[0])
-		default:
+		kvlist := make([]KV, len(r.Form))
+		i := 0
+		for kvlist[i].K, kvlist[i].V = range r.Form {
+			log.Printf("%12v : %v\n", kvlist[i].K, kvlist[i].V)
+			switch kvlist[i].K {
+			case "eventid":
+				al.Eventid = kvlist[i].V[0]
+			case "userno", "userid", "user_id", "roomid":
+				al.Roomid, _ = strconv.Atoi(kvlist[i].V[0])
+			default:
+			}
+			i++
 		}
-		i++
-	}
-	jd, err := json.Marshal(kvlist)
-	if err != nil {
-		log.Printf(" GetUserInf(): %s\n", err.Error())
-	}
-	al.Formvalues = string(jd)
+		jd, err := json.Marshal(kvlist)
+		if err != nil {
+			log.Printf(" GetUserInf(): %s\n", err.Error())
+		}
+		al.Formvalues = string(jd)
 
-	log.Printf(" length of Chlog = %d\n", len(Chlog))
+		log.Printf(" length of Chlog = %d\n", len(Chlog))
 
-	Chlog <- &al
+		Chlog <- &al
+	*/
 
 	/*
 		err = srdblib.Dbmap.Insert(&al)

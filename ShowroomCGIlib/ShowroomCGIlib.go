@@ -263,6 +263,7 @@ import (
 11CR04  ShowroomCGIlib.ServerConfig.LvlBots == 3 のときはボットは無条件に排除する、　== 2 のときは特定のハンドラー(entry)のときボットを排除する。
 11CR06  ListCntrbHandlerEx()の関数名をListCntrbExHandler()とする、bots.ymlとnotargetentry.ymlのデータを更新する。
 11CS00  fail2banのログファイルをログ出力するようにする。GetUserInf()でのウェイト処理をやめる。
+11CT00  短時間の連続的なアクセスに対してレート制限を行う。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。

@@ -10,7 +10,7 @@
 
 {{ range . }}
 	{{ $e :=  FormatTime .Endtime "2006-01-02 15:04" }}
-	{{ if lt $e "2025-01-12 00:00" }}
+	{{ if lt $e "2024-12-15 00:00" }}
 	<tr style="background-color: silver">
 	{{ else if gt $e (FormatTime .Stnow "2006-01-02 15:04") }}
 	<tr style="background-color: yellow">

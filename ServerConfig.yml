@@ -24,3 +24,8 @@ NoEvent: 30
 
 # ボットの排除レベル
 LvlBots: 2
+
+#	時間枠のアクセス回数上限
+AccessLimit: 3
+# アクセス回数制限の時間枠（秒単位）
+TimeWindow: 1

@@ -34,7 +34,9 @@ type ServerConfig struct {
 	//	UseSSH    bool   `yaml:"UseSSH"`
 	NoEvent     int  `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
 	Maintenance bool `yaml:"Maintenance"`
-	LvlBots     int  `yaml:"LvlBots"` //	Bot排除のレベル、0:なし、1:低、2:中、3:高
+	LvlBots     int  `yaml:"LvlBots"`     //	Bot排除のレベル、0:なし、1:低、2:中、3:高
+	AccessLimit int  `yaml:"AccessLimit"` //	時間枠のアクセス回数上限
+	TimeWindow  int  `yaml:"TimeWindow"`  //	アクセス回数制限の時間枠（秒単位）
 }
 
 type SSHConfig struct {
