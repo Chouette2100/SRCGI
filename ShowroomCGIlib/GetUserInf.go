@@ -19,7 +19,7 @@ import (
 
 	//	"os"
 
-	"runtime"
+	// "runtime"
 	"sync"
 
 	// "encoding/json"
@@ -51,10 +51,10 @@ import (
 ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 */
 //	var Localhost bool
-// type KV struct {
-// 	K string
-// 	V []string
-// }
+type KV struct {
+	K string
+	V []string
+}
 
 var LAlog sync.Map = sync.Map{}
 
@@ -68,15 +68,17 @@ func GetUserInf(r *http.Request) (
 
 	isallow = true
 
-	pt, _, _, ok := runtime.Caller(1) //	スタックトレースへのポインターを得る。1は一つ上のファンクション。
+	/*
+		pt, _, _, ok := runtime.Caller(1) //	スタックトレースへのポインターを得る。1は一つ上のファンクション。
 
-	var fn string
-	if !ok {
-		fn = "unknown"
-	}
+		var fn string
+		if !ok {
+			fn = "unknown"
+		}
 
-	fn = runtime.FuncForPC(pt).Name()
-	fna := strings.Split(fn, ".")
+		fn = runtime.FuncForPC(pt).Name()
+		fna := strings.Split(fn, ".")
+	*/
 
 	rap := r.RemoteAddr
 	rapa := strings.Split(rap, ":")
@@ -87,55 +89,47 @@ func GetUserInf(r *http.Request) (
 	}
 	ua = r.UserAgent()
 
-	log.Printf("  *** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
+	// log.Printf("  *** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 	//	log.Printf("%s() from %s by %s\n", fna[len(fna)-1], ra, ua)
 
 	/*
-		if !IsAllowIp(ra) {
-			log.Printf("%s is on the Blacklist(%s)", ra, ua)
-			isallow = false
+			if !IsAllowIp(ra) {
+				log.Printf("%s is on the Blacklist(%s)", ra, ua)
+				isallow = false
+				return
+			}
+
+		//	パラメータを表示する
+		if err := r.ParseForm(); err != nil {
+			log.Printf("Error: %v\n", err)
 			return
 		}
-	*/
 
-	//	パラメータを表示する
-	if err := r.ParseForm(); err != nil {
-		log.Printf("Error: %v\n", err)
-		return
-	}
-
-	/*
-		var al srdblib.Accesslog
-		al.Ts = time.Now().Truncate(time.Second)
-		al.Handler = fna[len(fna)-1]
-		al.Remoteaddress = ra
-		al.Useragent = ua
+			var al srdblib.Accesslog
+			al.Ts = time.Now().Truncate(time.Second)
+			al.Handler = fna[len(fna)-1]
+			al.Remoteaddress = ra
+			al.Useragent = ua
 
 		kvlist := make([]KV, len(r.Form))
 		i := 0
 		for kvlist[i].K, kvlist[i].V = range r.Form {
 			log.Printf("%12v : %v\n", kvlist[i].K, kvlist[i].V)
-			switch kvlist[i].K {
-			case "eventid":
-				al.Eventid = kvlist[i].V[0]
-			case "userno", "userid", "user_id", "roomid":
-				al.Roomid, _ = strconv.Atoi(kvlist[i].V[0])
-			default:
-			}
 			i++
 		}
-		jd, err := json.Marshal(kvlist)
-		if err != nil {
-			log.Printf(" GetUserInf(): %s\n", err.Error())
-		}
-		al.Formvalues = string(jd)
+			jd, err := json.Marshal(kvlist)
+			if err != nil {
+				log.Printf(" GetUserInf(): %s\n", err.Error())
+			}
+			al.Formvalues = string(jd)
 
-		log.Printf(" length of Chlog = %d\n", len(Chlog))
-
-		Chlog <- &al
+			log.Printf(" length of Chlog = %d\n", len(Chlog))
 	*/
 
 	/*
+
+		Chlog <- &al
+
 		err = srdblib.Dbmap.Insert(&al)
 		if err != nil {
 			log.Printf(" GetUserInf(): %s\n", err.Error())
@@ -196,10 +190,12 @@ func LogWorker() {
 	for {
 		al := <-Chlog
 		if err := srdblib.Dbmap.Insert(al); err != nil {
-			log.Printf(" GetUserInf(): %s\n", err.Error())
+			log.Printf(" GetUserInf(): Dbmap.Insert(al): %s\n", err.Error())
 		} else {
 			// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Now().Sub(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
-			log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
+			// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
+			log.Printf("==C== %6.1f(%s) %s %s\n",
+				time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress)
 		}
 	}
 }

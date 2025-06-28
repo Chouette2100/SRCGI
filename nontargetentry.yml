@@ -12,3 +12,5 @@ ListPerslotHandler: 100
 ListCntrbHandler: 100
 ListCntrbSHandler: 100
 ListLastPHandler: 100
+HandlerApiRoomStatus: 100
+EditUserHandler: 100

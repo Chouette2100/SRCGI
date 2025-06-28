@@ -144,10 +144,12 @@ import (
 	11CT00  短時間の連続的なアクセスに対してレート制限を行う。
 	11CT01  サーバー設定の初期化を行う（MaxChlog: ログ出力待ちチャンネルのバッファ数の定義の追加を含む）
 	11CT02  Gsum2, Gsum, LPSは枠別獲得ptデータがあるときだけリンクを有効にする。GsumData, Gsumdata1, Gsumdata2は監視対象外とする。
+	11CT03  ログ出力をハンドラーがどう取り扱われたかわかりやすくする。　00:レートリミット、10:ボット、20:ハンドラー実行
+	11CT04  リクエストの解析で抜けていたr.ParseForm()を追加する
 }
 */
 
-const version = "11CT02"
+const version = "11CT04"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -276,7 +278,8 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			// レートリミッターで許可を判定
 			if !limiter.Allow(ra) {
 				// 制限を超過した場合、レスポンスを返さずに処理を終了（無視）
-				log.Printf("Ignoring request from rate-limited IP: %s %s %s", ra, r.Method, r.URL.Path)
+				// log.Printf("Ignoring request from rate-limited IP: %s %s %s", ra, r.Method, r.URL.Path)
+				log.Printf("  *** PH-00 %s(), %s, \"%s\"\n", entry, ra, ua)
 				// ここで何もせず return するのがポイントです。
 				// http.ResponseWriter に何も書き込まれないため、net/http はレスポンスを送信しません。
 				return
@@ -289,7 +292,7 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		// 	userAgent == "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)" ||
 		// 	userAgent == "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36" {
 		if _, ok := ShowroomCGIlib.NontargetEntry[entry]; ignBots && (lvlbots == 3 || ok) {
-			log.Printf("Common processing: %s: %s\n", entry, ua)
+			// log.Printf("Common processing: %s: %s\n", entry, ua)
 			// メンテナンス中のステータスコードを設定
 			w.WriteHeader(http.StatusServiceUnavailable)
 
@@ -307,10 +310,12 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
     <p>ご迷惑をおかけいたしますが、しばらくお待ちください。</p>
 </body>
 </html>`)
+			log.Printf("  *** PH-10 %s(), %s, \"%s\"\n", entry, ra, ua)
 			return // ここで処理を終了
-		} else {
-			log.Println("Common processing")
 		}
+		// } else {
+		// 	log.Println("Common processing")
+		// }
 
 		// // 通常の処理
 		// botInfo := "notabot"
@@ -319,11 +324,19 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		// }
 		// LogForFail2ban(ra, entry, botInfo)
 
+		log.Printf("  *** PH-20 %s(), %s, \"%s\"\n", entry, ra, ua)
+
 		var al srdblib.Accesslog
 		al.Ts = time.Now().Truncate(time.Second)
 		al.Handler = entry
 		al.Remoteaddress = ra
 		al.Useragent = ua
+
+		//	パラメータを取得する
+		if err := r.ParseForm(); err != nil {
+			log.Printf("Error: %v\n", err)
+			return
+		}
 
 		kvlist := make([]KV, len(r.Form))
 		i := 0
@@ -344,7 +357,9 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		}
 		al.Formvalues = string(jd)
 
-		log.Printf(" length of Chlog = %d\n", len(ShowroomCGIlib.Chlog))
+		if lenchlog := len(ShowroomCGIlib.Chlog); lenchlog != 0 {
+			log.Printf("            length of Chlog = %d\n", lenchlog)
+		}
 
 		ShowroomCGIlib.Chlog <- &al
 
