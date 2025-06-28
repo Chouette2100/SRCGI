@@ -500,7 +500,7 @@ func UpdatePointsSetQstatus(
 ) (status int) {
 	status = 0
 
-	log.Printf("  *** UpdatePointsSetQstatus() *** eventid=%s userno=%d\n", eventid, userno)
+	// log.Printf("  *** UpdatePointsSetQstatus() *** eventid=%s userno=%d\n", eventid, userno)
 
 	nrow := 0
 	//	err := Db.QueryRow("select count(*) from points where eventid = ? and user_id = ? and pstatus = 'Conf.'", eventid, userno).Scan(&nrow)
@@ -517,7 +517,7 @@ func UpdatePointsSetQstatus(
 		return
 	}
 
-	log.Printf("  *** UpdatePointsSetQstatus() Update!\n")
+	// log.Printf("  *** UpdatePointsSetQstatus() Update!\n")
 
 	sql = "update points set qstatus =?,"
 	sql += "qtime=? "

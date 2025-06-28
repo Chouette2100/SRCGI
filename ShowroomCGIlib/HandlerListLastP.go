@@ -180,12 +180,12 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 		"Gscale":          fmt.Sprintf("%d", Event_inf.Gscale),
 	}
 
-	if time.Since(tdata) > 5*time.Minute {
-		log.Printf("Application stopped or the event is over. status = %d\n", status)
-		values["NextTime"] = "表示されているデータは最新ではありません。"
-		values["ReloadTime"] = "もうしわけありませんがデータ取得が復旧するまでしばらくお待ちください。"
-		values["SecondsToReload"] = "300"
-	}
+	// if time.Since(tdata) > 5*time.Minute {
+	// 	log.Printf("Application stopped or the event is over. status = %d\n", status)
+	// 	values["NextTime"] = "表示されているデータは最新ではありません。"
+	// 	values["ReloadTime"] = "もうしわけありませんがデータ取得が復旧するまでしばらくお待ちください。"
+	// 	values["SecondsToReload"] = "300"
+	// }
 	if status != 0 {
 		log.Printf("GetCurrentScore() returned %d.\n", status)
 		values["UpdateTime"] = "データが取得できませんでした。"
@@ -194,7 +194,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 		values["SecondsToReload"] = "300"
 	}
 	if time.Now().After(Event_inf.End_time) {
-		log.Printf("Application stopped or the event is over. status = %d\n", status)
+		// log.Printf("Application stopped or the event is over. status = %d\n", status)
 		values["NextTime"] = "イベントは終了しています。"
 		values["ReloadTime"] = ""
 		values["SecondsToReload"] = "3600"

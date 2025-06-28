@@ -86,7 +86,7 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("      called. eventid=%s\n", eventid)
+	// log.Printf("      called. eventid=%s\n", eventid)
 
 	ppointperday, _ := MakePointPerDay(Event_inf)
 
