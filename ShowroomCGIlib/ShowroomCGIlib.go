@@ -268,11 +268,12 @@ import (
 11CT02  Gsum2, Gsum, LPSは枠別獲得ptデータがあるときだけリンクを有効にする。GsumData, Gsumdata1, Gsumdata2は監視対象外とする。
 11CT03  ログ出力をoハンドラーがどう取り扱われたかわかりやすくする。　00:レートリミット、10:ボット、20:ハンドラー実行
 11CT05  不要なログを削除する（GraphPerDayHandler(), GraphPerSlotHandler(), ListLastPHandler()のログ出力）
+11CT06  注目のイベントを終了済みイベントにも適用する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CT05"
+const Version = "11CT06"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

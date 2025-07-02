@@ -26,5 +26,6 @@ bots:
   - "DotBot"
   - "Exabot"
   - "Slackbot"
+  - "TikTokSpider"
   - "Mastodon"
   - "BlueSky"

@@ -96,6 +96,18 @@ func CurrentEventsHandler(
 		"Comma":         func(i int) string { return humanize.Comma(int64(i)) },                       //	3桁ごとに","を入れる関数。
 		"UnixTimeToStr": func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
 		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
+		"Divide": func(a, b int) int {
+			if b == 0 {
+				return 0 // ゼロ除算を避ける
+			}
+			return a / b
+		},
+		"Mod": func(a, b int) int {
+			if b == 0 {
+				return 0 // ゼロ除算を避ける
+			}
+			return a % b
+		},
 	}
 
 	// テンプレートをパースする
@@ -124,14 +136,23 @@ func CurrentEventsHandler(
 	}
 	top.Totalcount = len(top.Eventinflist)
 
-	emap := srdblib.GetFeaturedEvents(24, 18, 10)
+	// 参照回数の多いイベントを取得する
+	var emap map[string]int
+	emap, err = srdblib.GetFeaturedEvents("current", 48, 18, 14)
+	if err != nil {
+		err = fmt.Errorf("GetFeaturedEvents(): %w", err)
+		log.Printf("%s\n", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	for i, v := range top.Eventinflist {
 		if _, ok := emap[v.Event_ID]; ok {
-			top.Eventinflist[i].Aclr = 1
-		} else {
-			top.Eventinflist[i].Aclr = 0
+			top.Eventinflist[i].Aclr += 2
 		}
+		// else {
+		// 	top.Eventinflist[i].Aclr = 0
+		// }
 	}
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {

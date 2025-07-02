@@ -272,13 +272,24 @@
             </tr>
             {{ $i := 0 }}
             {{ range .Eventinflist }}
-            {{ if eq $i 1 }}
+
+
+        {{ if eq $i 1 }}
+            {{ if eq (Divide .Aclr 2 ) 0 }}
             <tr bgcolor="gainsboro">
-                {{ $i = 0 }}
-                {{ else }}
+            {{ else }}
+            <tr bgcolor="palegreen">
+            {{ end }}
+            {{ $i = 0 }}
+        {{ else }}
+            {{ if eq (Divide .Aclr 2 ) 0 }}
             <tr>
-                {{ $i = 1 }}
-                {{ end }}
+            {{ else }}
+            <tr bgcolor="lightblue">
+            {{ end }}
+            {{ $i = 1 }}
+        {{ end }}
+        
                 <td style="border-right: none;">
                     {{ if IsTempID .Event_ID }}
                         {{ .Event_name }}
