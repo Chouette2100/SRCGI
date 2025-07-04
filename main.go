@@ -146,10 +146,11 @@ import (
 	11CT02  Gsum2, Gsum, LPSは枠別獲得ptデータがあるときだけリンクを有効にする。GsumData, Gsumdata1, Gsumdata2は監視対象外とする。
 	11CT03  ログ出力をハンドラーがどう取り扱われたかわかりやすくする。　00:レートリミット、10:ボット、20:ハンドラー実行
 	11CT04  リクエストの解析で抜けていたr.ParseForm()を追加する
+	11CT07  commonMiddleware()のログ出力でボットに対してはPH-16、ボットでないものに対してはPH-20のログ出力を行う。
 }
 */
 
-const version = "11CT04"
+const version = "11CT07"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -310,6 +311,7 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
     <p>ご迷惑をおかけいたしますが、しばらくお待ちください。</p>
 </body>
 </html>`)
+
 			log.Printf("  *** PH-10 %s(), %s, \"%s\"\n", entry, ra, ua)
 			return // ここで処理を終了
 		}
@@ -324,7 +326,13 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		// }
 		// LogForFail2ban(ra, entry, botInfo)
 
-		log.Printf("  *** PH-20 %s(), %s, \"%s\"\n", entry, ra, ua)
+		if bmatch {
+			// ボットアクセスのログ出力	}
+			log.Printf("  *** PH-16 %s(), %s, \"%s\"\n", entry, ra, ua)
+		} else {
+			// ボットでないアクセスのログ出力
+			log.Printf("  *** PH-20 %s(), %s, \"%s\"\n", entry, ra, ua)
+		}
 
 		var al srdblib.Accesslog
 		al.Ts = time.Now().Truncate(time.Second)
