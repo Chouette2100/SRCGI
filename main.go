@@ -147,10 +147,12 @@ import (
 	11CT03  ログ出力をハンドラーがどう取り扱われたかわかりやすくする。　00:レートリミット、10:ボット、20:ハンドラー実行
 	11CT04  リクエストの解析で抜けていたr.ParseForm()を追加する
 	11CT07  commonMiddleware()のログ出力でボットに対してはPH-16、ボットでないものに対してはPH-20のログ出力を行う。
+	11CU00  月別イベント・リスナー貢献ポイントランキングを新たに作成する。
 }
+
 */
 
-const version = "11CT07"
+const version = "11CU00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -665,6 +667,8 @@ func main() {
 
 		http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHHandler))
 		http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHExHandler))
+
+		http.HandleFunc(rootPath+"/m-cntrbrank-listener", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankOfListenerHandler))
 
 		http.HandleFunc(rootPath+"/fanlevel", commonMiddleware(rateLimiter, ShowroomCGIlib.FanLevelHandler))
 

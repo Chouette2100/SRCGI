@@ -269,11 +269,12 @@ import (
 11CT03  ログ出力をoハンドラーがどう取り扱われたかわかりやすくする。　00:レートリミット、10:ボット、20:ハンドラー実行
 11CT05  不要なログを削除する（GraphPerDayHandler(), GraphPerSlotHandler(), ListLastPHandler()のログ出力）
 11CT06  注目のイベントを終了済みイベントにも適用する。
+11CU00  月別イベント・リスナー貢献ポイントランキングを新たに作成する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CT06"
+const Version = "11CU00"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
