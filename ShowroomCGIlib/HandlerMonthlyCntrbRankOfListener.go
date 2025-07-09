@@ -74,9 +74,21 @@ func MonthlyCntrbRankOfListenerHandler(w http.ResponseWriter, req *http.Request)
 
 	// yyyy-mm形式の年月を取得する。
 	monthlyCntrbRank.YearMonth = req.FormValue("yearmonth")
+	if monthlyCntrbRank.YearMonth == "" {
+		// デフォルトは前月
+		tnow := time.Now()
+		ly := tnow.Year()
+		lm := int(tnow.Month()) - 1
+		// 現在の年月が1月の場合、前月は前年の12月になる
+		if lm == 0 {
+			ly--
+			lm = 12
+		}
+		monthlyCntrbRank.YearMonth = fmt.Sprintf("%04d-%02d", ly, lm)
+		log.Printf("Default yearmonth: %s\n", monthlyCntrbRank.YearMonth)
+	}
 	monthlyCntrbRank.Year, monthlyCntrbRank.Month, err = getYearMonth(monthlyCntrbRank.YearMonth)
 	if err != nil {
-		// fmt.Fprintf(w, "Invalid yearmonth: %s (%s)\n", monthlyCntrbRank.YearMonth, err.Error())
 		log.Printf("Invalid yearmonth: %s (%s)\n", monthlyCntrbRank.YearMonth, err.Error())
 		monthlyCntrbRank.Year = time.Now().Year()
 		monthlyCntrbRank.Month = int(time.Now().Month()) - 1
@@ -84,7 +96,8 @@ func MonthlyCntrbRankOfListenerHandler(w http.ResponseWriter, req *http.Request)
 			monthlyCntrbRank.Month = 12
 			monthlyCntrbRank.Year--
 		}
-		// return
+		fmt.Fprintf(w, "Invalid yearmonth: %s (%s)\n", monthlyCntrbRank.YearMonth, err.Error())
+		return
 	}
 
 	monthlyCntrbRank.Thpoint, err = strconv.Atoi(req.FormValue("thpoint"))
@@ -105,12 +118,30 @@ func MonthlyCntrbRankOfListenerHandler(w http.ResponseWriter, req *http.Request)
 		w.Write([]byte(err.Error()))
 		return
 	}
-
-	for _, v := range monthlyCntrbRank.MonthlyCntrbRankList {
+	lpoint := 0
+	llsnid := 0
+	lroomno := 0
+	lieventid := 0
+	// for i, v := range monthlyCntrbRank.MonthlyCntrbRankList {
+	for i := len(monthlyCntrbRank.MonthlyCntrbRankList) - 1; i >= 0; i-- {
+		v := monthlyCntrbRank.MonthlyCntrbRankList[i]
 		// w.Write([]byte(fmt.Sprintf("%d: %s %s %d %s %s %s %d\n",
 		// 	v.Lsnid, v.Listener, v.Eventid, v.Ieventid, v.Eventname, v.Longname, v.Endtime.Format("2006-01-02 15:04"), v.Point)))
-		log.Printf("%d: %s %s %d %s %s %s %d\n",
-			v.Lsnid, v.Listener, v.Eventid, v.Ieventid, v.Eventname, v.Longname, v.Endtime.Format("2006-01-02 15:04"), v.Point)
+		if v.Point == lpoint && llsnid == v.Lsnid && lroomno == v.Roomno && lieventid == v.Ieventid {
+			if i == len(monthlyCntrbRank.MonthlyCntrbRankList)-2 {
+				monthlyCntrbRank.MonthlyCntrbRankList = monthlyCntrbRank.MonthlyCntrbRankList[:i]
+			} else {
+				monthlyCntrbRank.MonthlyCntrbRankList =
+					append(monthlyCntrbRank.MonthlyCntrbRankList[:i+1], monthlyCntrbRank.MonthlyCntrbRankList[i+2:]...)
+			}
+		} else {
+			lpoint = v.Point
+			llsnid = v.Lsnid
+			lroomno = v.Roomno
+			lieventid = v.Ieventid
+			log.Printf("%d: %s %s %d %s %s %s %d\n",
+				v.Lsnid, v.Listener, v.Eventid, v.Ieventid, v.Eventname, v.Longname, v.Endtime.Format("2006-01-02 15:04"), v.Point)
+		}
 	}
 
 	// テンプレートをパースする
@@ -147,28 +178,46 @@ func getYearMonth(
 ) (year int, month int, err error) {
 
 	tnow := time.Now()
-	cym := tnow.Year()*100 + int(tnow.Month())
+	ly := tnow.Year()
+	lm := int(tnow.Month())
+	// 現在の年月をYYYYMM形式で求める
+	cym := ly*100 + lm
+
+	// 前月の年、月を求める。現在の年月が1月の場合、前月は前年の12月になる
+	lm -= 1
+	if lm == 0 {
+		ly--
+		lm = 12
+	}
 
 	parts := strings.Split(yearmonth, "-")
 	if len(parts) != 2 {
-		err = fmt.Errorf("Invalid yearmonth format")
+		err = fmt.Errorf("Invalid yearmonth format. Expected YYYY-MM, got: %s", yearmonth)
 		return
 	}
 
 	year, err = strconv.Atoi(parts[0])
-	if err != nil || year < 2000 || year > 2100 {
-		err = fmt.Errorf("Invalid year: %w", err)
+	if err != nil || year < 2024 || year > 2100 {
+		if err != nil {
+			err = fmt.Errorf("Invalid year: %w. Year must be a number", err)
+		} else {
+			err = fmt.Errorf("Invalid year: %d. Year must be between 2024 and %d", year, ly)
+		}
 		return
 	}
 
 	month, err = strconv.Atoi(parts[1])
 	if err != nil || month < 1 || month > 12 {
-		err = fmt.Errorf("Invalid month: %w", err)
+		if err != nil {
+			err = fmt.Errorf("Invalid month: %w. Month must be a number", err)
+		} else {
+			err = fmt.Errorf("Invalid month: %d. Month must be between 1 and 12", month)
+		}
 		return
 	}
 
-	if (year*100 + month) >= cym {
-		err = fmt.Errorf("Invalid yearmonth: %s", yearmonth)
+	if (year*100+month) >= cym || (year*100+month) < 202410 {
+		err = fmt.Errorf("Invalid yearmonth: %s ( year-month must be between 2024-10 and %4d-%02d)", yearmonth, ly, lm)
 		return
 	}
 

@@ -111,6 +111,9 @@
         </form>
     </p>
     <p style="padding-left:2em">
+    <a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>（新規機能・結果が表示されるまで時間がかかります）
+    </p>
+    <p style="padding-left:2em">
     <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで30秒以上要します）
     </p>
     <p style="padding-left:2em">

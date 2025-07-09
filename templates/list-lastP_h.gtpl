@@ -46,8 +46,8 @@
 </table>
 <p>
     <span style="color: red">結果を見るだけでしたら<span>
-        <a href="http://localhost:8080/closedeventroomlist?eventid={{.Ieventid}}&eventurlkey={{.Eventid}}">最終結果</a>
-    <span style="color: red">の方がお手軽です、全ルーム見られますし表示も早いです</span></span>
+        <a href="closedeventroomlist?eventid={{.Ieventid}}&eventurlkey={{.Eventid}}">最終結果</a>
+    <span style="color: red">（<= リンク切れ修正済み）の方がお手軽です、全ルーム見られますし表示も早いです</span></span>
 </p>
 <table>
 <tr>
