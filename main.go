@@ -35,6 +35,7 @@ import (
 	"github.com/go-gorp/gorp"
 
 	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 	"github.com/Chouette2100/srhandler/v2"
 
@@ -148,11 +149,14 @@ import (
 	11CT04  リクエストの解析で抜けていたr.ParseForm()を追加する
 	11CT07  commonMiddleware()のログ出力でボットに対してはPH-16、ボットでないものに対してはPH-20のログ出力を行う。
 	11CU00  月別イベント・リスナー貢献ポイントランキングを新たに作成する。
+
+	11CU03  トップ画面BBSの欄にバージョンを表示する。
+	11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
 }
 
 */
 
-const version = "11CU00"
+const version = "11CU03"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -164,15 +168,18 @@ func NewLogfileName(logfile *os.File) {
 		tnow := time.Now()
 
 		//	今日の午前9時
-		today := tnow.Truncate(24 * time.Hour)
+		// today := tnow.Truncate(24 * time.Hour)
 
 		//	今日の午前0時
-		today = today.Add(-9 * time.Hour)
+		// today = today.Add(-9 * time.Hour)
 		//	test	today := tnow.Truncate(5 * time.Minute)
 
 		//	次の日の午前0時
-		nextday := today.AddDate(0, 0, 1)
+		// nextday := today.AddDate(0, 0, 1)
+		nextday := time.Date(tnow.Year(), tnow.Month(), tnow.Day()+1, 0, 0, 0, 0, tnow.Location())
 		//	test	nextday := today.Add(5 * time.Minute)
+
+		log.Printf(" tnow: %s, nextday: %s\n", tnow.Format("2006-01-02 15:04:05"), nextday.Format("2006-01-02 15:04:05"))
 
 		//	日付けが変わるまで待つ
 		time.Sleep(nextday.Sub(tnow))
@@ -393,7 +400,8 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 // 入力内容の確認画面
 func main() {
 
-	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
+	ShowroomCGIlib.VersionOfAll = version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + srapi.Version
+	logfilename := ShowroomCGIlib.VersionOfAll + "_" + time.Now().Format("20060102") + ".txt"
 	logfile, err := os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		panic("cannnot open logfile: " + logfilename + err.Error())
@@ -669,6 +677,7 @@ func main() {
 		http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHExHandler))
 
 		http.HandleFunc(rootPath+"/m-cntrbrank-listener", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankOfListenerHandler))
+		http.HandleFunc(rootPath+"/m-cntrbrank-Lg", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankLgHandler))
 
 		http.HandleFunc(rootPath+"/fanlevel", commonMiddleware(rateLimiter, ShowroomCGIlib.FanLevelHandler))
 

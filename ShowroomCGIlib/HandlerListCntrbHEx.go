@@ -7,7 +7,7 @@ import (
 	//	"math"
 	// "sort"
 	"strconv"
-	// "strings"
+	"strings"
 	"time"
 
 	//	"bufio"
@@ -182,6 +182,26 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		log.Printf("%s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
+	}
+
+	lpoint := 0
+	lroomno := 0
+	lid := ""
+	for i := len(*cntrbhistoryEx) - 1; i >= 0; i-- {
+		v := (*cntrbhistoryEx)[i]
+		vid := strings.Split(v.Eventid, "?")
+		if v.Point == lpoint && lroomno == v.Roomno && lid == vid[0] {
+			// if i == len(*cntrbhistoryEx)-2 {
+			// 	*cntrbhistoryEx = (*cntrbhistoryEx)[:i]
+			// } else {
+			// *cntrbhistoryEx = append((*cntrbhistoryEx)[:i+1], (*cntrbhistoryEx)[i+2:]...)
+			*cntrbhistoryEx = append((*cntrbhistoryEx)[:i], (*cntrbhistoryEx)[i+1:]...)
+			// }
+		} else {
+			lpoint = v.Point
+			lroomno = v.Roomno
+			lid = vid[0]
+		}
 	}
 
 	if err = tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbhistoryEx); err != nil {

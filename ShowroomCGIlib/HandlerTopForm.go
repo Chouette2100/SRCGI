@@ -74,6 +74,8 @@ func TopFormHandler(w http.ResponseWriter, r *http.Request) {
 		// **********************************************
 		var bbs BBS
 
+		bbs.Version = VersionOfAll // main.VersionOfAll
+
 		bbs.Cntlist = []int{1, 2, 3, 4, 5}
 		bbs.Cntr = 9
 

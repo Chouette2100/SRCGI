@@ -43,6 +43,7 @@ type Logm struct {
 }
 
 type BBS struct {
+	Version string //	バージョン = main.VersionOfAll
 	Manager string //	コメント表示に使用する色
 	Cntr    int    //	1: 不具合、	2: 要望、3: 質問、4: その他、5: お知らせ、9: すべて
 	Cntlist []int  //	ラジオボタンの制御（1: 不具合、	2: 要望、3: 質問、4: その他、5: お知らせ、9: すべて）

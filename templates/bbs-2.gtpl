@@ -1,4 +1,6 @@
-<h3>掲示板　（直接の連絡は<a href="https://twitter.com/Seppina1/" target="_blank" rel="noopener noreferrer">こちら</a>へ）</h3>
+<h3>掲示板　（直接の連絡は<a href="https://twitter.com/Seppina1/" target="_blank" rel="noopener noreferrer">こちら</a>へ）
+	<span style="display: inline-block; width: 2em;"></span>
+	{{ .Version }}</h3>
 <div>
 	<form action='/disp-bbs' method='POST' style="color: {{ .Manager }};">
 		<input type="hidden" name="prc" value="write" />

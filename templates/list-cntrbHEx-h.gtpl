@@ -48,7 +48,9 @@
     <br>
     <div style="background: #ffe4e1; border: #ffe4e1 solid 2px; font-size: 100%; padding: 20px; width: 50em;">
     ※　イベント・ルームに対する貢献ポイントの月単位のランキングを作ってみました。<br><br>
-    　　<a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>（結果が表示されるまで数十秒かかります）
+    　　<a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>（結果が表示されるまで数十秒かかります）<br><br>
+    ※　これも貢献ランキングですがどのリスナーさんがどのルームを応援しているかわかるように作ったものです。<br><br>
+    　　<a href="m-cntrbrank-Lg">月別貢献ポイントランキング（リスナー/ルーム）</a>（結果が表示されるまで数十秒かかります）
     </div>
     <br>
     <table>
