@@ -271,11 +271,12 @@ import (
 11CT06  注目のイベントを終了済みイベントにも適用する。
 11CU00  月別イベント・リスナー貢献ポイントランキングを新たに作成する。
 11CU01  月別イベント・リスナー貢献ポイントランキングで重複を排除する。
+11CU02  月別イベント・リスナー貢献ポイントランキングに関して、リンク、説明を変更する。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CU01"
+const Version = "11CU02"
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog

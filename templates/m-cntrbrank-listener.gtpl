@@ -39,8 +39,10 @@ type MonthlyCntrbRankData struct {
     <form>
     <p style="color: black;">
 
-    （<input type="month" size="8" min="2025-01" max="2025-06" name="yearmonth" value='{{ .Year }}-{{ FormatInt .Month "%02d" }}'>）
-    貢献ポイントランキング（全イベント・全ルーム）表示範囲:
+    {{ .Year }}年 {{ .Month }}月 貢献ポイントランキング（全イベント・全ルーム）<br>
+    <br>
+    　　　　年月　<input type="month" size="8" min="2025-01" max="2025-06" name="yearmonth" value='{{ .Year }}-{{ FormatInt .Month "%02d" }}'>
+    貢献ポイント:
     <select name="thpoint">
         {{ $t := .Thpoint }}
         {{ range .Thlist }}
@@ -58,7 +60,7 @@ type MonthlyCntrbRankData struct {
     </p>
     </form>
     <p style="color: blue;">
-    ※　指定できる年月は2024年10月以後〜前月です。<br>
+    ※　指定できる年月は2024年10月から前月までです。<br>
     ※　該当するデータの一部が表示されていない可能性があります<br>
     ※　関連するページの作成に連動してこのページのレイアウトを変更していきます<br>
     ※　レスポンスは今後追加する機能のレスポンスを考慮しながら改善する予定です<br>
