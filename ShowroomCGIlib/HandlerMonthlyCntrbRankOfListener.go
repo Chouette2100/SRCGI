@@ -222,8 +222,8 @@ func MonthlyCntrbRankLgHandler(w http.ResponseWriter, req *http.Request) {
 	if monthlyCntrbRank.Limit < 10 {
 		monthlyCntrbRank.Limit = 10
 	}
-	if monthlyCntrbRank.Limit > 30 {
-		monthlyCntrbRank.Limit = 30
+	if monthlyCntrbRank.Limit > 50 {
+		monthlyCntrbRank.Limit = 50
 	}
 
 	// 貢献ポイントのリストを取得する

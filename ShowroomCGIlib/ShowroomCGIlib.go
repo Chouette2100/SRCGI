@@ -275,11 +275,12 @@ import (
 
 11CU03  トップ画面BBSの欄にバージョンを表示する。
 11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
+11CU05  終了イベント一覧での注目のイベント表示は副作用があるのでいったんやめる。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CU03"
+const Version = "11CU05"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

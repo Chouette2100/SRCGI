@@ -43,7 +43,7 @@ type MonthlyCntrbRankData struct {
     <br>
     　　年月　<input type="month" size="8" min="2025-01" max="2025-06" name="yearmonth" value='{{ .Year }}-{{ FormatInt .Month "%02d" }}'>
     　　最小pt　<input type="number" size="4" min="30000" max="300000" name="thpoint" value='{{ .Thpoint }}'> pt
-    　　上位　<input type="number" size="4" min="3" max="30" name="limit" value='{{ .Limit }}'> 位まで
+    　　上位　<input type="number" size="4" min="3" max="50" name="limit" value='{{ .Limit }}'> 位まで
     {{/*
     貢献ポイント:
     <select name="thpoint">
