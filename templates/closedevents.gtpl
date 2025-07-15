@@ -275,18 +275,24 @@
 
 
         {{ if eq $i 1 }}
+            {{/*
             {{ if eq (Divide .Aclr 2 ) 0 }}
             <tr bgcolor="gainsboro">
             {{ else }}
             <tr bgcolor="palegreen">
             {{ end }}
+            */}}
+            <tr bgcolor="gainsboro">
             {{ $i = 0 }}
         {{ else }}
+            {{/*
             {{ if eq (Divide .Aclr 2 ) 0 }}
             <tr>
             {{ else }}
             <tr bgcolor="lightblue">
             {{ end }}
+            */}}
+            <tr>
             {{ $i = 1 }}
         {{ end }}
         

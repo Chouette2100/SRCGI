@@ -201,24 +201,26 @@ func ClosedEventsHandler(
 
 	top.Totalcount = len(top.Eventinflist)
 
-	// 参照回数の多いイベントを取得する
-	var emap map[string]int
-	emap, err = srdblib.GetFeaturedEvents("closed", 72, 16, 6)
-	if err != nil {
-		err = fmt.Errorf("GetFeaturedEvents(): %w", err)
-		log.Printf("%s\n", err.Error())
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	for i, v := range top.Eventinflist {
-		if _, ok := emap[v.Event_ID]; ok {
-			top.Eventinflist[i].Aclr += 2
+	/*
+		// 参照回数の多いイベントを取得する
+		var emap map[string]int
+		emap, err = srdblib.GetFeaturedEvents("closed", 72, 16, 6)
+		if err != nil {
+			err = fmt.Errorf("GetFeaturedEvents(): %w", err)
+			log.Printf("%s\n", err.Error())
+			w.Write([]byte(err.Error()))
+			return
 		}
-		// else {
-		// 	top.Eventinflist[i].Aclr = 0
-		// }
-	}
+
+		for i, v := range top.Eventinflist {
+			if _, ok := emap[v.Event_ID]; ok {
+				top.Eventinflist[i].Aclr += 2
+			}
+			// else {
+			// 	top.Eventinflist[i].Aclr = 0
+			// }
+		}
+	*/
 
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {
