@@ -277,11 +277,12 @@ import (
 11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
 11CU05  貢献ランキング（リスナー・ルーム）の最大表示リスナー数を５０にする。
 11CU06  終了イベントの「注目のイベント」の機能は副作用があるので、いったん無効にする。
+11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CU06"
+const Version = "11CU07"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

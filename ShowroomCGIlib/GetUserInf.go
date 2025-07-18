@@ -60,6 +60,26 @@ var LAlog sync.Map = sync.Map{}
 
 const wait = time.Millisecond * 1500
 
+func RemoteAddr(r *http.Request) string {
+	rap := r.RemoteAddr
+	rapa := strings.Split(rap, ":")
+	if rapa[0] != "[" {
+		if rapa[0] != "127.0.0.1" {
+			return rapa[0]
+		} else {
+			// プロキシが使われている場合は、X-Forwarded-Forヘッダーを確認する
+			xff := r.Header.Get("X-Forwarded-For")
+			if xff != "" {
+				xffa := strings.Split(xff, ",")
+				if len(xffa) > 0 {
+					return strings.TrimSpace(xffa[0])
+				}
+			}
+		}
+	}
+	return "127.0.0.1"
+}
+
 func GetUserInf(r *http.Request) (
 	ra string,
 	ua string,
@@ -80,13 +100,17 @@ func GetUserInf(r *http.Request) (
 		fna := strings.Split(fn, ".")
 	*/
 
-	rap := r.RemoteAddr
-	rapa := strings.Split(rap, ":")
-	if rapa[0] != "[" {
-		ra = rapa[0]
-	} else {
-		ra = "127.0.0.1"
-	}
+	/*
+		rap := r.RemoteAddr
+		rapa := strings.Split(rap, ":")
+		if rapa[0] != "[" {
+			ra = rapa[0]
+		} else {
+			ra = "127.0.0.1"
+		}
+	*/
+	ra = RemoteAddr(r)
+
 	ua = r.UserAgent()
 
 	// log.Printf("  *** %s() from %s by %s\n", fna[len(fna)-1], ra, ua)

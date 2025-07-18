@@ -152,11 +152,12 @@ import (
 
 	11CU03  トップ画面BBSの欄にバージョンを表示する。
 	11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
+	11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
 }
 
 */
 
-const version = "11CU03"
+const version = "11CU07"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -223,15 +224,20 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 共通のo処理をここで行う
 
+		/*
+			// remoteaddressを取得
+			var ra string
+			rap := r.RemoteAddr
+			rapa := strings.Split(rap, ":")
+			if rapa[0] != "[" {
+				ra = rapa[0]
+			} else {
+				ra = "127.0.0.1"
+			}
+		*/
+
 		// remoteaddressを取得
-		var ra string
-		rap := r.RemoteAddr
-		rapa := strings.Split(rap, ":")
-		if rapa[0] != "[" {
-			ra = rapa[0]
-		} else {
-			ra = "127.0.0.1"
-		}
+		ra := ShowroomCGIlib.RemoteAddr(r)
 
 		// useragentを取得
 		ua := r.UserAgent()
