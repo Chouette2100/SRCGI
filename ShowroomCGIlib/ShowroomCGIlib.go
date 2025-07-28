@@ -41,7 +41,7 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	"github.com/Chouette2100/exsrapi/v2"
+	// "github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
@@ -278,11 +278,12 @@ import (
 11CU05  貢献ランキング（リスナー・ルーム）の最大表示リスナー数を５０にする。
 11CU06  終了イベントの「注目のイベント」の機能は副作用があるので、いったん無効にする。
 11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
+11CV00  Event_Infの使用をやめ
 
 --------------------------------
 11----	HandlerGraphOneRoom()を新規に作成する。
 */
-const Version = "11CU07"
+const Version = "11CV00"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -370,7 +371,7 @@ var Sshconfig *SSHConfig
 var Dialer sshql.Dialer
 */
 
-var Event_inf exsrapi.Event_Inf
+// var Event_inf exsrapi.Event_Inf
 
 var Regexpbots *regexp.Regexp
 var NontargetEntry map[string]int
@@ -648,7 +649,7 @@ func GetRoomInfoAndPoint(
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	roominf.Genre, roominf.Rank, roominf.Nrank, roominf.Prank, roominf.Level, roominf.Followers,
 		roominf.Fans,
@@ -657,11 +658,11 @@ func GetRoomInfoAndPoint(
 		GetRoomInfoByAPI(roomid)
 
 	point, _, _, peventid := GetPointsByAPI(roominf.ID)
-	if peventid == Event_inf.Event_ID {
+	if peventid == eventinf.Event_ID {
 		roominf.Point = point
 		UpdateEventuserSetPoint(peventid, roominf.ID, point)
 	} else {
-		log.Printf(" %s %s %d\n", Event_inf.Event_ID, peventid, point)
+		log.Printf(" %s %s %d\n", eventinf.Event_ID, peventid, point)
 	}
 
 	return

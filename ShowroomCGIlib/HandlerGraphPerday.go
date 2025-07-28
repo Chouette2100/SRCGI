@@ -78,8 +78,10 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/graph-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
-	Event_inf.Event_ID = eventid
-	_, sts := SelectEventInfAndRoomList()
+	var eventinf *exsrapi.Event_Inf
+	eventinf = &exsrapi.Event_Inf{}
+	eventinf.Event_ID = eventid
+	_, sts := SelectEventInfAndRoomList(eventinf)
 
 	if sts != 0 {
 		log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
@@ -88,7 +90,7 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 	// log.Printf("      called. eventid=%s\n", eventid)
 
-	ppointperday, _ := MakePointPerDay(Event_inf)
+	ppointperday, _ := MakePointPerDay(eventinf)
 
 	filename, _ := GraphPerDay(eventid, ppointperday)
 	switch Serverconfig.WebServer {
@@ -104,8 +106,8 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	values := map[string]string{
 		"filename": filename,
 		"eventid":  eventid,
-		"maxpoint": fmt.Sprintf("%d", Event_inf.Maxpoint),
-		"gscale":   fmt.Sprintf("%d", Event_inf.Gscale),
+		"maxpoint": fmt.Sprintf("%d", eventinf.Maxpoint),
+		"gscale":   fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	if err := tpl.ExecuteTemplate(w, "graph-perday.gtpl", values); err != nil {
@@ -126,8 +128,10 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/list-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
-	Event_inf.Event_ID = eventid
-	_, sts := SelectEventInfAndRoomList()
+	var eventinf *exsrapi.Event_Inf
+	eventinf = &exsrapi.Event_Inf{}
+	eventinf.Event_ID = eventid
+	_, sts := SelectEventInfAndRoomList(eventinf)
 
 	if sts != 0 {
 		log.Printf("MakePointPerDay() status of SelectEventInfAndRoomList() =%d\n", sts)
@@ -136,7 +140,7 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("      eventid=%s\n", eventid)
 
-	pointperday, _ := MakePointPerDay(Event_inf)
+	pointperday, _ := MakePointPerDay(eventinf)
 
 	if err := tpl.ExecuteTemplate(w, "list-perday.gtpl", *pointperday); err != nil {
 		log.Println(err)
@@ -144,33 +148,33 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // func MakePointPerDay(eventid string) (p_pointperday *PointPerDay, status int) {
-func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, status int) {
+func MakePointPerDay(eventinf *exsrapi.Event_Inf) (p_pointperday *PointPerDay, status int) {
 
 	status = 0
 
-	dstart := Event_inf.Start_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.Start_time.Hour()) * time.Hour)
-	if Event_inf.Start_time.Hour()*60+Event_inf.Start_time.Minute() > Event_inf.Resethh*60+Event_inf.Resetmm {
+	dstart := eventinf.Start_time.Truncate(time.Hour).Add(-time.Duration(eventinf.Start_time.Hour()) * time.Hour)
+	if eventinf.Start_time.Hour()*60+eventinf.Start_time.Minute() > eventinf.Resethh*60+eventinf.Resetmm {
 		dstart = dstart.AddDate(0, 0, 1)
 	}
 
-	dend := Event_inf.End_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.End_time.Hour()) * time.Hour)
-	if Event_inf.End_time.Hour()*60+Event_inf.End_time.Minute() > Event_inf.Resethh*60+Event_inf.Resetmm {
+	dend := eventinf.End_time.Truncate(time.Hour).Add(-time.Duration(eventinf.End_time.Hour()) * time.Hour)
+	if eventinf.End_time.Hour()*60+eventinf.End_time.Minute() > eventinf.Resethh*60+eventinf.Resetmm {
 		dend = dend.AddDate(0, 0, 1)
 	}
 
 	days := int(dend.Sub(dstart).Hours() / 24)
-	dstart = dstart.Add(time.Duration(Event_inf.Resethh*60+Event_inf.Resetmm) * time.Minute)
+	dstart = dstart.Add(time.Duration(eventinf.Resethh*60+eventinf.Resetmm) * time.Minute)
 
 	log.Printf(" dstart=%s dend=%s days=%d\n", dstart.Format("2006/01/02 15:04:05"), dend.Format("2006/01/02 15:04:05"), days)
 
 	var pointperday PointPerDay
 	pointperday.Pointrecordlist = make([]PointRecord, days+1)
-	pointperday.Eventname = Event_inf.Event_name
-	pointperday.Eventid = Event_inf.Event_ID
-	pointperday.Period = Event_inf.Period
+	pointperday.Eventname = eventinf.Event_name
+	pointperday.Eventid = eventinf.Event_ID
+	pointperday.Period = eventinf.Period
 
 	var roominfolist RoomInfoList
-	_, _ = SelectEventRoomInfList(Event_inf.Event_ID, &roominfolist)
+	_, _, _ = SelectEventRoomInfList(eventinf.Event_ID, &roominfolist)
 	log.Printf(" no of rooms. = %d\n", len(roominfolist))
 
 	iu := 0 //	リスト作成の対象となるルームのインデックス
@@ -190,13 +194,13 @@ func MakePointPerDay(Event_inf exsrapi.Event_Inf) (p_pointperday *PointPerDay, s
 			if pointperday.Pointrecordlist[k].Tday.After(time.Now()) {
 				pointperday.Pointrecordlist[k].Tday = time.Now().Truncate(time.Second)
 			}
-			if pointperday.Pointrecordlist[k].Tday.After(Event_inf.End_time) {
-				pointperday.Pointrecordlist[k].Tday = Event_inf.End_time
+			if pointperday.Pointrecordlist[k].Tday.After(eventinf.End_time) {
+				pointperday.Pointrecordlist[k].Tday = eventinf.End_time
 			}
 			pointperday.Pointrecordlist[k].Pointlist = append(pointperday.Pointrecordlist[k].Pointlist, Point{0, "", ""})
 		}
 
-		norow, tp, pp := SelectPointList(roominfolist[i].Userno, Event_inf.Event_ID)
+		norow, tp, pp := SelectPointList(roominfolist[i].Userno, eventinf)
 
 		log.Printf(" no of point data=%d\n", norow)
 		if norow == 0 {
@@ -275,7 +279,7 @@ func GraphPerDay(
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	//	描画領域を決定する
 	width := 3840.0
@@ -334,10 +338,10 @@ func GraphPerDay(
 	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5-8*1.5), "配信日毎の獲得ポイント",
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, Event_inf.Event_name,
+	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, eventinf.Event_name,
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5+8*1.5), Event_inf.Period,
+	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5+8*1.5), eventinf.Period,
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
 	//	y軸（ポイント軸）を描画する
@@ -367,7 +371,7 @@ func GraphPerDay(
 
 	//	x軸（時間軸）を描画する
 
-	xupper := Event_inf.Dperiod
+	xupper := eventinf.Dperiod
 	xscale := vwidth / float64(xupper)
 	xscaled, xscalet, _ := DetXaxScale(xupper)
 	//	log.Printf("xupper=%f xscale=%f dxl=%f xscalet=%d\n", xupper, xscale, dxl, xscalet)
@@ -380,7 +384,7 @@ func GraphPerDay(
 		dxl = -1.0 * float64(xscaled) * xscale
 	}
 
-	tval := Event_inf.Start_time
+	tval := eventinf.Start_time
 	xl := 0.0
 	for i := 0; ; i++ {
 		wstr := 0.15
@@ -416,7 +420,7 @@ func GraphPerDay(
 
 	colorlist := make([]string, len((*pointperday).Usernolist))
 	for i, userno := range (*pointperday).Usernolist {
-		_, colorlist[i], _ = SelectUserColor(userno, Event_inf.Event_ID)
+		_, colorlist[i], _ = SelectUserColor(userno, eventinf)
 		longname, _, _, _, _, _, _, _, _, _, sts := SelectUserName(userno)
 		if sts != 0 {
 			longname = fmt.Sprintf("%d", userno)
@@ -432,14 +436,14 @@ func GraphPerDay(
 
 	//	日毎の獲得ポイントデータを描画する
 	for _, pointrecord := range (*pointperday).Pointrecordlist {
-		x := (float64(pointrecord.Tday.Unix())/60.0/60.0/24.0-Event_inf.Start_date)*xscale + xorigin
+		x := (float64(pointrecord.Tday.Unix())/60.0/60.0/24.0-eventinf.Start_date)*xscale + xorigin
 		for i, point := range pointrecord.Pointlist {
 			if point.Spnt == "" {
 				continue
 			}
 			y := float64(point.Pnt)*yscale + yorigin
 			//	log.Printf("t=%7.3f, p=%8d, x=%7.2f, y=%7.2f\n",
-			//		float64(pointrecord.Tday.Unix())/60.0/60.0/24.0-Event_inf.Start_date,
+			//		float64(pointrecord.Tday.Unix())/60.0/60.0/24.0-eventinf.Start_date,
 			//		point.Pnt, x, y)
 			//	canvas.Circle(x, y, 10.0, "stroke:"+colorlist[i]+";fill:"+colorlist[i])
 			Mark(i, canvas, x, y, 10.0, colorlist[i])

@@ -65,7 +65,7 @@ func ParamEventHandler(w http.ResponseWriter, r *http.Request) {
 	//	eventinf, _ := SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
 	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	userlist, _ := SelectEventuserList(eventid)
 	for i := 0; i < len(userlist); i++ {
@@ -104,7 +104,7 @@ func ParamEventCHandler(w http.ResponseWriter, r *http.Request) {
 	//	eventinf, _ := SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
 	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	//	log.Println(eventinf)
 

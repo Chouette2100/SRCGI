@@ -153,7 +153,7 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 		//	イベントが開催中であるかローカルホストでの実行のとき
 		//	イベント参加ルームの登録ができる
 
-		Event_inf = *eventinf
+		// Event_inf = *eventinf
 
 		log.Println("before GetAndInsertEventRoomInfo()")
 		log.Println(eventinf)
@@ -477,7 +477,7 @@ func GetAndInsertEventRoomInfo(
 
 	if status == 0 {
 		//	InsertRoomInf(eventno, eventid, roominfolist)
-		InsertRoomInf(client, eventid, roominfolist)
+		InsertRoomInf(client, eventinfo, roominfolist)
 		for i, rinf := range *roominfolist {
 			ifc, _ := srdblib.Dbmap.Get(srdblib.User{}, rinf.Userno)
 			if ifc != nil {
@@ -496,7 +496,7 @@ func GetAndInsertEventRoomInfo(
 
 	return
 }
-func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoList) {
+func InsertRoomInf(client *http.Client, eventinf *exsrapi.Event_Inf, roominfolist *RoomInfoList) {
 
 	log.Printf("  *** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
 	//	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
@@ -514,7 +514,7 @@ func InsertRoomInf(client *http.Client, eventid string, roominfolist *RoomInfoLi
 			return
 		}
 		//	InsertIntoOrUpdateUser(client, tnow, eventid, (*roominfolist)[i])
-		status := InsertIntoEventUser(i, eventid, (*roominfolist)[i])
+		status := InsertIntoEventUser(i, eventinf, (*roominfolist)[i])
 		switch status {
 		case 0:
 			(*roominfolist)[i].Status = "更新"

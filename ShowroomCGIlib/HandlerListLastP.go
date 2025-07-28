@@ -130,8 +130,8 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
-	list_last.Ieventid = strconv.Itoa(Event_inf.I_Event_ID)
+	// Event_inf = *eventinf
+	list_last.Ieventid = strconv.Itoa(eventinf.I_Event_ID)
 
 	tdata, eventname, period, scorelist, totalCount, status := SelectCurrentScoreP(eventid, list_last.Maxrooms, offset)
 	list_last.NoRooms = totalCount
@@ -160,7 +160,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//	tnext := tdata.Add(5 * time.Minute)
-	tnext := tdata.Add(time.Duration(Event_inf.Intervalmin) * time.Minute) //	0101G5
+	tnext := tdata.Add(time.Duration(eventinf.Intervalmin) * time.Minute) //	0101G5
 	//	treload := tnext.Add(5 * time.Second)
 	treload := tnext.Add(10 * time.Second)
 
@@ -176,8 +176,8 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 		"Period":          period,
 		"Detail":          list_last.Detail,
 		"Page":            fmt.Sprintf("%d", list_last.Page),
-		"Maxpoint":        fmt.Sprintf("%d", Event_inf.Maxpoint),
-		"Gscale":          fmt.Sprintf("%d", Event_inf.Gscale),
+		"Maxpoint":        fmt.Sprintf("%d", eventinf.Maxpoint),
+		"Gscale":          fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	// if time.Since(tdata) > 5*time.Minute {
@@ -193,7 +193,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 		values["ReloadTime"] = ""
 		values["SecondsToReload"] = "300"
 	}
-	if time.Now().After(Event_inf.End_time) {
+	if time.Now().After(eventinf.End_time) {
 		// log.Printf("Application stopped or the event is over. status = %d\n", status)
 		values["NextTime"] = "イベントは終了しています。"
 		values["ReloadTime"] = ""
@@ -201,7 +201,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 
 		list_last.Isover = "1"
 	}
-	if time.Now().Before(Event_inf.Start_time) {
+	if time.Now().Before(eventinf.Start_time) {
 		values["NextTime"] = "イベントはまだ始まっていません。"
 		values["ReloadTime"] = ""
 	}
@@ -244,11 +244,11 @@ func SelectCurrentScoreP(
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	//	eventno = Event_inf.Event_no
-	eventname = Event_inf.Event_name
-	period = Event_inf.Period
+	eventname = eventinf.Event_name
+	period = eventinf.Period
 
 	// 総件数を取得
 	totalCount = 0
@@ -259,7 +259,7 @@ func SelectCurrentScoreP(
 	err = srdblib.Db.QueryRow(sql0, eventid, eventid).Scan(&totalCount)
 
 	if err != nil {
-		log.Printf("select max(point) from eventuser where eventid = '%s'\n", Event_inf.Event_ID)
+		log.Printf("select max(point) from eventuser where eventid = '%s'\n", eventinf.Event_ID)
 		log.Printf("err=[%s]\n", err.Error())
 		status = -11
 		return
@@ -360,9 +360,9 @@ func SelectCurrentScoreP(
 			status = -7
 			return
 		}
-		if score.Userno == Event_inf.Nobasis {
+		if score.Userno == eventinf.Nobasis {
 			point_bs = score.Point
-			log.Printf(" Nobasis=%d  point_bs=%d\n", Event_inf.Nobasis, point_bs)
+			log.Printf(" Nobasis=%d  point_bs=%d\n", eventinf.Nobasis, point_bs)
 		}
 		score.Spoint = humanize.Comma(int64(score.Point))
 		username, _, roomgenre, roomrank, roomnrank, roomprank, roomlevel, followers, fans, fans_lst, sts := SelectUserName(score.Userno)
@@ -421,7 +421,7 @@ func SelectCurrentScoreP(
 		score.Ncntrb = len(acqtimelist)
 		//	log.Printf(" eventid = %s userno = %d len(acqtimelist=%d\n", eventid, score.Userno, lenatl)
 
-		perslotinflist, _ := MakePointPerSlot(eventid, score.Userno)
+		_, perslotinflist, _ := MakePointPerSlot(eventid, score.Userno)
 		score.Nperslot = len(perslotinflist)
 
 		scorelist = append(scorelist, score)

@@ -61,7 +61,7 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 		//	指定した eventid のイベントが存在しない。
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	fnc := r.FormValue("func")
 
@@ -80,11 +80,11 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 	case "newuser":
 		//	新規配信者の追加があるとき
 
-		roominf, status := GetRoomInfoAndPoint(eventid, userid, fmt.Sprintf("%d", Event_inf.Nobasis))
+		roominf, status := GetRoomInfoAndPoint(eventid, userid, fmt.Sprintf("%d", eventinf.Nobasis))
 		if status == 0 {
 			tnow := time.Now().Truncate(time.Second)
 			InsertIntoOrUpdateUser(client, tnow, eventid, roominf)
-			InsertIntoEventUser(0, eventid, roominf)
+			InsertIntoEventUser(0, eventinf, roominf)
 			UpdateEventuserSetPoint(eventid, roominf.ID, roominf.Point)
 
 		} else {
@@ -105,7 +105,7 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	var roominfolist RoomInfoList
 
-	eventname, _ := SelectEventRoomInfList(eventid, &roominfolist)
+	eventinf, eventname, _ := SelectEventRoomInfList(eventid, &roominfolist)
 	for i := 0; i < len(roominfolist); i++ {
 		switch roominfolist[i].Genre {
 		case "Voice Actors & Anime":
@@ -121,7 +121,7 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 	values := map[string]string{
 		"Eventid":   eventid,
 		"Eventname": eventname,
-		"Period":    Event_inf.Period,
+		"Period":    eventinf.Period,
 	}
 
 	if err := tpl.ExecuteTemplate(w, "edit-user1.gtpl", values); err != nil {

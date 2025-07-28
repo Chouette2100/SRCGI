@@ -197,7 +197,7 @@ func TopFormHandler(w http.ResponseWriter, r *http.Request) {
 			//	指定した eventid のイベントが存在しない。
 			return
 		}
-		Event_inf = *eventinf
+		// Event_inf = *eventinf
 
 		if err := tpl.ExecuteTemplate(w, "top2.gtpl", eventinf); err != nil {
 			log.Println(err)

@@ -153,11 +153,12 @@ import (
 	11CU03  トップ画面BBSの欄にバージョンを表示する。
 	11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
 	11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
+	11CV00  Event_Infの使用をやめる
 }
 
 */
 
-const version = "11CU07"
+const version = "11CV00"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -188,8 +189,11 @@ func NewLogfileName(logfile *os.File) {
 		//	ログファイルを閉じて新しいログファイルを作る
 		logfile.Close()
 
-		logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
+		// logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
 		//	test	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102-1504") + ".txt"
+
+		ShowroomCGIlib.VersionOfAll = version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + srapi.Version
+		logfilename := ShowroomCGIlib.VersionOfAll + "_" + time.Now().Format("20060102") + ".txt"
 
 		logfile, err = os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 		if err != nil {

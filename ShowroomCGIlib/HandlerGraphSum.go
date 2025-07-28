@@ -118,7 +118,7 @@ func GraphSumDataHandler(w http.ResponseWriter, r *http.Request) {
 	sroomid := r.FormValue("roomid")
 	roomid, _ := strconv.Atoi(sroomid)
 
-	perslotinflist, _ := MakePointPerSlot(eventid, roomid)
+	_, perslotinflist, _ := MakePointPerSlot(eventid, roomid)
 
 	sumdata.Dtime = make([]string, len(perslotinflist[0].Perslotlist))
 	sumdata.Data1 = make([]float64, len(perslotinflist[0].Perslotlist))

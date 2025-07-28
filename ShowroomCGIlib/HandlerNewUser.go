@@ -70,9 +70,9 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
 	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
-	log.Printf("eventname=%s, period=%s\n", Event_inf.Event_name, Event_inf.Period)
+	log.Printf("eventname=%s, period=%s\n", eventinf.Event_name, eventinf.Period)
 
 	user := srdblib.User{}
 	status_db := -1
@@ -102,12 +102,12 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//	eventuserから色割当を取得する　=> 取得できなければ未登録、取得できればイベントに登録済み
-	_, _, status_col = SelectUserColor(userno, Event_inf.Event_ID)
+	_, _, status_col = SelectUserColor(userno, eventinf)
 
 	values := map[string]string{
 		"Event_ID":   eventid,
-		"Event_name": Event_inf.Event_name,
-		"Period":     Event_inf.Period,
+		"Event_name": eventinf.Event_name,
+		"Period":     eventinf.Period,
 		"Roomid":     roomid,
 		"Roomname":   user.User_name,
 		"Longname":   user.Longname,

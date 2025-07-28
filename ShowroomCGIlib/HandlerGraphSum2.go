@@ -124,7 +124,7 @@ func GraphSumData2Handler(w http.ResponseWriter, r *http.Request) {
 	sroomid := r.FormValue("roomid")
 	roomid, _ := strconv.Atoi(sroomid)
 
-	perslotinflist, _ := MakePointPerSlot(eventid, roomid)
+	_, perslotinflist, _ := MakePointPerSlot(eventid, roomid)
 
 	sumdata2 := make([]Sumdata, len(perslotinflist[0].Perslotlist))
 

@@ -39,7 +39,7 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	//	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
@@ -77,9 +77,9 @@ func GraphPerslotHandler(w http.ResponseWriter, r *http.Request) {
 	eventid := r.FormValue("eventid")
 	log.Printf("      eventid=%s\n", eventid)
 
-	perslotinflist, _ := MakePointPerSlot(eventid, 0)
+	_, perslotinflist, _ := MakePointPerSlot(eventid, 0)
 
-	filename, _ := GraphPerSlot(eventid, &perslotinflist)
+	filename, eventinf, _ := GraphPerSlot(eventid, &perslotinflist)
 	switch Serverconfig.WebServer {
 	case "nginxSakura":
 		rootPath := os.Getenv("SCRIPT_NAME")
@@ -93,8 +93,8 @@ func GraphPerslotHandler(w http.ResponseWriter, r *http.Request) {
 	values := map[string]string{
 		"filename": filename,
 		"eventid":  eventid,
-		"maxpoint": fmt.Sprintf("%d", Event_inf.Maxpoint),
-		"gscale":   fmt.Sprintf("%d", Event_inf.Gscale),
+		"maxpoint": fmt.Sprintf("%d", eventinf.Maxpoint),
+		"gscale":   fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	if err := tpl.ExecuteTemplate(w, "graph-perslot.gtpl", values); err != nil {
@@ -134,15 +134,15 @@ func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 		//	指定した eventid のイベントが存在しない。
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	log.Printf("      eventid=%s\n", eventid)
 
-	if err := tpl.ExecuteTemplate(w, "list-perslot1.gtpl", Event_inf); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-perslot1.gtpl", eventinf); err != nil {
 		log.Println(err)
 	}
 
-	perslotinflist, _ := MakePointPerSlot(eventid, roomid)
+	_, perslotinflist, _ := MakePointPerSlot(eventid, roomid)
 
 	if err := tpl.ExecuteTemplate(w, "list-perslot2.gtpl", perslotinflist); err != nil {
 		log.Println(err)
@@ -150,20 +150,30 @@ func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func MakePointPerSlot(eventid string, roomid int) (perslotinflist []PerSlotInf, status int) {
+func MakePointPerSlot(eventid string, roomid int) (eventinf *exsrapi.Event_Inf, perslotinflist []PerSlotInf, status int) {
 
 	var perslotinf PerSlotInf
+	var err error
 
 	status = 0
 
-	Event_inf.Event_ID = eventid
+	eventinf = &exsrapi.Event_Inf{}
+	// eventinf.Event_ID = eventid
+	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	if err != nil {
+		//	DBの処理でエラーが発生した。
+		log.Printf("MakePointPerSlot() srdblib.SelectFromEvent() err=%s\n", err.Error())
+		status = -1
+		return
+	}
 	//	eventno, eventname, period := SelectEventNoAndName(eventid)
 	eventname, period, _ := SelectEventNoAndName(eventid)
 
 	var roominfolist RoomInfoList
 
 	if roomid == 0 {
-		_, sts := SelectEventRoomInfList(eventid, &roominfolist)
+		// eventinf, _, sts := SelectEventRoomInfList(eventid, &roominfolist)
+		_, _, sts := SelectEventRoomInfList(eventid, &roominfolist)
 		if sts != 0 {
 			log.Printf("status of SelectEventRoomInfList() =%d\n", sts)
 			status = sts
@@ -197,7 +207,7 @@ func MakePointPerSlot(eventid string, roomid int) (perslotinflist []PerSlotInf, 
 		perslotinf.Roomid = userid
 		perslotinf.Perslotlist = make([]PerSlot, 0)
 
-		norow, tp, pp := SelectPointList(userid, eventid)
+		norow, tp, pp := SelectPointList(userid, eventinf)
 
 		if norow == 0 {
 			continue
@@ -222,14 +232,14 @@ func MakePointPerSlot(eventid string, roomid int) (perslotinflist []PerSlotInf, 
 				*/
 				if sameaslast {
 					//	これまで変化しなかった獲得ポイントが変化し始めた
-					pdstart := t.Add(time.Duration(-Event_inf.Modmin) * time.Minute).Format("2006/01/02")
+					pdstart := t.Add(time.Duration(-eventinf.Modmin) * time.Minute).Format("2006/01/02")
 					if pdstart != tdstart {
 						perslot.Dstart = pdstart
 						tdstart = pdstart
 					} else {
 						perslot.Dstart = ""
 					}
-					perslot.Timestart = t.Add(time.Duration(-Event_inf.Modmin) * time.Minute)
+					perslot.Timestart = t.Add(time.Duration(-eventinf.Modmin) * time.Minute)
 					//	perslot.Tstart = t.Add(time.Duration(-Event_inf.Modmin) * time.Minute).Format("15:04")
 					if t.Sub((*tp)[i-1]) < 31*time.Minute {
 						perslot.Tstart = perslot.Timestart.Format("15:04")
@@ -253,7 +263,7 @@ func MakePointPerSlot(eventid string, roomid int) (perslotinflist []PerSlotInf, 
 						}
 					*/
 					if perslot.Tstart != "n/a" {
-						perslot.Tend = (*tp)[i-1].Add(time.Duration(-Event_inf.Modmin) * time.Minute).Format("15:04")
+						perslot.Tend = (*tp)[i-1].Add(time.Duration(-eventinf.Modmin) * time.Minute).Format("15:04")
 					} else {
 						perslot.Tend = "n/a"
 					}
@@ -296,6 +306,7 @@ func GraphPerSlot(
 	perslotinflist *[]PerSlotInf,
 ) (
 	filename string,
+	eventinf *exsrapi.Event_Inf,
 	status int,
 ) {
 
@@ -313,7 +324,7 @@ func GraphPerSlot(
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	//	描画領域を決定する
 	width := 3840.0
@@ -378,10 +389,10 @@ func GraphPerSlot(
 	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5-8*1.5), "配信枠毎の獲得ポイント",
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, Event_inf.Event_name,
+	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, eventinf.Event_name,
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5+8*1.5), Event_inf.Period,
+	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5+8*1.5), eventinf.Period,
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
 	//	y軸（ポイント軸）を描画する
@@ -411,7 +422,7 @@ func GraphPerSlot(
 
 	//	x軸（時間軸）を描画する
 
-	xupper := Event_inf.Dperiod
+	xupper := eventinf.Dperiod
 	xscale := vwidth / float64(xupper)
 	xscaled, xscalet, _ := DetXaxScale(xupper)
 	//	log.Printf("xupper=%f xscale=%f dxl=%f xscalet=%d\n", xupper, xscale, dxl, xscalet)
@@ -424,7 +435,7 @@ func GraphPerSlot(
 		dxl = -1.0 * float64(xscaled) * xscale
 	}
 
-	tval := Event_inf.Start_time
+	tval := eventinf.Start_time
 	xl := 0.0
 	for i := 0; ; i++ {
 		wstr := 0.15
@@ -460,12 +471,12 @@ func GraphPerSlot(
 	//	配信枠毎の獲得ポイントデータを描画する
 
 	for j, perslotinf := range *perslotinflist {
-		_, cvalue, _ := SelectUserColor(perslotinf.Roomid, Event_inf.Event_ID)
+		_, cvalue, _ := SelectUserColor(perslotinf.Roomid, eventinf)
 		for _, perslot := range perslotinf.Perslotlist {
 			y := float64(perslot.Ipoint)*yscale + yorigin
-			x := (float64(perslot.Timestart.Unix())/60.0/60.0/24.0-Event_inf.Start_date)*xscale + xorigin
+			x := (float64(perslot.Timestart.Unix())/60.0/60.0/24.0-eventinf.Start_date)*xscale + xorigin
 			log.Printf("t=%7.3f, p=%8d, x=%7.2f, y=%7.2f\n",
-				float64(perslot.Timestart.Unix())/60.0/60.0/24.0-Event_inf.Start_date,
+				float64(perslot.Timestart.Unix())/60.0/60.0/24.0-eventinf.Start_date,
 				perslot.Ipoint, x, y)
 			//	canvas.Circle(x, y, 10.0, "stroke:"+cvalue+";fill:"+cvalue)
 			Mark(j, canvas, x, y, 10.0, cvalue)

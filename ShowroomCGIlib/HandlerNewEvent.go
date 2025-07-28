@@ -71,10 +71,10 @@ func NewEventHandler(w http.ResponseWriter, r *http.Request) {
 		//	Event_inf, _ = SelectEventInf(eventid)
 		//	srdblib.Tevent = "event"
 		eventinf, _ := srdblib.SelectFromEvent("event", eventid)
-		Event_inf = *eventinf
+		// Event_inf = *eventinf
 
-		values["Eventname"] = Event_inf.Event_name
-		values["Period"] = Event_inf.Period
+		values["Eventname"] = eventinf.Event_name
+		values["Period"] = eventinf.Period
 	} else if status == -2 {
 		values["Msg"] = "指定したIDのイベントは存在しません"
 		values["Submit"] = "hidden"

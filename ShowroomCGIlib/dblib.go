@@ -194,9 +194,11 @@ func SelectEventRoomInfList(
 	eventid string,
 	roominfolist *RoomInfoList,
 ) (
+	eventinf *exsrapi.Event_Inf,
 	eventname string,
 	status int,
 ) {
+	var err error
 
 	status = 0
 
@@ -204,7 +206,7 @@ func SelectEventRoomInfList(
 	//	eventno, eventname, _ = SelectEventNoAndName(eventid)
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err = srdblib.SelectFromEvent("event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -214,15 +216,16 @@ func SelectEventRoomInfList(
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	//	eventno := Event_inf.Event_no
-	eventname = Event_inf.Event_name
+	// eventname = Event_inf.Event_name
+	eventname = eventinf.Event_name
 
 	sql := "select distinct u.userno, userid, user_name, longname, shortname, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, e.istarget, e.graph, e.color, e.iscntrbpoints, e.point "
 	sql += " from user u join eventuser e "
 	sql += " where u.userno = e.userno and e.eventid= ?"
-	if Event_inf.Start_time.After(time.Now()) {
+	if eventinf.Start_time.After(time.Now()) {
 		sql += " order by followers desc"
 	} else {
 		sql += " order by e.point desc"
@@ -247,7 +250,7 @@ func SelectEventRoomInfList(
 	//	色コードから色名に変換するマップを作る
 	//	FIXME: Colormap とは違う、まぎらわしい
 	colormap := make(map[string]int)
-	cmap := Event_inf.Cmap
+	cmap := eventinf.Cmap
 	for i := 0; i < len(Colormaplist[cmap]); i++ {
 		colormap[Colormaplist[cmap][i].Name] = i
 	}
@@ -288,7 +291,7 @@ func SelectEventRoomInfList(
 		if ci == len(Colormaplist[cmap]) {
 			var cii int
 			for ; ii < len(Colormaplist); ii++ {
-				if ii == Event_inf.Cmap {
+				if ii == eventinf.Cmap {
 					continue
 				}
 				cii = 0
@@ -360,7 +363,7 @@ func SelectEventRoomInfList(
 		return
 	}
 
-	if Event_inf.Start_time.After(time.Now()) {
+	if eventinf.Start_time.After(time.Now()) {
 		SortByFollowers = true
 	} else {
 		SortByFollowers = false
@@ -499,7 +502,9 @@ func InsertIntoOrUpdateUser(client *http.Client, tnow time.Time, eventid string,
 	return
 
 }
-func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
+
+// func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
+func InsertIntoEventUser(i int, eventinf *exsrapi.Event_Inf, roominf RoomInfo) (status int) {
 
 	status = 0
 
@@ -507,7 +512,7 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 
 	nrow := 0
 	sql := "select count(*) from eventuser where userno =? and eventid = ?"
-	err := srdblib.Db.QueryRow(sql, roominf.ID, eventid).Scan(&nrow)
+	err := srdblib.Db.QueryRow(sql, roominf.ID, eventinf.Event_ID).Scan(&nrow)
 
 	if err != nil {
 		log.Printf("select count(*) from user ... err=[%s]\n", err.Error())
@@ -515,7 +520,7 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 		return
 	}
 
-	Colorlist := Colormaplist[Event_inf.Cmap]
+	Colorlist := Colormaplist[eventinf.Cmap]
 
 	if nrow == 0 {
 		sql := "INSERT INTO eventuser(eventid, userno, istarget, graph, color, iscntrbpoints, point) VALUES(?,?,?,?,?,?,?)"
@@ -529,7 +534,7 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 
 		//	if i < 10 {
 		_, err = stmt.Exec(
-			eventid,
+			eventinf.Event_ID,
 			userno,
 			"Y",
 			"Y",
@@ -545,9 +550,9 @@ func InsertIntoEventUser(i int, eventid string, roominf RoomInfo) (status int) {
 		sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
 		_, err = srdblib.Db.Exec(
 			sqlip,
-			Event_inf.Start_time.Truncate(time.Second),
+			eventinf.Start_time.Truncate(time.Second),
 			userno,
-			eventid,
+			eventinf.Event_ID,
 			0,
 			1,
 			0,
@@ -616,20 +621,21 @@ func SelectUserName(userno int) (
 	return
 }
 
-func SelectUserColor(userno int, eventid string) (
+// func SelectUserColor(userno int, eventid string) (
+func SelectUserColor(userno int, eventinf *exsrapi.Event_Inf) (
 	color string,
 	colorvalue string,
 	status int,
 ) {
 
-	Colorlist := Colormaplist[Event_inf.Cmap]
+	Colorlist := Colormaplist[eventinf.Cmap]
 
 	status = 0
 
 	//	sql := "select color from eventuser where userno = ? and eventno = ?"
 	sql := "select color from eventuser where userno = ? and eventid = ?"
 
-	err := srdblib.Db.QueryRow(sql, userno, eventid).Scan(&color)
+	err := srdblib.Db.QueryRow(sql, userno, eventinf.Event_ID).Scan(&color)
 
 	i := 0
 	for ; i < len(Colorlist); i++ {
@@ -708,14 +714,15 @@ type IdAndRank struct {
 	Rank   int
 }
 
-func SelectEventInfAndRoomList() (
+// func SelectEventInfAndRoomList() (
+func SelectEventInfAndRoomList(eventinf *exsrapi.Event_Inf) (
 	idandranklist []IdAndRank,
 	status int,
 ) {
 
 	status = 0
 
-	eventinf, err := srdblib.SelectFromEvent("event", Event_inf.Event_ID)
+	eventinf, err := srdblib.SelectFromEvent("event", eventinf.Event_ID)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -725,26 +732,26 @@ func SelectEventInfAndRoomList() (
 		status = -2
 		return
 	}
-	Event_inf = *eventinf
+	// Event_inf = *eventinf
 
 	//	log.Printf("eventno=%d\n", Event_inf.Event_no)
 
-	start_date := Event_inf.Start_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.Start_time.Hour()) * time.Hour)
-	end_date := Event_inf.End_time.Truncate(time.Hour).Add(-time.Duration(Event_inf.End_time.Hour())*time.Hour).AddDate(0, 0, 1)
+	start_date := eventinf.Start_time.Truncate(time.Hour).Add(-time.Duration(eventinf.Start_time.Hour()) * time.Hour)
+	end_date := eventinf.End_time.Truncate(time.Hour).Add(-time.Duration(eventinf.End_time.Hour())*time.Hour).AddDate(0, 0, 1)
 
 	//	log.Printf("start_t=%v\nstart_d=%v\nend_t=%v\nend_t=%v\n", Event_inf.Start_time, start_date, Event_inf.End_time, end_date)
 
-	Event_inf.Start_date = float64(start_date.Unix()) / 60.0 / 60.0 / 24.0
-	Event_inf.Dperiod = float64(end_date.Unix())/60.0/60.0/24.0 - Event_inf.Start_date
+	eventinf.Start_date = float64(start_date.Unix()) / 60.0 / 60.0 / 24.0
+	eventinf.Dperiod = float64(end_date.Unix())/60.0/60.0/24.0 - eventinf.Start_date
 
 	//	log.Printf("Start_data=%f Dperiod=%f\n", Event_inf.Start_date, Event_inf.Dperiod)
 
 	sql := "select max(point) from eventuser where eventid = ? and graph = 'Y'"
-	err = srdblib.Db.QueryRow(sql, Event_inf.Event_ID).Scan(&Event_inf.MaxPoint)
+	err = srdblib.Db.QueryRow(sql, eventinf.Event_ID).Scan(&eventinf.MaxPoint)
 	//	err = srdblib.Db.QueryRow(sql, Event_inf.Event_ID).Scan(&Event_inf.Maxpoint)
 
 	if err != nil {
-		log.Printf("select max(point) from eventuser where eventid = '%s'  and graph = 'Y'\n", Event_inf.Event_ID)
+		log.Printf("select max(point) from eventuser where eventid = '%s'  and graph = 'Y'\n", eventinf.Event_ID)
 		log.Printf("err=[%s]\n", err.Error())
 		status = -2
 		return
@@ -764,7 +771,7 @@ func SelectEventInfAndRoomList() (
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(Event_inf.Event_ID, Event_inf.Event_ID)
+	rows, err := stmt.Query(eventinf.Event_ID, eventinf.Event_ID)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -786,7 +793,7 @@ func SelectEventInfAndRoomList() (
 		}
 		idandranklist = append(idandranklist, IdAndRank{Userno: userno, Rank: rank})
 		i++
-		if i == Event_inf.Maxdsp {
+		if i == eventinf.Maxdsp {
 			break
 		}
 	}
@@ -800,7 +807,8 @@ func SelectEventInfAndRoomList() (
 	return
 }
 
-func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp *[]int) {
+// func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp *[]int) {
+func SelectPointList(userno int, eventinf *exsrapi.Event_Inf) (norow int, tp *[]time.Time, pp *[]int) {
 
 	norow = 0
 
@@ -815,7 +823,7 @@ func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp
 	defer stmt1.Close()
 
 	//	var norow int
-	err = stmt1.QueryRow(userno, eventid).Scan(&norow)
+	err = stmt1.QueryRow(userno, eventinf.Event_ID).Scan(&norow)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -837,7 +845,7 @@ func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp
 	defer stmt1.Close()
 
 	var tfinal time.Time
-	err = stmt1.QueryRow(userno, eventid).Scan(&tfinal)
+	err = stmt1.QueryRow(userno, eventinf.Event_ID).Scan(&tfinal)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -845,7 +853,7 @@ func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp
 		return
 	}
 	islastdata := false
-	if tfinal.After(Event_inf.End_time.Add(time.Duration(-Event_inf.Intervalmin) * time.Minute)) {
+	if tfinal.After(eventinf.End_time.Add(time.Duration(-eventinf.Intervalmin) * time.Minute)) {
 		islastdata = true
 	}
 	//	fmt.Println(norow)
@@ -878,7 +886,7 @@ func SelectPointList(userno int, eventid string) (norow int, tp *[]time.Time, pp
 	}
 	defer stmt2.Close()
 
-	rows, err := stmt2.Query(userno, eventid)
+	rows, err := stmt2.Query(userno, eventinf.Event_ID)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())

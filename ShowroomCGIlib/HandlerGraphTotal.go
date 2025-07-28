@@ -38,7 +38,7 @@ import (
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
 
-	// "github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
@@ -173,11 +173,22 @@ func Resetcolor(
 }
 func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string, status int) {
 
+	var err error
+	var eventinf *exsrapi.Event_Inf
+	// eventinf = &exsrapi.Event_Inf{}
+
 	status = 0
 
-	Event_inf.Event_ID = eventid
+	// eventinf.Event_ID = eventid
+	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	if err != nil {
+		//	DBの処理でエラーが発生した。
+		log.Printf("MakePointPerSlot() srdblib.SelectFromEvent() err=%s\n", err.Error())
+		status = -1
+		return
+	}
 
-	idandranklist, sts := SelectEventInfAndRoomList()
+	idandranklist, sts := SelectEventInfAndRoomList(eventinf)
 
 	if sts != 0 {
 		log.Printf("status of SelectEventInfAndRoomList() =%d\n", sts)
@@ -185,11 +196,11 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 		return
 	}
 
-	eventname, period, _ := SelectEventNoAndName(eventid)
+	_, period, _ := SelectEventNoAndName(eventid)
 
-	Event_inf.Maxpoint = maxpoint
-	Event_inf.Gscale = gscale
-	UpdateEventInf(&Event_inf)
+	eventinf.Maxpoint = maxpoint
+	eventinf.Gscale = gscale
+	UpdateEventInf(eventinf)
 
 	if Serverconfig.WebServer == "None" {
 		//	Webサーバーとして起動するときは、起動した直後を0とする連番（の下3桁）とする
@@ -203,7 +214,7 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 
 	}
 	//	グラフを描画する
-	GraphScore01(filename, eventname, idandranklist, period, maxpoint)
+	GraphScore01(filename, eventinf, idandranklist, period, maxpoint)
 
 	/*
 		fmt.Printf("Content-type:text/html\n\n")
@@ -228,7 +239,7 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 // グラフを描画する＝SVGを作成する
 func GraphScore01(
 	filename string,
-	eventname string,
+	eventinf *exsrapi.Event_Inf, //	イベント情報
 	idandranklist []IdAndRank,
 	period string, maxpoint int,
 ) {
@@ -278,11 +289,11 @@ func GraphScore01(
 
 	if maxpoint != 0 {
 		yupper, yscales, yscalel, _ = DetYaxScale(maxpoint - 1)
-	} else if Event_inf.Target > Event_inf.MaxPoint {
+	} else if eventinf.Target > eventinf.MaxPoint {
 		//	} else if Event_inf.Target > Event_inf.Maxpoint {
-		yupper, yscales, yscalel, _ = DetYaxScale(Event_inf.Target - 1)
+		yupper, yscales, yscalel, _ = DetYaxScale(eventinf.Target - 1)
 	} else {
-		yupper, yscales, yscalel, _ = DetYaxScale(Event_inf.MaxPoint)
+		yupper, yscales, yscalel, _ = DetYaxScale(eventinf.MaxPoint)
 		//	yupper, yscales, yscalel, _ = DetYaxScale(Event_inf.Maxpoint)
 	}
 
@@ -294,7 +305,7 @@ func GraphScore01(
 	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5-8*1.5), "獲得ポイントの推移",
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
-	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, eventname,
+	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*2.5, eventinf.Event_name,
 		"text-anchor:middle;font-size:"+fmt.Sprintf("%.1f", bstroke*8.0)+"px;fill:white;")
 
 	canvas.Text(lwmargin+vwidth/2.0, uhmargin/2.0+bstroke*(2.5+8*1.5), period,
@@ -328,7 +339,7 @@ func GraphScore01(
 	//	x軸（時間軸）を描画する
 
 	//	x軸に表示する値の上限値
-	xupper := Event_inf.Dperiod
+	xupper := eventinf.Dperiod
 	//	x軸に表示する値と座標幅の比（表示値１が座標のいくらに相当するか？）
 	xscale := vwidth / float64(xupper)
 	// xscaled > 0 のとき　一目盛を1日の何分の一にするか？
@@ -343,7 +354,7 @@ func GraphScore01(
 	} else {
 		dxl = -1.0 * float64(xscaled) * xscale
 	}
-	tval := Event_inf.Start_time
+	tval := eventinf.Start_time
 	xl := 0.0
 	for i := 0; ; i++ {
 		wstr := 0.15
@@ -377,11 +388,11 @@ func GraphScore01(
 	}
 
 	//	ターゲットラインを描画する
-	if Event_inf.Target != 0 {
-		x1 := xorigin + (float64(Event_inf.Start_time.Unix())/60.0/60.0/24.0-Event_inf.Start_date)*xscale
-		x2 := xorigin + (float64(Event_inf.End_time.Unix())/60.0/60.0/24.0-Event_inf.Start_date)*xscale
+	if eventinf.Target != 0 {
+		x1 := xorigin + (float64(eventinf.Start_time.Unix())/60.0/60.0/24.0-eventinf.Start_date)*xscale
+		x2 := xorigin + (float64(eventinf.End_time.Unix())/60.0/60.0/24.0-eventinf.Start_date)*xscale
 		y1 := yorigin
-		y2 := yorigin + float64(Event_inf.Target)*yscale
+		y2 := yorigin + float64(eventinf.Target)*yscale
 
 		log.Printf("Target (x1, y1) %10.2f,%10.2f (x2, y2) %10.2f,%10.2f xorgin, yorigin, vheight %10.2f, %10.2f %10.2f\n",
 			x1, y1, x2, y2, xorigin, yorigin, vheight)
@@ -402,9 +413,9 @@ func GraphScore01(
 	j := 0
 	for _, iar := range idandranklist {
 
-		_, cvalue, _ := SelectUserColor(iar.Userno, Event_inf.Event_ID)
+		_, cvalue, _ := SelectUserColor(iar.Userno, eventinf)
 
-		x, y := SelectScoreList(iar.Userno)
+		x, y := SelectScoreList(eventinf, iar.Userno)
 		maxp := 20
 
 		//	no := len(*x)
@@ -500,7 +511,7 @@ func GraphScore01(
 	file.Close()
 }
 
-func SelectScoreList(user_id int) (x *[]float64, y *[]float64) {
+func SelectScoreList(eventinf *exsrapi.Event_Inf, user_id int) (x *[]float64, y *[]float64) {
 
 	stmt1, err := srdblib.Db.Prepare("SELECT count(*) FROM points where user_id = ? and eventid = ?")
 	if err != nil {
@@ -512,7 +523,7 @@ func SelectScoreList(user_id int) (x *[]float64, y *[]float64) {
 	defer stmt1.Close()
 
 	var norow int
-	err = stmt1.QueryRow(user_id, Event_inf.Event_ID).Scan(&norow)
+	err = stmt1.QueryRow(user_id, eventinf.Event_ID).Scan(&norow)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -538,7 +549,7 @@ func SelectScoreList(user_id int) (x *[]float64, y *[]float64) {
 	}
 	defer stmt2.Close()
 
-	rows, err := stmt2.Query(user_id, Event_inf.Event_ID)
+	rows, err := stmt2.Query(user_id, eventinf.Event_ID)
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -556,10 +567,10 @@ func SelectScoreList(user_id int) (x *[]float64, y *[]float64) {
 			//	status = -1
 			return
 		}
-		if t.Before(Event_inf.Start_time) {
-			t = Event_inf.Start_time
+		if t.Before(eventinf.Start_time) {
+			t = eventinf.Start_time
 		}
-		tu[i] = float64(t.Unix())/60.0/60.0/24.0 - Event_inf.Start_date
+		tu[i] = float64(t.Unix())/60.0/60.0/24.0 - eventinf.Start_date
 		//	log.Printf("t=%v tu[%d]=%f\n", t, i, tu[i])
 		i++
 
