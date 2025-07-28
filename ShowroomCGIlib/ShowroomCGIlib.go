@@ -272,18 +272,15 @@ import (
 11CU00  月別イベント・リスナー貢献ポイントランキングを新たに作成する。
 11CU01  月別イベント・リスナー貢献ポイントランキングで重複を排除する。
 11CU02  月別イベント・リスナー貢献ポイントランキングに関して、リンク、説明を変更する。
-
 11CU03  トップ画面BBSの欄にバージョンを表示する。
 11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
 11CU05  貢献ランキング（リスナー・ルーム）の最大表示リスナー数を５０にする。
 11CU06  終了イベントの「注目のイベント」の機能は副作用があるので、いったん無効にする。
 11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
 11CV00  Event_Infの使用をやめ
-
---------------------------------
-11----	HandlerGraphOneRoom()を新規に作成する。
+11CV01  electEventInfAndRoomList()でのeventinfのインターフェース、取り扱いをI/Oに合うように変更する
 */
-const Version = "11CV00"
+const Version = "11CV01"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

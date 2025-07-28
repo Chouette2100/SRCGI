@@ -68,6 +68,8 @@ type PointPerDay struct {
 
 func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
@@ -79,8 +81,21 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 	eventid := r.FormValue("eventid")
 	var eventinf *exsrapi.Event_Inf
-	eventinf = &exsrapi.Event_Inf{}
-	eventinf.Event_ID = eventid
+	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	if err != nil {
+		//	DBの処理でエラーが発生した。
+		err = fmt.Errorf("GraphPerdayHandler: %w", err)
+		log.Println(err)
+		w.Write([]byte("DB error: " + err.Error()))
+		return
+	} else if eventinf == nil {
+		//	指定した eventid のイベントが存在しない。
+		err = fmt.Errorf("SelectFromEvent(%s): event not found", eventid)
+		log.Println(err)
+		w.Write([]byte("DB error: " + err.Error()))
+		return
+	}
+	// eventinf.Event_ID = eventid
 	_, sts := SelectEventInfAndRoomList(eventinf)
 
 	if sts != 0 {
@@ -118,6 +133,8 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
+	var err error
+
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
@@ -128,9 +145,23 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/list-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
+
 	var eventinf *exsrapi.Event_Inf
-	eventinf = &exsrapi.Event_Inf{}
-	eventinf.Event_ID = eventid
+	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	if err != nil {
+		//	DBの処理でエラーが発生した。
+		err = fmt.Errorf("GraphPerdayHandler: %w", err)
+		log.Println(err)
+		w.Write([]byte("DB error: " + err.Error()))
+		return
+	} else if eventinf == nil {
+		//	指定した eventid のイベントが存在しない。
+		err = fmt.Errorf("SelectFromEvent(%s): event not found", eventid)
+		log.Println(err)
+		w.Write([]byte("DB error: " + err.Error()))
+		return
+	}
+
 	_, sts := SelectEventInfAndRoomList(eventinf)
 
 	if sts != 0 {

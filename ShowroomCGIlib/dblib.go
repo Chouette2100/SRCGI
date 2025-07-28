@@ -715,23 +715,28 @@ type IdAndRank struct {
 }
 
 // func SelectEventInfAndRoomList() (
-func SelectEventInfAndRoomList(eventinf *exsrapi.Event_Inf) (
+func SelectEventInfAndRoomList(
+	eventinf *exsrapi.Event_Inf, // イベント情報（I/O) MaxPoint等を設定する
+) (
 	idandranklist []IdAndRank,
 	status int,
 ) {
 
+	var err error
 	status = 0
 
-	eventinf, err := srdblib.SelectFromEvent("event", eventinf.Event_ID)
-	if err != nil {
-		//	DBの処理でエラーが発生した。
-		status = -1
-		return
-	} else if eventinf == nil {
-		//	指定した eventid のイベントが存在しない。
-		status = -2
-		return
-	}
+	/*
+		eventinf, err = srdblib.SelectFromEvent("event", eventinf.Event_ID)
+		if err != nil {
+			//	DBの処理でエラーが発生した。
+			status = -1
+			return
+		} else if eventinf == nil {
+			//	指定した eventid のイベントが存在しない。
+			status = -2
+			return
+		}
+	*/
 	// Event_inf = *eventinf
 
 	//	log.Printf("eventno=%d\n", Event_inf.Event_no)

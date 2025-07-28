@@ -214,7 +214,8 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 
 	}
 	//	グラフを描画する
-	GraphScore01(filename, eventinf, idandranklist, period, maxpoint)
+	// GraphScore01(filename, eventinf, idandranklist, period, maxpoint)
+	GraphScore01(filename, eventinf, idandranklist, period, eventinf.MaxPoint)
 
 	/*
 		fmt.Printf("Content-type:text/html\n\n")
