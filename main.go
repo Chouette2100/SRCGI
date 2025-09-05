@@ -154,11 +154,12 @@ import (
 	11CU04  MonthlyCntrbRankLgHandler()を新しく作る。ListCntrbHExHandler()でブロックイベントの結果が重複して表示される問題を修正する。
 	11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
 	11CV00  Event_Infの使用をやめる
+	200100  バージョンをGithubと共通化する
 }
 
 */
 
-const version = "11CV00"
+const version = "200100"
 
 func NewLogfileName(logfile *os.File) {
 

@@ -279,8 +279,9 @@ import (
 11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
 11CV00  Event_Infの使用をやめ
 11CV01  electEventInfAndRoomList()でのeventinfのインターフェース、取り扱いをI/Oに合うように変更する
+200100  select * を使わず、カラム名を指定する。
 */
-const Version = "11CV01"
+const Version = "200100"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -374,6 +375,16 @@ var Regexpbots *regexp.Regexp
 var NontargetEntry map[string]int
 
 var OS string
+
+var clmlist map[string]string
+
+func init() {
+	clmlist = make(map[string]string)
+	clmlist["wevent"] = srdblib.ExtractStructColumns(&srdblib.Wevent{})
+	clmlist["weventuser"] = srdblib.ExtractStructColumns(&srdblib.Weventuser{})
+	clmlist["eventuser"] = srdblib.ExtractStructColumns(&srdblib.Eventuser{})
+	clmlist["user"] = srdblib.ExtractStructColumns(&srdblib.User{})
+}
 
 //	var WebServer string
 

@@ -209,7 +209,7 @@ func GetAndSaveOldEvents(
 			// イベント参加者として登録されているか？
 			var weventuser srdblib.Weventuser
 			itrf, err = srdblib.Dbmap.Select(&weventuser,
-				"SELECT * FROM weventuser WHERE eventid like ? AND userno = ?", wevent.Eventid+"%", roomid)
+				"SELECT "+clmlist["weventuser"]+" FROM weventuser WHERE eventid like ? AND userno = ?", wevent.Eventid+"%", roomid)
 			if err != nil {
 				err = fmt.Errorf("Select(): %w", err)
 				return

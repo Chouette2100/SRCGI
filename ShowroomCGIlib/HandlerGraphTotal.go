@@ -155,7 +155,7 @@ func Resetcolor(
 	clm := Colormaplist[cmap]
 	lclm := len(clm)
 	rows, err := srdblib.Dbmap.Select(srdblib.Eventuser{},
-		"select * from eventuser where eventid = ? order by point desc", eventid)
+		"select "+clmlist["eventuser"]+" from eventuser where eventid = ? order by point desc", eventid)
 	if err != nil {
 		err = fmt.Errorf("Resetcolor(): %w", err)
 		return err

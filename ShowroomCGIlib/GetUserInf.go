@@ -58,7 +58,7 @@ type KV struct {
 
 var LAlog sync.Map = sync.Map{}
 
-const wait = time.Millisecond * 1500
+// const wait = time.Millisecond * 1500
 
 func RemoteAddr(r *http.Request) string {
 	rap := r.RemoteAddr

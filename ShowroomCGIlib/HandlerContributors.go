@@ -75,7 +75,7 @@ func ContributorsHandler(
 	ieventid, _ := strconv.Atoi(seventid)
 
 	var intf []interface{}
-	intf, err = srdblib.Dbmap.Select(&srdblib.Wevent{}, "SELECT * FROM wevent WHERE ieventid = ?", ieventid)
+	intf, err = srdblib.Dbmap.Select(&srdblib.Wevent{}, "SELECT "+clmlist["wevent"]+" FROM wevent WHERE ieventid = ?", ieventid)
 	if err != nil {
 		err = fmt.Errorf("srdblib.Dbmap.Select(): %s", err.Error())
 		log.Printf("err=%s\n", err.Error())

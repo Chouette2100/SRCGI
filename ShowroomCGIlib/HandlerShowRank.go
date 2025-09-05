@@ -47,9 +47,7 @@ func SelectShowRank(
 
 	userlist = new([]srdblib.User)
 
-	// sqltr := " select * from user where irank between 0 and ? order by irank "
-	// sqltr := " select * from user where irank between 0 and ? and ts > ? order by irank "
-	sqltr := " select * from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "
+	sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "
 
 	var ul []interface{}
 	ul, err = srdblib.Dbmap.Select(srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour*25))
@@ -72,7 +70,7 @@ func SelectAddedRooms(nolist []int) (
 
 	pul = new([]srdblib.User)
 	// var intf []interface{}
-	sqltr := " select * from user where userno in (:Users) "
+	sqltr := " select " + clmlist["user"] + " from user where userno in (:Users) "
 	// intf, err = srdblib.Dbmap.Select(srdblib.User{}, sqltr, map[string]interface{}{"Users": nolist})
 	_, err = srdblib.Dbmap.Select(pul, sqltr, map[string]interface{}{"Users": nolist})
 	if err != nil {
@@ -171,8 +169,8 @@ func ShowRankHandler(
 	//	showrank.Userlist, err = SelectShowRank(client, 300000000)	//	SS-5〜A-1
 	var user1 srdblib.User
 	// FIXME: irank != 0 の条件が必要な理由を明確にすること(2025-05-14)
-	// err = srdblib.Dbmap.SelectOne(&user1, "select * from user where irank = (select min(irank) from user where `rank` = 'B-5')")
-	err = srdblib.Dbmap.SelectOne(&user1, "select * from user where irank = (select min(irank) from user where `rank` = 'B-5' and irank != 0) ")
+	sqlst := "select " + clmlist["user"] + " from user where irank = (select min(irank) from user where `rank` = 'B-5' and irank != 0) "
+	err = srdblib.Dbmap.SelectOne(&user1, sqlst)
 	if err != nil {
 		err = fmt.Errorf("srdblib.Dbmap.SelectOne(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
