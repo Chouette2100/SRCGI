@@ -155,11 +155,12 @@ import (
 	11CU07  プロキシが使われている場合は、X-Forwarded-ForヘッダーからIPアドレスを取得するようにする。
 	11CV00  Event_Infの使用をやめる
 	200100  バージョンをGithubと共通化する
+	200101  srdblibのバージョンをv2.4.1に変更する
 }
 
 */
 
-const version = "200100"
+const version = "200101"
 
 func NewLogfileName(logfile *os.File) {
 
