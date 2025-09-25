@@ -280,8 +280,9 @@ import (
 11CV00  Event_Infの使用をやめ
 11CV01  electEventInfAndRoomList()でのeventinfのインターフェース、取り扱いをI/Oに合うように変更する
 200100  select * を使わず、カラム名を指定する。
+200200  EditUserHandler()でイベントの全ルームについて枠別貢献ポイントの履歴を取得・保存する機能を追加する。
 */
-const Version = "200100"
+const Version = "200200"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

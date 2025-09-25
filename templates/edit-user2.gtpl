@@ -24,12 +24,15 @@
 <th>実行</th>
 </tr>
 
+{{ $e := "" }}
+
 {{ range . }}
 <tr>
 
 <td><a href="https://www.showroom-live.com/{{.Account}}">{{.Name}}
 </a><input type="hidden" name="userid" value="{{.Userno}}" form="{{.Formid}}">
 </a><input type="hidden" name="eventid" value="{{.Eventid}}" form="{{.Formid}}">
+{{ $e = .Eventid }}
 </td>
 <td>
 <a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">Prof.</a>/
@@ -70,6 +73,15 @@
 {{ end }}
 
 </table>
+<br>
+{{/*
+<form acttion="edit-user" method="POST" id="getAllCntrb"></form>
+<input type="hidden" name="eventid" value="{{ $e }}" form="getAllCntrb" />
+<input type="hidden" name="func" value="getAllCntrb" form="getAllCntrb" />
+<input type="submit" value="このイベントに参加しているすべてのルームについて枠別貢献ランキングを取得する" form="getAllCntrb" />
+<br>
+*/}}
+
 <p style="padding-left:4em">イベント参加者として登録されているルームの一覧です<br><br>
 <span style="color:red">ただし、イベント開始前は以下の「一覧にないルームの追加」で追加したルームのみ表示され、<br>
 イベント開始後、指定した順位の範囲にあるルームが自動的に追加されます。</span><br><br>

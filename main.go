@@ -156,11 +156,12 @@ import (
 	11CV00  Event_Infの使用をやめる
 	200100  バージョンをGithubと共通化する
 	200101  srdblibのバージョンをv2.4.1に変更する
+	200102  アクセスログにrefererを追加する
 }
 
 */
 
-const version = "200101"
+const version = "200102"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -360,6 +361,8 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		al.Handler = entry
 		al.Remoteaddress = ra
 		al.Useragent = ua
+
+		al.Referer = r.Referer()
 
 		//	パラメータを取得する
 		if err := r.ParseForm(); err != nil {

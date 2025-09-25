@@ -93,6 +93,14 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	case "deleteuser":
 		//	削除ボタンが押されたとき
+	case "getAllCntrb":
+		//	全員分の貢献ポイントを取得するボタンが押されたとき
+		err = GetAllCntrb(eventid)
+		if err != nil {
+			log.Printf("GetAllCntrb() error=%s\n", err.Error())
+			w.Write([]byte(fmt.Sprintf("GetAllCntrb() error=%s\n", err.Error())))
+			return
+		}
 	default:
 		//	（更新ボタンが押された配信者がいたらそのデータを更新した上で）参加配信者のリストを表示する。
 		if userid != "" {
@@ -211,4 +219,31 @@ func UpdateRoomInf(eventid, suserno, longname, shortname, istarget, graph, color
 
 	return
 
+}
+func GetAllCntrb(eventid string) (err error) {
+
+	var event srdblib.Event
+	var itfc interface{}
+	itfc, err = srdblib.Dbmap.Get(&event, eventid)
+	if err != nil {
+		log.Printf("GetAllCntrb() Dbmap.Get() error=%s\n", err.Error())
+		return
+	}
+	if itfc == nil {
+		err = fmt.Errorf("eventid=%s not found", eventid)
+		return
+	}
+	event = *itfc.(*srdblib.Event)
+
+	if event.Eventid == "" {
+		err = fmt.Errorf("eventid=%s not found", eventid)
+		return
+	}
+
+	event.Cmode |= 0x01
+	srdblib.Dbmap.Update(&event)
+
+	srdblib.Dbmap.Exec("update eventuser set iscntrbpoints='Y' where eventid=?", eventid)
+
+	return
 }
