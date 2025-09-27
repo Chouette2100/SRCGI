@@ -157,11 +157,13 @@ import (
 	200100  バージョンをGithubと共通化する
 	200101  srdblibのバージョンをv2.4.1に変更する
 	200102  アクセスログにrefererを追加する
+	200300  Flutter/DataTableで使うJSONデータを出力するHandler(SearchUsersHandler())を追加する。
+	200301  Flutter/DataTableで作った機能（search-users）を追加する。
 }
 
 */
 
-const version = "200102"
+const version = "200301"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -743,6 +745,9 @@ func main() {
 
 		http.HandleFunc(rootPath+"/t008top", commonMiddleware(rateLimiter, srhandler.HandlerT008topForm)) //	http://....../t008top で呼び出される。
 		http.HandleFunc(rootPath+"/t009top", commonMiddleware(rateLimiter, srhandler.HandlerT009topForm)) //	http://....../t009top で呼び出される。
+
+		// ユーザー検索APIエンドポイント
+		http.HandleFunc(rootPath+"/api/users", commonMiddleware(rateLimiter, ShowroomCGIlib.SearchUsersHandler))
 
 		http.HandleFunc(rootPath+"/cgi-bin", commonMiddleware(rateLimiter, CgiBinHandler))
 		http.HandleFunc(rootPath+"/cgi-bin/SC1", commonMiddleware(rateLimiter, CgiBinSc1Handler))

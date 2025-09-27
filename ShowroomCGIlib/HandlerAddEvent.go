@@ -360,6 +360,11 @@ func GetAndInsertEventRoomInfo(
 		*/
 		var eqr *srapi.EventQuestRooms
 		eqr, err = srapi.GetEventQuestRoomsByApi(client, eventid, 1, eventinfo.Toorder)
+		if err != nil {
+			err = fmt.Errorf("GetEventQuestRoomsByApi(): %w", err)
+			log.Printf("%s\n", err.Error())
+			return
+		}
 		lenpr = len(eqr.EventQuestLevelRanges[0].Rooms)
 		if ereg > lenpr {
 			ereg = lenpr
