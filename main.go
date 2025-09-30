@@ -159,11 +159,12 @@ import (
 	200102  アクセスログにrefererを追加する
 	200300  Flutter/DataTableで使うJSONデータを出力するHandler(SearchUsersHandler())を追加する。
 	200301  Flutter/DataTableで作った機能（search-users）を追加する。
+	200400  EditCntrbPointsHandler() 枠別リスナー別貢献ポイントの一括登録機能を追加する。
 }
 
 */
 
-const version = "200301"
+const version = "200400"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -676,6 +677,7 @@ func main() {
 
 		http.HandleFunc(rootPath+"/add-event", commonMiddleware(rateLimiter, ShowroomCGIlib.AddEventHandler))
 		http.HandleFunc(rootPath+"/edit-user", commonMiddleware(rateLimiter, ShowroomCGIlib.EditUserHandler))
+		http.HandleFunc(rootPath+"/edit-cntrbpoints", commonMiddleware(rateLimiter, ShowroomCGIlib.EditCntrbPointsHandler))
 		http.HandleFunc(rootPath+"/new-user", commonMiddleware(rateLimiter, ShowroomCGIlib.NewUserHandler))
 
 		http.HandleFunc(rootPath+"/param-event", commonMiddleware(rateLimiter, ShowroomCGIlib.ParamEventHandler))

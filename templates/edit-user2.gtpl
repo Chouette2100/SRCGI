@@ -71,9 +71,59 @@
 </td>
 </tr>
 {{ end }}
-
 </table>
+
+
+{{/*
+<form>
+<input type="hidden" name="eventid" value="{{ $e }}"  />
+<p style="padding-left:4em">
+<input type="submit" formaction="edit-cntrbpoints" formmethod="post" value="枠別リスナー別貢献ポイントデータ取得の登録（暫定）" />
+</p>
+</form>
+*/}}
+
+<p style="padding-left:4em">
+<button type="button" onclick="location.href='edit-cntrbpoints?eventid={{$e}}'">枠別リスナー別貢献ポイントデータ取得の設定</button>
+</p>
+
+{{/*
+id=2500   modelname=gemini-2.5-flash
+
+<button type="button" class="edit-button" data-eventid="{{$e }}">
+    枠別リスナー別貢献ポイントデータ取得の設定
+</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // クラス名 'edit-button' を持つすべてのボタンにイベントリスナーを設定
+    document.querySelectorAll('.edit-button').forEach(button => {
+        button.addEventListener('click', function() {
+            // data-eventid 属性から Eventid を取得
+            const eventId = this.dataset.eventid;
+            // JavaScriptでURLを構築し、リダイレクト
+            location.href = `/edit-cntrbpoints?eventid=${eventId}`;
+        });
+    });
+});
+</script>
+*/}}
+
+{{/*
+<p style="padding-left:4em">
+<table><tr><td>
+<button type="button" onclick="location.href='edit-cntrbpoints?eventid={{.Eventid}}'">枠別リスナー別貢献ポイントデータ取得の設定</button>
+</td><td>
+<button type="button" onclick="location.href='top'">トップ</button>
+</td></tr></table>
+*/}}
+
+{{/*
+</p>
+*/}}
+
 <br>
+
 {{/*
 <form acttion="edit-user" method="POST" id="getAllCntrb"></form>
 <input type="hidden" name="eventid" value="{{ $e }}" form="getAllCntrb" />

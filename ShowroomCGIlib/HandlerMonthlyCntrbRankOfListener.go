@@ -313,16 +313,16 @@ func getYearMonth(
 
 	parts := strings.Split(yearmonth, "-")
 	if len(parts) != 2 {
-		err = fmt.Errorf("Invalid yearmonth format. Expected YYYY-MM, got: %s", yearmonth)
+		err = fmt.Errorf("invalid yearmonth format: expected YYYY-MM, got: %s", yearmonth)
 		return
 	}
 
 	year, err = strconv.Atoi(parts[0])
 	if err != nil || year < 2024 || year > 2100 {
 		if err != nil {
-			err = fmt.Errorf("Invalid year: %w. Year must be a number", err)
+			err = fmt.Errorf("invalid year: %w: year must be a number", err)
 		} else {
-			err = fmt.Errorf("Invalid year: %d. Year must be between 2024 and %d", year, ly)
+			err = fmt.Errorf("rnvalid year: %d: year must be between 2024 and %d", year, ly)
 		}
 		return
 	}
@@ -330,15 +330,15 @@ func getYearMonth(
 	month, err = strconv.Atoi(parts[1])
 	if err != nil || month < 1 || month > 12 {
 		if err != nil {
-			err = fmt.Errorf("Invalid month: %w. Month must be a number", err)
+			err = fmt.Errorf("invalid month: %w: month must be a number", err)
 		} else {
-			err = fmt.Errorf("Invalid month: %d. Month must be between 1 and 12", month)
+			err = fmt.Errorf("invalid month: %d: month must be between 1 and 12", month)
 		}
 		return
 	}
 
 	if (year*100+month) >= cym || (year*100+month) < 202410 {
-		err = fmt.Errorf("Invalid yearmonth: %s ( year-month must be between 2024-10 and %4d-%02d)", yearmonth, ly, lm)
+		err = fmt.Errorf("invalid yearmonth: %s ( year-month must be between 2024-10 and %4d-%02d)", yearmonth, ly, lm)
 		return
 	}
 

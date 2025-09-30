@@ -282,8 +282,9 @@ import (
 200100  select * を使わず、カラム名を指定する。
 200200  EditUserHandler()でイベントの全ルームについて枠別貢献ポイントの履歴を取得・保存する機能を追加する。
 200300  Flutter/DataTableで使うJSONデータを出力するHandler(SearchUsersHandler())を追加する。
+200400  EditCntrbPointsHandler() 枠別リスナー別貢献ポイントの一括登録機能を追加する。
 */
-const Version = "200300"
+const Version = "200400"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

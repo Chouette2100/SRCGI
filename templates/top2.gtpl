@@ -98,6 +98,8 @@
 				style="background-color: khaki"></p>
 		<p style="padding-left:2em">(DB登録済み)イベント参加ルーム一覧（確認・編集）</p>
 		<p style="padding-left:4em"><input type="submit" value="実行" formaction="edit-user" formmethod="POST"
+				style="background-color: khaki">
+			　　<input type="submit" value="枠別リスナー別貢献ポイントデータ取得の登録（暫定）" formaction="edit-cntrbpoints" formmethod="POST"
 				style="background-color: khaki"></p>
 		<p style="padding-left:4em">※　獲得ポイントデータを取得するルーム、グラフに表示するルームの選択やグラフの線の色の選択に使います。</p>
 		<p style="padding-left:2em">---------------------------------------------------------------</p>

@@ -167,8 +167,9 @@ type Tlsnidinf struct {
 	Listener string
 }
 
-func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (tlsnidinflist [3]Tlsnidinf, status int) {
-	var err error
+//	func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (tlsnidinflist [3]Tlsnidinf, status int) {
+//		var err error
+func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (tlsnidinflist [3]Tlsnidinf, err error) {
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
@@ -184,7 +185,8 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 
 	if err != nil {
 		log.Printf("SelectCntrbNow() (5) err=%s\n", err.Error())
-		status = -5
+		// status = -5
+		err = fmt.Errorf("SelectTlsnidList() Prepare err=%w", err)
 		return
 	}
 	defer stmt.Close()
@@ -192,7 +194,8 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	rows, err = stmt.Query(eventid, userno, smplt)
 	if err != nil {
 		log.Printf("SelectCntrbNow() (6) err=%s\n", err.Error())
-		status = -6
+		// status = -6
+		err = fmt.Errorf("SelectTlsnidList() Query err=%w", err)
 		return
 	}
 	defer rows.Close()
@@ -208,7 +211,8 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 		}
 		if err != nil {
 			log.Printf("GetCurrentScore() (7) err=%s\n", err.Error())
-			status = -7
+			// status = -7
+			err = fmt.Errorf("SelectTlsnidList() Scan err=%w", err)
 			return
 		}
 		if tlsnidinflist[1].Tlsnid == tlsnid {
@@ -221,7 +225,8 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	}
 	if err = rows.Err(); err != nil {
 		log.Printf("GetCurrentScore() (8) err=%s\n", err.Error())
-		status = -8
+		// status = -8
+		err = fmt.Errorf("SelectTlsnidList() Rows err=%w", err)
 		return
 	}
 	return

@@ -125,7 +125,7 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 	var pranking *srapi.Contribution_ranking
 	pranking, err = srapi.ApiEventContribution_ranking(&http.Client{}, eventinf.I_Event_ID, userno)
 	if err != nil {
-		err = fmt.Errorf("srapi.ApiEventContribution_ranking(): %w\n", err)
+		err = fmt.Errorf("srapi.ApiEventContribution_ranking(): %w", err)
 		log.Printf("%s\n", err.Error())
 		w.Write([]byte("err=" + err.Error()))
 		return

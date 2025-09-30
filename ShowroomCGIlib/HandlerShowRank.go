@@ -130,7 +130,7 @@ func ShowRankHandler(
 	srdblib.Env.Lmin = 60
 	srdblib.Env.Waitmsec = 1000
 
-	userlist := make([]srdblib.User, 0, len(unla))
+	// userlist := make([]srdblib.User, 0, len(unla))
 	nolist := make([]int, 0, len(unla))
 	user := srdblib.User{}
 	for _, v := range unla {
@@ -145,7 +145,7 @@ func ShowRankHandler(
 			log.Printf("srdblib.UpinsUser() returned error %s\n", err.Error())
 			continue
 		}
-		userlist = append(userlist, user)
+		// userlist = append(userlist, user)
 		nolist = append(nolist, un)
 	}
 	srdblib.Env.Lmin = lmin
@@ -185,6 +185,12 @@ func ShowRankHandler(
 	}
 
 	showrank.UserlistA, err = SelectAddedRooms(nolist)
+	if err != nil {
+		err = fmt.Errorf("SelectAddedRooms(): %w", err)
+		log.Printf("HandlerShowRank(): %s\n", err.Error())
+		w.Write([]byte(fmt.Sprintf("SelectAddedRooms() error=%s\n", err.Error())))
+		return
+	}
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "showrank.gtpl", showrank); err != nil {
 		err = fmt.Errorf("Handler(): %w", err)
