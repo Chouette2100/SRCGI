@@ -1,4 +1,4 @@
-// Copyright © 2024 chouette.21.00@gmail.com
+// Copyright © 2024-2025 chouette.21.00@gmail.com
 // Released under the MIT license
 // https://opensource.org/licenses/mit-license.php
 package ShowroomCGIlib
@@ -215,7 +215,8 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 	}
 	//	グラフを描画する
 	// GraphScore01(filename, eventinf, idandranklist, period, maxpoint)
-	GraphScore01(filename, eventinf, idandranklist, period, eventinf.MaxPoint)
+	// GraphScore01(filename, eventinf, idandranklist, period, eventinf.MaxPoint)
+	GraphScore01(filename, eventinf, idandranklist, period, eventinf.Maxpoint)
 
 	/*
 		fmt.Printf("Content-type:text/html\n\n")

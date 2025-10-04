@@ -20,8 +20,11 @@ import (
 
 	"html/template"
 	"net/http"
+	"strings"
 
 	//	"database/sql"
+	"github.com/Masterminds/sprig/v3"
+	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
@@ -36,7 +39,19 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
+	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
+	funcMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
+	/*
+		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
+			"templates/edit-user1.gtpl",
+			"templates/edit-user2.gtpl",
+			"templates/edit-user3.gtpl",
+		))
+	*/
+
+	tpl := template.New("root").Funcs(funcMap)
+	tpl = template.Must(tpl.ParseFiles(
 		"templates/edit-user1.gtpl",
 		"templates/edit-user2.gtpl",
 		"templates/edit-user3.gtpl",

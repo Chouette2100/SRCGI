@@ -160,11 +160,12 @@ import (
 	200300  Flutter/DataTableで使うJSONデータを出力するHandler(SearchUsersHandler())を追加する。
 	200301  Flutter/DataTableで作った機能（search-users）を追加する。
 	200400  EditCntrbPointsHandler() 枠別リスナー別貢献ポイントの一括登録機能を追加する。
+	200500  experimental, todo のページを追加する
 }
 
 */
 
-const version = "200400"
+const version = "200500"
 
 func NewLogfileName(logfile *os.File) {
 

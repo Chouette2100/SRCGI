@@ -37,7 +37,7 @@
 <td>
 <a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">Prof.</a>/
 <a href="https://www.showroom-live.com/room/fan_club?room_id={{.Userno}}">FR</a>/
-<a href="https://www.showroom-live.com/event/contribution/{{.Eventid}}?room_id={{.Userno}}">Cnt.</a>
+<a href="https://www.showroom-live.com/event/contribution/{{ baseOfEventid .Eventid }}?room_id={{.Userno}}">Cnt.</a>
 </td>
 <td>{{.Genre}}</td>
 <td align="center" style="border-right-style:none;">{{.Rank}}</td>

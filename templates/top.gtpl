@@ -122,6 +122,9 @@
     <p style="padding-left:2em">
     最近のイベントの貢献ポイント上位のリスナー
     </p>
+    <p style="padding-left:4em">
+    <a href="/templates/experimental.html">資料</a>
+    </p>
     {{/*}}
     <p style="padding-left:4em">
         <a href="#newevent">獲得ポイントデータを取得するイベントのイベントID(Event_url_key)による</a>新規登録（ページ内）

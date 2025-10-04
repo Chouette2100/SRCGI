@@ -11,7 +11,7 @@ import (
 	//	"os"
 	//	"sort"
 	"strconv"
-	//	"strings"
+	"strings"
 	"time"
 
 	//	"github.com/PuerkitoBio/goquery"
@@ -147,8 +147,9 @@ func EditCntrbPointsHandler(w http.ResponseWriter, r *http.Request) {
 	// 	"sub":   func(i, j int) int { return i - j },
 	// 	"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 	// }
-	funcMap := sprig.FuncMap()
+	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
 	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
+	funcMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/edit-cntrbpoints.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "edit-cntrbpoints.gtpl", cpi); err != nil {
