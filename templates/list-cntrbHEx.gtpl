@@ -2,8 +2,8 @@
 <table border="1">
 <tr style="text-align: center;">
 <td>貢献ポイント</td>
-<td>ルーム</td>
-<td>イベント</td>
+<td>ルーム(「イベント獲得ポイントの履歴」へのリンク)</td>
+<td>イベント(<F8>「直近の獲得ポイント一覧」へのリンク)</td>
 <td>開始日時</td>
 <td>終了日時</td>
 </tr>
