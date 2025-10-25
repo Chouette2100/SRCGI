@@ -31,7 +31,8 @@ import (
 	"github.com/Chouette2100/exsrapi/v2"
 )
 
-const MaxAcq = 5
+// const MaxAcq = 5
+const MaxAcq = 7
 
 type CntrbHeader struct {
 	Eventid      string
@@ -136,7 +137,8 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 
 	log.Printf(". eventid=%s, userno=%d, ie=%d\n", eventid, userno, ie)
 
-	ib := ie - 4
+	// ib := ie - 4
+	ib := ie - MaxAcq + 1
 	if ib < 0 {
 		ib = 0
 	}

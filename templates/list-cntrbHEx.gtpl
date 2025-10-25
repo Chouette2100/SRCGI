@@ -3,7 +3,8 @@
 <tr style="text-align: center;">
 <td>貢献ポイント</td>
 <td>ルーム(「イベント獲得ポイントの履歴」へのリンク)</td>
-<td>イベント(<F8>「直近の獲得ポイント一覧」へのリンク)</td>
+<td style="border-right: none;">イベント(「直近の獲得ポイント一覧」と「グラフ」へのリンク)</td>
+<td style="border-left: none;"></td>
 <td>開始日時</td>
 <td>終了日時</td>
 </tr>
@@ -25,7 +26,14 @@
 	{{/*
 	<td><a href="https://www.showroom-live.com/event/{{ .Eventid }}">{{ .Eventname }}</a></td>
 	*/}}
-	<td><a href="/list-last?eventid={{ .Eventid }}">{{ .Eventname }}</a></td>
+	<td style="border-right: none;"><a href="/list-last?eventid={{ .Eventid }}">{{ .Eventname }}</a></td>
+	<td style="border-left: none;">
+	  <a href="graph-total?eventid={{.Eventid}}">グラフ</a>
+	  {{/*
+	  <button type="button"
+        onclick="location.href='graph-total?eventid={{.Eventid}}'">グラフ</button>
+	  */}}
+	</td>
 	<td>{{ FormatTime .Starttime "2006-01-02 15:04" }}</td>
 	<td>{{ $e }}</td>
 	</tr>

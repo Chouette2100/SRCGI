@@ -123,7 +123,7 @@
     最近のイベントの貢献ポイント上位のリスナー
     </p>
     <p style="padding-left:4em">
-    <a href="/templates/experimental.html">資料</a>
+    <a href="/experimental">保守・資料・実験</a>
     </p>
     {{/*}}
     <p style="padding-left:4em">

@@ -284,8 +284,9 @@ import (
 200300  Flutter/DataTableで使うJSONデータを出力するHandler(SearchUsersHandler())を追加する。
 200400  EditCntrbPointsHandler() 枠別リスナー別貢献ポイントの一括登録機能を追加する。
 200401  GraphTotalHandler()で表示する最大ポイントの設定を有効にする。edit-user2.gtpl, edit-cntrbpoints.gtplでの貢献リストへのリンクを修正する。
+200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
 */
-const Version = "200401"
+const Version = "200600"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

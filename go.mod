@@ -3,9 +3,9 @@ module SRCGI
 go 1.25.1
 
 require (
-	github.com/Chouette2100/exsrapi/v2 v2.3.1
-	github.com/Chouette2100/srapi/v2 v2.3.4
-	github.com/Chouette2100/srdblib/v2 v2.4.3
+	github.com/Chouette2100/exsrapi/v2 v2.3.2
+	github.com/Chouette2100/srapi/v2 v2.3.5
+	github.com/Chouette2100/srdblib/v2 v2.5.0
 	github.com/Chouette2100/srhandler/v2 v2.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/PuerkitoBio/goquery v1.10.3
@@ -14,7 +14,7 @@ require (
 	github.com/go-gorp/gorp v2.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/juju/persistent-cookiejar v1.0.0
-	golang.org/x/term v0.35.0
+	golang.org/x/term v0.36.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -37,7 +37,7 @@ require (
 	github.com/spf13/cast v1.7.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/net v0.39.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 	gopkg.in/errgo.v1 v1.0.1 // indirect
 	gopkg.in/retry.v1 v1.0.3 // indirect
 )

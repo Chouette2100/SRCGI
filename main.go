@@ -161,11 +161,12 @@ import (
 	200301  Flutter/DataTableで作った機能（search-users）を追加する。
 	200400  EditCntrbPointsHandler() 枠別リスナー別貢献ポイントの一括登録機能を追加する。
 	200500  experimental, todo のページを追加する(表示はされない)
-}
+	200501  list-cnrbHex.gtpl の表にグラフへのリンクを追加する。
+	200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
 
 */
 
-const version = "200500"
+const version = "200600"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -600,6 +601,8 @@ func main() {
 	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
 	srdblib.Dbmap.AddTableWithName(srdblib.Accesslog{}, "accesslog").SetKeys(false, "Ts", "Eventid")
 
+	srdblib.Dbmap.AddTableWithName(srdblib.Todo{}, "todo").SetKeys(false, "ID")
+
 	fileenv := "Env.yml"
 	err = exsrapi.LoadConfig(fileenv, &srdblib.Env)
 	if err != nil {
@@ -745,6 +748,14 @@ func main() {
 
 		//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
 		http.HandleFunc(rootPath+"/disp-bbs", commonMiddleware(rateLimiter, ShowroomCGIlib.DispBbsHandler))
+
+		//  資料・実験
+		http.HandleFunc(rootPath+"/experimental", commonMiddleware(rateLimiter, ShowroomCGIlib.ExperimentalHandler))
+
+		//	ToDo管理
+		http.HandleFunc(rootPath+"/list-todo", commonMiddleware(rateLimiter, ShowroomCGIlib.ListToDoHandler))
+		http.HandleFunc(rootPath+"/insert-todo", commonMiddleware(rateLimiter, ShowroomCGIlib.InsertToDoHandler))
+		http.HandleFunc(rootPath+"/edit-todo", commonMiddleware(rateLimiter, ShowroomCGIlib.EditToDoHandler))
 
 		http.HandleFunc(rootPath+"/t008top", commonMiddleware(rateLimiter, srhandler.HandlerT008topForm)) //	http://....../t008top で呼び出される。
 		http.HandleFunc(rootPath+"/t009top", commonMiddleware(rateLimiter, srhandler.HandlerT009topForm)) //	http://....../t009top で呼び出される。
