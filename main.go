@@ -163,10 +163,12 @@ import (
 	200500  experimental, todo のページを追加する(表示はされない)
 	200501  list-cnrbHex.gtpl の表にグラフへのリンクを追加する。
 	200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
+	200700  ClosedEventsHandler()のUIを改善する。
+	        closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
 
 */
 
-const version = "200600"
+const version = "200700"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -722,6 +724,9 @@ func main() {
 		http.HandleFunc(rootPath+"/closedevents", commonMiddleware(rateLimiter, ShowroomCGIlib.ClosedEventsHandler))
 		http.HandleFunc(rootPath+"/oldevents", commonMiddleware(rateLimiter, ShowroomCGIlib.OldEventsHandler))
 		http.HandleFunc(rootPath+"/contributors", commonMiddleware(rateLimiter, ShowroomCGIlib.ContributorsHandler))
+
+		//	API: ルーム検索
+		http.HandleFunc(rootPath+"/api/search-rooms", commonMiddleware(rateLimiter, ShowroomCGIlib.ApiSearchRoomsHandler))
 
 		//	イベント最終結果
 		http.HandleFunc(rootPath+"/closedeventroomlist", commonMiddleware(rateLimiter, ShowroomCGIlib.ClosedEventRoomListHandler))
