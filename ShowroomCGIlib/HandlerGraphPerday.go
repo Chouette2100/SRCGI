@@ -449,9 +449,13 @@ func GraphPerDay(
 		}
 	}
 
+	cml := Colormaplist[eventinf.Cmap]
+	lenc := len(cml)
+
 	colorlist := make([]string, len((*pointperday).Usernolist))
 	for i, userno := range (*pointperday).Usernolist {
-		_, colorlist[i], _ = SelectUserColor(userno, eventinf)
+		// _, colorlist[i], _ = SelectUserColor(userno, eventinf)
+		colorlist[i] = cml[i%lenc].Value
 		longname, _, _, _, _, _, _, _, _, _, sts := SelectUserName(userno)
 		if sts != 0 {
 			longname = fmt.Sprintf("%d", userno)

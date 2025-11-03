@@ -280,35 +280,37 @@ func SelectEventRoomInfList(
 		)
 		//	FIXME: 色コードでない色名を使えることが問題ではないか？
 		//	色名を色コードに変換する
-		ci := 0
-		for ; ci < len(Colormaplist[cmap]); ci++ {
-			if Colormaplist[cmap][ci].Name == roominf.Color {
-				roominf.Colorvalue = Colormaplist[cmap][ci].Value
-				break
-			}
-		}
-		ii := 0
-		if ci == len(Colormaplist[cmap]) {
-			var cii int
-			for ; ii < len(Colormaplist); ii++ {
-				if ii == eventinf.Cmap {
-					continue
-				}
-				cii = 0
-				for ; cii < len(Colormaplist[ii]); cii++ {
-					if Colormaplist[ii][cii].Name == roominf.Color {
-						roominf.Colorvalue = Colormaplist[ii][cii].Value
-						break
-					}
-				}
-				if cii != len(Colormaplist[ii]) {
+		/*
+			ci := 0
+			for ; ci < len(Colormaplist[cmap]); ci++ {
+				if Colormaplist[cmap][ci].Name == roominf.Color {
+					roominf.Colorvalue = Colormaplist[cmap][ci].Value
 					break
 				}
 			}
-			if cii == len(Colormaplist[ii]) {
-				roominf.Colorvalue = roominf.Color
+			ii := 0
+			if ci == len(Colormaplist[cmap]) {
+				var cii int
+				for ; ii < len(Colormaplist); ii++ {
+					if ii == eventinf.Cmap {
+						continue
+					}
+					cii = 0
+					for ; cii < len(Colormaplist[ii]); cii++ {
+						if Colormaplist[ii][cii].Name == roominf.Color {
+							roominf.Colorvalue = Colormaplist[ii][cii].Value
+							break
+						}
+					}
+					if cii != len(Colormaplist[ii]) {
+						break
+					}
+				}
+				if cii == len(Colormaplist[ii]) {
+					roominf.Colorvalue = roominf.Color
+				}
 			}
-		}
+		*/
 
 		if roominf.Istarget == "Y" {
 			roominf.Istarget = "Checked"

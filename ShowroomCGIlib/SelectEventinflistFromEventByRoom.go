@@ -21,6 +21,7 @@ func SelectEventinflistFromEventByRoom(
 	offset int, // ページングオフセット
 ) (
 	eventinflist []exsrapi.Event_Inf,
+	totalcount int,
 	err error,
 ) {
 
@@ -104,6 +105,8 @@ func SelectEventinflistFromEventByRoom(
 				return
 			}
 		}
+
+		totalcount++
 
 		//	log.Printf("eventno=%d\n", Event_inf.Event_no)
 

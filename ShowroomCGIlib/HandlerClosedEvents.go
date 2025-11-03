@@ -152,6 +152,7 @@ func ClosedEventsHandler(
 			log.Printf("SelectEventinflistFromEvent() returned error %s\n", err.Error())
 			top.ErrMsg = err.Error()
 		}
+		top.Totalcount = len(top.Eventinflist)
 	case 1, 2:
 		if top.Path == 1 {
 			top.Eventinflist, err = SelectEventinflistFromEvent(cond, top.Mode, top.Keywordev, "", top.Limit, top.Offset)
@@ -163,6 +164,7 @@ func ClosedEventsHandler(
 			log.Printf("SelectEventinflistFromEvent() returned error %s\n", err.Error())
 			top.ErrMsg = err.Error()
 		}
+		top.Totalcount = len(top.Eventinflist)
 	case 3, 4:
 		if top.Keywordrm != "" {
 			//	ルーム名による絞り込み、ルームの候補リストを作成する。
@@ -175,7 +177,7 @@ func ClosedEventsHandler(
 		}
 		if top.Path == 4 && top.Userno != 0 {
 			//	ルーム名による絞り込み(ルームIDに変換後)
-			top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, &top.Limit, top.Offset)
+			top.Eventinflist, top.Totalcount, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, &top.Limit, top.Offset)
 			if err != nil {
 				err = fmt.Errorf("MakeListOfPoints(): %w", err)
 				log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
@@ -187,7 +189,7 @@ func ClosedEventsHandler(
 		}
 	case 5:
 		//	ルームIDによる絞り込み
-		top.Eventinflist, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, &top.Limit, top.Offset)
+		top.Eventinflist, top.Totalcount, err = SelectEventinflistFromEventByRoom(cond, top.Mode, top.Userno, &top.Limit, top.Offset)
 		if err != nil {
 			err = fmt.Errorf("MakeListOfPoints(): %w", err)
 			log.Printf("MakeListOfPoints() returned error %s\n", err.Error())
@@ -199,7 +201,7 @@ func ClosedEventsHandler(
 	default:
 	}
 
-	top.Totalcount = len(top.Eventinflist)
+	// top.Totalcount = len(top.Eventinflist)
 
 	/*
 		// 参照回数の多いイベントを取得する

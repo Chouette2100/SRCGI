@@ -20,7 +20,9 @@
 <th>データ<br>取得</th>
 <th>貢献<br>取得</th>
 <th>表・グラフ<br>表示</th>
+{{/*
 <th>グラフの色</th>
+*/}}
 <th>実行</th>
 </tr>
 
@@ -51,6 +53,7 @@
 <td align="center"><input type="checkbox" name="istarget" value="1" {{.Istarget}} form="{{.Formid}}" ></td>
 <td align="center"><input type="checkbox" name="iscntrbpoint"    value="1" {{.Iscntrbpoint}}    form="{{.Formid}}" ></td>
 <td align="center"><input type="checkbox" name="graph"    value="1" {{.Graph}}    form="{{.Formid}}" ></td>
+{{/*
 <td>
      <svg width="40.00" height="19.00"
           xmlns="http://www.w3.org/2000/svg"
@@ -64,6 +67,7 @@
           {{ end }}
      </select>
 </td>
+*/}}
 
 <td>
      <input type="hidden" name="func" value="edituser" form="{{.Formid}}" />

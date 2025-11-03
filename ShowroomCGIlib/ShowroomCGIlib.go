@@ -285,11 +285,10 @@ import (
 200400  EditCntrbPointsHandler() 枠別リスナー別貢献ポイントの一括登録機能を追加する。
 200401  GraphTotalHandler()で表示する最大ポイントの設定を有効にする。edit-user2.gtpl, edit-cntrbpoints.gtplでの貢献リストへのリンクを修正する。
 200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
-200700  ClosedEventsHandler()のUIを改善する。
-
-	closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
+200700  ClosedEventsHandler()のUIを改善する。closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
+200701  「一覧に追加するルーム」がないときは追加するルームに関する処理をスキップする。配色はグラフ表示時の順位で(動的に)決める。終了済みイベント一覧で、ルーム名・ルームIDで絞り込みをおこなったときもページネーションを可能にする。
 */
-const Version = "200700"
+const Version = "200701"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

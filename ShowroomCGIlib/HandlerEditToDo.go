@@ -37,13 +37,14 @@ func EditToDoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		// 編集画面の表示
 		handleEditToDoGet(w, r)
-	} else if r.Method == http.MethodPost {
+	case http.MethodPost:
 		// 更新処理
 		handleEditToDoPost(w, r)
-	} else {
+	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }

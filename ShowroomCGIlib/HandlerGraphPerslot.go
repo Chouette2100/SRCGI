@@ -469,9 +469,12 @@ func GraphPerSlot(
 	}
 
 	//	配信枠毎の獲得ポイントデータを描画する
+	cml := Colormaplist[eventinf.Cmap]
+	lenc := len(cml)
 
 	for j, perslotinf := range *perslotinflist {
-		_, cvalue, _ := SelectUserColor(perslotinf.Roomid, eventinf)
+		// _, cvalue, _ := SelectUserColor(perslotinf.Roomid, eventinf)
+		cvalue := cml[j%lenc].Value
 		for _, perslot := range perslotinf.Perslotlist {
 			y := float64(perslot.Ipoint)*yscale + yorigin
 			x := (float64(perslot.Timestart.Unix())/60.0/60.0/24.0-eventinf.Start_date)*xscale + xorigin

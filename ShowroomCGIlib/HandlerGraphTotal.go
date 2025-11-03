@@ -411,11 +411,13 @@ func GraphScore01(
 	}
 
 	//	獲得ポイントデータを描画する
-
+	colorlist := Colormaplist[eventinf.Cmap]
+	lenc := len(colorlist)
 	j := 0
 	for _, iar := range idandranklist {
 
-		_, cvalue, _ := SelectUserColor(iar.Userno, eventinf)
+		// _, cvalue, _ := SelectUserColor(iar.Userno, eventinf)
+		cvalue := colorlist[j%lenc].Value
 
 		x, y := SelectScoreList(eventinf, iar.Userno)
 		maxp := 20

@@ -27,13 +27,18 @@
 <label>　　表示する最大ポイント　<input type="text" name="maxpoint" value="{{.maxpoint}}" size="10" required pattern="[0-9]+">
 <label>（表示範囲を制限しない場合は"0"とする）
 <input type="hidden" name="eventid" value="{{.eventid}}">　　
+{{/*
 <input
       type="checkbox"
       id="resetcolor"
       name="resetcolor"
       value="on" />
     <label for="resetcolor">グラフ線の配色を初期化する</label>
+*/}}
+{{/*
 <br><input type="submit" value="表示するルームを選ぶ・グラフ線の色を変える"
+*/}}
+<br><input type="submit" value="表示するルームを選ぶ"
             formaction="edit-user" formmethod="POST" style="background-color: khaki">
 </form>
 <br><br>

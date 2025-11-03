@@ -163,9 +163,7 @@ import (
 	200500  experimental, todo のページを追加する(表示はされない)
 	200501  list-cnrbHex.gtpl の表にグラフへのリンクを追加する。
 	200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
-	200700  ClosedEventsHandler()のUIを改善する。
-	        closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
-
+	200700  ClosedEventsHandler()のUIを改善する。closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
 */
 
 const version = "200700"

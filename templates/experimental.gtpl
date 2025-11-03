@@ -10,7 +10,7 @@
   <ol type="A">
     <li><a href="list-todo">不具合・改善項目</a></li>
     {{/*
-    <li><a href="">API(JSON)</a></li>
+    <li><a href="">SHOWROOMのAPI</a></li>
     <ol type"1">
       <li></li>
       <li></li>

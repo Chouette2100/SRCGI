@@ -184,12 +184,14 @@ func ShowRankHandler(
 		return
 	}
 
-	showrank.UserlistA, err = SelectAddedRooms(nolist)
-	if err != nil {
-		err = fmt.Errorf("SelectAddedRooms(): %w", err)
-		log.Printf("HandlerShowRank(): %s\n", err.Error())
-		w.Write([]byte(fmt.Sprintf("SelectAddedRooms() error=%s\n", err.Error())))
-		return
+	if len(nolist) != 0 {
+		showrank.UserlistA, err = SelectAddedRooms(nolist)
+		if err != nil {
+			err = fmt.Errorf("SelectAddedRooms(): %w", err)
+			log.Printf("HandlerShowRank(): %s\n", err.Error())
+			w.Write([]byte(fmt.Sprintf("SelectAddedRooms() error=%s\n", err.Error())))
+			return
+		}
 	}
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "showrank.gtpl", showrank); err != nil {
