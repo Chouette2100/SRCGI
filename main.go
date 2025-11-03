@@ -164,9 +164,10 @@ import (
 	200501  list-cnrbHex.gtpl の表にグラフへのリンクを追加する。
 	200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
 	200700  ClosedEventsHandler()のUIを改善する。closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
+	200800  accessstatsのエンドポイントとそのハンドラー(AccessStatsHandler())を追加する。
 */
 
-const version = "200700"
+const version = "200800"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -748,6 +749,9 @@ func main() {
 
 		//	SHOWランク上位配信者一覧表
 		http.HandleFunc(rootPath+"/showrank", commonMiddleware(rateLimiter, ShowroomCGIlib.ShowRankHandler))
+
+		//	アクセス統計
+		http.HandleFunc(rootPath+"/accessstats", commonMiddleware(rateLimiter, ShowroomCGIlib.AccessStatsHandler))
 
 		//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
 		http.HandleFunc(rootPath+"/disp-bbs", commonMiddleware(rateLimiter, ShowroomCGIlib.DispBbsHandler))

@@ -287,8 +287,9 @@ import (
 200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
 200700  ClosedEventsHandler()のUIを改善する。closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
 200701  「一覧に追加するルーム」がないときは追加するルームに関する処理をスキップする。配色はグラフ表示時の順位で(動的に)決める。終了済みイベント一覧で、ルーム名・ルームIDで絞り込みをおこなったときもページネーションを可能にする。
+200800  accessstatsのエンドポイントとそのハンドラー(AccessStatsHandler())を追加する。
 */
-const Version = "200701"
+const Version = "200800"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -305,6 +306,19 @@ type ColorInf struct {
 }
 
 type ColorInfList []ColorInf
+
+// アクセス統計用の構造体
+type AccessStats struct {
+	AccessDate  string `db:"access_date"`
+	AccessCount int    `db:"daily_access_count"`
+}
+
+type AccessStatsData struct {
+	StartDate string
+	EndDate   string
+	Stats     []AccessStats
+	TimeNow   time.Time
+}
 
 type RoomInfo struct {
 	Name      string //	ルーム名のリスト
