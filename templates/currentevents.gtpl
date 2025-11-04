@@ -102,9 +102,11 @@
             border: 1px solid #ddd;
         }
         
+        {{/*
         .events-table tr:nth-child(even) {
             background-color: gainsboro;
         }
+        */}}
         
         {{/* 色が明るすぎるのも問題だが、参照済みでも色が変わらないのがもっと問題
         .events-table a {
@@ -179,15 +181,25 @@
                 <th>日々の<br>獲得pt</th>
                 <th>枠毎の<br>獲得pt</th>
             </tr>
-            {{ $i := 0 }}
-            {{ range .Eventinflist }}
-            {{ if eq $i 1 }}
-            <tr>
-            {{ $i = 0 }}
+
+        {{ $i := 0 }}
+        {{ range .Eventinflist }}
+        {{ if eq $i 1 }}
+            {{ if eq .Aclr 0 }}
+            <tr bgcolor="gainsboro">
             {{ else }}
-            <tr>
-            {{ $i = 1 }}
+            <tr bgcolor="palegreen">
             {{ end }}
+            {{ $i = 0 }}
+        {{ else }}
+            {{ if eq .Aclr 0 }}
+            <tr>
+            {{ else }}
+            <tr bgcolor="lightblue">
+            {{ end }}
+            {{ $i = 1 }}
+        {{ end }}
+
                 <td>
                     <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
                 </td>
