@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
-    <title>アクセス統計</title>
+    <title>時刻単位アクセス統計</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -52,25 +52,25 @@
             font-size: 24px;
         }
         
-        .date-filter-section {
+        .datetime-filter-section {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 20px;
         }
         
-        .date-inputs {
+        .datetime-inputs {
             display: flex;
             gap: 15px;
             align-items: center;
             flex-wrap: wrap;
         }
         
-        .date-inputs label {
+        .datetime-inputs label {
             font-weight: 600;
         }
         
-        .date-inputs input[type="date"] {
+        .datetime-inputs input[type="datetime-local"] {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -93,7 +93,7 @@
         
         .chart-container {
             position: relative;
-            height: 400px;
+            height: 500px;
             margin: 20px 0;
         }
         
@@ -143,20 +143,20 @@
             <button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button>
             <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button>
             <button type="button" onclick="location.href='closedevents'">終了イベント一覧</button>
-            <button type="button" class="active">日別アクセス統計</button>
-            <button type="button" onclick="location.href='accessstatshourly'">時刻別アクセス統計</button>
+            <button type="button" onclick="location.href='accessstats'">日別アクセス統計</button>
+            <button type="button" class="active">時刻別アクセス統計</button>
         </div>
         
-        <h1>アクセス統計</h1>
+        <h1>時刻単位アクセス統計</h1>
         
-        <div class="date-filter-section">
-            <form method="GET" action="accessstats">
-                <div class="date-inputs">
-                    <label for="start_date">開始日:</label>
-                    <input type="date" id="start_date" name="start_date" value="{{ .StartDate }}">
+        <div class="datetime-filter-section">
+            <form method="GET" action="accessstatshourly">
+                <div class="datetime-inputs">
+                    <label for="start_datetime">開始日時:</label>
+                    <input type="datetime-local" id="start_datetime" name="start_datetime" value="{{ .StartDateTime }}">
                     
-                    <label for="end_date">終了日:</label>
-                    <input type="date" id="end_date" name="end_date" value="{{ .EndDate }}">
+                    <label for="end_datetime">終了日時:</label>
+                    <input type="datetime-local" id="end_datetime" name="end_datetime" value="{{ .EndDateTime }}">
                     
                     <button type="submit" class="reload-btn">再表示</button>
                 </div>
@@ -164,7 +164,7 @@
         </div>
         
         <div class="info-message">
-            表示期間: {{ .StartDate }} 〜 {{ .EndDate }} ({{ len .Stats }}日間のデータ)
+            表示期間: {{ .StartDateTime }} 〜 {{ .EndDateTime }} ({{ len .Stats }}時間分のデータ)
         </div>
         
         {{ if .Stats }}
@@ -176,7 +176,7 @@
             
             <div class="stats-card">
                 <div class="number" id="avgAccess">-</div>
-                <div class="label">1日平均</div>
+                <div class="label">1時間平均</div>
             </div>
             
             <div class="stats-card">
@@ -200,17 +200,18 @@
         // グラフデータの準備
         const rawLabels = [
             {{ range $index, $stat := .Stats }}
-                {{ if $index }},{{ end }}'{{ $stat.AccessDate }}'
+                {{ if $index }},{{ end }}'{{ $stat.AccessHour }}'
             {{ end }}
         ];
         
-        // 日付を短縮形式にフォーマット
-        const labels = rawLabels.map(dateStr => {
-            const date = new Date(dateStr);
-            const year = date.getFullYear().toString().slice(-2); // 下2桁
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+        // 日時を短縮形式にフォーマット (25-11-05 16:00 形式)
+        const labels = rawLabels.map(dateTimeStr => {
+            const dt = new Date(dateTimeStr);
+            const year = dt.getFullYear().toString().slice(-2); // 下2桁
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const day = String(dt.getDate()).padStart(2, '0');
+            const hour = String(dt.getHours()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:00`;
         });
         
         const data = [
@@ -229,6 +230,9 @@
         document.getElementById('avgAccess').textContent = avg.toLocaleString();
         document.getElementById('maxAccess').textContent = max.toLocaleString();
         
+        // Y軸の最大値を計算（1000刻みで切り上げ）
+        const maxYValue = Math.ceil(max / 1000) * 1000;
+        
         // Chart.jsの設定
         const ctx = document.getElementById('accessChart').getContext('2d');
         const accessChart = new Chart(ctx, {
@@ -236,7 +240,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '日別アクセス数',
+                    label: '時刻別アクセス数',
                     data: data,
                     borderColor: '#007bff',
                     backgroundColor: 'rgba(0, 123, 255, 0.1)',
@@ -246,8 +250,8 @@
                     pointBackgroundColor: '#007bff',
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
+                    pointRadius: 3,
+                    pointHoverRadius: 5
                 }]
             },
             options: {
@@ -256,11 +260,21 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'アクセス数推移グラフ'
+                        text: '時刻別アクセス数推移グラフ',
+                        font: {
+                            size: 16
+                        }
                     },
                     legend: {
                         display: true,
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'アクセス数: ' + context.parsed.y.toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -268,10 +282,12 @@
                         display: true,
                         title: {
                             display: true,
-                            text: '日付'
+                            text: '日時'
                         },
                         ticks: {
-                            maxTicksLimit: 15
+                            maxRotation: 45,
+                            minRotation: 45,
+                            maxTicksLimit: 24
                         }
                     },
                     y: {
@@ -281,8 +297,12 @@
                             text: 'アクセス数'
                         },
                         beginAtZero: true,
+                        max: maxYValue > 0 ? maxYValue : undefined,
                         ticks: {
-                            stepSize: 5000
+                            stepSize: 1000,
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
                         }
                     }
                 },

@@ -51,9 +51,19 @@ func GraphSumHandler(w http.ResponseWriter, r *http.Request) {
 
 	eventid := r.FormValue("eventid")
 	sroomid := r.FormValue("roomid")
+	if sroomid == "" {
+		log.Printf("GraphSumHandler() roomid is empty\n")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 	roomid, _ := strconv.Atoi(sroomid)
 
 	intf, _ := srdblib.Dbmap.Get(srdblib.Event{}, eventid)
+	if intf == nil {
+		log.Printf("Event ID %s not found\n", eventid)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 	hgsinf := HGSinf{
 		Title:     "獲得ポイントと累積ポイントの概要",
 		Eventid:   eventid,
@@ -119,6 +129,12 @@ func GraphSumDataHandler(w http.ResponseWriter, r *http.Request) {
 	roomid, _ := strconv.Atoi(sroomid)
 
 	_, perslotinflist, _ := MakePointPerSlot(eventid, roomid)
+	if len(perslotinflist) == 0 {
+		err := fmt.Errorf("GraphSumDataHandler() - MakePointPerSlot() Data not found")
+		log.Printf("GraphSumDataHandler() - %s\n", err.Error())
+		http.Error(w, "Data not found", http.StatusNotFound)
+		return
+	}
 
 	sumdata.Dtime = make([]string, len(perslotinflist[0].Perslotlist))
 	sumdata.Data1 = make([]float64, len(perslotinflist[0].Perslotlist))

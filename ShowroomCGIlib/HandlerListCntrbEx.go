@@ -101,9 +101,18 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 	eventid := req.FormValue("eventid")
 
 	var eventinf exsrapi.Event_Inf
-	GetEventInf(eventid, &eventinf)
+	status := GetEventInf(eventid, &eventinf)
+	if status != 0 {
+		log.Printf("GetEventInf() failed eventid=%s status=%d", eventid, status)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
+	if userno == 0 {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
 	log.Printf(". eventid=%s, userno=%d\n", eventid, userno)
 

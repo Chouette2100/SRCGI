@@ -165,9 +165,12 @@ import (
 	200600  ListToDoHandler(), EditToDoHandler(), InsertToDoHandler(), ExperimentalHandler()を追加する。
 	200700  ClosedEventsHandler()のUIを改善する。closedevents.gtplのスタイルをcurrentevents.gtpl, scheduled-events.gtplにも適用する。
 	200800  accessstatsのエンドポイントとそのハンドラー(AccessStatsHandler())を追加する。
+	200802  ContributorsHandler()の使用を一時禁止する。
+	200803  ContributorsHandler()の使用を取得済みデータについては開放する。
+	200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
 */
 
-const version = "200800"
+const version = "200804"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -363,7 +366,8 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		}
 
 		var al srdblib.Accesslog
-		al.Ts = time.Now().Truncate(time.Second)
+		al.Ts = time.Now().Truncate(time.Millisecond)
+		log.Printf(" Accesslog Ts: %s\n", al.Ts.Format("2006-01-02 15:04:05.000"))
 		al.Handler = entry
 		al.Remoteaddress = ra
 		al.Useragent = ua
@@ -752,6 +756,9 @@ func main() {
 
 		//	アクセス統計
 		http.HandleFunc(rootPath+"/accessstats", commonMiddleware(rateLimiter, ShowroomCGIlib.AccessStatsHandler))
+
+		//	時刻単位アクセス統計
+		http.HandleFunc(rootPath+"/accessstatshourly", commonMiddleware(rateLimiter, ShowroomCGIlib.AccessStatsHourlyHandler))
 
 		//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
 		http.HandleFunc(rootPath+"/disp-bbs", commonMiddleware(rateLimiter, ShowroomCGIlib.DispBbsHandler))

@@ -289,8 +289,11 @@ import (
 200701  「一覧に追加するルーム」がないときは追加するルームに関する処理をスキップする。配色はグラフ表示時の順位で(動的に)決める。終了済みイベント一覧で、ルーム名・ルームIDで絞り込みをおこなったときもページネーションを可能にする。
 200800  accessstatsのエンドポイントとそのハンドラー(AccessStatsHandler())を追加する。
 200801  開催中イベント一覧でよく参照されているイベントを考慮した行の色分けを行う
+200803  ContributorsHandler()の使用を取得済みデータについては開放する。
+200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
+200805  GraphSum2Handler(), GraphSumHandler()でデータが存在しないときはdata not foundとする。
 */
-const Version = "200801"
+const Version = "200805"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -319,6 +322,20 @@ type AccessStatsData struct {
 	EndDate   string
 	Stats     []AccessStats
 	TimeNow   time.Time
+}
+
+// AccessStatsHourly は時刻単位のアクセス統計を保持する構造体
+type AccessStatsHourly struct {
+	AccessHour  string `db:"access_hour"`
+	AccessCount int    `db:"hourly_access_count"`
+}
+
+// AccessStatsHourlyData は時刻単位のアクセス統計画面のデータを保持する構造体
+type AccessStatsHourlyData struct {
+	StartDateTime string
+	EndDateTime   string
+	Stats         []AccessStatsHourly
+	TimeNow       time.Time
 }
 
 type RoomInfo struct {

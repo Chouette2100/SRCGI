@@ -24,7 +24,7 @@ import (
 
 	//	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srapi/v2"
+	// "github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
 
@@ -108,7 +108,8 @@ func ContributorsHandler(
 	if err = MakeFileOfContributors(client, &hcntrbinf); err != nil {
 		err = fmt.Errorf("MakeFileOfContributors(): %w", err)
 		log.Printf("err=%s\n", err.Error())
-		w.Write([]byte(err.Error()))
+		// w.Write([]byte(err.Error()))
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
@@ -144,44 +145,51 @@ func GetAndSaveContributors(
 	}
 	if count == 0 {
 
-		var cr *srapi.Contribution_ranking
-		cr, err = srapi.ApiEventContribution_ranking(client, ieventid, roomid)
-		if err != nil {
-			err = fmt.Errorf("GetContribution(): %w", err)
-			return
-		}
-		// 取得した貢献ポイントデータを格納する
-		tnow := time.Now().Truncate(time.Second)
-		for _, c := range cr.Ranking {
+		// しばらくのあいだデータ未取得の場合はこの機能を停止する。
+		err = fmt.Errorf("GetAndSaveContributors(): contribution data not found and data fetching is disabled temporarily")
+		log.Printf("%s\n", err.Error())
+		return
 
-			viewer := srdblib.Viewer{
-				Viewerid: c.UserID,
-				Name:     c.Name,
-				Sname:    c.Name,
-				Ts:       tnow,
-			}
-			if err = srdblib.UpinsViewerSetProperty(client, tnow, &viewer); err != nil {
-				err = fmt.Errorf("UpinsViewerSetProperty(): %w", err)
+		/*
+			var cr *srapi.Contribution_ranking
+			cr, err = srapi.ApiEventContribution_ranking(client, ieventid, roomid)
+			if err != nil {
+				err = fmt.Errorf("GetContribution(): %w", err)
 				return
 			}
+			// 取得した貢献ポイントデータを格納する
+			tnow := time.Now().Truncate(time.Second)
+			for _, c := range cr.Ranking {
 
-			contribution := Contribution{
-				Ieventid: ieventid,
-				Roomid:   roomid,
-				Viewerid: c.UserID,
-				Irank:    c.Rank,
-				Point:    c.Point,
+				viewer := srdblib.Viewer{
+					Viewerid: c.UserID,
+					Name:     c.Name,
+					Sname:    c.Name,
+					Ts:       tnow,
+				}
+				if err = srdblib.UpinsViewerSetProperty(client, tnow, &viewer); err != nil {
+					err = fmt.Errorf("UpinsViewerSetProperty(): %w", err)
+					return
+				}
+
+				contribution := Contribution{
+					Ieventid: ieventid,
+					Roomid:   roomid,
+					Viewerid: c.UserID,
+					Irank:    c.Rank,
+					Point:    c.Point,
+				}
+				// log.Printf("Insert(): %8d%8d%8d%4d%10d\n",
+				// 	ieventid, roomid, contribution.Viewerid, contribution.Irank, contribution.Point)
+
+				if err = srdblib.Dbmap.Insert(&contribution); err != nil {
+					err = fmt.Errorf("Insert(): %w", err)
+					// log.Printf("Insert(): %s\n", err.Error())
+					return
+				}
+
 			}
-			// log.Printf("Insert(): %8d%8d%8d%4d%10d\n",
-			// 	ieventid, roomid, contribution.Viewerid, contribution.Irank, contribution.Point)
-
-			if err = srdblib.Dbmap.Insert(&contribution); err != nil {
-				err = fmt.Errorf("Insert(): %w", err)
-				// log.Printf("Insert(): %s\n", err.Error())
-				return
-			}
-
-		}
+		*/
 	}
 
 	sqlst = "SELECT c.irank, c.viewerid, v.name, c.point FROM contribution c "
