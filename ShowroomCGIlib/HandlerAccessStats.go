@@ -4,10 +4,12 @@
 package ShowroomCGIlib
 
 import (
-	"html/template"
 	"log"
-	"net/http"
+	"strconv"
 	"time"
+
+	"html/template"
+	"net/http"
 
 	"github.com/Chouette2100/srdblib/v2"
 )
@@ -22,19 +24,33 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 	accessStatsData.TimeNow = time.Now()
 
 	// パラメータから開始日、終了日を取得
-	startDate := r.FormValue("start_date")
+	// startDate := r.FormValue("start_date")
 	endDate := r.FormValue("end_date")
+	period := r.FormValue("period")
+	iperiod, err := strconv.Atoi(period)
+	if err != nil || iperiod <= 0 {
+		iperiod = 31 // デフォルト31日
+	}
 
 	// デフォルト値の設定（直近1ヶ月）
-	if startDate == "" {
-		startDate = time.Now().AddDate(0, -1, 0).Format("2006-01-02")
-	}
+	// if startDate == "" {
+	// 	startDate = time.Now().AddDate(0, -1, 0).Format("2006-01-02")
+	// }
 	if endDate == "" {
 		endDate = time.Now().Format("2006-01-02")
 	}
+	etime, err := time.Parse("2006-01-02", endDate)
+	if err != nil {
+		log.Printf("AccessStatsHandler() endDate parse error: %v", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	stime := etime.AddDate(0, 0, -iperiod)
+	startDate := stime.Format("2006-01-02")
 
 	accessStatsData.StartDate = startDate
 	accessStatsData.EndDate = endDate
+	accessStatsData.Period = iperiod
 
 	// SQLクエリを実行してアクセス統計を取得
 	sql := `

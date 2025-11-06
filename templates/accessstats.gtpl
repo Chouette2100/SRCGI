@@ -45,6 +45,10 @@
             color: white;
             border-color: #007bff;
         }
+
+        #period {
+            width: 3em;
+        }
         
         h1 {
             color: #333;
@@ -105,6 +109,13 @@
             margin: 10px 0;
             font-size: 13px;
         }
+
+        .table_m {
+            {{/* width: 100%; */}}
+            border-collapse: collapse;
+            font-size: 14px;
+            background-color: white;
+        }
         
         .stats-summary {
             display: flex;
@@ -139,21 +150,41 @@
     
     <div class="container">
         <div class="nav-buttons">
+                <table class="table_m">
+          <tr>
+            <td>
             <button type="button" onclick="location.href='top'">トップ</button>
+            </td><td>
             <button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button>
+            </td><td>
             <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button>
+            </td><td>
             <button type="button" onclick="location.href='closedevents'">終了イベント一覧</button>
+            </td>
+          </tr><tr>
+            <td>
+            </td><td>
             <button type="button" class="active">日別アクセス統計</button>
+            </td><td>
             <button type="button" onclick="location.href='accessstatshourly'">時刻別アクセス統計</button>
+            </td><td>
+            <button type="button" onclick="location.href='accessstable'">アクセス集計表<button>
+            </td>
+          </tr>
+        </table>
         </div>
         
-        <h1>アクセス統計</h1>
+        <h1>日別アクセス統計</h1>
         
         <div class="date-filter-section">
             <form method="GET" action="accessstats">
                 <div class="date-inputs">
+                    {{/*
                     <label for="start_date">開始日:</label>
                     <input type="date" id="start_date" name="start_date" value="{{ .StartDate }}">
+                    */}}
+                    <label for="start_date">期間:</label>
+                    <input type="number" id="period" name="period" min="7" max="200" value="{{ if eq .Period 0 }}31{{ else }}{{ .Period }}{{ end }}">日　
                     
                     <label for="end_date">終了日:</label>
                     <input type="date" id="end_date" name="end_date" value="{{ .EndDate }}">

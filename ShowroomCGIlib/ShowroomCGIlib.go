@@ -292,8 +292,9 @@ import (
 200803  ContributorsHandler()の使用を取得済みデータについては開放する。
 200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
 200805  GraphSum2Handler(), GraphSumHandler()でデータが存在しないときはdata not foundとする。
+200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
 */
-const Version = "200805"
+const Version = "200900"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -320,6 +321,7 @@ type AccessStats struct {
 type AccessStatsData struct {
 	StartDate string
 	EndDate   string
+	Period    int
 	Stats     []AccessStats
 	TimeNow   time.Time
 }
@@ -334,8 +336,33 @@ type AccessStatsHourly struct {
 type AccessStatsHourlyData struct {
 	StartDateTime string
 	EndDateTime   string
+	Period        int
 	Stats         []AccessStatsHourly
 	TimeNow       time.Time
+}
+
+// DailyAccessCount は日ごとのアクセス数を保持する構造体
+type DailyAccessCount struct {
+	Date  string
+	Count int
+}
+
+// AccessTableRow はアクセス集計テーブルの1行を表す構造体
+type AccessTableRow struct {
+	Key         string             // ハンドラー名、IPアドレス、またはユーザーエージェント
+	DailyCounts []DailyAccessCount // 7日分のアクセス数
+	Total       int                // 合計
+}
+
+// AccessTableData はアクセス集計テーブルのデータを保持する構造体
+type AccessTableData struct {
+	Type        string           // "handler", "ip", "useragent"
+	EndDate     string           // 表示範囲の終了日
+	Dkey        string           // 暗号化キー(暗号化キーは保存されている、これは認証のために使う)
+	EIp         string           // 暗号化されたIPアドレス
+	DateHeaders []string         // 日付のヘッダー（7日分）
+	Rows        []AccessTableRow // テーブルの行データ
+	TimeNow     time.Time
 }
 
 type RoomInfo struct {

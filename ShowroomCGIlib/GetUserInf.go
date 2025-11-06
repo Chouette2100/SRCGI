@@ -211,8 +211,14 @@ func GetUserInf(r *http.Request) (
 
 // func logWorker(db *sql.DB, logCh chan string, done chan struct{}) {
 func LogWorker() {
+	lt := time.Now()
 	for {
 		al := <-Chlog
+		if !al.Ts.After(lt) {
+			al.Ts = al.Ts.Add(time.Millisecond)
+			log.Printf(" Adjust Time: %s\n", al.Ts.Format("2006-01-02 15:04:05.000"))
+		}
+		lt = al.Ts
 		if err := srdblib.Dbmap.Insert(al); err != nil {
 			log.Printf(" GetUserInf(): Dbmap.Insert(al): %s\n", err.Error())
 		} else {

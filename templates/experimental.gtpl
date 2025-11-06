@@ -68,9 +68,9 @@
   <li><a href="list-todo">不具合・改善項目</a></li>
   <li>アクセス情報</li>
     <ol type="1">
-    <li><a href="accessstats">日々のアクセス数</a></li>
-    <li><a href="accessstats">ハンドラーごとのアクセス数</a></li>
-    <li><a href="accessstats">イベントごとのアクセス数</a></li>
+    <li><a href="accessstats">日別アクセス統計</a></li>
+    <li><a href="accessstatshourly">時間別アクセス統計</a></li>
+    <li><a href="accesstable">アクセス集計表</a></li>
     </ol>
   <li>SHOWROOMのAPI</li>
   {{/*

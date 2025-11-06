@@ -45,6 +45,10 @@
             color: white;
             border-color: #007bff;
         }
+
+                #period {
+            width: 3em;
+        }
         
         h1 {
             color: #333;
@@ -105,6 +109,13 @@
             margin: 10px 0;
             font-size: 13px;
         }
+
+        .table_m {
+            {{/* width: 100%; */}}
+            border-collapse: collapse;
+            font-size: 14px;
+            background-color: white;
+        }
         
         .stats-summary {
             display: flex;
@@ -139,12 +150,28 @@
     
     <div class="container">
         <div class="nav-buttons">
+        <table class="table_m">
+          <tr>
+            <td>
             <button type="button" onclick="location.href='top'">トップ</button>
+            </td><td>
             <button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button>
+            </td><td>
             <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button>
+            </td><td>
             <button type="button" onclick="location.href='closedevents'">終了イベント一覧</button>
+            </td>
+          </tr><tr>
+            <td>
+            </td><td>
             <button type="button" onclick="location.href='accessstats'">日別アクセス統計</button>
+            </td><td>
             <button type="button" class="active">時刻別アクセス統計</button>
+            </td><td>
+            <button type="button" onclick="location.href='accesstable'">アクセス集計表<button>
+            </td>
+          </tr>
+        </table>
         </div>
         
         <h1>時刻単位アクセス統計</h1>
@@ -152,9 +179,15 @@
         <div class="datetime-filter-section">
             <form method="GET" action="accessstatshourly">
                 <div class="datetime-inputs">
+                {{/*
                     <label for="start_datetime">開始日時:</label>
                     <input type="datetime-local" id="start_datetime" name="start_datetime" value="{{ .StartDateTime }}">
-                    
+                */}}
+
+                    <label for="period">期間:</label>
+                    <input type="number" id="period" name="period"
+                    min="24" max="216"
+                    value="{{ if eq .Period 0 }}72{{ else }}{{ .Period }}{{ end }}">(時間)　
                     <label for="end_datetime">終了日時:</label>
                     <input type="datetime-local" id="end_datetime" name="end_datetime" value="{{ .EndDateTime }}">
                     
@@ -230,8 +263,8 @@
         document.getElementById('avgAccess').textContent = avg.toLocaleString();
         document.getElementById('maxAccess').textContent = max.toLocaleString();
         
-        // Y軸の最大値を計算（1000刻みで切り上げ）
-        const maxYValue = Math.ceil(max / 1000) * 1000;
+        // Y軸の最大値を計算（500刻みで切り上げ）
+        const maxYValue = Math.ceil(max / 500) * 500;
         
         // Chart.jsの設定
         const ctx = document.getElementById('accessChart').getContext('2d');

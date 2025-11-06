@@ -168,9 +168,10 @@ import (
 	200802  ContributorsHandler()の使用を一時禁止する。
 	200803  ContributorsHandler()の使用を取得済みデータについては開放する。
 	200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
+	200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
 */
 
-const version = "200804"
+const version = "200900"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -760,10 +761,11 @@ func main() {
 		//	時刻単位アクセス統計
 		http.HandleFunc(rootPath+"/accessstatshourly", commonMiddleware(rateLimiter, ShowroomCGIlib.AccessStatsHourlyHandler))
 
-		//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
-		http.HandleFunc(rootPath+"/disp-bbs", commonMiddleware(rateLimiter, ShowroomCGIlib.DispBbsHandler))
+		//	アクセス集計表（ハンドラー、IPアドレス、ユーザーエージェント別）
+		http.HandleFunc(rootPath+"/accesstable", commonMiddleware(rateLimiter, ShowroomCGIlib.AccessTableHandler))
 
-		//  資料・実験
+		//	掲示板の書き込みと表示、同様の機能が HandlerTopForm()にもある。共通化すべき。
+		http.HandleFunc(rootPath+"/disp-bbs", commonMiddleware(rateLimiter, ShowroomCGIlib.DispBbsHandler)) //  資料・実験
 		http.HandleFunc(rootPath+"/experimental", commonMiddleware(rateLimiter, ShowroomCGIlib.ExperimentalHandler))
 
 		//	ToDo管理
