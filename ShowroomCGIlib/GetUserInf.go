@@ -215,8 +215,11 @@ func LogWorker() {
 	for {
 		al := <-Chlog
 		if !al.Ts.After(lt) {
-			al.Ts = al.Ts.Add(time.Millisecond)
-			log.Printf(" Adjust Time: %s\n", al.Ts.Format("2006-01-02 15:04:05.000"))
+			alts := al.Ts
+			al.Ts = lt.Add(time.Millisecond)
+			log.Printf(" Adjust Time: %s ( from %s)\n",
+				al.Ts.Format("2006-01-02 15:04:05.000"),
+				alts.Format("2006-01-02 15:04:05.000"))
 		}
 		lt = al.Ts
 		if err := srdblib.Dbmap.Insert(al); err != nil {

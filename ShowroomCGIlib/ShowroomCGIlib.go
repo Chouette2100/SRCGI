@@ -293,8 +293,9 @@ import (
 200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
 200805  GraphSum2Handler(), GraphSumHandler()でデータが存在しないときはdata not foundとする。
 200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
+200901  アクセスログの時刻（Ts）のチェックを厳密に行う。
 */
-const Version = "200900"
+const Version = "200901"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
