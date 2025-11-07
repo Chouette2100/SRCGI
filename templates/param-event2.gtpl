@@ -13,7 +13,7 @@
 1は旧バージョンの色パターン、0はあらたに定義した色パターンです（<span style="color: red">色パターンを変えると色設定は初期化されます</span>a）
 </td></tr>
 <tr><td></td><td></td><td align="right"><input type="submit" value="設定変更" formaction="param-eventc" formmethod="POST" style="background-color: khaki"></td></tr>
-<tr><td></td><td></td><td align="right"><input type="submit" value="キャンセル" formaction="top?eventid={{.Event_ID}}" formmethod="POST" style="background-color: khaki"></td></tr>
+<tr><td></td><td></td><td align="right"><input type="submit" value="キャンセル" formaction="eventtop?eventid={{.Event_ID}}" formmethod="POST" style="background-color: khaki"></td></tr>
 </table>
 </form>
 <p style="padding-left:4em">

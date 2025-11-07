@@ -33,7 +33,7 @@
     <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button></td>
             </tr>
             <tr>
-      <td><button type="button" onclick="location.href='top?eventid={{.Eventurl}}'">イベントトップ</button></td>
+      <td><button type="button" onclick="location.href='eventtop?eventid={{.Eventurl}}'">イベントトップ</button></td>
       <td></td>
       <td><button type="button" onclick="location.href='list-last?eventid={{.Eventurl}}'">直近の獲得ポイント</button></td>
       {{/*

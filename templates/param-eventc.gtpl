@@ -15,7 +15,7 @@
         <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
     </tr>
     <tr>
-        <td><button type="button" onclick="location.href='top?eventid={{.Event_ID}}'">イベントトップ</button></td>
+        <td><button type="button" onclick="location.href='eventtop?eventid={{.Event_ID}}'">イベントトップ</button></td>
         <td><button type="button" onclick="location.href='list-last?eventid={{.Event_ID}}'">直近の獲得ポイント</button></td>
         <td><button type="button"
                 onclick="location.href='graph-total?eventid={{.Event_ID}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button>
@@ -42,7 +42,7 @@
 <tr><td></td><td>最大表示数</td><td><span class="fblue">{{.Maxdsp}}</span></td></tr>
 <tr><td></td><td>カラーマップ</td><td><span class="fblue">{{.Cmap}}</span></td></tr>
 <tr><td></td><td></td><td align="right"><input type="submit" value="設定変更に戻る" formaction="param-event" formmethod="POST" style="background-color: khaki"></td></tr>
-<tr><td></td><td></td><td align="right"><input type="submit" value="終了" formaction="top?eventid={{.Event_ID}}" formmethod="POST" style="background-color: khaki"></td></tr>
+<tr><td></td><td></td><td align="right"><input type="submit" value="終了" formaction="eventtop?eventid={{.Event_ID}}" formmethod="POST" style="background-color: khaki"></td></tr>
 </table>
 </form>
 <p style="padding-left:4em">

@@ -86,3 +86,6 @@
 		<input type='submit' name="action" value='prev.' formaction="/disp-bbs" />
 		*/}}
 </form>
+</body>
+
+</html>

@@ -44,7 +44,7 @@ import (
 )
 
 // 入力フォーム画面
-func TopFormHandler(w http.ResponseWriter, r *http.Request) {
+func TopHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -69,140 +69,118 @@ func TopFormHandler(w http.ResponseWriter, r *http.Request) {
 	userno, _ := strconv.Atoi(suserno)
 	log.Printf("      eventid=%s userno=%d\n", eventid, userno)
 
-	if eventid == "" {
+	// **********************************************
+	var bbs BBS
 
-		// **********************************************
-		var bbs BBS
+	bbs.Version = VersionOfAll // main.VersionOfAll
 
-		bbs.Version = VersionOfAll // main.VersionOfAll
+	bbs.Cntlist = []int{1, 2, 3, 4, 5}
+	bbs.Cntr = 9
 
-		bbs.Cntlist = []int{1, 2, 3, 4, 5}
-		bbs.Cntr = 9
+	//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
+	//	GetUserInf(req)
 
-		//      ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
-		//	GetUserInf(req)
+	/*
+		bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
+		if bbs.Limit == 0 {
+			bbs.Limit = 11
+		}
+	*/
+	bbs.Limit = 11
+	bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
 
-		/*
-			bbs.Limit, _ = strconv.Atoi(r.FormValue("limit"))
-			if bbs.Limit == 0 {
-				bbs.Limit = 11
-			}
-		*/
-		bbs.Limit = 11
-		bbs.Offset, _ = strconv.Atoi(r.FormValue("offset"))
-
-		action := r.FormValue("action")
-		switch action {
-		case "next":
-			bbs.Offset += bbs.Limit - 1
-		case "prev.":
-			bbs.Offset -= bbs.Limit - 1
-			if bbs.Offset < 0 {
-				bbs.Offset = 0
-			}
-		case "再表示(top)":
+	action := r.FormValue("action")
+	switch action {
+	case "next":
+		bbs.Offset += bbs.Limit - 1
+	case "prev.":
+		bbs.Offset -= bbs.Limit - 1
+		if bbs.Offset < 0 {
 			bbs.Offset = 0
 		}
+	case "再表示(top)":
+		bbs.Offset = 0
+	}
 
-		from := r.FormValue("from")
-		bbs.Manager = r.FormValue("manager")
-		if bbs.Manager == "" {
-			bbs.Manager = "black"
-		}
+	from := r.FormValue("from")
+	bbs.Manager = r.FormValue("manager")
+	if bbs.Manager == "" {
+		bbs.Manager = "black"
+	}
 
-		if from == "disp-bbs" {
-			/*
-				for i, v := range []string{"cnt0", "cnt1", "cnt2", "cnt3", "cnt4"} {
-					cntv, _ := strconv.Atoi(r.FormValue(v))
-					if cntv > 0 {
-						bbs.Cntlist[i] = cntv
-					} else {
-						bbs.Cntlist[i] = -1
-					}
-				}
-			*/
-			bbs.Cntr, _ = strconv.Atoi(r.FormValue("cntr"))
-		}
-
-		//      テンプレートで使用する関数を定義する
-		funcMap := template.FuncMap{
-			"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
-			"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-			"CntToName": func(c int) string {
-				cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
-				return cntname[c]
-			},
-			"Add": func(n int, m int) int { return n + m },
-		}
-		// テンプレートをパースする
-		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl", "templates/top1.gtpl", "templates/top2.gtpl"))
-
-		// ログを読み出してHTMLを生成 --- (*7)
-		err := loadLogs(&bbs) // データを読み出す
-		if err != nil {
-			err = fmt.Errorf("loadLogs(): %w", err)
-			log.Printf("showHandler(): %s\n", err.Error())
-		}
-		bbs.Nlog = len(bbs.Loglist)
-		// **********************************************
-
-		// マップを展開してテンプレートを出力する
-		eventlist, _ := SelectLastEventList()
-		if err := tpl.ExecuteTemplate(w, "top.gtpl", eventlist); err != nil {
-			log.Println(err)
-		}
-
-		//	イベントでポイント比較の基準となる配信者（nobasis）のリストを取得する
-		userlist, status := SelectUserList()
-		if status == 0 {
-
-			userlist[0].Userlongname = "ポイントの基準となる配信者が設定されていない"
-			for i := 0; i < len(userlist); i++ {
-				if userlist[i].Userno == userno {
-					userlist[i].Selected = "Selected"
+	if from == "disp-bbs" {
+		/*
+			for i, v := range []string{"cnt0", "cnt1", "cnt2", "cnt3", "cnt4"} {
+				cntv, _ := strconv.Atoi(r.FormValue(v))
+				if cntv > 0 {
+					bbs.Cntlist[i] = cntv
 				} else {
-					userlist[i].Selected = ""
+					bbs.Cntlist[i] = -1
 				}
 			}
+		*/
+		bbs.Cntr, _ = strconv.Atoi(r.FormValue("cntr"))
+	}
 
-			eventlist, _ = SelectEventList(userno)
-			for i := 0; i < len(eventlist); i++ {
-				if eventlist[i].EventID == eventid {
-					eventlist[i].Selected = "Selected"
-				} else {
-					eventlist[i].Selected = ""
-				}
+	//      テンプレートで使用する関数を定義する
+	funcMap := template.FuncMap{
+		"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
+		"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
+		"CntToName": func(c int) string {
+			cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
+			return cntname[c]
+		},
+		"Add": func(n int, m int) int { return n + m },
+	}
+	// テンプレートをパースする
+	// tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl", "templates/top1.gtpl", "templates/top2.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl"))
+
+	// ログを読み出してHTMLを生成 --- (*7)r
+	err := loadLogs(&bbs) // データを読み出す
+	if err != nil {
+		err = fmt.Errorf("loadLogs(): %w", err)
+		log.Printf("showHandler(): %s\n", err.Error())
+	}
+	bbs.Nlog = len(bbs.Loglist)
+	// **********************************************
+
+	// マップを展開してテンプレートを出力する
+	eventlist, _ := SelectLastEventList()
+	if err := tpl.ExecuteTemplate(w, "top.gtpl", eventlist); err != nil {
+		log.Println(err)
+	}
+
+	//	イベントでポイント比較の基準となる配信者（nobasis）のリストを取得する
+	userlist, status := SelectUserList()
+	if status == 0 {
+
+		userlist[0].Userlongname = "ポイントの基準となる配信者が設定されていない"
+		for i := 0; i < len(userlist); i++ {
+			if userlist[i].Userno == userno {
+				userlist[i].Selected = "Selected"
+			} else {
+				userlist[i].Selected = ""
 			}
 		}
-		// マップを展開してテンプレートを出力する
-		//		if err := tpl.ExecuteTemplate(w, "top0.gtpl", userlist); err != nil {
-		if err := tpl.ExecuteTemplate(w, "bbs-2.gtpl", bbs); err != nil {
-			log.Println(err)
-		}
-		if err := tpl.ExecuteTemplate(w, "top1.gtpl", eventlist); err != nil {
-			log.Println(err)
-		}
-	} else {
-		tpl := template.Must(template.ParseFiles(
-			"templates/top2.gtpl",
-		))
 
-		//	eventinf, _ := SelectEventInf(eventid)
-		//	srdblib.Tevent = "event"
-		eventinf, err := srdblib.SelectFromEvent("event", eventid)
-		if err != nil {
-			//	DBの処理でエラーが発生した。
-			return
-		} else if eventinf == nil {
-			//	指定した eventid のイベントが存在しない。
-			return
-		}
-		// Event_inf = *eventinf
-
-		if err := tpl.ExecuteTemplate(w, "top2.gtpl", eventinf); err != nil {
-			log.Println(err)
+		eventlist, _ = SelectEventList(userno)
+		for i := 0; i < len(eventlist); i++ {
+			if eventlist[i].EventID == eventid {
+				eventlist[i].Selected = "Selected"
+			} else {
+				eventlist[i].Selected = ""
+			}
 		}
 	}
+	// マップを展開してテンプレートを出力する
+	//		if err := tpl.ExecuteTemplate(w, "top0.gtpl", userlist); err != nil {
+	if err := tpl.ExecuteTemplate(w, "bbs-2.gtpl", bbs); err != nil {
+		log.Println(err)
+	}
+	// if err := tpl.ExecuteTemplate(w, "top1.gtpl", eventlist); err != nil {
+	// 	log.Println(err)
+	// }
 
 }
 func SelectLastEventList() (eventlist []Event, status int) {

@@ -295,8 +295,9 @@ import (
 200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
 200901  アクセスログの時刻（Ts）のチェックを厳密に行う。
 200902  /ApiRoomStatus ハンドラーを悪意のあるアクセスから保護する。
+201000  TopFormHandler()をTopHandler()とEventTopHandler()に分割する。
 */
-const Version = "200902"
+const Version = "201000"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

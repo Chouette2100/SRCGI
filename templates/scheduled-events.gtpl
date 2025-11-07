@@ -225,7 +225,7 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
-                    <a href="top?eventid={{ .Event_ID }}">項目選択</a>
+                    <a href="eventtop?eventid={{ .Event_ID }}">項目選択</a>
                     {{ else }}
                     <a href="new-event?eventid={{ .Event_ID }}">取得開始登録</a>
                     {{ end }}

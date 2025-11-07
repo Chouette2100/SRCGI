@@ -170,9 +170,10 @@ import (
 	200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
 	200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
 	200902  /ApiRoomStatus ハンドラーを悪意のあるアクセスから保護する。
+	201000  TopFormHandler()をTopHandler()とEventTopHandler()に分割する。
 */
 
-const version = "200902"
+const version = "201000"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -661,7 +662,10 @@ func main() {
 
 	if !ShowroomCGIlib.Serverconfig.Maintenance {
 
-		http.HandleFunc(rootPath+"/top", commonMiddleware(rateLimiter, ShowroomCGIlib.TopFormHandler))
+		// http.HandleFunc(rootPath+"/top", commonMiddleware(rateLimiter, ShowroomCGIlib.TopFormHandler))
+		http.HandleFunc(rootPath+"/top", commonMiddleware(rateLimiter, ShowroomCGIlib.TopHandler))
+
+		http.HandleFunc(rootPath+"/eventtop", commonMiddleware(rateLimiter, ShowroomCGIlib.EventTopHandler))
 
 		http.HandleFunc(rootPath+"/list-level", commonMiddleware(rateLimiter, ShowroomCGIlib.ListLevelHandler))
 

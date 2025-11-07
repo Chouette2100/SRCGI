@@ -5,8 +5,8 @@
 <p>
 {{/*
 <button type="button" onclick="location.href='top'">サイトトップ画面に戻る</button><br>
-*/}}
 <button type="button" onclick="location.href='top?userno={{.Userno}}'">top</button>
+*/}}
 </p>
 <h2>ルーム情報（レベルとフォロワーの推移）</h2>
 <p style="padding-left:2em">

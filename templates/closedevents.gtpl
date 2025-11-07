@@ -531,7 +531,7 @@
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
-                    <a href="top?eventid={{ .Event_ID }}">表示項目選択</a>
+                    <a href="eventtop?eventid={{ .Event_ID }}">表示項目選択</a>
                     {{ end }}
                 </td>
                 <td style="text-align: center;">
