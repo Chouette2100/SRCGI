@@ -169,9 +169,10 @@ import (
 	200803  ContributorsHandler()の使用を取得済みデータについては開放する。
 	200804  accesslogのtsをミリ秒単位で保存する。GraphSum2等のEventidの指定がない場合のエラーチェックを追加する。
 	200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
+	200902  /ApiRoomStatus ハンドラーを悪意のあるアクセスから保護する。
 */
 
-const version = "200900"
+const version = "200902"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -735,7 +736,8 @@ func main() {
 		//	イベント最終結果
 		http.HandleFunc(rootPath+"/closedeventroomlist", commonMiddleware(rateLimiter, ShowroomCGIlib.ClosedEventRoomListHandler))
 
-		http.HandleFunc(rootPath+"/apiroomstatus", commonMiddleware(rateLimiter, srhandler.HandlerApiRoomStatus))
+		// http.HandleFunc(rootPath+"/apiroomstatus", commonMiddleware(rateLimiter, srhandler.HandlerApiRoomStatus))
+		http.HandleFunc(rootPath+"/apiroomstatus", commonMiddleware(rateLimiter, ShowroomCGIlib.BadRequestHandler))
 
 		//	ギフトランキングリスト
 		http.HandleFunc(rootPath+"/listgs", commonMiddleware(rateLimiter, ShowroomCGIlib.ListGiftScoreHandler))

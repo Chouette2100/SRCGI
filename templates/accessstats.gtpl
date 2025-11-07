@@ -168,7 +168,7 @@
             </td><td>
             <button type="button" onclick="location.href='accessstatshourly'">時刻別アクセス統計</button>
             </td><td>
-            <button type="button" onclick="location.href='accessstable'">アクセス集計表<button>
+            <button type="button" onclick="location.href='accesstable'">アクセス集計表<button>
             </td>
           </tr>
         </table>
