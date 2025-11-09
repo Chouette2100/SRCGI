@@ -296,8 +296,12 @@ import (
 200901  アクセスログの時刻（Ts）のチェックを厳密に行う。
 200902  /ApiRoomStatus ハンドラーを悪意のあるアクセスから保護する。
 201000  TopFormHandler()をTopHandler()とEventTopHandler()に分割する。
+201100  Cloudflare Turnstileによるボット対策を導入する。
+201102  Turnstileの連続した実行を避けるためセッション管理を導入する。
+201103  セッション管理、Turnstile検証処理を繁用関数化する。
+201104  ContributorsHandler()に終了メッセージを追加する。
 */
-const Version = "201000"
+const Version = "201104"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

@@ -171,9 +171,13 @@ import (
 	200900  アクセス集計表（ハンドラー別、ユーザーエージェント別、IPアドレス別）を追加する。
 	200902  /ApiRoomStatus ハンドラーを悪意のあるアクセスから保護する。
 	201000  TopFormHandler()をTopHandler()とEventTopHandler()に分割する。
+	201100  Cloudflare Turnstileによるボット対策を導入する。
+	201101  Turnstile関連の変数とeventid、roomidはFomrmvaluesに保存しない
+	201102  Turnstileの連続した実行を避けるためセッション管理を導入する。
+	201103  セッション管理、Turnstile検証処理を繁用関数化する。
 */
 
-const version = "201000"
+const version = "201103"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -390,8 +394,12 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			switch kvlist[i].K {
 			case "eventid":
 				al.Eventid = kvlist[i].V[0]
+				i--
 			case "userno", "userid", "user_id", "roomid":
 				al.Roomid, _ = strconv.Atoi(kvlist[i].V[0])
+				i--
+			case "cf-turnstile-response":
+				i-- // このパラメータは保存しない
 			default:
 			}
 			i++

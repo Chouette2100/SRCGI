@@ -563,7 +563,7 @@
                     <a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Event_ID }}?room_id={{$userno}}">公式</a> /
                     {{ end }}
                     {{ if ne .I_Event_ID 0 }}
-                    <a href="contributors?ieventid={{.I_Event_ID}}&roomid={{$userno}}">CSV</a>
+                    <a href="contributors?ieventid={{.I_Event_ID}}&roomid={{$userno}}"  target="_blank" rel="noopener noreferrer">CSV</a>
                     {{ else }}
                     ーー
                     {{ end }}

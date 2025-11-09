@@ -64,7 +64,7 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 		  AND remoteaddress != '149.88.103.40'
 		GROUP BY remoteaddress
 		ORDER BY total_count DESC
-		LIMIT 50
+		LIMIT 100
 	`
 
 	type TopIP struct {
@@ -159,7 +159,7 @@ func GetAccessByUserAgent(endDate time.Time, days int) ([]AccessTableRow, []stri
 		  AND remoteaddress != '149.88.103.40'
 		GROUP BY useragent
 		ORDER BY total_count DESC
-		LIMIT 50
+		LIMIT 100
 	`
 
 	type TopUA struct {

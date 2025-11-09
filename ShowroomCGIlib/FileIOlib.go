@@ -1,12 +1,10 @@
 package ShowroomCGIlib
 
-import (
 //	"fmt"
 //	"io/ioutil"
 //	"os"
 
 // "gopkg.in/yaml.v2"
-)
 
 /*
 
@@ -22,16 +20,21 @@ import (
 const VerFileIOlib = "11AA00"
 
 type ServerConfig struct {
-	WebServer   string `yaml:"WebServer"`
-	HTTPport    string `yaml:"HTTPport"`
-	SSLcrt      string `yaml:"SSLcrt"`
-	SSLkey      string `yaml:"SSLkey"`
-	NoEvent     int    `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
-	Maintenance bool   `yaml:"Maintenance"`
-	LvlBots     int    `yaml:"LvlBots"`     //	Bot排除のレベル、0:なし、1:低、2:中、3:高
-	AccessLimit int    `yaml:"AccessLimit"` //	時間枠のアクセス回数上限
-	TimeWindow  int    `yaml:"TimeWindow"`  //	アクセス回数制限の時間枠（秒単位）
-	MaxChlog    int    `yaml:"MacChlog"`    //	ログ出力待ちチャンネルのバッファ数（＝同時実行ハンドラー数）
+	WebServer                string `yaml:"WebServer"`
+	HTTPport                 string `yaml:"HTTPport"`
+	SSLcrt                   string `yaml:"SSLcrt"`
+	SSLkey                   string `yaml:"SSLkey"`
+	NoEvent                  int    `yaml:"NoEvent"` //	イベント一覧に表示するイベントの数
+	Maintenance              bool   `yaml:"Maintenance"`
+	LvlBots                  int    `yaml:"LvlBots"`                  //	Bot排除のレベル、0:なし、1:低、2:中、3:高
+	AccessLimit              int    `yaml:"AccessLimit"`              //	時間枠のアクセス回数上限
+	TimeWindow               int    `yaml:"TimeWindow"`               //	アクセス回数制限の時間枠（秒単位）
+	MaxChlog                 int    `yaml:"MacChlog"`                 //	ログ出力待ちチャンネルのバッファ数（＝同時実行ハンドラー数）
+	TurnstileSiteKey         string `yaml:"TurnstileSiteKey"`         //	Cloudflare Turnstileのサイトキー
+	TurnstileSecretKey       string `yaml:"TurnstileSecretKey"`       //	Cloudflare Turnstileのシークレットキー
+	TurnstileUseSession      bool   `yaml:"TurnstileUseSession"`      //	Turnstileセッション機能の有効/無効
+	TurnstileSessionDuration int    `yaml:"TurnstileSessionDuration"` //	Turnstileセッション有効期間（秒）
+	TurnstileSessionMaxUses  int    `yaml:"TurnstileSessionMaxUses"`  //	Turnstileセッション内の最大利用回数
 }
 
 type SSHConfig struct {

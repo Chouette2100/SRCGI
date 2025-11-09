@@ -51,13 +51,29 @@ type Result struct {
 }
 
 type HCntrbInf struct {
-	Ieventid   int
-	Eventid    string
-	Event_name string
-	Period     string
-	Roomid     int
-	Result     []Result
-	Filename   string
+	Ieventid         int
+	Eventid          string
+	Event_name       string
+	Period           string
+	Roomid           int
+	Result           []Result
+	Filename         string
+	TurnstileSiteKey string
+	TurnstileError   string
+}
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *HCntrbInf) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *HCntrbInf) GetTemplatePath() string {
+	return "templates/contributors.gtpl"
+}
+
+func (h *HCntrbInf) GetTemplateName() string {
+	return "contributors.gtpl"
 }
 
 func ContributorsHandler(
@@ -87,6 +103,24 @@ func ContributorsHandler(
 	sroomid := r.FormValue("roomid")
 	roomid, _ := strconv.Atoi(sroomid)
 
+	// Turnstile検証（セッション管理込み）
+	hcntrbinf := HCntrbInf{
+		Ieventid:   ieventid,
+		Eventid:    event.Eventid,
+		Event_name: event.Event_name,
+		Period:     event.Period,
+		Roomid:     roomid,
+	}
+
+	result, tsErr := CheckTurnstileWithSession(w, r, &hcntrbinf)
+	if result != TurnstileOK {
+		// チャレンジページまたはエラーページが表示済みなので終了
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	client, cookiejar, err := exsrapi.CreateNewClient("")
 	if err != nil {
 		err = fmt.Errorf("exsrapi.CeateNewClient(): %s", err.Error())
@@ -97,13 +131,8 @@ func ContributorsHandler(
 	}
 	defer cookiejar.Save()
 
-	hcntrbinf := HCntrbInf{
-		Ieventid:   ieventid,
-		Eventid:    event.Eventid,
-		Event_name: event.Event_name,
-		Period:     event.Period,
-		Roomid:     roomid,
-	}
+	// TurnstileSiteKeyを追加（テンプレート表示用）
+	hcntrbinf.TurnstileSiteKey = Serverconfig.TurnstileSiteKey
 
 	if err = MakeFileOfContributors(client, &hcntrbinf); err != nil {
 		err = fmt.Errorf("MakeFileOfContributors(): %w", err)
@@ -123,6 +152,8 @@ func ContributorsHandler(
 		log.Printf("err=%s\n", err.Error())
 		w.Write([]byte(err.Error()))
 	}
+
+	log.Printf("ContributorsHandler(): ieventid=%d, roomid=%d, file=%s\n", ieventid, roomid, hcntrbinf.Filename)
 
 }
 

@@ -56,10 +56,10 @@
             <input type="submit" value="ルームを追加して一覧を表示する!" />
         </form>
     </p>
-    <p style="padding-left:2em; background:yellow; width:54em;">
+    <p style="padding-left:2em; width:54em;">
     <a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>（新規機能・結果が表示されるまで数十秒かかります）
     </p>
-    <p style="padding-left:2em; background:yellow; width:54em;">
+    <p style="padding-left:2em; width:54em;">
     <a href="m-cntrbrank-Lg">月別貢献ポイントランキング（リスナー/ルーム）</a>（どのリスナーさんがどのルームを応援しているかわかるように作りました）
     </p>
     <p style="padding-left:2em">
@@ -68,6 +68,6 @@
     <p style="padding-left:2em">
     最近のイベントの貢献ポイント上位のリスナー
     </p>
-    <p style="padding-left:4em">
+    <p style="padding-left:2em">
     <a href="/experimental">保守・資料・実験</a>
     </p>
