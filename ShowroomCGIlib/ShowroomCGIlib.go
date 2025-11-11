@@ -300,8 +300,9 @@ import (
 201102  Turnstileの連続した実行を避けるためセッション管理を導入する。
 201103  セッション管理、Turnstile検証処理を繁用関数化する。
 201104  ContributorsHandler()に終了メッセージを追加する。
+201106  requestidを用いてTurnstile検証の失敗をログに残す
 */
-const Version = "201104"
+const Version = "201106"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

@@ -33,6 +33,7 @@ import (
 	//	"github.com/dustin/go-humanize"
 
 	"github.com/go-gorp/gorp"
+	"github.com/google/uuid"
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
@@ -175,9 +176,11 @@ import (
 	201101  Turnstile関連の変数とeventid、roomidはFomrmvaluesに保存しない
 	201102  Turnstileの連続した実行を避けるためセッション管理を導入する。
 	201103  セッション管理、Turnstile検証処理を繁用関数化する。
+	201105  FormValuesのログへの格納方法を変更する
+	201106  requestidを用いてTurnstile検証の失敗をログに残す
 */
 
-const version = "201103"
+const version = "201106"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -372,12 +375,26 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			log.Printf("  *** PH-20 %s(), %s, \"%s\"\n", entry, ra, ua)
 		}
 
+		requestID := uuid.New().String()
 		var al srdblib.Accesslog
 		al.Ts = time.Now().Truncate(time.Millisecond)
 		log.Printf(" Accesslog Ts: %s\n", al.Ts.Format("2006-01-02 15:04:05.000"))
 		al.Handler = entry
 		al.Remoteaddress = ra
 		al.Useragent = ua
+		al.Requestid = requestID
+		// if entry == "ContributorsHandler" {
+		// 	al.Turnstilestatus = 2 // pending
+		// } else {
+		// 	al.Turnstilestatus = 0 // success or n/a
+		// }
+
+		switch entry {
+		case "ContributorsHandler":
+			al.Turnstilestatus = 2 // pending => failed
+		default:
+			al.Turnstilestatus = 0 // success <= pending
+		}
 
 		al.Referer = r.Referer()
 
@@ -387,22 +404,18 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			return
 		}
 
-		kvlist := make([]KV, len(r.Form))
-		i := 0
-		for kvlist[i].K, kvlist[i].V = range r.Form {
-			log.Printf("%12v : %v\n", kvlist[i].K, kvlist[i].V)
-			switch kvlist[i].K {
-			case "eventid":
-				al.Eventid = kvlist[i].V[0]
-				i--
+		kvlist := make([]KV, 0)
+		for k, v := range r.Form {
+			log.Printf("%12v : %v\n", k, v)
+			switch k {
+			case "eventid", "ieventid":
+				al.Eventid = v[0]
 			case "userno", "userid", "user_id", "roomid":
-				al.Roomid, _ = strconv.Atoi(kvlist[i].V[0])
-				i--
+				al.Roomid, _ = strconv.Atoi(v[0])
 			case "cf-turnstile-response":
-				i-- // このパラメータは保存しない
 			default:
+				kvlist = append(kvlist, KV{K: k, V: v})
 			}
-			i++
 		}
 		jd, err := json.Marshal(kvlist)
 		if err != nil {
@@ -417,7 +430,9 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		ShowroomCGIlib.Chlog <- &al
 
 		// 次のハンドラーを呼び出す
-		next(w, r)
+		// next(w, r)
+		ctx := context.WithValue(r.Context(), "requestid", requestID)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 

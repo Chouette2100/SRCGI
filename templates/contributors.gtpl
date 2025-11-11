@@ -33,6 +33,9 @@
 <form method="POST" action="contributors">
 <input type="hidden" name="ieventid" value="{{.Ieventid}}">
 <input type="hidden" name="roomid" value="{{.Roomid}}">
+
+<input type="hidden" name="requestid" value="{{.RequestID}}">
+
 <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
 <br>
 <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認して続行</button>

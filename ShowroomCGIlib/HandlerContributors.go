@@ -60,6 +60,7 @@ type HCntrbInf struct {
 	Filename         string
 	TurnstileSiteKey string
 	TurnstileError   string
+	RequestID        string
 }
 
 // TurnstileChallengeDataインターフェースの実装
@@ -89,6 +90,9 @@ func ContributorsHandler(
 
 	seventid := r.FormValue("ieventid")
 	ieventid, _ := strconv.Atoi(seventid)
+	requestid := r.FormValue("requestid")
+
+	log.Printf("ContributorsHandler(): ieventid=%d requestid = %s\n", ieventid, requestid)
 
 	var intf []interface{}
 	intf, err = srdblib.Dbmap.Select(&srdblib.Wevent{}, "SELECT "+clmlist["wevent"]+" FROM wevent WHERE ieventid = ?", ieventid)
@@ -111,6 +115,14 @@ func ContributorsHandler(
 		Period:     event.Period,
 		Roomid:     roomid,
 	}
+	// Turnstile検証要求後の状態を管理する
+	lastrequestid := ""
+	if requestid != "" {
+		// 最初のパス、検証のための場合と、すでにクッキーを持っている場合と両方ある
+		lastrequestid = requestid
+	}
+	hcntrbinf.RequestID = r.Context().Value("requestid").(string)
+	// ------------------------------
 
 	result, tsErr := CheckTurnstileWithSession(w, r, &hcntrbinf)
 	if result != TurnstileOK {
@@ -119,6 +131,21 @@ func ContributorsHandler(
 			log.Printf("Turnstile check error: %v\n", tsErr)
 		}
 		return
+	}
+
+	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", hcntrbinf.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", hcntrbinf.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		//srdblib.Dbmap.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", hcntrbinf.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", lastrequestid)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	}
 
 	client, cookiejar, err := exsrapi.CreateNewClient("")

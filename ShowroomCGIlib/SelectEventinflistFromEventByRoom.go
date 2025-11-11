@@ -2,7 +2,7 @@ package ShowroomCGIlib
 
 import (
 	"fmt"
-	"log"
+	// "log"
 	"time"
 
 	"database/sql"
@@ -121,7 +121,7 @@ func SelectEventinflistFromEventByRoom(
 		eventinf.Gscale = eventinf.Maxpoint % 1000
 		eventinf.Maxpoint = eventinf.Maxpoint - eventinf.Gscale
 
-		log.Printf("eventinf=[%v]\n", eventinf)
+		// log.Printf("eventinf=[%v]\n", eventinf)
 
 		if eventinf.I_Event_ID == lastieid {
 			if eventinf.Achk == 0 {
