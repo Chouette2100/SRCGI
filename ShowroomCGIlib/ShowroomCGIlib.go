@@ -302,8 +302,9 @@ import (
 201104  ContributorsHandler()に終了メッセージを追加する。
 201106  requestidを用いてTurnstile検証の失敗をログに残す
 201107  日々のアクセス数、時間別のアクセス数のグラフにボットとTurnstile失敗数を追加する。アクセス集計表からTurnstile失敗を除く。
+201108  終了イベント一覧(ClosedEventsHandler())にTurnstileを適用する。
 */
-const Version = "201107"
+const Version = "201108"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

@@ -3,6 +3,12 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
     <title>終了イベント一覧</title>
+    {{/* Turnstile 1 */}}
+    {{if .TurnstileSiteKey}}
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
+    {{/* ----------- */}}
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -391,6 +397,36 @@
             <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button>
             <button type="button" class="active">終了イベント一覧</button>
         </div>
+    {{if .TurnstileSiteKey }}
+        	<!-- Turnstileチャレンジ表示 -->
+			<div style="border: 2px solid #4A90E2; padding: 20px; border-radius: 5px; max-width: 600px; background-color: #f9f9f9;">
+				<h3>セキュリティチェック</h3>
+				{{if .TurnstileError}}
+				<p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+				{{end}}
+				<p>終了済みイベントを表示するには、セキュリティチェックを完了してください。</p>
+				<p>「確認して続行」ボタンを押すとクッキーが保存されます</p>
+				<form method="POST" action="closedevents">
+					<input type="hidden" name="mode" value="{{.Mode}}">
+					<input type="hidden" name="keywordev" value="{{.Keywordev}}">
+					<input type="hidden" name="keywordrm" value="{{.Keywordrm}}">
+					<input type="hidden" name="kwevid" value="{{.Kwevid}}">
+					<input type="hidden" name="userno" value="{{.Userno}}">
+					<input type="hidden" name="path" value="{{.Path}}">
+
+					<input type="hidden" name="limit" value="{{.Limit}}">
+					<input type="hidden" name="offset" value="{{.Offset}}">
+					<input type="hidden" name="action" value="{{.Action}}">
+
+					<input type="hidden" name="requestid" value="{{.RequestID}}">
+					<div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+					<br>
+					<button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認して続行</button>
+				</form>
+			</div>
+			<br><br>
+    {{else}}
+
         
         <h1>終了イベント一覧</h1>
         
@@ -698,6 +734,8 @@
                 <button class="btn btn-primary" onclick="applyRoomIdFilter()">検索実行</button>
             </div>
         </div>
+    </div>
+    {{ end }}
     </div>
     
     <script>

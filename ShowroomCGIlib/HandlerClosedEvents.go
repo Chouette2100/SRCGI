@@ -22,10 +22,82 @@ import (
 
 	"github.com/dustin/go-humanize"
 
-	//	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 	//	"github.com/Chouette2100/srapi/v2"
 )
+
+type ClosedEventsInf struct {
+	TimeNow      int64
+	Totalcount   int
+	ErrMsg       string
+	Mode         int    // 0: すべて、 1: データ取得中のものに限定
+	Path         int    //	どの検索方法が使われているか？（詳細は HandlerCloesedEvnets()および関連関数を参照）
+	Keywordev    string //	検索文字列:イベント名
+	Keywordrm    string //	検索文字列:ルーム名
+	Kwevid       string //	検索文字列:イベントID
+	Userno       int    //	絞り込み対象のルームID
+	Limit        int    //	データ取得数
+	Offset       int    //	データ取得開始位置
+	Eventinflist []exsrapi.Event_Inf
+	Roomlist     *[]Room
+	// Turnstile導入用(1) ------------------------
+	Action           string
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+}
+
+// テンプレートで使用する関数を定義する
+var ClosedEventsfuncMap = &template.FuncMap{
+	"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                          //	3桁ごとに","を入れる関数。
+	"UnixTimeToStr":  func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") },    //	UnixTimeを月日時分に変換する関数。
+	"UnixTimeToStrY": func(i int64) string { return time.Unix(int64(i), 0).Format("06-01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
+
+	"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
+	"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
+	"DelBlockID": func(eid string) string {
+		eia := strings.Split(eid, "?")
+		if len(eia) == 2 {
+			return eia[0]
+		} else {
+			return eid
+		}
+	},
+	"IsTempID": func(s string) bool { return strings.HasPrefix(s, "@@@@") },
+	"Divide": func(a, b int) int {
+		if b == 0 {
+			return 0 // ゼロ除算を避ける
+		}
+		return a / b
+	},
+	"Mod": func(a, b int) int {
+		if b == 0 {
+			return 0 // ゼロ除算を避ける
+		}
+		return a % b
+	},
+}
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *ClosedEventsInf) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *ClosedEventsInf) GetTemplatePath() string {
+	return "templates/closedevents.gtpl"
+}
+
+func (h *ClosedEventsInf) GetTemplateName() string {
+	return "closedevents.gtpl"
+}
+
+func (h *ClosedEventsInf) GetFuncMap() *template.FuncMap {
+	return ClosedEventsfuncMap
+}
+
+// -------------------------------------------
 
 /*
 終了イベント一覧を作るためのハンドラー
@@ -49,48 +121,95 @@ func ClosedEventsHandler(
 	//	srdblib.Tuser = "wuser"
 	//	srdblib.Tuserhistory = "wuserhistory"
 
-	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
-		"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                          //	3桁ごとに","を入れる関数。
-		"UnixTimeToStr":  func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") },    //	UnixTimeを月日時分に変換する関数。
-		"UnixTimeToStrY": func(i int64) string { return time.Unix(int64(i), 0).Format("06-01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
+	/*
+		//	テンプレートで使用する関数を定義する
+		funcMap := template.FuncMap{
+			"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                          //	3桁ごとに","を入れる関数。
+			"UnixTimeToStr":  func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") },    //	UnixTimeを月日時分に変換する関数。
+			"UnixTimeToStrY": func(i int64) string { return time.Unix(int64(i), 0).Format("06-01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
 
-		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
-		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
-		"DelBlockID": func(eid string) string {
-			eia := strings.Split(eid, "?")
-			if len(eia) == 2 {
-				return eia[0]
-			} else {
-				return eid
-			}
-		},
-		"IsTempID": func(s string) bool { return strings.HasPrefix(s, "@@@@") },
-		"Divide": func(a, b int) int {
-			if b == 0 {
-				return 0 // ゼロ除算を避ける
-			}
-			return a / b
-		},
-		"Mod": func(a, b int) int {
-			if b == 0 {
-				return 0 // ゼロ除算を避ける
-			}
-			return a % b
-		},
-	}
+			"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
+			"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
+			"DelBlockID": func(eid string) string {
+				eia := strings.Split(eid, "?")
+				if len(eia) == 2 {
+					return eia[0]
+				} else {
+					return eid
+				}
+			},
+			"IsTempID": func(s string) bool { return strings.HasPrefix(s, "@@@@") },
+			"Divide": func(a, b int) int {
+				if b == 0 {
+					return 0 // ゼロ除算を避ける
+				}
+				return a / b
+			},
+			"Mod": func(a, b int) int {
+				if b == 0 {
+					return 0 // ゼロ除算を避ける
+				}
+				return a % b
+			},
+		}
+	*/
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/closedevents.gtpl"))
+	tpl := template.Must(template.New("").Funcs(*ClosedEventsfuncMap).ParseFiles("templates/closedevents.gtpl"))
 
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
-	top := new(T999Dtop)
+	top := new(ClosedEventsInf)
 	top.TimeNow = time.Now().Unix()
 	top.Mode, _ = strconv.Atoi(r.FormValue("mode")) // 0: すべて、 1: データ取得中のものに限定
 	top.Keywordev = r.FormValue("keywordev")
 	top.Keywordrm = r.FormValue("keywordrm")
 	top.Kwevid = r.FormValue("kwevid")
 	top.Userno, _ = strconv.Atoi(r.FormValue("userno"))
+	top.Limit, _ = strconv.Atoi(r.FormValue("limit"))
+	top.Offset, _ = strconv.Atoi(r.FormValue("offset"))
+	top.Action = r.FormValue("action")
+	top.Path, _ = strconv.Atoi(r.FormValue("path"))
+
+	// Turnstile導入用(2) ------------------------
+	// Turnstile検証（セッション管理込み）
+	// Turnstile検証要求後の状態を管理する
+	lastrequestid := ""
+	requestid := r.FormValue("requestid")
+	if requestid != "" {
+		// 最初のパス、検証のための場合と、すでにクッキーを持っている場合と両方ある
+		lastrequestid = requestid
+	}
+	top.RequestID = r.Context().Value("requestid").(string)
+	// ------
+
+	result, tsErr := CheckTurnstileWithSession(w, r, top)
+	if result != TurnstileOK {
+		// チャレンジページまたはエラーページが表示済みなので終了
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", top.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		//srdblib.Dbmap.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		// result, err = srdblib.Dbmap.Exec(
+		//      "UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", lastrequestid)
+		// log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = srdblib.Dbmap.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+	// -------------------------------------------
 
 	// slimit := r.FormValue("limit")
 	// if slimit == "" {
@@ -99,7 +218,7 @@ func ClosedEventsHandler(
 	// 	top.Limit, _ = strconv.Atoi(slimit)
 	// }
 	slimit := r.FormValue("limit")
-	if slimit == "" {
+	if slimit == "" || slimit == "0" {
 		top.Limit = 51
 	} else {
 		top.Limit, _ = strconv.Atoi(slimit)

@@ -31,6 +31,8 @@ type TurnstileChallengeData interface {
 	GetTemplatePath() string
 	// GetTemplateName はテンプレート名を返す
 	GetTemplateName() string
+	// GetFuncMap はテンプレートの関数マップを返す
+	GetFuncMap() *template.FuncMap
 }
 
 // CheckTurnstileWithSession はTurnstileの検証とセッション管理を行う汎用関数
@@ -120,14 +122,21 @@ func showTurnstileChallenge(
 	challengeData.SetTurnstileInfo(Serverconfig.TurnstileSiteKey, errorMsg)
 
 	// テンプレートをパース
-	tpl, err := template.ParseFiles(challengeData.GetTemplatePath())
-	if err != nil {
-		log.Printf("Template parse error: %s\n", err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		if errorMsg != "" {
-			return TurnstileFailed, err
+	var tpl *template.Template
+	var err error
+	if challengeData.GetFuncMap() != nil {
+		tpl = template.Must(template.New("").Funcs(*challengeData.GetFuncMap()).
+			ParseFiles(challengeData.GetTemplatePath(), "templates/turnstilechallenge.gtpl"))
+	} else {
+		tpl, err = template.ParseFiles(challengeData.GetTemplatePath(), "templates/turnstilechallenge.gtpl")
+		if err != nil {
+			log.Printf("Template parse error: %s\n", err.Error())
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			if errorMsg != "" {
+				return TurnstileFailed, err
+			}
+			return TurnstileNeedChallenge, err
 		}
-		return TurnstileNeedChallenge, err
 	}
 
 	// テンプレートを実行
