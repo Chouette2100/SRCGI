@@ -305,8 +305,9 @@ import (
 201108  終了イベント一覧(ClosedEventsHandler())にTurnstileを適用する。
 201109  dbAccessTable()のハンドラー別とUA別の処理にturnstilestatus = 0の条件を追加する。
 201110  イベントにおける配信者さん一人のだけのグラフ及びイベント情報の編集に関わるイベントトップのページについてTurnstileを適用する。
+201111  GraphSumData1Handler()とGraphSumData2Handler()の起動時にTurnstile検証の確認を行う。
 */
-const Version = "201110"
+const Version = "201111"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

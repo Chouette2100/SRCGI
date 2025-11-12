@@ -153,6 +153,28 @@ type Sumdata struct {
 
 func GraphSumData1Handler(w http.ResponseWriter, r *http.Request) {
 
+	// Turnstile検証: セッションクッキーの検証
+	sessionValid, newCookie, sessionErr := VerifyTurnstileSessionCookie(r)
+	if !sessionValid {
+		// 検証失敗時はエラーをJSONで返す
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		errorMsg := "Turnstile verification required"
+		if sessionErr != nil {
+			errorMsg = fmt.Sprintf("Turnstile verification failed: %v", sessionErr)
+			log.Printf("GraphSumData1Handler() Turnstile verification error: %v\n", sessionErr)
+		}
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": errorMsg,
+		})
+		return
+	}
+
+	// セッションクッキーを更新
+	if newCookie != nil {
+		http.SetCookie(w, newCookie)
+	}
+
 	/*
 		data := []struct {
 			Timestamp string  `json:"timestamp"`
@@ -200,6 +222,28 @@ func GraphSumData1Handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GraphSumData2Handler(w http.ResponseWriter, r *http.Request) {
+
+	// Turnstile検証: セッションクッキーの検証
+	sessionValid, newCookie, sessionErr := VerifyTurnstileSessionCookie(r)
+	if !sessionValid {
+		// 検証失敗時はエラーをJSONで返す
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		errorMsg := "Turnstile verification required"
+		if sessionErr != nil {
+			errorMsg = fmt.Sprintf("Turnstile verification failed: %v", sessionErr)
+			log.Printf("GraphSumData2Handler() Turnstile verification error: %v\n", sessionErr)
+		}
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": errorMsg,
+		})
+		return
+	}
+
+	// セッションクッキーを更新
+	if newCookie != nil {
+		http.SetCookie(w, newCookie)
+	}
 
 	/*
 		sumdata := []struct {
