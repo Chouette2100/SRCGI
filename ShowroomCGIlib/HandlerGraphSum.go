@@ -17,17 +17,31 @@ import (
 	"github.com/Chouette2100/srdblib/v2"
 )
 
-type HGSinf struct {
-	Title     string
-	Eventid   string
-	Ieventid  int
-	Eventname string
-	Period    string
-	Roomid    int
-	Roomname  string
-	Maxpoint  int
-	Gscale    int
+// Turnstile導入用(1) ------------------------
+
+type GraphSumInf struct {
+	HGSinf
 }
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *GraphSumInf) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *GraphSumInf) GetTemplatePath() string {
+	return "templates/graph-sum.gtpl"
+}
+
+func (h *GraphSumInf) GetTemplateName() string {
+	return "graph-sum.gtpl"
+}
+
+func (h *GraphSumInf) GetFuncMap() *template.FuncMap {
+	return nil
+}
+
+// -------------------------------------------
 
 func GraphSumHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -64,20 +78,63 @@ func GraphSumHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
-	hgsinf := HGSinf{
-		Title:     "獲得ポイントと累積ポイントの概要",
-		Eventid:   eventid,
-		Ieventid:  intf.(*srdblib.Event).Ieventid,
-		Eventname: intf.(*srdblib.Event).Event_name,
-		Period:    intf.(*srdblib.Event).Period,
-		Roomid:    roomid,
-		Maxpoint:  intf.(*srdblib.Event).Maxpoint,
-		// Gscale:    intf.(*srdblib.Event).Gscale,
-		Gscale: 100,
+	top := GraphSumInf{
+		HGSinf: HGSinf{
+			Title:     "獲得ポイントと累積ポイントの概要",
+			Eventid:   eventid,
+			Ieventid:  intf.(*srdblib.Event).Ieventid,
+			Eventname: intf.(*srdblib.Event).Event_name,
+			Period:    intf.(*srdblib.Event).Period,
+			Roomid:    roomid,
+			Maxpoint:  intf.(*srdblib.Event).Maxpoint,
+			// Gscale:    intf.(*srdblib.Event).Gscale,
+			Gscale: 100,
+		},
 	}
 
 	intf, _ = srdblib.Dbmap.Get(srdblib.User{}, roomid)
-	hgsinf.Roomname = intf.(*srdblib.User).User_name
+	top.Roomname = intf.(*srdblib.User).User_name
+
+	// Turnstile導入用(2) ------------------------
+	// Turnstile検証（セッション管理込み）
+	// Turnstile検証要求後の状態を管理する
+	lastrequestid := ""
+	requestid := r.FormValue("requestid")
+	if requestid != "" {
+		// 最初のパス、検証のための場合と、すでにクッキーを持っている場合と両方ある
+		lastrequestid = requestid
+	}
+	top.RequestID = r.Context().Value("requestid").(string)
+	// ------
+
+	result, tsErr := CheckTurnstileWithSession(w, r, &top)
+	if result != TurnstileOK {
+		// チャレンジページまたはエラーページが表示済みなので終了
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", top.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		//srdblib.Dbmap.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		// result, err = srdblib.Dbmap.Exec(
+		//      "UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", lastrequestid)
+		// log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = srdblib.Dbmap.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+	// -------------------------------------------
 
 	// テンプレートをパースする
 	tpl := template.Must(template.ParseFiles("templates/graph-sum.gtpl"))
@@ -90,7 +147,7 @@ func GraphSumHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	*/
 
-	if err := tpl.ExecuteTemplate(w, "graph-sum.gtpl", &hgsinf); err != nil {
+	if err := tpl.ExecuteTemplate(w, "graph-sum.gtpl", &top); err != nil {
 		// if err := tpl.Execute(w, nil); err != nil {
 		log.Println(err)
 	}

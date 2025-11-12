@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <html>
+<head>
+    {{/* Turnstile 1 */}}
+    {{if .TurnstileSiteKey}}
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
+    {{/* ----------- */}}
+</head>
 
 <body>
 	<span style="color:blue;">（このページもブックマーク可能です）</span>
@@ -22,6 +29,30 @@
 			<td></td>
 		</tr>
 	</table>
+
+	{{if .TurnstileSiteKey }}
+                <!-- Turnstileチャレンジ表示 -->
+                        <div style="border: 2px solid #4A90E2; padding: 20px; border-radius: 5px; max-width: 600px; background-color: #f9f9f9;">
+                                <h3>セキュリティチェック</h3>
+                                {{if .TurnstileError}}
+                                <p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+                                {{end}}
+                                <p>{{.Event_Inf.Event_name}}の設定を編集するには、セキュリティチ
+ェックを完了してくだ>さい。</p>
+                                <p>「確認して続行」ボタンを押すとクッキーが保存されます</p>
+                                <form method="POST" action="eventtop">
+                                        <input type="hidden" name="eventid" value="{{.Event_Inf.Event_ID}}">
+
+                                        <input type="hidden" name="requestid" value="{{.RequestID}}">
+
+                                        <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+                                        <br>
+                                        <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認>して続行</button>
+                                </form>
+                        </div>
+                        <br><br>
+    {{else}}
+
 	<form>
 		<br>
 		イベントトップ（このイベントの表示項目選択）
@@ -31,27 +62,27 @@
 				<td style="width:4em"></td>
 				<td>イベントのID</td>
 				<td style="width:2em"></td>
-				<td>{{.Event_ID}}</td>
+				<td>{{.Event_Inf.Event_ID}}</td>
 			</tr>
 			*/}}
 			<tr>
 				<td style="width:4em"></td>
 				<td>イベント名</td>
-				<td style="width:2em"><input type="hidden" name="eventid" value="{{.Event_ID}}"><input type="hidden"
-						name="userno" value="{{.Nobasis}}"></td>
-				<td><a href="https://www.showroom-live.com/event/{{.Event_ID}}">{{.Event_name}}</a></td>
+				<td style="width:2em"><input type="hidden" name="eventid" value="{{.Event_Inf.Event_ID}}"><input type="hidden"
+						name="userno" value="{{.Event_Inf.Nobasis}}"></td>
+				<td><a href="https://www.showroom-live.com/event/{{.Event_ID}}">{{.Event_Inf.Event_name}}</a></td>
 			</tr>
 			<tr>
 				<td style="width:4em"></td>
 				<td>イベント期間</td>
 				<td style="width:2em"></td>
-				<td>{{.Period}}</td>
+				<td>{{.Event_Inf.Period}}</td>
 			</tr>
 			<tr>
 				<td style="width:4em"></td>
 				<td>イベント参加ルーム数</td>
 				<td style="width:2em"></td>
-				<td>{{.NoEntry}}（最新のデータでない可能性あり）</td>
+				<td>{{.Event_Inf.NoEntry}}（最新のデータでない可能性あり）</td>
 			</tr>
 		</table>
 		<p style="padding-left:2em">直近の獲得ポイント</p>
@@ -66,7 +97,7 @@
 		<p style="padding-left:4em">
 			<input type="submit" value="グラフ" formaction="graph-total" formmethod="POST" style="background-color: khaki">
 			<label>　　表示する最大ポイント　
-				<input type="text" name="maxpoint" value="{{.Maxpoint}}" size="10" required
+				<input type="text" name="maxpoint" value="{{.Event_Inf.Maxpoint}}" size="10" required
 					pattern="[0-9]+"><label>（表示範囲を制限しない場合は"0"とする）
 
 					<label>　　縮尺　
@@ -75,8 +106,6 @@
 						<input type="radio" name="gscale" value="80" {{ if eq .Gscale 80 }} checked {{ end }}> 80%
 						<input type="radio" name="gscale" value="70" {{ if eq .Gscale 70 }} checked {{ end }}> 70%
 		</p>
-
-
 
 		<p style="padding-left:4em"><input type="submit" value="CSV" formaction="csv-total" formmethod="POST"
 				style="background-color: dimgray"></p>
@@ -150,6 +179,9 @@
 
 	<br>-----------------------------------<br>
 	文句・ご意見・ご要望は<a href="https://twitter.com/Seppina1/">こちら</a>
+
+	{{ end }}
+
 </body>
 
 </html>

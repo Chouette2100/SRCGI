@@ -304,8 +304,9 @@ import (
 201107  日々のアクセス数、時間別のアクセス数のグラフにボットとTurnstile失敗数を追加する。アクセス集計表からTurnstile失敗を除く。
 201108  終了イベント一覧(ClosedEventsHandler())にTurnstileを適用する。
 201109  dbAccessTable()のハンドラー別とUA別の処理にturnstilestatus = 0の条件を追加する。
+201110  イベントにおける配信者さん一人のだけのグラフ及びイベント情報の編集に関わるイベントトップのページについてTurnstileを適用する。
 */
-const Version = "201109"
+const Version = "201110"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
