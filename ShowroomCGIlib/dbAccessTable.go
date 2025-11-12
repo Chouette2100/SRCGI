@@ -23,7 +23,7 @@ func GetAccessByHandler(endDate time.Time, days int) ([]AccessTableRow, []string
 			COUNT(*) AS access_count
 		FROM accesslog
 		WHERE DATE(ts) BETWEEN ? AND ?
-		  AND is_bot = 0
+		  AND is_bot = 0 AND turnstilestatus = 0
 		  AND remoteaddress != '59.166.119.117'
 		  AND remoteaddress != '10.63.22.1'
 		  AND remoteaddress != '149.88.103.40'
@@ -58,7 +58,7 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 		SELECT remoteaddress, COUNT(*) AS total_count
 		FROM accesslog
 		WHERE DATE(ts) BETWEEN ? AND ?
-		  AND is_bot = 0
+		  AND is_bot = 0 AND turnstilestatus = 0
 		  AND remoteaddress != '59.166.119.117'
 		  AND remoteaddress != '10.63.22.1'
 		  AND remoteaddress != '149.88.103.40'
