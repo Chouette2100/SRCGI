@@ -216,6 +216,21 @@
                 <div class="number" id="maxAccess">-</div>
                 <div class="label">最大アクセス数</div>
             </div>
+            
+            <div class="stats-card">
+                <div class="number" id="totalLegitimate">-</div>
+                <div class="label">正規リクエスト</div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="number" id="totalTurnstileFail">-</div>
+                <div class="label">Turnstile失敗</div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="number" id="totalBot">-</div>
+                <div class="label">ボット</div>
+            </div>
         </div>
         
         <div class="chart-container">
@@ -253,15 +268,40 @@
             {{ end }}
         ];
         
+        const legitimateData = [
+            {{ range $index, $stat := .Stats }}
+                {{ if $index }},{{ end }}{{ $stat.LegitimateCount }}
+            {{ end }}
+        ];
+        
+        const turnstileFailData = [
+            {{ range $index, $stat := .Stats }}
+                {{ if $index }},{{ end }}{{ $stat.TurnstileFailCount }}
+            {{ end }}
+        ];
+        
+        const botData = [
+            {{ range $index, $stat := .Stats }}
+                {{ if $index }},{{ end }}{{ $stat.BotCount }}
+            {{ end }}
+        ];
+        
         // 統計計算
         const total = data.reduce((sum, count) => sum + count, 0);
         const max = Math.max(...data);
         const avg = Math.round(total / data.length);
         
+        const totalLegitimate = legitimateData.reduce((sum, count) => sum + count, 0);
+        const totalTurnstileFail = turnstileFailData.reduce((sum, count) => sum + count, 0);
+        const totalBot = botData.reduce((sum, count) => sum + count, 0);
+        
         // 統計値を画面に表示
         document.getElementById('totalAccess').textContent = total.toLocaleString();
         document.getElementById('avgAccess').textContent = avg.toLocaleString();
         document.getElementById('maxAccess').textContent = max.toLocaleString();
+        document.getElementById('totalLegitimate').textContent = totalLegitimate.toLocaleString();
+        document.getElementById('totalTurnstileFail').textContent = totalTurnstileFail.toLocaleString();
+        document.getElementById('totalBot').textContent = totalBot.toLocaleString();
         
         // Y軸の最大値を計算（500刻みで切り上げ）
         const maxYValue = Math.ceil(max / 500) * 500;
@@ -272,20 +312,50 @@
             type: 'line',
             data: {
                 labels: labels,
-                datasets: [{
-                    label: '時刻別アクセス数',
-                    data: data,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.2,
-                    pointBackgroundColor: '#007bff',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 3,
-                    pointHoverRadius: 5
-                }]
+                datasets: [
+                    {
+                        label: '正規リクエスト',
+                        data: legitimateData,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.2,
+                        pointBackgroundColor: '#28a745',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Turnstile失敗',
+                        data: turnstileFailData,
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.2,
+                        pointBackgroundColor: '#ffc107',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'ボット',
+                        data: botData,
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.2,
+                        pointBackgroundColor: '#dc3545',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }
+                ]
             },
             options: {
                 responsive: true,

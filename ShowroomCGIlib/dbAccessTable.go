@@ -99,7 +99,7 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 		FROM accesslog
 		-- WHERE DATE(ts) BETWEEN ? AND ?
 		WHERE DATE(ts) BETWEEN :Sdate AND :Edate
-		  AND is_bot = 0
+		  AND is_bot = 0 AND turnstilestatus = 0
 		--  AND remoteaddress IN ( ? )
 		  AND remoteaddress IN ( :Ips )
 		GROUP BY remoteaddress, access_date
@@ -153,7 +153,7 @@ func GetAccessByUserAgent(endDate time.Time, days int) ([]AccessTableRow, []stri
 		SELECT useragent, COUNT(*) AS total_count
 		FROM accesslog
 		WHERE DATE(ts) BETWEEN ? AND ?
-		  AND is_bot = 0
+		  AND is_bot = 0 AND turnstilestatus = 0
 		  AND remoteaddress != '59.166.119.117'
 		  AND remoteaddress != '10.63.22.1'
 		  AND remoteaddress != '149.88.103.40'
@@ -194,7 +194,7 @@ func GetAccessByUserAgent(endDate time.Time, days int) ([]AccessTableRow, []stri
 		FROM accesslog
 		-- WHERE DATE(ts) BETWEEN ? AND ?
 		WHERE DATE(ts) BETWEEN :Sdate AND :Edate
-		  AND is_bot = 0
+		  AND is_bot = 0 AND turnstilestatus = 0
 		--   AND useragent IN ( ? )
 		  AND useragent IN ( :Ual )
 		GROUP BY useragent, access_date

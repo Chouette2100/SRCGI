@@ -52,15 +52,17 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 	accessStatsData.EndDate = endDate
 	accessStatsData.Period = iperiod
 
-	// SQLクエリを実行してアクセス統計を取得
+	// SQLクエリを実行してアクセス統計を取得（3つのカテゴリ）
 	sql := `
 		SELECT
 			DATE(ts) AS access_date,
-			COUNT(*) AS daily_access_count
+			COUNT(*) AS daily_access_count,
+			SUM(CASE WHEN is_bot = 0 AND turnstilestatus = 0 THEN 1 ELSE 0 END) AS legitimate_count,
+			SUM(CASE WHEN is_bot = 0 AND turnstilestatus != 0 THEN 1 ELSE 0 END) AS turnstile_fail_count,
+			SUM(CASE WHEN is_bot != 0 THEN 1 ELSE 0 END) AS bot_count
 		FROM
 			accesslog
 		WHERE ts between ? AND ?
-		  AND is_bot = 0
 		  AND remoteaddress != '59.166.119.117'
 		  AND remoteaddress != '10.63.22.1'
 		  AND remoteaddress != '149.88.103.40'

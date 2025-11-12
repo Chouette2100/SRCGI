@@ -301,8 +301,9 @@ import (
 201103  セッション管理、Turnstile検証処理を繁用関数化する。
 201104  ContributorsHandler()に終了メッセージを追加する。
 201106  requestidを用いてTurnstile検証の失敗をログに残す
+201107  日々のアクセス数、時間別のアクセス数のグラフにボットとTurnstile失敗数を追加する。アクセス集計表からTurnstile失敗を除く。
 */
-const Version = "201106"
+const Version = "201107"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -322,8 +323,11 @@ type ColorInfList []ColorInf
 
 // アクセス統計用の構造体
 type AccessStats struct {
-	AccessDate  string `db:"access_date"`
-	AccessCount int    `db:"daily_access_count"`
+	AccessDate         string `db:"access_date"`
+	AccessCount        int    `db:"daily_access_count"`
+	LegitimateCount    int    `db:"legitimate_count"`     // is_bot = 0 AND turnstilestatus = 0
+	TurnstileFailCount int    `db:"turnstile_fail_count"` // is_bot = 0 AND turnstilestatus != 0
+	BotCount           int    `db:"bot_count"`            // is_bot != 0
 }
 
 type AccessStatsData struct {
@@ -336,8 +340,11 @@ type AccessStatsData struct {
 
 // AccessStatsHourly は時刻単位のアクセス統計を保持する構造体
 type AccessStatsHourly struct {
-	AccessHour  string `db:"access_hour"`
-	AccessCount int    `db:"hourly_access_count"`
+	AccessHour         string `db:"access_hour"`
+	AccessCount        int    `db:"hourly_access_count"`
+	LegitimateCount    int    `db:"legitimate_count"`     // is_bot = 0 AND turnstilestatus = 0
+	TurnstileFailCount int    `db:"turnstile_fail_count"` // is_bot = 0 AND turnstilestatus != 0
+	BotCount           int    `db:"bot_count"`            // is_bot != 0
 }
 
 // AccessStatsHourlyData は時刻単位のアクセス統計画面のデータを保持する構造体
