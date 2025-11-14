@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 
 	"encoding/json"
 	"html/template"
@@ -175,6 +176,12 @@ func GraphSumData1Handler(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, newCookie)
 	}
 
+	time.Sleep(1 * time.Second) // INSERTに時間がかかる場合があるため待機
+	requestid := r.Context().Value("requestid").(string)
+	result, err := srdblib.Dbmap.Exec(
+		"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", requestid)
+	log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+
 	/*
 		data := []struct {
 			Timestamp string  `json:"timestamp"`
@@ -244,6 +251,12 @@ func GraphSumData2Handler(w http.ResponseWriter, r *http.Request) {
 	if newCookie != nil {
 		http.SetCookie(w, newCookie)
 	}
+
+	time.Sleep(1 * time.Second) // INSERTに時間がかかる場合があるため待機
+	requestid := r.Context().Value("requestid").(string)
+	result, err := srdblib.Dbmap.Exec(
+		"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", requestid)
+	log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 
 	/*
 		sumdata := []struct {

@@ -9,6 +9,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"encoding/json"
 	"html/template"
@@ -180,6 +181,34 @@ func GraphSumDataHandler(w http.ResponseWriter, r *http.Request) {
 			Data2: []float64{0, 10000, 5000, 7500, 12500},
 		}
 	*/
+
+	// Turnstile検証: セッションクッキーの検証
+	sessionValid, newCookie, sessionErr := VerifyTurnstileSessionCookie(r)
+	if !sessionValid {
+		// 検証失敗時はエラーをJSONで返す
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		errorMsg := "Turnstile verification required"
+		if sessionErr != nil {
+			errorMsg = fmt.Sprintf("Turnstile verification failed: %v", sessionErr)
+			log.Printf("GraphSumData2Handler() Turnstile verification error: %v\n", sessionErr)
+		}
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": errorMsg,
+		})
+		return
+	}
+
+	// セッションクッキーを更新
+	if newCookie != nil {
+		http.SetCookie(w, newCookie)
+	}
+
+	time.Sleep(1 * time.Second) // INSERTに時間がかかる場合があるため待機
+	requestid := r.Context().Value("requestid").(string)
+	result, err := srdblib.Dbmap.Exec(
+		"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", requestid)
+	log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 
 	eventid := r.FormValue("eventid")
 	sroomid := r.FormValue("roomid")

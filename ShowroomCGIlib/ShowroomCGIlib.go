@@ -307,8 +307,10 @@ import (
 201110  GraphSumHandler()とGraphSum2Handler()及びイベント情報の編集に関わるEventTopHandler()についてTurnstileを適用する。
 201111  GraphSumData1Handler()とGraphSumData2Handler()の起動時にTurnstile検証の確認を行う。
 201112  Region(国・地域)をアクセスログに保存し、国外からのアクセスを遮断する機能を追加する。
+201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とし、実行時検証できたら =0 とする。
+201115  gtplのスクリプトは {{else}} 〜 {{end}} の間におく。
 */
-const Version = "201112"
+const Version = "201115"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

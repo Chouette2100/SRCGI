@@ -73,7 +73,6 @@
         <canvas id="myChart" width="800" height="400"></canvas>
     </div>
 
-    {{ end }}
     
     <script>
         Chart.register(ChartZoom);
@@ -163,6 +162,7 @@
             });
 
     </script>
+{{ end }}
 </body>
 
 </html>

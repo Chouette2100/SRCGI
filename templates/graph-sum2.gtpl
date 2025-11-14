@@ -79,7 +79,6 @@
     <div style="width: 80%;">
         <canvas id="myChart" width="800" height="400"></canvas>
     </div>
-    {{ end }}
     <script>
     // script.js
 
@@ -160,6 +159,7 @@ async function main() {
 // 実行
 main();
     </script>
+{{ end }}
 </body>
 
 </html>

@@ -179,10 +179,10 @@ import (
 	201105  FormValuesのログへの格納方法を変更する
 	201106  requestidを用いてTurnstile検証の失敗をログに残す
 	201112  Region(国・地域)をアクセスログに保存し、国外からのアクセスを遮断する機能を追加する。
-	// 201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とする。
+	201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とし、実行時検証できたら =0 とする。
 */
 
-const version = "201112"
+const version = "201113"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -400,11 +400,15 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		// }
 
 		switch entry {
-		case "ContributorsHandler",
+		case "BadRequestHandler",
+			"ContributorsHandler",
 			"ClosedEventsHandler",
 			"EventTopHandler",
 			"GraphSumHandler",
-			"GraphSum2Handler":
+			"GraphSumDataHandler",
+			"GraphSum2Handler",
+			"GraphSumData1Handler",
+			"GraphSumData2Handler":
 			al.Turnstilestatus = 2 // pending => failed
 		default:
 			al.Turnstilestatus = 0 // success <= pending
