@@ -37,3 +37,5 @@ TurnstileSecretKey: ${TURNSTILE_SECRET_KEY}
 TurnstileUseSession: true       # セッション機能の有効/無効
 TurnstileSessionDuration: 3600  # セッション有効期間（秒）デフォルト1時間
 TurnstileSessionMaxUses: 10     # セッション内の最大利用回数（0=無制限）
+
+DenyNonJP: false

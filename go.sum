@@ -7,8 +7,8 @@ github.com/Chouette2100/exsrapi/v2 v2.3.2 h1:BN9+6yFRnkjIrNCKr5BkOZaNru+HA0qA0OI
 github.com/Chouette2100/exsrapi/v2 v2.3.2/go.mod h1:ShAqrBSImYKjSI5dI0xmHkKLj0hOLm8tSLsnFg/JRtE=
 github.com/Chouette2100/srapi/v2 v2.3.7 h1:EMjVFFl/xCmzF4lVT+mbswpg3A/d0x0BfMnYLuI6TXc=
 github.com/Chouette2100/srapi/v2 v2.3.7/go.mod h1:aesDUdFqlhReqCzQKjZ8FrbZ9pDjDiQsyYOqrRPEI2s=
-github.com/Chouette2100/srdblib/v2 v2.5.3 h1:fAkKOcXMmkUHXXb3o1cExiumcH8V7OSrd1qe80UFI+Y=
-github.com/Chouette2100/srdblib/v2 v2.5.3/go.mod h1:kybGPiDgHqBcTgOgr3vVnG9czZhpDmzCv720MzKJi6c=
+github.com/Chouette2100/srdblib/v2 v2.5.4 h1:+xef1FLGMjglAeVry9E2D7dc/zAvziZrV2BLndkgYnI=
+github.com/Chouette2100/srdblib/v2 v2.5.4/go.mod h1:5gDSmis5PFtx8Qml9f0xKKMwijkPdwZg5a4QNw/nwJw=
 github.com/Chouette2100/srhandler/v2 v2.1.0 h1:1nOgV5eOvIgut8WlrnR0yIF0IVzyBT1ownz6cXXIsGs=
 github.com/Chouette2100/srhandler/v2 v2.1.0/go.mod h1:wT5bqb3F/kCLiEqwfj8ydntcwYYbYJ08055hG1451Xw=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=

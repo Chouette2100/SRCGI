@@ -35,6 +35,7 @@ type ServerConfig struct {
 	TurnstileUseSession      bool   `yaml:"TurnstileUseSession"`      //	Turnstileセッション機能の有効/無効
 	TurnstileSessionDuration int    `yaml:"TurnstileSessionDuration"` //	Turnstileセッション有効期間（秒）
 	TurnstileSessionMaxUses  int    `yaml:"TurnstileSessionMaxUses"`  //	Turnstileセッション内の最大利用回数
+	DenyNonJP                bool   `yaml:"DenyNonJP"`                //	日本国外からのアクセスを拒否するかどうか
 }
 
 type SSHConfig struct {

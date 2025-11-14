@@ -178,9 +178,11 @@ import (
 	201103  セッション管理、Turnstile検証処理を繁用関数化する。
 	201105  FormValuesのログへの格納方法を変更する
 	201106  requestidを用いてTurnstile検証の失敗をログに残す
+	201112  Region(国・地域)をアクセスログに保存し、国外からのアクセスを遮断する機能を追加する。
+	// 201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とする。
 */
 
-const version = "201106"
+const version = "201112"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -264,9 +266,16 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 
 		// remoteaddressを取得
 		ra := ShowroomCGIlib.RemoteAddr(r)
+		rg := ShowroomCGIlib.FindRegionByIP(ra, ShowroomCGIlib.IPRegionList)
 
 		// useragentを取得
 		ua := r.UserAgent()
+
+		if rg != "JP" && ShowroomCGIlib.Serverconfig.DenyNonJP {
+			// 日本国内からのアクセスでない場合は処理を終了
+			log.Printf("  *** PH-00 %s(), %s, \"%s\", region: %s\n", "Non-JP Access", ra, ua, rg)
+			return
+		}
 
 		var entry string
 
@@ -321,7 +330,7 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			if !limiter.Allow(ra) {
 				// 制限を超過した場合、レスポンスを返さずに処理を終了（無視）
 				// log.Printf("Ignoring request from rate-limited IP: %s %s %s", ra, r.Method, r.URL.Path)
-				log.Printf("  *** PH-00 %s(), %s, \"%s\"\n", entry, ra, ua)
+				log.Printf("  *** PH-00 %s(), %s, %s, \"%s\"\n", entry, ra, rg, ua)
 				// ここで何もせず return するのがポイントです。
 				// http.ResponseWriter に何も書き込まれないため、net/http はレスポンスを送信しません。
 				return
@@ -382,6 +391,7 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		al.Handler = entry
 		al.Remoteaddress = ra
 		al.Useragent = ua
+		al.Region = rg
 		al.Requestid = requestID
 		// if entry == "ContributorsHandler" {
 		// 	al.Turnstilestatus = 2 // pending
@@ -390,7 +400,11 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		// }
 
 		switch entry {
-		case "ContributorsHandler":
+		case "ContributorsHandler",
+			"ClosedEventsHandler",
+			"EventTopHandler",
+			"GraphSumHandler",
+			"GraphSum2Handler":
 			al.Turnstilestatus = 2 // pending => failed
 		default:
 			al.Turnstilestatus = 0 // success <= pending
@@ -493,6 +507,7 @@ func main() {
 		AccessLimit: 3,     // タイムウィンドウあたりのリクエスト上限
 		TimeWindow:  1,     // タイムウィンドウの長さ（秒）
 		MaxChlog:    10,    // ログ出力待ちチャンネルのバッファ数
+		DenyNonJP:   false, // 日本国内以外からのアクセスを拒否するかどうか
 	}
 	ShowroomCGIlib.Serverconfig = &svconfig
 	err = exsrapi.LoadConfig("ServerConfig.yml", ShowroomCGIlib.Serverconfig)

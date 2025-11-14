@@ -5,7 +5,7 @@ go 1.25.4
 require (
 	github.com/Chouette2100/exsrapi/v2 v2.3.2
 	github.com/Chouette2100/srapi/v2 v2.3.7
-	github.com/Chouette2100/srdblib/v2 v2.5.3
+	github.com/Chouette2100/srdblib/v2 v2.5.4
 	github.com/Chouette2100/srhandler/v2 v2.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/PuerkitoBio/goquery v1.10.3
