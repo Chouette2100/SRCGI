@@ -180,9 +180,10 @@ import (
 	201106  requestidを用いてTurnstile検証の失敗をログに残す
 	201112  Region(国・地域)をアクセスログに保存し、国外からのアクセスを遮断する機能を追加する。
 	201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とし、実行時検証できたら =0 とする。
+	201119  ログの時刻表示をμ秒単位に変更する。
 */
 
-const version = "201113"
+const version = "201119"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -235,7 +236,8 @@ func NewLogfileName(logfile *os.File) {
 			log.SetOutput(logfile)
 		}
 
-		log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.SetFlags(log.Lmicroseconds | log.Ltime | log.Lshortfile)
 
 		time.Sleep(1 * time.Second)
 	}
@@ -489,7 +491,8 @@ func main() {
 		log.SetOutput(logfile)
 	}
 
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.SetFlags(log.Lmicroseconds | log.Ltime | log.Lshortfile)
 
 	go NewLogfileName(logfile)
 
