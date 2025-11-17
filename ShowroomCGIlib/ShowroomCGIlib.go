@@ -309,8 +309,11 @@ import (
 201112  Region(国・地域)をアクセスログに保存し、国外からのアクセスを遮断する機能を追加する。
 201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とし、実行時検証できたら =0 とする。
 201115  gtplのスクリプトは {{else}} 〜 {{end}} の間におく。
+201116  ListLastPHandler()でTurnstile検証を行う。
+201117  Showrank上位の抽出のとき fanpower > 0 の条件を削除する。ListLastPHandler()を単一のgoテンプレートで実現できるようにする（修正中）
+201118  Showrank上位の抽出のとき fanpower > 0 の条件を削除する。ListLastPHandler()の修正は破棄する。
 */
-const Version = "201115"
+const Version = "201118"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

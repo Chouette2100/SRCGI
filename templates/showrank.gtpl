@@ -84,9 +84,17 @@
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
+            {{ if gt .FanPower 0 }}
             <td align="right">{{ Comma .FanPower }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
             <td align="right">{{ Comma .Fans_lst }}</td>
+            {{ if gt .FanPower_lst 0 }}
             <td align="right">{{ Comma .FanPower_lst }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
             <td align="right">{{ Comma .Inrank }}</td>
             <td align="right">{{ Comma .Iprank }}</td>
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
@@ -126,9 +134,17 @@
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
-            <td align="right">{{ Comma .FanPower }}</td>
-            <td align="right">{{ Comma .Fans_lst }}</td>
+            {{ if gt .FanPower 0 }}
             <td align="right">{{ Comma .FanPower_lst }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
+            <td align="right">{{ Comma .Fans_lst }}</td>
+            {{ if gt .FanPower_lst 0 }}
+            <td align="right">{{ Comma .FanPower_lst }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
             <td align="right">{{ Comma .Inrank }}</td>
             <td align="right">{{ Comma .Iprank }}</td>
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
