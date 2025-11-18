@@ -8,6 +8,36 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+
+        .nav-buttons {
+            display: grid;
+            {{/*
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            */}}
+            grid-template-columns: repeat(auto-fit, minmax(40px, 200px));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-buttons button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .nav-buttons button:hover {
+            background-color: #e9ecef;
+        }
+        
+        .nav-buttons button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
         .edit-form {
             background-color: #e9f5ff;
             padding: 20px;
@@ -85,6 +115,13 @@
     </style>
 </head>
 <body>
+    <div class="nav-buttons">
+            <button type="button" onclick="location.href='top'">トップ</button>
+            <button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button>
+            <button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button>
+            <button type="button" onclick="location.href='closedevents'">終了イベント一覧</button>
+    </div>
+
     <h1>ToDo編集</h1>
     
     {{ if .ErrMsg }}
@@ -152,7 +189,5 @@
 
     <br>
     <p><a href="/list-todo?itype={{ .Itype }}&target={{ .Target }}&issue={{ .Issue }}&solution={{ .Solution }}">ToDo一覧に戻る</a></p>
-    <p><a href="/top">トップページに戻る</a></p>
-
 </body>
 </html>

@@ -4,10 +4,12 @@
 package ShowroomCGIlib
 
 import (
-	"html/template"
 	"log"
-	"net/http"
+	"strconv"
 	"time"
+
+	"html/template"
+	"net/http"
 
 	"github.com/Chouette2100/srdblib/v2"
 )
@@ -24,34 +26,63 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 	// パラメータから開始日時、終了日時を取得
 	startDateTime := r.FormValue("start_datetime")
 	endDateTime := r.FormValue("end_datetime")
+	speriod := r.FormValue("period")
+	period, _ := strconv.Atoi(speriod)
+	if period == 0 {
+		period = 72
+	}
 
 	// デフォルト値の設定（直近72時間）
 	now := time.Now()
-	if startDateTime == "" {
-		// 現在時刻を次の時刻に切り上げ（例: 16:42 → 17:00）
-		endTime := time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, 0, 0, 0, now.Location())
-		// 72時間前の時刻
-		startTime := endTime.Add(-72 * time.Hour)
-		startDateTime = startTime.Format("2006-01-02T15:04")
+	/*
+		if startDateTime == "" {
+			// 現在時刻を次の時刻に切り上げ（例: 16:42 → 17:00）
+			endTime := time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, 0, 0, 0, now.Location())
+			// 72時間前の時刻
+			startTime := endTime.Add(-72 * time.Hour)
+			startDateTime = startTime.Format("2006-01-02T15:04")
+		}
+	*/
+	// 日本標準時 (JST) のロケーションをロード
+	jst, err := time.LoadLocation("Asia/Tokyo") // または "Japan"
+	if err != nil {
+		log.Fatalf("Error loading location: %v", err)
 	}
+
+	var endTime time.Time
 	if endDateTime == "" {
 		// 現在時刻を次の時刻に切り上げ（例: 16:42 → 17:00）
-		endTime := time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, 0, 0, 0, now.Location())
+		endTime = time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, 0, 0, 0, time.Local)
 		endDateTime = endTime.Format("2006-01-02T15:04")
+	} else {
+		var err error
+		// JSTとしてパース
+		endTime, err = time.ParseInLocation("2006-01-02T15:04", endDateTime, jst)
+		if err != nil {
+			log.Printf("AccessStatsHourlyHandler() endDateTime parse error: %v", err)
+			http.Error(w, "Invalid end datetime format", http.StatusBadRequest)
+			return
+		}
 	}
+
+	startTime := endTime.Add(time.Duration(-period) * time.Hour)
+	startDateTime = startTime.Format("2006-01-02T15:04")
 
 	accessStatsHourlyData.StartDateTime = startDateTime
 	accessStatsHourlyData.EndDateTime = endDateTime
+	accessStatsHourlyData.Period = period
 
-	// 日時文字列をパース
-	startTime, err := time.Parse("2006-01-02T15:04", startDateTime)
-	if err != nil {
-		log.Printf("AccessStatsHourlyHandler() startDateTime parse error: %v", err)
-		http.Error(w, "Invalid start datetime format", http.StatusBadRequest)
-		return
-	}
+	/*
+		// 日時文字列をパース
+		startTime, err := time.Parse("2006-01-02T15:04", startDateTime)
+		if err != nil {
+			log.Printf("AccessStatsHourlyHandler() startDateTime parse error: %v", err)
+			http.Error(w, "Invalid start datetime format", http.StatusBadRequest)
+			return
+		}
+	*/
 
-	endTime, err := time.Parse("2006-01-02T15:04", endDateTime)
+	endTime, err = time.ParseInLocation("2006-01-02T15:04", endDateTime, jst)
 	if err != nil {
 		log.Printf("AccessStatsHourlyHandler() endDateTime parse error: %v", err)
 		http.Error(w, "Invalid end datetime format", http.StatusBadRequest)
@@ -60,6 +91,7 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 終了時刻の1時間後を取得（WHEREの範囲指定のため）
 	nextHour := endTime.Add(1 * time.Hour)
+	log.Printf("startTime=%s, endTime=%s, nextHour=%s", startTime.Format("2006-01-02 15:04:05"), endTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
 
 	// SQLクエリを実行して時刻単位のアクセス統計を取得（3つのカテゴリ）
 	sql := `

@@ -39,7 +39,15 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 	if endDate == "" {
 		endDate = time.Now().Format("2006-01-02")
 	}
-	etime, err := time.Parse("2006-01-02", endDate)
+
+	// 日本標準時 (JST) のロケーションをロード
+	jst, err := time.LoadLocation("Asia/Tokyo") // または "Japan"
+	if err != nil {
+		log.Fatalf("Error loading location: %v", err)
+	}
+
+	// JSTとしてパース
+	etime, err := time.ParseInLocation("2006-01-02", endDate, jst)
 	if err != nil {
 		log.Printf("AccessStatsHandler() endDate parse error: %v", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -73,7 +81,7 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 	`
 
 	// 終了日の次の日を取得（WHEREの範囲指定のため）
-	endDateTime, err := time.Parse("2006-01-02", endDate)
+	endDateTime, err := time.ParseInLocation("2006-01-02", endDate, jst)
 	if err != nil {
 		log.Printf("AccessStatsHandler() endDate parse error: %v", err)
 		http.Error(w, "Invalid end date format", http.StatusBadRequest)

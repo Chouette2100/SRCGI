@@ -188,6 +188,8 @@
                     
                     <label for="end_date">終了日:</label>
                     <input type="date" id="end_date" name="end_date" value="{{ .EndDate }}">
+
+                     <input type="hidden" id="timezone" name="timezone" value="+09:00" />
                     
                     <button type="submit" class="reload-btn">再表示</button>
                 </div>

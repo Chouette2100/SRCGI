@@ -312,8 +312,9 @@ import (
 201116  ListLastPHandler()でTurnstile検証を行う。
 201117  Showrank上位の抽出のとき fanpower > 0 の条件を削除する。ListLastPHandler()を単一のgoテンプレートで実現できるようにする（修正中）
 201118  Showrank上位の抽出のとき fanpower > 0 の条件を削除する。ListLastPHandler()の修正は破棄する。
+201120 Todo管理、ToDo編集でボタンを画面丈夫にグリッドとして配置する。Accessstats(), AccessStatsHourly()でタイムゾーンの設定を行う。
 */
-const Version = "201118"
+const Version = "201120"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
