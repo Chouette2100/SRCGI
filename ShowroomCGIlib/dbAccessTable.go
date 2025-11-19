@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/Chouette2100/srdblib/v2"
@@ -55,20 +56,21 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 
 	// まず、期間全体でのアクセス数上位50件のIPアドレスを取得
 	sqlTop := `
-		SELECT remoteaddress, COUNT(*) AS total_count
+		SELECT remoteaddress, region, COUNT(*) AS total_count
 		FROM accesslog
 		WHERE DATE(ts) BETWEEN ? AND ?
 		  AND is_bot = 0 AND turnstilestatus = 0
 		  AND remoteaddress != '59.166.119.117'
 		  AND remoteaddress != '10.63.22.1'
 		  AND remoteaddress != '149.88.103.40'
-		GROUP BY remoteaddress
+		GROUP BY remoteaddress, region
 		ORDER BY total_count DESC
 		LIMIT 100
 	`
 
 	type TopIP struct {
 		Remoteaddress string `db:"remoteaddress"`
+		Region        string `db:"region"`
 		TotalCount    int    `db:"total_count"`
 	}
 
@@ -93,7 +95,7 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 
 	sql := `
 		SELECT 
-			remoteaddress,
+			remoteaddress, region,
 			DATE(ts) AS access_date,
 			COUNT(*) AS access_count
 		FROM accesslog
@@ -102,12 +104,13 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 		  AND is_bot = 0 AND turnstilestatus = 0
 		--  AND remoteaddress IN ( ? )
 		  AND remoteaddress IN ( :Ips )
-		GROUP BY remoteaddress, access_date
+		GROUP BY remoteaddress, region, access_date
 		ORDER BY remoteaddress, access_date
 	`
 
 	type AccessRow struct {
 		Remoteaddress string `db:"remoteaddress"`
+		Region        string `db:"region"`
 		AccessDate    string `db:"access_date"`
 		AccessCount   int    `db:"access_count"`
 	}
@@ -125,19 +128,22 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 	}
 
 	// IPアドレスを暗号化
-	tableRows, headers := buildTableRows(rows, startDate, days, func(row AccessRow) string { return row.Remoteaddress })
+	tableRows, headers := buildTableRows(rows, startDate, days, func(row AccessRow) string { return row.Region + "|" + row.Remoteaddress })
 
 	// encryptionKey []byteを16進数表現にして、16進表現のdkey stringと比較する
 	encryptionKeyHex := fmt.Sprintf("%X", encryptionKey)
 	if dkey != encryptionKeyHex {
 
 		for i := range tableRows {
-			encrypted, err := EncryptIP(tableRows[i].Key)
+			keyRegion := strings.SplitN(tableRows[i].Key, "|", 2)
+			key := keyRegion[1]
+			region := keyRegion[0]
+			encrypted, err := EncryptIP(key)
 			if err != nil {
 				log.Printf("Warning: failed to encrypt IP %s: %v", tableRows[i].Key, err)
 				encrypted = "[暗号化エラー]"
 			}
-			tableRows[i].Key = encrypted
+			tableRows[i].Key = region + "|" + encrypted
 		}
 	}
 

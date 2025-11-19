@@ -402,7 +402,7 @@
                         beginAtZero: true,
                         max: maxYValue > 0 ? maxYValue : undefined,
                         ticks: {
-                            stepSize: 1000,
+                            stepSize: 100,
                             callback: function(value) {
                                 return value.toLocaleString();
                             }

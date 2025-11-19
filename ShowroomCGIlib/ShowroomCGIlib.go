@@ -313,8 +313,9 @@ import (
 201117  Showrank上位の抽出のとき fanpower > 0 の条件を削除する。ListLastPHandler()を単一のgoテンプレートで実現できるようにする（修正中）
 201118  Showrank上位の抽出のとき fanpower > 0 の条件を削除する。ListLastPHandler()の修正は破棄する。
 201120 Todo管理、ToDo編集でボタンを画面丈夫にグリッドとして配置する。Accessstats(), AccessStatsHourly()でタイムゾーンの設定を行う。
+201121 アクセス集計表（IPアドレス別）に国・地域名の表示を追加する。
 */
-const Version = "201120"
+const Version = "201121"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
