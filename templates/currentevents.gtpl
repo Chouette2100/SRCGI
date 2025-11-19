@@ -172,6 +172,7 @@
         <table class="events-table">
             <tr>
                 <th>イベント名とイベントページへのリンク</th>
+                <th>イベントID</th>
                 <th>開始日時</th>
                 <th>終了日時</th>
                 <th>参加ルーム一覧</th>
@@ -202,6 +203,9 @@
 
                 <td>
                     <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
+                </td>
+                <td>
+                    {{ .I_Event_ID }}
                 </td>
                 <td>
                     {{ TimeToString .Start_time }}
