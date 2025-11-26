@@ -315,8 +315,9 @@ import (
 201120 Todo管理、ToDo編集でボタンを画面丈夫にグリッドとして配置する。Accessstats(), AccessStatsHourly()でタイムゾーンの設定を行う。
 201121 アクセス集計表（IPアドレス別）に国・地域名の表示を追加する。
 201122 開催予定と開催中のイベントの一覧にイベントIDの表示を追加する。
+201123 ListLastHandler()でソート順にrankを追加する。
 */
-const Version = "201122"
+const Version = "201123"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

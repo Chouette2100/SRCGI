@@ -310,7 +310,7 @@ func SelectCurrentScore(
 	if strings.Contains(eventid, "mattari_fireworks") {
 		sql2 += " ORDER BY p.`rank` desc, p.point desc "
 	} else {
-		sql2 += " ORDER BY p.point desc "
+		sql2 += " ORDER BY p.point desc, p.`rank` "
 	}
 	// HACK: --------------------
 	if maxrooms != 0 {
