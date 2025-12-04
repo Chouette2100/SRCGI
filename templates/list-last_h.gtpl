@@ -11,6 +11,14 @@
         }
     </style>
 
+    <style>
+        .hilight input[type="submit"]{
+            background: #007f7f;
+            border: none;
+            color: #FFFFFF;
+        }
+    </style>
+
 </head>
 <body>
     <table>
@@ -54,16 +62,18 @@
 {{ end }}
 </td>
 <td>
-　　　　　　　　　　　　　　　　　　　　
+　　　　　　
 </td>
 <td>
-<style>
-.hilight input[type="submit"]{
-    background: #007f7f;
-    border: none;
-    color: #FFFFFF;
-}
-</style>
+<form class='hilight'>
+    <input type="hidden" id="eventid" name="eventid" value="{{ .Eventid }}" />
+    <input type="submit" formaction='/listener-cntrb-history?eventid={{.Evetid}}' color='yellow' value="イベント参加ルームのリスナーの貢献ポイント履歴" />
+</form>
+</td>
+<td>
+　　　　　　　　　　　
+</td>
+<td>
 <form class='hilight'>
     <input type="hidden" id="eventid" name="eventid" value="{{ .Eventid }}" />
     <input type="number" name="breg" id="breg" value="1" size='3' min='1' required />番目から

@@ -181,9 +181,10 @@ import (
 	201112  Region(国・地域)をアクセスログに保存し、国外からのアクセスを遮断する機能を追加する。
 	201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とし、実行時検証できたら =0 とする。
 	201119  ログの時刻表示をμ秒単位に変更する。
+	201200 ListenerCntrbHistoryHandler(), RoomCntrbHistoryHandler()を追加する。
 */
 
-const version = "201119"
+const version = "201200"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -237,7 +238,7 @@ func NewLogfileName(logfile *os.File) {
 		}
 
 		// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.SetFlags(log.Lmicroseconds | log.Ltime | log.Lshortfile)
+		log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
 
 		time.Sleep(1 * time.Second)
 	}
@@ -757,6 +758,12 @@ func main() {
 
 		http.HandleFunc(rootPath+"/m-cntrbrank-listener", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankOfListenerHandler))
 		http.HandleFunc(rootPath+"/m-cntrbrank-Lg", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankLgHandler))
+
+		//	イベント参加ルームのリスナーの貢献ポイント履歴
+		http.HandleFunc(rootPath+"/listener-cntrb-history", commonMiddleware(rateLimiter, ShowroomCGIlib.ListenerCntrbHistoryHandler))
+
+		//	ルーム別リスナー貢献ポイントランキング
+		http.HandleFunc(rootPath+"/room-cntrb-history", commonMiddleware(rateLimiter, ShowroomCGIlib.RoomCntrbHistoryHandler))
 
 		http.HandleFunc(rootPath+"/fanlevel", commonMiddleware(rateLimiter, ShowroomCGIlib.FanLevelHandler))
 

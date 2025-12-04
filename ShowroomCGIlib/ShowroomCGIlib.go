@@ -316,8 +316,9 @@ import (
 201121 アクセス集計表（IPアドレス別）に国・地域名の表示を追加する。
 201122 開催予定と開催中のイベントの一覧にイベントIDの表示を追加する。
 201123 ListLastHandler()でソート順にrankを追加する。
+201200 ListenerCntrbHistoryHandler(), RoomCntrbHistoryHandler()を追加する。
 */
-const Version = "201123"
+const Version = "201200"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
