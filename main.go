@@ -13,10 +13,10 @@ import (
 
 	// "golang.org/x/crypto/ssh/terminal"
 
-	"golang.org/x/term"
+	// "golang.org/x/term"
 
 	"context"
-	"io"
+	// "io"
 	"os"
 	"os/signal"
 	"reflect"
@@ -37,6 +37,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srcom"
 	"github.com/Chouette2100/srdblib/v2"
 	"github.com/Chouette2100/srhandler/v2"
 
@@ -182,9 +183,10 @@ import (
 	201113  Turnstile検証処理のあるハンドラーは実行前にal.Turnstilestatus = 2とし、実行時検証できたら =0 とする。
 	201119  ログの時刻表示をμ秒単位に変更する。
 	201200 ListenerCntrbHistoryHandler(), RoomCntrbHistoryHandler()を追加する。
+	201201 ログ出力にCreateLogfile3()を使用するように変更する。LogWorker()のpanic()対応を追加する。
 */
 
-const version = "201200"
+const version = "201201"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -210,35 +212,43 @@ func NewLogfileName(logfile *os.File) {
 		log.Printf(" tnow: %s, nextday: %s\n", tnow.Format("2006-01-02 15:04:05"), nextday.Format("2006-01-02 15:04:05"))
 
 		//	日付けが変わるまで待つ
+		time.Sleep(nextday.Sub(tnow) - (1 * time.Minute))
 		time.Sleep(nextday.Sub(tnow))
 
 		//	ログファイルを閉じて新しいログファイルを作る
 		logfile.Close()
 
-		// logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
-		//	test	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102-1504") + ".txt"
+		/*
+			// logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102") + ".txt"
+			//	test	logfilename := version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + time.Now().Format("20060102-1504") + ".txt"
 
-		ShowroomCGIlib.VersionOfAll = version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + srapi.Version
-		logfilename := ShowroomCGIlib.VersionOfAll + "_" + time.Now().Format("20060102") + ".txt"
+			ShowroomCGIlib.VersionOfAll = version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + srapi.Version
+			logfilename := ShowroomCGIlib.VersionOfAll + "_" + time.Now().Format("20060102") + ".txt"
 
-		logfile, err = os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+			logfile, err = os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+			if err != nil {
+				panic("cannnot open logfile: " + logfilename + err.Error())
+			}
+
+			// フォアグラウンド（端末に接続されているか）を判定
+			isForeground := term.IsTerminal(int(os.Stdout.Fd()))
+
+			if isForeground {
+				// フォアグラウンドならログファイル + コンソール
+				log.SetOutput(io.MultiWriter(logfile, os.Stdout))
+			} else {
+				// バックグラウンドならログファイルのみ
+				log.SetOutput(logfile)
+			}
+
+			// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+			log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
+		*/
+
+		logfile, err = srcom.CreateLogfile3(version, ShowroomCGIlib.Version, srdblib.Version, srapi.Version)
 		if err != nil {
-			panic("cannnot open logfile: " + logfilename + err.Error())
+			panic("cannnot open logfile: " + err.Error())
 		}
-
-		// フォアグラウンド（端末に接続されているか）を判定
-		isForeground := term.IsTerminal(int(os.Stdout.Fd()))
-
-		if isForeground {
-			// フォアグラウンドならログファイル + コンソール
-			log.SetOutput(io.MultiWriter(logfile, os.Stdout))
-		} else {
-			// バックグラウンドならログファイルのみ
-			log.SetOutput(logfile)
-		}
-
-		// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-		log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
 
 		time.Sleep(1 * time.Second)
 	}
@@ -472,29 +482,34 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 // 入力内容の確認画面
 func main() {
 
-	ShowroomCGIlib.VersionOfAll = version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + srapi.Version
-	logfilename := ShowroomCGIlib.VersionOfAll + "_" + time.Now().Format("20060102") + ".txt"
-	logfile, err := os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		panic("cannnot open logfile: " + logfilename + err.Error())
-	}
-	defer logfile.Close()
-	defer LogFile_f2b.Close() // LogForFail2ban()で開いたファイルを閉じる
+	/*
+		ShowroomCGIlib.VersionOfAll = version + "_" + ShowroomCGIlib.Version + "_" + srdblib.Version + "_" + srapi.Version
+		logfilename := ShowroomCGIlib.VersionOfAll + "_" + time.Now().Format("20060102") + ".txt"
+		logfile, err := os.OpenFile(logfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		if err != nil {
+			panic("cannnot open logfile: " + logfilename + err.Error())
+		}
+		defer logfile.Close()
+		defer LogFile_f2b.Close() // LogForFail2ban()で開いたファイルを閉じる
 
-	// フォアグラウンド（端末に接続されているか）を判定
-	isForeground := term.IsTerminal(int(os.Stdout.Fd()))
+		// フォアグラウンド（端末に接続されているか）を判定
+		isForeground := term.IsTerminal(int(os.Stdout.Fd()))
 
-	if isForeground {
-		// フォアグラウンドならログファイル + コンソール
-		log.SetOutput(io.MultiWriter(logfile, os.Stdout))
-	} else {
-		// バックグラウンドならログファイルのみ
-		log.SetOutput(logfile)
-	}
+		if isForeground {
+			// フォアグラウンドならログファイル + コンソール
+			log.SetOutput(io.MultiWriter(logfile, os.Stdout))
+		} else {
+			// バックグラウンドならログファイルのみ
+			log.SetOutput(logfile)
+		}
 
-	// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.SetFlags(log.Lmicroseconds | log.Ltime | log.Lshortfile)
+		// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+		log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
+	*/
 
+	logfile, err := srcom.CreateLogfile3(version, ShowroomCGIlib.Version, srdblib.Version, srapi.Version)
+
+	//	ログファイル名を毎日午前0時に更新する
 	go NewLogfileName(logfile)
 
 	ShowroomCGIlib.Chlog = make(chan *srdblib.Accesslog, 100)

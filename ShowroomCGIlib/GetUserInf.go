@@ -4,46 +4,15 @@
 package ShowroomCGIlib
 
 import (
-	//	"SRCGI/ShowroomCGIlib"
-	//	"bufio"
-	// "bytes"
-	// "fmt"
-	//	"html"
+	"fmt"
 	"log"
-
-	//	"math/rand"
-	// "sort"
-	// "strconv"
+	"net/http"
+	"os"
+	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
-	//	"os"
-
-	// "runtime"
-	"sync"
-
-	// "encoding/json"
-
-	//	"html/template"
-	"net/http"
-
-	// "database/sql"
-
-	// "encoding/json"
-
-	// _ "github.com/go-sql-driver/mysql"
-
-	// "github.com/PuerkitoBio/goquery"
-
-	//	svg "github.com/ajstarks/svgo/float"
-
-	//	"github.com/dustin/go-humanize"
-
-	//	"github.com/goark/sshql"
-	//	"github.com/goark/sshql/mysqldrv"
-
-	//	"github.com/Chouette2100/exsrapi/v2"
-	// "github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
 
@@ -211,24 +180,103 @@ func GetUserInf(r *http.Request) (
 
 // func logWorker(db *sql.DB, logCh chan string, done chan struct{}) {
 func LogWorker() {
-	lt := time.Now()
-	for {
-		al := <-Chlog
-		if !al.Ts.After(lt) {
-			alts := al.Ts
-			al.Ts = lt.Add(time.Millisecond)
-			log.Printf(" Adjust Time: %s ( from %s)\n",
-				al.Ts.Format("2006-01-02 15:04:05.000"),
-				alts.Format("2006-01-02 15:04:05.000"))
-		}
-		lt = al.Ts
-		if err := srdblib.Dbmap.Insert(al); err != nil {
-			log.Printf(" GetUserInf(): Dbmap.Insert(al): %s\n", err.Error())
+
+	workerID := fmt.Sprintf("worker-%d", time.Now().UnixNano())
+	log.Printf("%s: LogWorker started", workerID)
+
+	defer func() {
+		if r := recover(); r != nil {
+			// スタックトレース付きで詳細ログ
+			log.Printf("** PANIC in LogWorker recovered: %v\nStack trace:\n%s",
+				r, string(debug.Stack()))
+
+			// 緊急ログ（ファイルに直接書き込み）
+			f, _ := os.OpenFile("panic.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			fmt.Fprintf(f, "PANIC at %s: %v\n%s\n",
+				time.Now().Format("2006-01-02 15:04:05"),
+				r, debug.Stack())
+			f.Close()
+
+			// 再起動するか、エラーを通知する
+			time.Sleep(10 * time.Second)
+			go LogWorker() // 再起動（注意: 無限ループになる可能性あり）
 		} else {
-			// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Now().Sub(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
-			// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
-			log.Printf("==C== %6.1f(%s) %s %s\n",
-				time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress)
+			log.Println("LogWorker ended without panic")
 		}
+	}()
+
+	lt := time.Now()
+	lastProcessTime := time.Now()
+
+	// 監視用タイマー（デッドロック検出）
+	healthTimer := time.NewTicker(1 * time.Minute)
+	defer healthTimer.Stop()
+
+	for {
+		select {
+		case al := <-Chlog:
+			lastProcessTime = time.Now()
+
+			// 既存の処理（panic対策済み）
+			lt = processLog(al, lt)
+
+		case <-healthTimer.C:
+			// 1分以上処理がない場合は警告
+			idleTime := time.Since(lastProcessTime)
+			if idleTime > 5*time.Minute {
+				log.Printf("%s: WARNING - No logs processed for %v",
+					workerID, idleTime)
+				log.Printf("%s: Channel status: len=%d/%d",
+					workerID, len(Chlog), cap(Chlog))
+			}
+		}
+		/*
+			al := <-Chlog
+			if !al.Ts.After(lt) {
+				alts := al.Ts
+				al.Ts = lt.Add(time.Millisecond)
+				log.Printf(" Adjust Time: %s ( from %s)\n",
+					al.Ts.Format("2006-01-02 15:04:05.000"),
+					alts.Format("2006-01-02 15:04:05.000"))
+			}
+			lt = al.Ts
+			if err := srdblib.Dbmap.Insert(al); err != nil {
+				log.Printf(" GetUserInf(): Dbmap.Insert(al): %s\n", err.Error())
+			} else {
+				// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Now().Sub(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
+				// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
+				log.Printf("==C== %6.1f(%s) %s %s\n",
+					time.Since(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress)
+			}
+		*/
 	}
+}
+
+// 処理を分離してpanicを局所化
+func processLog(al *srdblib.Accesslog, lt time.Time) (ltn time.Time) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("processLog panic: %v", r)
+		}
+	}()
+
+	if !al.Ts.After(lt) {
+		alts := al.Ts
+		al.Ts = lt.Add(time.Millisecond)
+		log.Printf(" Adjust Time: %s (from %s)",
+			al.Ts.Format("2006-01-02 15:04:05.000"),
+			alts.Format("2006-01-02 15:04:05.000"))
+	}
+
+	ltn = al.Ts
+
+	if err := srdblib.Dbmap.Insert(al); err != nil {
+		log.Printf("Dbmap.Insert error: %s", err.Error())
+	} else {
+		log.Printf("==C== %6.1f(%s) %s %s",
+			time.Since(al.Ts).Seconds(),
+			al.Ts.Format("2006-01-02 15:04:05.000"),
+			al.Handler, al.Remoteaddress)
+	}
+	return ltn
 }
