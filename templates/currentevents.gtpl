@@ -186,14 +186,14 @@
         {{ $i := 0 }}
         {{ range .Eventinflist }}
         {{ if eq $i 1 }}
-            {{ if eq .Aclr 0 }}
+            {{ if eq .Highlighted 0 }}
             <tr bgcolor="gainsboro">
             {{ else }}
             <tr bgcolor="palegreen">
             {{ end }}
             {{ $i = 0 }}
         {{ else }}
-            {{ if eq .Aclr 0 }}
+            {{ if eq .Highlighted 0 }}
             <tr>
             {{ else }}
             <tr bgcolor="lightblue">

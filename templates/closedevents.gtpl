@@ -527,6 +527,8 @@
             {{ $i := 0 }}
             {{ $userno := .Userno }}
             {{ range .Eventinflist }}
+
+            {{/*
             {{ if eq $i 1 }}
             <tr>
             {{ $i = 0 }}
@@ -534,6 +536,24 @@
             <tr>
             {{ $i = 1 }}
             {{ end }}
+            */}}
+
+
+        {{ if eq $i 1 }}
+            {{ if eq .Highlighted 0 }}
+            <tr bgcolor="gainsboro">
+            {{ else }}
+            <tr bgcolor="palegreen">
+            {{ end }}
+            {{ $i = 0 }}
+        {{ else }}
+            {{ if eq .Highlighted 0 }}
+            <tr>
+            {{ else }}
+            <tr bgcolor="lightblue">
+            {{ end }}
+            {{ $i = 1 }}
+        {{ end }}
         
                 <td style="border-right: none;">
                     {{ if IsTempID .Event_ID }}
@@ -558,12 +578,23 @@
                     {{/* {{ if and (ne .I_Event_ID 0) ( ne .Aclr 0 ) }} */}}
                     {{ if  ne .Aclr 0 }}
                     {{/* {{ if ne .I_Event_ID 0 }} */}}
-                    <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">最終結果</a>
+                    
+                        {{ if eq .Rstatus "ProvisionalC" }}
+                    <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">
+                        *暫定結果*
+                    </a>
+                        {{ else if ne .Rstatus "Provisional" }}
+                    <a href="closedeventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}{{ if ne $userno 0 }}&roomid={{$userno}}{{end}}">
+                        最終結果
+                    </a>
+                        {{ end }}
+
                     {{ else }}
                         {{ if ne $userno 0 }}
-                        <a href="https://showroom-live.com/api/events/{{.I_Event_ID}}/ranking?room_id={{$userno}}">API</a>
+                        <a href="https://showroom-lSaveConfirmedData_200200_200504_200400ive.com/api/events/{{.I_Event_ID}}/ranking?room_id={{$userno}}">API</a>
                         {{ end }}
                     {{ end }}
+
                 </td>
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}

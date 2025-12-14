@@ -148,11 +148,10 @@ func CurrentEventsHandler(
 
 	for i, v := range top.Eventinflist {
 		if _, ok := emap[v.Event_ID]; ok {
-			top.Eventinflist[i].Aclr += 2
+			top.Eventinflist[i].Highlighted = 1
+		} else {
+			top.Eventinflist[i].Highlighted = 0
 		}
-		// else {
-		// 	top.Eventinflist[i].Aclr = 0
-		// }
 	}
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {

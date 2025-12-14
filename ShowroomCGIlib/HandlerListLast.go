@@ -196,6 +196,11 @@ func ListLastHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	if time.Now().After(eventinf.End_time) {
 		log.Printf("Application stopped or the event is over. status = %d\n", status)
+		if eventinf.Rstatus == "ProvisionalC" {
+			values["UpdateTime"] = "暫定結果(確定結果による変更の可能性があります)"
+		} else {
+			values["UpdateTime"] = "最終結果(結果は確定しました"
+		}
 		values["NextTime"] = "イベントは終了しています。"
 		values["ReloadTime"] = ""
 		values["SecondsToReload"] = "3600"

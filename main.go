@@ -184,9 +184,12 @@ import (
 	201119  ログの時刻表示をμ秒単位に変更する。
 	201200 ListenerCntrbHistoryHandler(), RoomCntrbHistoryHandler()を追加する。
 	201201 ログ出力にCreateLogfile3()を使用するように変更する。LogWorker()のpanic()対応を追加する。
+	201202 ログ出力切り替えタイミングの計算に使うtnowの値を現在時にする（バグの修正）
+	201203 イベント一覧の注目のイベント表示にHighlightedフィールドを使用する。
+	201204 イベント終了後の獲得ポイント一覧の終了の表示を明確にする
 */
 
-const version = "201201"
+const version = "201204"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -213,6 +216,8 @@ func NewLogfileName(logfile *os.File) {
 
 		//	日付けが変わるまで待つ
 		time.Sleep(nextday.Sub(tnow) - (1 * time.Minute))
+		tnow = time.Now()
+		log.Printf(" tnow: %s, nextday: %s\n", tnow.Format("2006-01-02 15:04:05"), nextday.Format("2006-01-02 15:04:05"))
 		time.Sleep(nextday.Sub(tnow))
 
 		//	ログファイルを閉じて新しいログファイルを作る
