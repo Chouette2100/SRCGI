@@ -68,7 +68,8 @@ func SelectTopRoom(
 	top.To = totime
 
 	sqltr := "select p.point, p.`rank`, u.userno,u.genre, e.endtime, u.user_name, p.eventid, e.event_name from points p, user u, event e "
-	sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime > ? and e.endtime < ? "
+	// sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime > ? and e.endtime < ? "
+	sqltr += " where p.user_id = u.userno and e.eventid = p.eventid and p.pstatus = 'Conf.'  and e.endtime between ? and ? "
 
 	lgenre := len(top.Genrelist)
 	n := 0
@@ -202,7 +203,9 @@ func TopRoomHandler(
 
 	from := r.FormValue("from")
 	if from == "" {
-		from = "2023-10-01"
+		// from = "2023-10-01"
+		year, month, day := time.Now().Date()
+		from = time.Date(year-1, month, day, 0, 0, 0, 0, time.Local).Format("2006-01-02")
 	}
 	from += " +0900"
 	fromtime, err := time.Parse("2006-01-02 -0700", from)
@@ -211,11 +214,15 @@ func TopRoomHandler(
 		fromtime = time.Date(2023, 10, 1, 0, 0, 0, 0, time.Local)
 	}
 
-	totimelimit := time.Now().Truncate(24 * time.Hour).Add(-48 * time.Hour)
+	// totimelimit := time.Now().Truncate(24 * time.Hour).Add(-48 * time.Hour)
+	year, month, day := time.Now().Date()
+	totimelimit := time.Date(year, month, day-1, 0, 0, 0, 0, time.Local)
 
 	to := r.FormValue("to")
 	if to == "" {
 		to = time.Now().Truncate(24 * time.Hour).Add(-48 * time.Hour).Format("2006-01-02")
+		year, month, day := time.Now().Date()
+		to = time.Date(year, month, day-1, 0, 0, 0, 0, time.Local).Format("2006-01-02")
 	}
 	to += " +0900"
 	totime, err := time.Parse("2006-01-02 -0700", to)

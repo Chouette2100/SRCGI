@@ -187,9 +187,10 @@ import (
 	201202 ログ出力切り替えタイミングの計算に使うtnowの値を現在時にする（バグの修正）
 	201203 イベント一覧の注目のイベント表示にHighlightedフィールドを使用する。
 	201204 イベント終了後の獲得ポイント一覧の終了の表示を明確にする
+	201205 top画面の機説明を修正する
 */
 
-const version = "201204"
+const version = "201205"
 
 func NewLogfileName(logfile *os.File) {
 

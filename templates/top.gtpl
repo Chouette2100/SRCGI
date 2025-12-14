@@ -57,18 +57,18 @@
         </form>
     </p>
     <p style="padding-left:2em; width:54em;">
-    <a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>（新規機能・結果が表示されるまで数十秒かかります）
+    <a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>）
     </p>
     {{/*
     <p style="padding-left:2em; width:54em;">
-    月別イベント・リスナー貢献ポイントランキング</a>（結果が表示されるまで数十秒かかります） <= 一時機能を停止します
+    月別イベント・リスナー貢献ポイントランキング（結果が表示されるまで数十秒かかります） <= 一時機能を停止します
     </p>
     */}}
     <p style="padding-left:2em; width:54em;">
     <a href="m-cntrbrank-Lg">月別貢献ポイントランキング（リスナー/ルーム）</a>（どのリスナーさんがどのルームを応援しているかわかるように作りました）
     </p>
     <p style="padding-left:2em">
-    <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>（結果が表示されるまで30秒以上要します）
+    <a href="toproom">最近のイベントの獲得ポイント上位のルーム</a>
     </p>
     {{/*
     <p style="padding-left:2em">
