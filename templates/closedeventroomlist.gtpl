@@ -45,7 +45,13 @@
     <br>
     <br>
 
-    <p>終了イベント・最終結果</p>
+    {{ if eq .Rstatus "Confirmed" }}
+    <p>イベント結果　確定結果</p>
+    {{ else if eq .Rstatus "ProvisionalC" }}
+    <p>イベント結果　暫定結果（結果確定待ち）</p>
+    {{ else }}
+    <p>イベント結果　結果確定待ち</p>
+    {{ end }}
     <br>
 
     {{ if eq .Eventid 0 }}

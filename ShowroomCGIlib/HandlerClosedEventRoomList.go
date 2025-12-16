@@ -39,6 +39,7 @@ type Erl struct {
 	Roomid      int
 	Ib          int
 	Ie          int
+	Rstatus     string
 	Roomlistinf *srapi.RoomListInf
 	Msg         string
 	Eventlist   []srapi.Event
@@ -144,6 +145,7 @@ func ClosedEventRoomListHandler(
 		return
 	}
 	erl.Eventname = peventinf.Event_name
+	erl.Rstatus = peventinf.Rstatus
 
 	erl.Roomid, _ = strconv.Atoi(r.FormValue("roomid"))
 

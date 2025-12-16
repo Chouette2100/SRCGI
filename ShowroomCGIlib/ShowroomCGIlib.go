@@ -318,8 +318,9 @@ import (
 201123 ListLastHandler()でソート順にrankを追加する。
 201200 ListenerCntrbHistoryHandler(), RoomCntrbHistoryHandler()を追加する。
 201201 ログ出力にCreateLogfile3()を使用するように変更する。LogWorker()のpanic()対応を追加する
+201206 ClosedEventRoomListHandler()で確定結果、暫定結果の別を表示する
 */
-const Version = "201201"
+const Version = "201206"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
