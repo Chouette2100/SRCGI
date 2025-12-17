@@ -25,7 +25,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/dustin/go-humanize"
+	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
@@ -92,12 +92,12 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbH-h.gtpl", "templates/list-cntrbH.gtpl"))
-	funcMap := template.FuncMap{
-		"sub":        func(i, j int) int { return i - j },
-		"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
-		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-	}
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbHEx-h.gtpl", "templates/list-cntrbHEx.gtpl"))
+	// funcMap := template.FuncMap{
+	// 	"sub":        func(i, j int) int { return i - j },
+	// 	"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
+	// 	"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
+	// }
+	// tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbHEx-h.gtpl", "templates/list-cntrbHEx.gtpl"))
 
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
@@ -139,6 +139,44 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	cntrbh_header.Maxpoint = eventinf.Maxpoint
 
 	cntrbh_header.Userno = userno
+	cntrbh_header.Name = name
+
+	// Turnstile導入用(2) ------------------------
+	// Turnstile検証（セッション管理込み）
+	// Turnstile検証要求後の状態を管理する
+	lastrequestid := ""
+	requestid := req.FormValue("requestid")
+	if requestid != "" {
+		// 最初のパス、検証のための場合と、すでにクッキーを持っている場合と両方ある
+		lastrequestid = requestid
+	}
+	cntrbh_header.RequestID = req.Context().Value("requestid").(string)
+	// ------
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &cntrbh_header)
+	if result != TurnstileOK {
+		// チャレンジページまたはエラーページが表示済みなので終了
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" cntrbh_header.RequestID = %s, lastrequestid = %s\n", cntrbh_header.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbh_header.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := srdblib.Dbmap.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbh_header.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = srdblib.Dbmap.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+	// -------------------------------------------
 
 	// _, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
 	pu := &srdblib.User{}
@@ -172,9 +210,9 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		cntrbh_header.Tlsnid_f = -1
 	}
 
-	if err := tpl.ExecuteTemplate(w, "list-cntrbHEx-h.gtpl", cntrbh_header); err != nil {
-		log.Println(err)
-	}
+	// if err := tpl.ExecuteTemplate(w, "list-cntrbHEx-h.gtpl", cntrbh_header); err != nil {
+	// 	log.Println(err)
+	// }
 	var cntrbhistoryEx *CntrbHistoryEx
 	cntrbhistoryEx, err = SelectCntrbHistoryEx(eventid, userno, tlsnid)
 	if err != nil {
@@ -204,7 +242,12 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	if err = tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbhistoryEx); err != nil {
+	cntrbh_header.CntrbhistoryEx = cntrbhistoryEx
+
+	tpl := template.Must(template.New("").Funcs(*ListCntrbHfuncMap).ParseFiles("templates/list-cntrbHEx.gtpl"))
+
+	// if err = tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbhistoryEx); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbh_header); err != nil {
 		log.Println(err)
 	}
 
