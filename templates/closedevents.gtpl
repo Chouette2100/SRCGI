@@ -590,9 +590,12 @@
                         {{ end }}
 
                     {{ else }}
+                        (改修中)
+                        {{/*
                         {{ if ne $userno 0 }}
                         <a href="https://showroom-lSaveConfirmedData_200200_200504_200400ive.com/api/events/{{.I_Event_ID}}/ranking?room_id={{$userno}}">API</a>
                         {{ end }}
+                        */}}
                     {{ end }}
 
                 </td>
