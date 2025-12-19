@@ -25,7 +25,7 @@ import (
 
 	"encoding/json"
 
-	//	"html/template"
+	"html/template"
 	"net/http"
 
 	//	"database/sql"
@@ -36,6 +36,7 @@ import (
 
 	//	svg "github.com/ajstarks/svgo/float"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/dustin/go-humanize"
 
 	//	"github.com/goark/sshql"
@@ -321,8 +322,10 @@ import (
 201206 ClosedEventRoomListHandler()で確定結果、暫定結果の別を表示する
 201207 ListCntrbHExHandler()とListCntrbHExHandler()のそれぞれのgtplをヘッドと本体を一つにし、Turnstile対応を行う。
 201208 検索によって表示された終了イベント一覧の表示を整備する。
+201209 開催予定イベントの参加ルーム一覧を再作成する(作業中)
+201210 ListCntrbHExHandler()でTurnstile検証のあとListCntrbHHandler()ではなくListCntrbHExHandler()を呼び出す。
 */
-const Version = "201208"
+const Version = "201210"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -478,12 +481,20 @@ var OS string
 
 var clmlist map[string]string
 
+var CommonFuncMap template.FuncMap
+
 func init() {
 	clmlist = make(map[string]string)
 	clmlist["wevent"] = srdblib.ExtractStructColumns(&srdblib.Wevent{})
 	clmlist["weventuser"] = srdblib.ExtractStructColumns(&srdblib.Weventuser{})
 	clmlist["eventuser"] = srdblib.ExtractStructColumns(&srdblib.Eventuser{})
 	clmlist["user"] = srdblib.ExtractStructColumns(&srdblib.User{})
+
+	CommonFuncMap = sprig.FuncMap() // https://masterminds.github.io/sprig/
+	CommonFuncMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
+	CommonFuncMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
+	CommonFuncMap["UnixtimeToTime"] =
+		func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) } //	UnixTimeを時分に変換する関数。
 }
 
 //	var WebServer string

@@ -25,28 +25,34 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	// "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
 )
 
 type CntrbHEx_Header struct {
-	Eventid    string
-	Eventname  string
-	Period     string
-	Maxpoint   int
-	Gscale     int
-	Userno     int
-	Username   string
-	ShortURL   string
-	Tlsnid     int
-	Listener   string
-	Ie         int
-	Tlsnid_b   int
-	Listener_b string
-	Tlsnid_f   int
-	Listener_f string
+	Eventid        string
+	Eventname      string
+	Period         string
+	Maxpoint       int
+	Gscale         int
+	Userno         int
+	Username       string
+	ShortURL       string
+	Tlsnid         int
+	Name           string
+	Listener       string
+	Ie             int
+	Tlsnid_b       int
+	Listener_b     string
+	Tlsnid_f       int
+	Listener_f     string
+	CntrbhistoryEx *CntrbHistoryEx
+	// Turnstile導入用(1) ------------------------
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
 }
 
 type CntrbHistoryExInf struct {
@@ -61,6 +67,30 @@ type CntrbHistoryExInf struct {
 }
 
 type CntrbHistoryEx []CntrbHistoryExInf
+
+// TurnstileChallengeDataインターフェースの実装
+var ListCntrbHExfuncMap = &template.FuncMap{
+	"sub":        func(i, j int) int { return i - j },
+	"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
+	"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
+}
+
+func (h *CntrbHEx_Header) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *CntrbHEx_Header) GetTemplatePath() string {
+	return "templates/list-cntrbHEx.gtpl"
+}
+
+func (h *CntrbHEx_Header) GetTemplateName() string {
+	return "list-cntrbHEx.gtpl"
+}
+
+func (h *CntrbHEx_Header) GetFuncMap() *template.FuncMap {
+	return ListCntrbHExfuncMap
+}
 
 /*
         HandlerListCntrbH()
@@ -129,17 +159,18 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
-	var cntrbh_header CntrbH_Header
+	var cntrbhex_header CntrbHEx_Header
 
-	cntrbh_header.Eventid = eventid
-	cntrbh_header.Eventname = eventinf.Event_name
-	cntrbh_header.Period = eventinf.Period
-	cntrbh_header.Ie = ie
+	cntrbhex_header.Eventid = eventid
+	cntrbhex_header.Eventname = eventinf.Event_name
+	cntrbhex_header.Period = eventinf.Period
+	cntrbhex_header.Ie = ie
 
-	cntrbh_header.Maxpoint = eventinf.Maxpoint
+	cntrbhex_header.Maxpoint = eventinf.Maxpoint
 
-	cntrbh_header.Userno = userno
-	cntrbh_header.Name = name
+	cntrbhex_header.Userno = userno
+	cntrbhex_header.Tlsnid = tlsnid
+	cntrbhex_header.Name = name
 
 	// Turnstile導入用(2) ------------------------
 	// Turnstile検証（セッション管理込み）
@@ -150,10 +181,10 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		// 最初のパス、検証のための場合と、すでにクッキーを持っている場合と両方ある
 		lastrequestid = requestid
 	}
-	cntrbh_header.RequestID = req.Context().Value("requestid").(string)
+	cntrbhex_header.RequestID = req.Context().Value("requestid").(string)
 	// ------
 
-	result, tsErr := CheckTurnstileWithSession(w, req, &cntrbh_header)
+	result, tsErr := CheckTurnstileWithSession(w, req, &cntrbhex_header)
 	if result != TurnstileOK {
 		// チャレンジページまたはエラーページが表示済みなので終了
 		if tsErr != nil {
@@ -162,14 +193,14 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	log.Printf(" cntrbh_header.RequestID = %s, lastrequestid = %s\n", cntrbh_header.RequestID, lastrequestid)
+	log.Printf(" cntrbhex_header.RequestID = %s, lastrequestid = %s\n", cntrbhex_header.RequestID, lastrequestid)
 	if lastrequestid == "" {
 		result, err := srdblib.Dbmap.Exec(
-			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbh_header.RequestID)
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbhex_header.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
 		result, err := srdblib.Dbmap.Exec(
-			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbh_header.RequestID)
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbhex_header.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 		result, err = srdblib.Dbmap.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
@@ -190,24 +221,24 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	pu = (intf).(*srdblib.User)
 
-	cntrbh_header.Username = pu.Longname
-	cntrbh_header.ShortURL = pu.Userid
+	cntrbhex_header.Username = pu.Longname
+	cntrbhex_header.ShortURL = pu.Userid
 
 	if name == "" {
 		tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
 
-		cntrbh_header.Tlsnid = tlsnid
-		cntrbh_header.Listener = tlsnidinflist[1].Listener
+		cntrbhex_header.Tlsnid = tlsnid
+		cntrbhex_header.Listener = tlsnidinflist[1].Listener
 
-		cntrbh_header.Tlsnid_b = tlsnidinflist[0].Tlsnid
-		cntrbh_header.Listener_b = tlsnidinflist[0].Listener
-		cntrbh_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
-		cntrbh_header.Listener_f = tlsnidinflist[2].Listener
+		cntrbhex_header.Tlsnid_b = tlsnidinflist[0].Tlsnid
+		cntrbhex_header.Listener_b = tlsnidinflist[0].Listener
+		cntrbhex_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
+		cntrbhex_header.Listener_f = tlsnidinflist[2].Listener
 	} else {
-		cntrbh_header.Tlsnid = tlsnid
-		cntrbh_header.Listener = name
-		cntrbh_header.Tlsnid_b = -1
-		cntrbh_header.Tlsnid_f = -1
+		cntrbhex_header.Tlsnid = tlsnid
+		cntrbhex_header.Listener = name
+		cntrbhex_header.Tlsnid_b = -1
+		cntrbhex_header.Tlsnid_f = -1
 	}
 
 	// if err := tpl.ExecuteTemplate(w, "list-cntrbHEx-h.gtpl", cntrbh_header); err != nil {
@@ -242,12 +273,12 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	cntrbh_header.CntrbhistoryEx = cntrbhistoryEx
+	cntrbhex_header.CntrbhistoryEx = cntrbhistoryEx
 
 	tpl := template.Must(template.New("").Funcs(*ListCntrbHfuncMap).ParseFiles("templates/list-cntrbHEx.gtpl"))
 
 	// if err = tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbhistoryEx); err != nil {
-	if err := tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbh_header); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrbHEx.gtpl", cntrbhex_header); err != nil {
 		log.Println(err)
 	}
 

@@ -139,36 +139,40 @@
 
         {{ $e := .Eventurl }}
 
-        {{ with .Roomlistinf }}
-        {{ range .RoomList }}
+        {{ with .Prooms }}
+        {{ range .Rooms }}
         <tr>
             <td style="text-align: right;">
+                {{/*
                 {{ if ne .Rank -1 }}
                 {{ .Rank }}
                 {{ end }}
+                */}}
             </td>
-            <td><a href="apiroomstatus?room_url_key={{ .Room_url_key }}" target="_blank" rel="noopener noreferrer">{{
-                    .Room_name }}</a></td>
+            <td><a href="apiroomstatus?room_url_key={{ .RoomURLKey }}" target="_blank" rel="noopener noreferrer">{{ .RoomName }}</a></td>
             <td style="text-align: right;">
                 {{ if ne .Point -1 }}
                 {{ Comma .Point }}
                 {{ end }}
             </td>
             <td style="text-align: right;">
+                {{/*
                 {{ if ne .Rank 1 }}
                 {{ Comma .Gap }}
                 {{ end }}
+                */}}
             </td>
-            <td><a href="https://www.showroom-live.com/room/profile?room_id={{ .Room_id }}" target="_blank"
+            <td><a href="https://www.showroom-live.com/room/profile?room_id={{ .RoomID }}" target="_blank"
                     rel="noopener noreferrer">Prof.</a> /
-                <a href="https://www.showroom-live.com/{{ .Room_url_key }}" target="_blank"
+                <a href="https://www.showroom-live.com/{{ .RoomURLKey }}" target="_blank"
                     rel="noopener noreferrer">Live</a> /
-                <a href="https://www.showroom-live.com/room/fan_club?room_id={{ .Room_id }}" target="_blank"
+                <a href="https://www.showroom-live.com/room/fan_club?room_id={{ .RoomID }}" target="_blank"
                     rel="noopener noreferrer">FC</a> /
-                <a href="https://www.showroom-live.com/event/contribution/{{ $e }}?room_id={{ .Room_id }}"
+                <a href="https://www.showroom-live.com/event/contribution/{{ $e }}?room_id={{ .RoomID }}"
                     target="_blank" rel="noopener noreferrer">Cnt.</a>
             </td>
             <td style="text-align: center;">
+                {{/*
                 {{ if eq .Startedat -1 }}
                 n/a
                 {{ else }}
@@ -176,8 +180,10 @@
                         {{ UnixtimeToTime .Startedat "15:04"}} 〜
                     {{ end }}
                 {{ end }}
+                */}}
             </td>
             <td style="text-align: center;">
+                {{/*
                 {{ if eq .Nextlive -1 }}
                 n/a
                 {{ else }}
@@ -185,6 +191,7 @@
                     {{ UnixtimeToTime .Nextlive "01/02 15:04"}}
                     {{ end }}
                 {{ end }}
+                */}}
             </td>
             <td style="text-align: center;">
             {{/*

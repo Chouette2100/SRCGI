@@ -1,9 +1,6 @@
-/*!
-Copyright © 2022 chouette.21.00@gmail.com
-Released under the MIT license
-https://opensource.org/licenses/mit-license.php
-
-*/
+// Copyright © 2022-2025 chouette.21.00@gmail.com
+// Released under the MIT license
+// https://opensource.org/licenses/mit-license.php
 
 package ShowroomCGIlib
 
@@ -14,31 +11,23 @@ import (
 	"sort"
 	"strconv"
 	// "strings"
-	"time"
+	// "time"
 
 	"html/template"
 	"net/http"
 
-	"github.com/dustin/go-humanize"
-
-	"github.com/Chouette2100/exsrapi/v2"
+	// "github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
 )
 
-/*
-
-	ApiEventRoomList() の戻り値を表示する。
-
-	Ver. 0.1.0
-
-*/
-
-// "/ApiEventRoomList()"に対するハンドラー
-// http://localhost:8080/apieventroomlist で呼び出される
+// /eventroomlist ハンドラー
 func EventRoomListHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
+
+	var err error
+	client := http.DefaultClient
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -46,38 +35,30 @@ func EventRoomListHandler(
 		return
 	}
 
-	//	cookiejarがセットされたHTTPクライアントを作る
-	client, jar, err := exsrapi.CreateNewClient("XXXXXX")
-	if err != nil {
-		log.Printf("CreateNewClient: %s\n", err.Error())
-		return
-	}
-	//	すべての処理が終了したらcookiejarを保存する。
-	defer jar.Save()
-
-	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
-		"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                           //	3桁ごとに","を入れる関数。
-		"UnixtimeToTime": func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) }, //	UnixTimeを時分に変換する関数。
-	}
-
-	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/eventroomlist.gtpl", "templates/footer.gtpl"))
+	// //	cookiejarがセットされたHTTPクライアントを作る
+	// client, jar, err := exsrapi.CreateNewClient("XXXXXX")
+	// if err != nil {
+	// 	log.Printf("CreateNewClient: %s\n", err.Error())
+	// 	return
+	// }
+	// //	すべての処理が終了したらcookiejarを保存する。
+	// defer jar.Save()
 
 	var erl struct {
-		Eventid     int
-		Eventname   string
-		Eventurl    string
-		Ib          int
-		Ie          int
-		Roomlistinf *srapi.RoomListInf
-		Msg         string
-		Eventlist   []srapi.Event
+		Eventid   int
+		Eventname string
+		Eventurl  string
+		Ib        int
+		Ie        int
+		// Roomlistinf *srapi.RoomListInf
+		Prooms    *srapi.EventRooms
+		Msg       string
+		Eventlist []srapi.Event
 	}
 
-	erl.Roomlistinf = &srapi.RoomListInf{
-		RoomList: make([]srapi.Room, 0),
-	}
+	// erl.Roomlistinf = &srapi.RoomListInf{
+	// 	RoomList: make([]srapi.Room, 0),
+	// }
 
 	seventid := r.FormValue("eventid")
 	eventurlkey := r.FormValue("eventurlkey")
@@ -127,6 +108,13 @@ func EventRoomListHandler(
 				erl.Ie = erl.Ib
 			}
 
+			erl.Prooms, err = srapi.GetEventRoomsByApi(client, erl.Eventurl, erl.Ib, erl.Ie)
+			if err != nil {
+				err = fmt.Errorf("GetEventRoomsByApi(): %w", err)
+				erl.Msg = err.Error()
+				log.Printf("%s\n", erl.Msg)
+			}
+
 			/*
 				if strings.Contains(eventurlkey, "?") {
 					erl.Roomlistinf, err = exsrapi.GetRoominfFromEventOfBR(client, erl.Eventurl, erl.Ib, erl.Ie)
@@ -146,89 +134,96 @@ func EventRoomListHandler(
 				}
 			*/
 
-			//	ルーム一覧にあるそれぞれのルームについて補足的なデータを取得する。
-			do1 := true
-			do2 := true
-			lrank := -1
-			rank := -1
-			for i, room := range erl.Roomlistinf.RoomList {
-				if i == 0 {
-					//	最初のルーム
-					//	順位、ポイント、上位との差とイベント名、イベントのURLを取得する。
-					//	DBを使っているときはイベント名とイベントのURLはイベントマスターから取得すべき。
-					erl.Roomlistinf.RoomList[i].Point, erl.Roomlistinf.RoomList[i].Rank, erl.Roomlistinf.RoomList[i].Gap,
-						_, erl.Eventurl, erl.Eventname, _, err = srapi.GetPointByApi(client, room.Room_id)
-					//	erl.Roomlistinf.RoomList[i].Gap = -1
-				} else {
-					//	2番目以降のルーム
-					//	順位、ポイント、上位との差を取得する。
-					erl.Roomlistinf.RoomList[i].Point, rank, erl.Roomlistinf.RoomList[i].Gap,
-						_, _, _, _, err = srapi.GetPointByApi(client, room.Room_id)
-					if rank == lrank {
-						erl.Roomlistinf.RoomList[i].Rank = -1
+			/*
+				//	ルーム一覧にあるそれぞれのルームについて補足的なデータを取得する。
+				do1 := true
+				do2 := true
+				lrank := -1
+				rank := -1
+				for i, room := range erl.Roomlistinf.RoomList {
+					if i == 0 {
+						//	最初のルーム
+						//	順位、ポイント、上位との差とイベント名、イベントのURLを取得する。
+						//	DBを使っているときはイベント名とイベントのURLはイベントマスターから取得すべき。
+						erl.Roomlistinf.RoomList[i].Point, erl.Roomlistinf.RoomList[i].Rank, erl.Roomlistinf.RoomList[i].Gap,
+							_, erl.Eventurl, erl.Eventname, _, err = srapi.GetPointByApi(client, room.Room_id)
+						//	erl.Roomlistinf.RoomList[i].Gap = -1
 					} else {
-						erl.Roomlistinf.RoomList[i].Rank = rank
+						//	2番目以降のルーム
+						//	順位、ポイント、上位との差を取得する。
+						erl.Roomlistinf.RoomList[i].Point, rank, erl.Roomlistinf.RoomList[i].Gap,
+							_, _, _, _, err = srapi.GetPointByApi(client, room.Room_id)
+						if rank == lrank {
+							erl.Roomlistinf.RoomList[i].Rank = -1
+						} else {
+							erl.Roomlistinf.RoomList[i].Rank = rank
+						}
+						lrank = rank
 					}
-					lrank = rank
-				}
-				if err != nil {
-					err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-					erl.Msg = err.Error()
-					log.Printf("%s\n", erl.Msg)
-					break
-				}
+					if err != nil {
+						err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+						erl.Msg = err.Error()
+						log.Printf("%s\n", erl.Msg)
+						break
+					}
 
-				//	ルーム状況（配信中か、配信開始時刻、公式か）を取得する。
-				var roomstatus *srapi.RoomStatus
-				if do1 {
-					//	一度もエラーが発生していないとき
-					roomstatus, err = srapi.ApiRoomStatus(client, room.Room_url_key)
-				}
-				if err != nil || !do1 {
-					//	err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-					//	erl.Msg = err.Error()
-					//	log.Printf("%s\n", erl.Msg)
-					//	break
-					do1 = false
-					erl.Roomlistinf.RoomList[i].Islive = false
-					erl.Roomlistinf.RoomList[i].Isofficial = false
-					erl.Roomlistinf.RoomList[i].Startedat = -1
-					continue
-				} else {
-					erl.Roomlistinf.RoomList[i].Islive = roomstatus.Is_live
-					erl.Roomlistinf.RoomList[i].Isofficial = roomstatus.Is_official
-					erl.Roomlistinf.RoomList[i].Startedat = roomstatus.Started_at
-				}
+					//	ルーム状況（配信中か、配信開始時刻、公式か）を取得する。
+					var roomstatus *srapi.RoomStatus
+					if do1 {
+						//	一度もエラーが発生していないとき
+						roomstatus, err = srapi.ApiRoomStatus(client, room.Room_url_key)
+					}
+					if err != nil || !do1 {
+						//	err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+						//	erl.Msg = err.Error()
+						//	log.Printf("%s\n", erl.Msg)
+						//	break
+						do1 = false
+						erl.Roomlistinf.RoomList[i].Islive = false
+						erl.Roomlistinf.RoomList[i].Isofficial = false
+						erl.Roomlistinf.RoomList[i].Startedat = -1
+						continue
+					} else {
+						erl.Roomlistinf.RoomList[i].Islive = roomstatus.Is_live
+						erl.Roomlistinf.RoomList[i].Isofficial = roomstatus.Is_official
+						erl.Roomlistinf.RoomList[i].Startedat = roomstatus.Started_at
+					}
 
-				//	次枠配信開始時刻を取得する。
-				var roomnextlive *srapi.RoomNextlive
-				if do2 {
-					//	一度もエラーが発生していないとき
-					roomnextlive, err = srapi.ApiRoomNextlive(client, room.Room_id)
-				}
-				if err != nil || !do2 {
-					//	err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-					//	erl.Msg = err.Error()
-					//	log.Printf("%s\n", erl.Msg)
-					//	break
-					do2 = false
-					erl.Roomlistinf.RoomList[i].Nextlive = -1
-					continue
-				} else {
-					erl.Roomlistinf.RoomList[i].Nextlive = roomnextlive.Epoch
-				}
+					//	次枠配信開始時刻を取得する。
+					var roomnextlive *srapi.RoomNextlive
+					if do2 {
+						//	一度もエラーが発生していないとき
+						roomnextlive, err = srapi.ApiRoomNextlive(client, room.Room_id)
+					}
+					if err != nil || !do2 {
+						//	err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+						//	erl.Msg = err.Error()
+						//	log.Printf("%s\n", erl.Msg)
+						//	break
+						do2 = false
+						erl.Roomlistinf.RoomList[i].Nextlive = -1
+						continue
+					} else {
+						erl.Roomlistinf.RoomList[i].Nextlive = roomnextlive.Epoch
+					}
 
-			}
+				}
+			*/
 		}
 	}
 
-	err = FindPtPerSlot(erl.Eventurl, &erl.Roomlistinf.RoomList)
-	if err != nil {
-		err = fmt.Errorf("HandlerEventRoomList(): %w", err)
-		erl.Msg = err.Error()
-		log.Printf("%s\n", erl.Msg)
-		return
-	}
+	/*
+		err = FindPtPerSlot(erl.Eventurl, &erl.Roomlistinf.RoomList)
+		if err != nil {
+			err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+			erl.Msg = err.Error()
+			log.Printf("%s\n", erl.Msg)
+			return
+		}
+	*/
+
+	// テンプレートをパースする
+	tpl := template.Must(template.New("").Funcs(CommonFuncMap).ParseFiles("templates/eventroomlist.gtpl", "templates/footer.gtpl"))
 
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "eventroomlist.gtpl", erl); err != nil {

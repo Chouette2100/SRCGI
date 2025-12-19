@@ -32,24 +32,23 @@ import (
 )
 
 type CntrbH_Header struct {
-	Eventid        string
-	Eventname      string
-	Period         string
-	Maxpoint       int
-	Gscale         int
-	Userno         int
-	Username       string
-	ShortURL       string
-	Tlsnid         int
-	Name           string
-	Listener       string
-	Ie             int
-	Tlsnid_b       int
-	Listener_b     string
-	Tlsnid_f       int
-	Listener_f     string
-	CntrbHistory   *CntrbHistory
-	CntrbhistoryEx *CntrbHistoryEx
+	Eventid      string
+	Eventname    string
+	Period       string
+	Maxpoint     int
+	Gscale       int
+	Userno       int
+	Username     string
+	ShortURL     string
+	Tlsnid       int
+	Name         string
+	Listener     string
+	Ie           int
+	Tlsnid_b     int
+	Listener_b   string
+	Tlsnid_f     int
+	Listener_f   string
+	CntrbHistory *CntrbHistory
 	// Turnstile導入用(1) ------------------------
 	TurnstileSiteKey string
 	TurnstileError   string
@@ -136,12 +135,14 @@ func ListCntrbHHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf(" eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
-	if len(acqtimelist) == 0 {
-		fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
-		fmt.Fprintf(w, "Check eventid and userno\n")
-		log.Printf("No AcqTimeList\n")
-		return
-	}
+	/*
+		if len(acqtimelist) == 0 {
+			fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
+			fmt.Fprintf(w, "Check eventid and userno\n")
+			log.Printf("No AcqTimeList\n")
+			return
+		}
+	*/
 
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
@@ -161,7 +162,10 @@ func ListCntrbHHandler(w http.ResponseWriter, req *http.Request) {
 	cntrbh_header.Username = roomname
 	cntrbh_header.ShortURL = roomurlkey
 
-	tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
+	var tlsnidinflist [3]Tlsnidinf
+	if len(acqtimelist) != 0 {
+		tlsnidinflist, _ = SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
+	}
 
 	cntrbh_header.Tlsnid = tlsnid
 	cntrbh_header.Listener = tlsnidinflist[1].Listener

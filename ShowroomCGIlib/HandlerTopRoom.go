@@ -205,7 +205,7 @@ func TopRoomHandler(
 	if from == "" {
 		// from = "2023-10-01"
 		year, month, day := time.Now().Date()
-		from = time.Date(year-1, month, day, 0, 0, 0, 0, time.Local).Format("2006-01-02")
+		from = time.Date(year, month-3, day, 0, 0, 0, 0, time.Local).Format("2006-01-02")
 	}
 	from += " +0900"
 	fromtime, err := time.Parse("2006-01-02 -0700", from)
