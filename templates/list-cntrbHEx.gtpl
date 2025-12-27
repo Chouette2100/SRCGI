@@ -16,6 +16,7 @@
             <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
             <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
         </tr>
+        {{ if ne .Eventid "" }}
         <tr>
             <td><button type="button" onclick="location.href='eventtop?eventid={{.Eventid}}'">イベントトップ</button></td>
             <td></td>
@@ -24,12 +25,15 @@
             </td>
             <td></td>
         </tr>
+        {{ if ne .Userno 0 }}
         <tr>
             <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
-            <td><button type="button" onclick="location.href='list-cntrb?eventid={{.Eventid}}&userno={{.Userno}}&ie={{ .Ie }}'">枠別貢献ポイント</button></td>
+            <td><button type="button" onclick="location.href='list-cntrbex?eventid={{.Eventid}}&userno={{.Userno}}&ie={{ .Ie }}'">枠別貢献ポイント</button></td>
             <td></td>
             <td></td>
         </tr>
+        {{ end}}
+        {{ end}}
         </table>
     </table>
     <br>

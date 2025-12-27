@@ -126,7 +126,10 @@
         }
         
         .data-table a {
+            {{/*
             color: #007bff;
+            */}}
+            color: #1900ffff;
             text-decoration: none;
         }
         
@@ -215,7 +218,7 @@
             <tr>
             {{ end }}
                 <td>{{ Comma .Point }}</td>
-                <td>{{ .Name }}</td>
+                <td><a href="list-cntrbHEx?tlsnid={{ .Lsnid }}">{{ .Name }}</a> ( {{ .Lsnid }} )</td>
                 <td><a href="/list-last?eventid={{ .EventID }}">{{ .EventName}}</a> ({{.EventID}} | {{.IeventID}})</td>
                 <td>{{ FormatTime .Starttime "2006-01-02 15:04" }}</td>
                 <td>{{ FormatTime .Endtime "2006-01-02 15:04" }}</td>

@@ -28,12 +28,16 @@
 	{{ if and (eq $Detail "1") (ne $Isover "1") }}
 	<td style="border-right-style:none;">ジャンル</td>
 	<td style="border-right-style:none;">ランク</td>
+	{{/*
 	<td style="border-left-style:none;">next</td>
 	<td style="border-left-style:none;">prev.</td>
-	<td>ルーム<br>レベル</td>
-	<td>フォロワ<br>（人）</td>
+	*/}}
+	<td style="border-left-style:none;">ルーム<br>レベル</td>
+	<td style="border-left-style:none;">フォロワ<br>（人）</td>
+	{{/*
 	<td>ファン数<br>前月</td>
 	<td>ファン数<br>（人）</td>
+	*/}}
 	<td>配信者<br>(プロフィール)</td>
 	{{ end }}
 <tr>
@@ -86,10 +90,13 @@
 	{{ if and (eq $Detail "1") (ne $Isover "1") }}
 	<td align="center" style="border-right-style:none;">{{.Roomgenre}}</td>
 	<td align="center" style="border-right-style:none;">{{.Roomrank}}</td>
+	{{/*
 	<td align="right" style="border-left-style:none;">{{.Roomnrank}}</td>
 	<td align="right" style="border-left-style:none;">{{.Roomprank}}</td>
-	<td align="right">{{.Roomlevel}}</td>
-	<td align="right">{{.Followers}}</td>
+	*/}}
+	<td align="right" style="border-left-style:none;">{{.Roomlevel}}</td>
+	<td align="right" style="border-left-style:none;">{{.Followers}}</td>
+	{{/*
 	<td align="right">
 		{{ if ne .Userno 0 }}
 			{{.Fans_lst}}
@@ -100,6 +107,7 @@
 			{{.Fans}}
 		{{ end }}
 	</td>
+	*/}}
 	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a></td>
 	{{ end }}
 	</tr>

@@ -10,14 +10,17 @@ import (
 	"log"
 	"sort"
 	"strconv"
+
 	// "strings"
-	// "time"
+	"time"
 
 	"html/template"
+	"net"
 	"net/http"
 
 	// "github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
+	"github.com/Chouette2100/srdblib/v2"
 )
 
 // /eventroomlist ハンドラー
@@ -27,7 +30,17 @@ func EventRoomListHandler(
 ) {
 
 	var err error
-	client := http.DefaultClient
+	client := &http.Client{
+		Timeout: 10 * time.Second, // 全体のタイムアウト (接続確立、リクエスト送信、レスポンス受信まで)
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout:   5 * time.Second, // 接続確立のタイムアウト
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			TLSHandshakeTimeout: 5 * time.Second, // TLSハンドシェイクのタイムアウト
+			// その他の設定...
+		},
+	}
 
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
@@ -48,12 +61,16 @@ func EventRoomListHandler(
 		Eventid   int
 		Eventname string
 		Eventurl  string
+		Starttime time.Time
+		Endtime   time.Time
 		Ib        int
 		Ie        int
 		// Roomlistinf *srapi.RoomListInf
-		Prooms    *srapi.EventRooms
-		Msg       string
-		Eventlist []srapi.Event
+		// Prooms    *srapi.EventRooms
+		RoomInfoList *[]RoomInfo
+		Qrooms       *[]srdblib.User
+		Msg          string
+		Eventlist    []srapi.Event
 	}
 
 	// erl.Roomlistinf = &srapi.RoomListInf{
@@ -84,13 +101,22 @@ func EventRoomListHandler(
 
 	} else {
 
-		erl.Eventid, err = strconv.Atoi(seventid)
 		erl.Eventurl = eventurlkey
+		erl.Eventid, err = strconv.Atoi(seventid)
 		if err != nil {
 			err = fmt.Errorf("HandlerEventRoomList(): %w", err)
 			erl.Msg = err.Error()
 			log.Printf("%s\n", erl.Msg)
 		} else {
+
+			var intrf interface{}
+			intrf, err = srdblib.Dbmap.Get(&srdblib.Wevent{}, eventurlkey)
+			if err != nil {
+				err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+				erl.Msg = err.Error()
+				log.Printf("%s\n", erl.Msg)
+			}
+			erl.Eventname = intrf.(*srdblib.Wevent).Event_name
 
 			sib := r.FormValue("ib")
 			erl.Ib, err = strconv.Atoi(sib)
@@ -101,18 +127,112 @@ func EventRoomListHandler(
 			sie := r.FormValue("ie")
 			erl.Ie, err = strconv.Atoi(sie)
 			if err != nil {
-				erl.Ie = 10
+				erl.Ie = 50
 			}
 
 			if erl.Ie < erl.Ib {
 				erl.Ie = erl.Ib
 			}
 
-			erl.Prooms, err = srapi.GetEventRoomsByApi(client, erl.Eventurl, erl.Ib, erl.Ie)
+			/*
+				teid := erl.Eventurl
+				if time.Now().Before(intrf.(*srdblib.Wevent).Starttime) {
+					eida := strings.Split(eventurlkey, "?")
+					teid = eida[0]
+				}
+				erl.Prooms, err = srapi.GetEventRoomsByApi(client, teid, erl.Ib, erl.Ie)
+				if err != nil {
+					err = fmt.Errorf("GetEventRoomsByApi(): %w", err)
+					erl.Msg = err.Error()
+					log.Printf("%s\n", erl.Msg)
+				}
+				if erl.Prooms == nil || len(erl.Prooms.Rooms) == 0 {
+					erl.Msg = "参加ルームが取得できません。イベントURLやイベントIDが正しいか確認してください。"
+					log.Printf("%s\n", erl.Msg)
+					w.Write([]byte(erl.Msg))
+					return
+				}
+
+				// userテーブルから既存のユーザー情報を取得する
+				roomlist := make([]int, len(erl.Prooms.Rooms))
+				for i, v := range erl.Prooms.Rooms {
+					roomlist[i] = v.RoomID
+				}
+			*/
+
+			erl.RoomInfoList, err = GetEventRoomlist(
+				erl.Eventid,
+				erl.Eventurl,
+				erl.Starttime,
+				erl.Endtime,
+				// 	erl.Ib,
+				// 	erl.Ie,
+				1,
+				3000,
+			)
 			if err != nil {
-				err = fmt.Errorf("GetEventRoomsByApi(): %w", err)
 				erl.Msg = err.Error()
 				log.Printf("%s\n", erl.Msg)
+				w.Write([]byte(erl.Msg))
+				return
+			}
+
+			// sqlのIN句用のルームIDリストを作成する。
+			roomlist := make([]int, len(*erl.RoomInfoList))
+			for i, v := range *erl.RoomInfoList {
+				roomlist[i] = v.Userno
+			}
+
+			sqlst := "SELECT userno, userid, user_name, `rank`, irank, level, followers, fans, ts " +
+				"FROM user " +
+				"WHERE userno IN (:Users) " +
+				"ORDER BY irank; "
+			erl.Qrooms = new([]srdblib.User)
+			_, err = srdblib.Dbmap.Select(erl.Qrooms, sqlst, map[string]interface{}{"Users": roomlist})
+			if err != nil {
+				err = fmt.Errorf("HandlerEventRoomList(): %w", err)
+				erl.Msg = err.Error()
+				w.Write([]byte(erl.Msg))
+				log.Printf("%s\n", erl.Msg)
+				return
+			}
+			userinfomap := make(map[int]int)
+			for i, u := range *erl.Qrooms {
+				userinfomap[u.Userno] = i
+			}
+
+			for _, v := range *erl.RoomInfoList {
+				if _, ok := userinfomap[v.Userno]; !ok {
+					//	ユーザー情報が見つからなかったとき
+					user := srdblib.User{
+						Userno:    v.Userno,
+						Userid:    v.Account,
+						User_name: v.Name,
+						Rank:      "",
+						Irank:     888888888,
+					}
+					*erl.Qrooms = append(*erl.Qrooms, user)
+
+					anur := AddNewUserRequest{
+						RoomID:        strconv.Itoa(v.Userno),
+						RoomName:      v.Name,
+						IsImmediately: false,
+						Client:        nil,
+						Timeout:       0,
+					}
+					_, msg, err := AddNewUser(anur)
+					if err != nil {
+						log.Printf("AddNewUser(): %s\n", err.Error())
+					} else {
+						log.Printf("AddNewUser(): %s\n", msg)
+					}
+				}
+			}
+
+			sort.Slice(*erl.Qrooms, func(i, j int) bool { return (*erl.Qrooms)[i].Irank < (*erl.Qrooms)[j].Irank })
+			if len(*erl.Qrooms) > erl.Ie-erl.Ib+1 {
+				tr := (*erl.Qrooms)[erl.Ib : erl.Ie-erl.Ib+2]
+				erl.Qrooms = &tr
 			}
 
 			/*

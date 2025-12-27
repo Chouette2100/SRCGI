@@ -19,12 +19,29 @@
 
 
 <body>
+    {{/*
     <button type="button" onclick="location.href='top'">top</button>　
     <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
-    <br>
+    */}}
+    <table>
+      <tr>
+      <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+      <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+      <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+      <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+        </tr>
+        {{/*
+        <tr>
+      <td><button type="button" onclick="location.href='eventtop?eventid={{.Eventid}}'">イベントトップ</button></td>
+      <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
+      <td><button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
+      <td></td>
+        </tr>
+        */}}
+      </table>
     <br>
 
-    <p>イベント・参加ルーム一覧表</p>
+    <p>イベント・参加ルーム一覧表　（データの更新が追いついていません）</p>
     <br>
 
     {{ if eq .Eventid 0 }}
@@ -100,7 +117,7 @@
 
     <p style="padding-left: 2em;">
         イベント： <a href="https://www.showroom-live.com/event/{{ .Eventurl }}">{{ .Eventname }}</a>
-        （ eventid = {{ .Eventid }} ）
+        （ {{ .Eventurl }} | {{ .Eventid }} ）
     </p>
     {{ if ne .Msg "" }}
     <p>
@@ -126,53 +143,69 @@
 
     <p style="padding-left: 2em;">
     <table>
-        <tr>
-            <td>順位</td>
-            <td>ルーム名（ルーム状況へのリンク）</td>
-            <td>獲得ポイント</td>
-            <td>上位との差</td>
+        <tr style="text-align: center;">
+            <td>ルーム名（ room_url_key | room_id ）</td>
+            <td>過去イベント実績</td>
+            <td>リスナー貢献実績</td>
+            <td>SHOWランク</td>
+            <td>グレード</td>
+            <td>レベル</td>
+            <td>フォロワー数</td>
+            {{/*
+            <td>ファン数</td>
+            */}}
+            <td>データ取得日</td>
             <td>Prof. / Live / FC / Cnt.</td>
-            <td>配信中？</td>
-            <td>次回配信時刻</td>
-            <td>枠別リスナー別貢献pt</td>
         </tr>
 
         {{ $e := .Eventurl }}
 
+        {{/*
         {{ with .Prooms }}
         {{ range .Rooms }}
+        */}}
+        {{ range .Qrooms }}
         <tr>
-            <td style="text-align: right;">
-                {{/*
-                {{ if ne .Rank -1 }}
-                {{ .Rank }}
-                {{ end }}
-                */}}
-            </td>
-            <td><a href="apiroomstatus?room_url_key={{ .RoomURLKey }}" target="_blank" rel="noopener noreferrer">{{ .RoomName }}</a></td>
-            <td style="text-align: right;">
-                {{ if ne .Point -1 }}
-                {{ Comma .Point }}
-                {{ end }}
-            </td>
-            <td style="text-align: right;">
-                {{/*
-                {{ if ne .Rank 1 }}
-                {{ Comma .Gap }}
-                {{ end }}
-                */}}
-            </td>
-            <td><a href="https://www.showroom-live.com/room/profile?room_id={{ .RoomID }}" target="_blank"
-                    rel="noopener noreferrer">Prof.</a> /
-                <a href="https://www.showroom-live.com/{{ .RoomURLKey }}" target="_blank"
-                    rel="noopener noreferrer">Live</a> /
-                <a href="https://www.showroom-live.com/room/fan_club?room_id={{ .RoomID }}" target="_blank"
-                    rel="noopener noreferrer">FC</a> /
-                <a href="https://www.showroom-live.com/event/contribution/{{ $e }}?room_id={{ .RoomID }}"
-                    target="_blank" rel="noopener noreferrer">Cnt.</a>
-            </td>
+            <td>{{ .User_name }} ({{.Userid}} | {{.Userno}})</td>
+            <td style="text-align: center;"><a href="/closedevents?mode=0&limit=51&offset=0&userno={{.Userno}}&path=5">表示</a></td>
+            <td style="text-align: center;"><a href="/room-cntrb-history?userid={{ .Userno }}" target="_blank" rel="noopener noreferrer">表示</a></td>
+            {{ if ne .Rank "" }}
             <td style="text-align: center;">
-                {{/*
+                {{ .Rank }}
+            </td>
+            <td></td>
+            <td style="text-align: right;">
+                {{ .Level }}
+            </td>
+            <td style="text-align: right;">
+                {{ .Followers }}
+            </td>
+        {{/*
+            <td style="text-align: right;">
+                {{ .Fans }}
+            </td>
+            */}}
+            <td style="text-align: right;">
+                {{ TimeToString .Ts "06-01-02" }}
+            </td>
+            {{ else }}
+            <td></td> <td></td> <td></td> <td></td> <td></td>
+            {{ end }}
+            <td><a href="https://www.showroom-live.com/room/profile?room_id={{ .Userno }}" target="_blank"
+                    rel="noopener noreferrer">Prof.</a> /
+                <a href="https://www.showroom-live.com/{{ .Userid }}" target="_blank"
+                    rel="noopener noreferrer">Live</a> /
+                <a href="https://www.showroom-live.com/room/fan_club?room_id={{ .Userno }}" target="_blank"
+                    rel="noopener noreferrer">FC</a> /
+                    {{/*
+                <a href="https://www.showroom-live.com/event/contribution/{{ $e }}?room_id={{ .Userno }}"
+                    target="_blank" rel="noopener noreferrer">Cnt.</a>
+                    */}}
+                    ---.
+            </td>
+            {{/*
+            <td style="text-align: center;">
+                {{/-
                 {{ if eq .Startedat -1 }}
                 n/a
                 {{ else }}
@@ -180,10 +213,10 @@
                         {{ UnixtimeToTime .Startedat "15:04"}} 〜
                     {{ end }}
                 {{ end }}
-                */}}
+                -/}}
             </td>
             <td style="text-align: center;">
-                {{/*
+                {{/-
                 {{ if eq .Nextlive -1 }}
                 n/a
                 {{ else }}
@@ -191,10 +224,9 @@
                     {{ UnixtimeToTime .Nextlive "01/02 15:04"}}
                     {{ end }}
                 {{ end }}
-                */}}
+                -/}}
             </td>
             <td style="text-align: center;">
-            {{/*
                 {{ if eq .Isofficial true }}
                 <a href="/cgi-bin/SC1/SC1/list-cntrb?eventid={{$e}}&userno={{.Room_id}}">表示</a>
                 {{ end }}
@@ -202,7 +234,9 @@
             */}}
         </tr>
         {{ end }}
+        {{/*
         {{ end }}
+        */}}
     </table>
     </p>
 

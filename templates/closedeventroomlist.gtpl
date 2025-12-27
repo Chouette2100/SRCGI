@@ -154,9 +154,11 @@
 
     <p style="padding-left: 2em;">
     <table style="border: solid 1px; border-collapse: collapse;">
-        <tr style="border-width: 1;">
+        <tr style="border-width: 1; text-align: center;">
             <td style="border: solid 1px;">順位</td>
-            <td style="border: solid 1px;">ルーム名（ルーム状況へのリンク）</td>
+            <td style="border: solid 1px;">ルーム名 ( room_url_key | room_id )</td>
+            <td style="border: solid 1px;">過去イベント実績</td>
+            <td style="border: solid 1px;">リスナー貢献実績</td>
             <td style="border: solid 1px;">獲得ポイント</td>
             {{/*}}
             <td></td>
@@ -178,8 +180,10 @@
                 {{ .Rank }}
                 {{ end }}
             </td>
-            <td style="border: solid 1px;"><a href="/apiroomstatus?room_url_key={{ .Room_url_key }}" target="_blank" rel="noopener noreferrer">{{
-                    .Room_name }}</a></td>
+            <td style="border: solid 1px;"> {{ .Room_name }} （ {{ .Room_url_key }} | {{ .Room_id }} ）
+                    </td>
+             <td style="text-align: center; border: solid 1px;"><a href="/closedevents?mode=0&limit=51&offset=0&userno={{.Room_id}}&path=5">表示</a></td>
+            <td style="text-align: center; border: solid 1px;"><a href="/room-cntrb-history?userid={{ .Room_id }}" target="_blank" rel="noopener noreferrer">表示</a></td>
             <td style="text-align: right; border: solid 1px;">
                 {{ if ne .Point -1 }}
                 {{ Comma .Point }}

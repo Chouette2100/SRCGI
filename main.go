@@ -188,10 +188,11 @@ import (
 	201203 イベント一覧の注目のイベント表示にHighlightedフィールドを使用する。
 	201204 イベント終了後の獲得ポイント一覧の終了の表示を明確にする
 	201205 top画面の機能説明を修正する
-
+	201211 新たにTurnstile認証を行うハンドラーをcommonMiddleware()のswitch文に追加する。
+	201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
 */
 
-const version = "201205"
+const version = "201213"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -428,7 +429,9 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			"GraphSumDataHandler",
 			"GraphSum2Handler",
 			"GraphSumData1Handler",
-			"GraphSumData2Handler":
+			"GraphSumData2Handler",
+			"ListCntrbHHandler",
+			"ListCntrbHExHandler":
 			al.Turnstilestatus = 2 // pending => failed
 		default:
 			al.Turnstilestatus = 0 // success <= pending
@@ -538,6 +541,8 @@ func main() {
 		TimeWindow:  1,     // タイムウィンドウの長さ（秒）
 		MaxChlog:    10,    // ログ出力待ちチャンネルのバッファ数
 		DenyNonJP:   false, // 日本国内以外からのアクセスを拒否するかどうか
+		GWURL:       "http://vscode01:8080/",
+		// GWURL: "https://gwuu.chouette2100.com/",
 	}
 	ShowroomCGIlib.Serverconfig = &svconfig
 	err = exsrapi.LoadConfig("ServerConfig.yml", ShowroomCGIlib.Serverconfig)

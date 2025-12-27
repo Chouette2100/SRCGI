@@ -324,8 +324,12 @@ import (
 201208 検索によって表示された終了イベント一覧の表示を整備する。
 201209 開催予定イベントの参加ルーム一覧を再作成する(作業中)
 201210 ListCntrbHExHandler()でTurnstile検証のあとListCntrbHHandler()ではなくListCntrbHExHandler()を呼び出す。
+201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
+
+	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
+	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201210"
+const Version = "201213"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -493,6 +497,8 @@ func init() {
 	CommonFuncMap = sprig.FuncMap() // https://masterminds.github.io/sprig/
 	CommonFuncMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
 	CommonFuncMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
+	CommonFuncMap["TimeToString"] =
+		func(t time.Time, tfmt string) string { return t.Format(tfmt) } //	time.Timeを時分に変換する関数。
 	CommonFuncMap["UnixtimeToTime"] =
 		func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) } //	UnixTimeを時分に変換する関数。
 }

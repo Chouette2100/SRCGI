@@ -136,16 +136,18 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	ie, _ := strconv.Atoi(req.FormValue("ie"))
 	log.Printf(" eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
-	var acqtimelist []time.Time
-	if name == "" {
-		acqtimelist, _ = SelectAcqTimeList(eventid, userno)
-		if len(acqtimelist) == 0 {
-			fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
-			fmt.Fprintf(w, "Check eventid and userno\n")
-			log.Printf("No AcqTimeList\n")
-			return
+	/*
+		var acqtimelist []time.Time
+		if name == "" {
+			acqtimelist, _ = SelectAcqTimeList(eventid, userno)
+			if len(acqtimelist) == 0 {
+				fmt.Fprintf(w, "HandlerListCntrbH() No AcqTimeList\n")
+				fmt.Fprintf(w, "Check eventid and userno\n")
+				log.Printf("No AcqTimeList\n")
+				return
+			}
 		}
-	}
+	*/
 
 	/*
 		type Tlsnidinf struct {
@@ -209,31 +211,43 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	// -------------------------------------------
 
-	// _, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
-	pu := &srdblib.User{}
-	var intf interface{}
-	intf, err = srdblib.Dbmap.Get(pu, userno)
-	if err != nil {
-		err = fmt.Errorf("GetUserInf() error: %w", err)
-		log.Printf("%s\n", err.Error())
-		w.Write([]byte(err.Error()))
-		return
-	}
-	pu = (intf).(*srdblib.User)
+	if userno != 0 {
 
-	cntrbhex_header.Username = pu.Longname
-	cntrbhex_header.ShortURL = pu.Userid
+		// _, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
+		pu := &srdblib.User{}
+		var intf interface{}
+		intf, err = srdblib.Dbmap.Get(pu, userno)
+		if err != nil {
+			err = fmt.Errorf("GetUserInf() error: %w", err)
+			log.Printf("%s\n", err.Error())
+			w.Write([]byte(err.Error()))
+			return
+		}
+		pu = (intf).(*srdblib.User)
+
+		cntrbhex_header.Username = pu.Longname
+		cntrbhex_header.ShortURL = pu.Userid
+	}
 
 	if name == "" {
-		tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
+		// tlsnidinflist, _ := SelectTlsnidList(eventid, userno, tlsnid, acqtimelist[len(acqtimelist)-1])
 
 		cntrbhex_header.Tlsnid = tlsnid
-		cntrbhex_header.Listener = tlsnidinflist[1].Listener
+		// cntrbhex_header.Listener = tlsnidinflist[1].Listener
+		var intrf interface{}
+		intrf, err = srdblib.Dbmap.Get(&srdblib.Viewer{}, tlsnid)
+		if err != nil {
+			err = fmt.Errorf("ListCntrbHExHandler() error: %w", err)
+			log.Printf("%s\n", err.Error())
+			w.Write([]byte(err.Error()))
+			return
+		}
+		cntrbhex_header.Listener = intrf.(*srdblib.Viewer).Name
 
-		cntrbhex_header.Tlsnid_b = tlsnidinflist[0].Tlsnid
-		cntrbhex_header.Listener_b = tlsnidinflist[0].Listener
-		cntrbhex_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
-		cntrbhex_header.Listener_f = tlsnidinflist[2].Listener
+		// cntrbhex_header.Tlsnid_b = tlsnidinflist[0].Tlsnid
+		// cntrbhex_header.Listener_b = tlsnidinflist[0].Listener
+		// cntrbhex_header.Tlsnid_f = tlsnidinflist[2].Tlsnid
+		// cntrbhex_header.Listener_f = tlsnidinflist[2].Listener
 	} else {
 		cntrbhex_header.Tlsnid = tlsnid
 		cntrbhex_header.Listener = name

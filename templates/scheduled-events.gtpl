@@ -174,9 +174,10 @@
         </div>
         
         <div class="info-message">
-            イベント数： {{ .Totalcount }}
+            イベント数： {{ .Totalcount }} 　　イベント開始前はブロックわけは行われません。ブロックイベントはどのブロックも全エントリールームが表示されます。獲得ポイント取得対象の設定は自動的に行われます。
         </div>
         
+        {{/*
         <div class="warning-message">
             「取得開始登録」は「イベントのデータを取得すること予約する」という意味です。どのルームのデータを取得するかはイベント開始後自動的に決められます。
         </div>
@@ -186,19 +187,22 @@
         <div class="warning-message">
             ブロックイベントのブロック分けはイベントが始まってから行われることがあります。その場合「開催予定イベント一覧」からはデータ取得の予約はできないので、イベント開始後「開催中イベント一覧」で「取得開始登録」を行ってください。
         </div>
+        */}}
         <!-- イベント一覧テーブル -->
         <table class="events-table">
             <tr>
                 <th>イベント名とイベントページへのリンク</th>
                 <th>イベントID</th>
+                <th>参加ルーム一覧</th>
                 <th>開始日時</th>
                 <th>終了日時</th>
-                <th>参加ルーム一覧</th>
+                {{/*
                 <th>表示項目選択画面/<br>データ取得開始登録</th>
                 <th>直近獲得<br>ポイント表</th>
                 <th>獲得ポイント<br>推移図</th>
                 <th>日々の<br>獲得pt</th>
                 <th>枠毎の<br>獲得pt</th>
+                */}}
             </tr>
             {{ $i := 0 }}
             {{ range .Eventinflist }}
@@ -215,18 +219,19 @@
                 <td>
                     {{ .I_Event_ID }}
                 </td>
+                <td style="text-align: center;">
+                    <a href="eventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">参加ルーム一覧</a>
+                    {{/*
+                    改修中
+                    */}}
+                </td>
                 <td>
                     {{ TimeToString .Start_time }}
                 </td>
                 <td>
                     {{ TimeToString .End_time }}
                 </td>
-                <td style="text-align: center;">
-                    {{/*
-                    <a href="eventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">参加ルーム一覧</a>
-                    */}}
-                    改修中
-                </td>
+                {{/*
                 <td style="text-align: center;">
                     {{ if eq .Target 1 }}
                     <a href="eventtop?eventid={{ .Event_ID }}">項目選択</a>
@@ -254,6 +259,7 @@
                     <a href="list-perslot?eventid={{ .Event_ID }}">枠毎pt</a>
                     {{ end }}
                 </td>
+                */}}
             </tr>
             {{ end }}
         </table>
