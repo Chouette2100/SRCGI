@@ -190,9 +190,10 @@ import (
 	201205 top画面の機能説明を修正する
 	201211 新たにTurnstile認証を行うハンドラーをcommonMiddleware()のswitch文に追加する。
 	201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
+	201214 GWURLのデフォルト値を"http://localhost:8888/"に変更する。
 */
 
-const version = "201213"
+const version = "201214"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -541,7 +542,7 @@ func main() {
 		TimeWindow:  1,     // タイムウィンドウの長さ（秒）
 		MaxChlog:    10,    // ログ出力待ちチャンネルのバッファ数
 		DenyNonJP:   false, // 日本国内以外からのアクセスを拒否するかどうか
-		GWURL:       "http://vscode01:8080/",
+		GWURL:       "http://localhost:8888/",
 		// GWURL: "https://gwuu.chouette2100.com/",
 	}
 	ShowroomCGIlib.Serverconfig = &svconfig
