@@ -29,7 +29,7 @@ type ServerConfig struct {
 	LvlBots                  int    `yaml:"LvlBots"`                  //	Bot排除のレベル、0:なし、1:低、2:中、3:高
 	AccessLimit              int    `yaml:"AccessLimit"`              //	時間枠のアクセス回数上限
 	TimeWindow               int    `yaml:"TimeWindow"`               //	アクセス回数制限の時間枠（秒単位）
-	MaxChlog                 int    `yaml:"MacChlog"`                 //	ログ出力待ちチャンネルのバッファ数（＝同時実行ハンドラー数）
+	MaxChlog                 int    `yaml:"MaxChlog"`                 //	ログ出力待ちチャンネルのバッファ数（＝同時実行ハンドラー数）
 	TurnstileSiteKey         string `yaml:"TurnstileSiteKey"`         //	Cloudflare Turnstileのサイトキー
 	TurnstileSecretKey       string `yaml:"TurnstileSecretKey"`       //	Cloudflare Turnstileのシークレットキー
 	TurnstileUseSession      bool   `yaml:"TurnstileUseSession"`      //	Turnstileセッション機能の有効/無効

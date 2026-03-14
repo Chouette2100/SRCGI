@@ -191,9 +191,10 @@ import (
 	201211 新たにTurnstile認証を行うハンドラーをcommonMiddleware()のswitch文に追加する。
 	201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
 	201214 GWURLのデフォルト値を"http://localhost:8888/"に変更する。
+	201216 commonMiddleware()でチャンネルChlogがいっぱいになったらログはファイルに出力する。
 */
 
-const version = "201214"
+const version = "201216"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -469,7 +470,11 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 			log.Printf("            length of Chlog = %d\n", lenchlog)
 		}
 
-		ShowroomCGIlib.Chlog <- &al
+		select {
+		case ShowroomCGIlib.Chlog <- &al:
+		default:
+			log.Printf("Chlog is full, dropping log entry: %+v\n", al)
+		}
 
 		// 次のハンドラーを呼び出す
 		// next(w, r)

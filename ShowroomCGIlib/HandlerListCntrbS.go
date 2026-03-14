@@ -25,7 +25,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/dustin/go-humanize"
+	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v2"
@@ -49,6 +49,7 @@ type CntrbS_Header struct {
 	Ifrm1     int
 	Ifrm_b    int
 	Ifrm_f    int
+	Pcntrbinfslist *[]CntrbInfS
 }
 
 type CntrbInfS struct {
@@ -124,11 +125,12 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h.gtpl", "templates/list-cntrb.gtpl"))
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
+	/*
 	funcMap := template.FuncMap{
 		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 	}
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
+		*/
 
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
@@ -146,9 +148,11 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ts := acqtimelist[ifrm]
+	var cntrbs_header CntrbS_Header
+	var status int
 
-	cntrbinflists, status := SelectCntrbSingle(eventid, userno, ts, sort)
+	ts := acqtimelist[ifrm]
+	cntrbs_header.Pcntrbinfslist, status = SelectCntrbSingle(eventid, userno, ts, sort)
 	if status != 0 {
 		log.Printf(" SelectCntrbSingle() returned %d in HandlerListCntrbS()\n", status)
 		return
@@ -158,7 +162,6 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
-	var cntrbs_header CntrbS_Header
 
 	cntrbs_header.Eventid = eventid
 	cntrbs_header.Eventname = eventinf.Event_name
@@ -213,11 +216,10 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 	if cntrbs_header.Ifrm_f >= len(acqtimelist) {
 		cntrbs_header.Ifrm_f = -1
 	}
+	// テンプレートをパースする
+	tpl := template.Must(template.New("").Funcs(CommonFuncMap).ParseFiles("templates/list-cntrbS.gtpl"))
 
-	if err := tpl.ExecuteTemplate(w, "list-cntrbS-h.gtpl", cntrbs_header); err != nil {
-		log.Println(err)
-	}
-	if err := tpl.ExecuteTemplate(w, "list-cntrbS.gtpl", cntrbinflists); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrbS.gtpl", cntrbs_header); err != nil {
 		log.Println(err)
 	}
 }
@@ -244,7 +246,7 @@ func SelectCntrbSingle(
 	ts time.Time,
 	sort string,
 ) (
-	cntrbinflists []CntrbInfS,
+	pcntrbinflists *[]CntrbInfS,
 	status int,
 ) {
 
@@ -252,7 +254,7 @@ func SelectCntrbSingle(
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	cntrbinflists = make([]CntrbInfS, 0)
+	cntrbinflists := make([]CntrbInfS, 0)
 
 	//	貢献ポイントランキングを取得する。
 	sql := "select norder, t_lsnid, point, increment, listner, lastname from eventrank "
@@ -298,6 +300,7 @@ func SelectCntrbSingle(
 		return
 	}
 
+	pcntrbinflists = &cntrbinflists
 	status = 0
 
 	return

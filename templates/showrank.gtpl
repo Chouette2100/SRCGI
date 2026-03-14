@@ -60,9 +60,13 @@
             <td>ルームレベル</td>
             <td>フォロワー数</td>
             <td>ファン数<br>（今月）</td>
+            {{/*
             <td>ファンパワー<br>（〃）</td>
+            */}}
             <td>ファン数<br>（前月）</td>
+            {{/*
             <td>ファンパワー<br>（〃）</td>
+            */}}
             <td>next_score</td>
             <td>prev_score</td>
             <td>データ取得日時</td>
@@ -84,17 +88,21 @@
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
+            {{/*
             {{ if gt .FanPower 0 }}
             <td align="right">{{ Comma .FanPower }}</td>
             {{ else }}
             <td></td>
             {{ end }}
+            */}}
             <td align="right">{{ Comma .Fans_lst }}</td>
+            {{/*
             {{ if gt .FanPower_lst 0 }}
             <td align="right">{{ Comma .FanPower_lst }}</td>
             {{ else }}
             <td></td>
             {{ end }}
+            */}}
             <td align="right">{{ Comma .Inrank }}</td>
             <td align="right">{{ Comma .Iprank }}</td>
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
@@ -109,9 +117,13 @@
             <td>ルームレベル</td>
             <td>フォロワー数</td>
             <td>ファン数<br>（今月）</td>
+            {{/*
             <td>ファンパワー<br>（〃）</td>
+            */}}
             <td>ファン数<br>（前月）</td>
+            {{/*
             <td>ファンパワー<br>（〃）</td>
+            */}}
             <td>next_score</td>
             <td>prev_score</td>
             <td>データ取得日時</td>
@@ -134,17 +146,21 @@
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
+            {{/*
             {{ if gt .FanPower 0 }}
             <td align="right">{{ Comma .FanPower_lst }}</td>
             {{ else }}
             <td></td>
             {{ end }}
+            */}}
             <td align="right">{{ Comma .Fans_lst }}</td>
+            {{/*
             {{ if gt .FanPower_lst 0 }}
             <td align="right">{{ Comma .FanPower_lst }}</td>
             {{ else }}
             <td></td>
             {{ end }}
+            */}}
             <td align="right">{{ Comma .Inrank }}</td>
             <td align="right">{{ Comma .Iprank }}</td>
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>

@@ -325,11 +325,12 @@ import (
 201209 開催予定イベントの参加ルーム一覧を再作成する(作業中)
 201210 ListCntrbHExHandler()でTurnstile検証のあとListCntrbHHandler()ではなくListCntrbHExHandler()を呼び出す。
 201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
+201215 HandlerShowRank()の出力から前月データを削除する。
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201213"
+const Version = "201215"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -501,6 +502,26 @@ func init() {
 		func(t time.Time, tfmt string) string { return t.Format(tfmt) } //	time.Timeを時分に変換する関数。
 	CommonFuncMap["UnixtimeToTime"] =
 		func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) } //	UnixTimeを時分に変換する関数。
+	// CurrentEvnetsHandler() などで使う
+	// CommonFuncMap["UnixTimeToStr"] = func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") } //	UnixTimeを年月日時分に変換する関数。
+	// CommonFuncMap["TimeToString"] =  func(t time.Time) string { return t.Format("01-02 15:04") }
+
+	// ListCntrbSHandler() で使う
+	CommonFuncMap["sub"] = func(i, j int) int { return i - j }
+
+	// CurrentEvnetsHandler() で使う
+	CommonFuncMap["Divide"] = func(a, b int) int {
+		if b == 0 {
+			return 0 // ゼロ除算を避ける
+		}
+		return a / b
+	}
+	CommonFuncMap["Mod"] = func(a, b int) int {
+		if b == 0 {
+			return 0 // ゼロ除算を避ける
+		}
+		return a % b
+	}
 }
 
 //	var WebServer string
