@@ -4,6 +4,8 @@
 package ShowroomCGIlib
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -270,8 +272,18 @@ func processLog(al *srdblib.Accesslog, lt time.Time) (ltn time.Time) {
 
 	ltn = al.Ts
 
-	if err := srdblib.Dbmap.Insert(al); err != nil {
-		log.Printf("Dbmap.Insert error: %s", err.Error())
+	// タイムアウトを設定したContextを作成
+	cw := 1000 // Milliseconds
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cw)*time.Millisecond)
+	defer cancel() // 関数終了時にContextをキャンセルし、リソースを解放
+
+	if err := srdblib.Dbmap.WithContext(ctx).Insert(al); err != nil {
+		// タイムアウトエラーのチェック
+		if errors.Is(err, context.DeadlineExceeded) {
+			log.Printf("ERROR: INSERT query timed out after %d ms for data: %+v", cw, al)
+		} else {
+			log.Printf("Dbmap.Insert error: %s", err.Error())
+		}
 	} else {
 		log.Printf("==C== %6.1f(%s) %s %s",
 			time.Since(al.Ts).Seconds(),

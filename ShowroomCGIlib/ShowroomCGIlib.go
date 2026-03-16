@@ -326,11 +326,12 @@ import (
 201210 ListCntrbHExHandler()でTurnstile検証のあとListCntrbHHandler()ではなくListCntrbHExHandler()を呼び出す。
 201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
 201215 HandlerShowRank()の出力から前月データを削除する。
+201217 LogWorker()のDB書き込みでロックが発生したときはタイムアウトする。
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201215"
+const Version = "201217"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
