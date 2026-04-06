@@ -289,6 +289,8 @@ func processLog(al *srdblib.Accesslog, lt time.Time) (ltn time.Time) {
 			time.Since(al.Ts).Seconds(),
 			al.Ts.Format("2006-01-02 15:04:05.000"),
 			al.Handler, al.Remoteaddress)
+		// DEBUG: データベースの応答が遅い場合のテスト用に、意図的に遅延を入れる
+		// time.Sleep(5 * time.Second) // デバッグ用の遅延
 	}
 	return ltn
 }

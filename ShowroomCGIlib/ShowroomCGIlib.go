@@ -327,11 +327,13 @@ import (
 201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
 201215 HandlerShowRank()の出力から前月データを削除する。
 201217 LogWorker()のDB書き込みでロックが発生したときはタイムアウトする。
+201218 Chlogチャンネルの長さが1以上MaxChlog未満のときはログ出力を行うようにする。
+201219 showrank.gtplでのSHOWランクの説明を追加する。bots.ymlを更新する。
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201217"
+const Version = "201218"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

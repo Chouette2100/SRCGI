@@ -30,3 +30,7 @@ bots:
   - "Mastodon"
   - "BlueSky"
   - "BLEXBot"
+  - "SERankingBacklinksBot"
+  - "Brightbot"
+  - "ClaudeBot"
+  - "OAI-SearchBot"

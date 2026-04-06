@@ -468,6 +468,9 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 
 		if lenchlog := len(ShowroomCGIlib.Chlog); lenchlog != 0 {
 			log.Printf("            length of Chlog = %d\n", lenchlog)
+			if lenchlog > 0 && lenchlog < ShowroomCGIlib.Serverconfig.MaxChlog {
+				log.Printf("al = %+v\n", al)
+			}
 		}
 
 		select {
