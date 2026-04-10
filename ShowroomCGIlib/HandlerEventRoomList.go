@@ -20,7 +20,7 @@ import (
 
 	// "github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 // /eventroomlist ハンドラー
@@ -110,7 +110,7 @@ func EventRoomListHandler(
 		} else {
 
 			var intrf interface{}
-			intrf, err = srdblib.Dbmap.Get(&srdblib.Wevent{}, eventurlkey)
+			intrf, err = Dbmap0.Get(&srdblib.Wevent{}, eventurlkey)
 			if err != nil {
 				err = fmt.Errorf("HandlerEventRoomList(): %w", err)
 				erl.Msg = err.Error()
@@ -188,7 +188,7 @@ func EventRoomListHandler(
 				"WHERE userno IN (:Users) " +
 				"ORDER BY irank; "
 			erl.Qrooms = new([]srdblib.User)
-			_, err = srdblib.Dbmap.Select(erl.Qrooms, sqlst, map[string]interface{}{"Users": roomlist})
+			_, err = Dbmap0.Select(erl.Qrooms, sqlst, map[string]interface{}{"Users": roomlist})
 			if err != nil {
 				err = fmt.Errorf("HandlerEventRoomList(): %w", err)
 				erl.Msg = err.Error()

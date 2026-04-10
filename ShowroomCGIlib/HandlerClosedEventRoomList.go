@@ -29,7 +29,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type Erl struct {
@@ -64,7 +64,7 @@ func SelectLastdataFromWeventuser(
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	stmt, err = srdblib.Db.Prepare(sqlswe)
+	stmt, err = Db0.Prepare(sqlswe)
 	if err != nil {
 		err = fmt.Errorf("prepare: %s", err.Error())
 		return
@@ -140,7 +140,7 @@ func ClosedEventRoomListHandler(
 	seventid := r.FormValue("eventid")
 	eventurlkey := r.FormValue("eventurlkey")
 	//	srdblib.Tevent = "wevent"
-	peventinf, err := srdblib.SelectFromEvent("wevent", eventurlkey)
+	peventinf, err := srdblib.SelectFromEvent(Db0, "wevent", eventurlkey)
 	if err != nil {
 		return
 	}

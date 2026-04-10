@@ -28,19 +28,13 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
-
 	// "github.com/PuerkitoBio/goquery"
-
 	//	svg "github.com/ajstarks/svgo/float"
-
 	//	"github.com/dustin/go-humanize"
-
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
-
 	//	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 // 入力フォーム画面
@@ -192,7 +186,7 @@ func SelectLastEventList() (eventlist []Event, status int) {
 	//	sql := "select eventid, event_name, period, starttime, endtime, nobasis, longname from event join user "
 	sql := "select eventid, event_name, period, starttime, endtime, nobasis, modmin, modsec, longname, maxpoint from event join user "
 	sql += " where nobasis = userno and endtime IS not null order by endtime desc "
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 	if err != nil {
 		log.Printf("err=[%s]\n", err.Error())
 		status = -1
@@ -255,7 +249,7 @@ func SelectEventList(userno int) (eventlist []Event, status int) {
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	stmt, err = srdblib.Db.Prepare("select eventid, event_name from event where endtime IS not null and nobasis = ? order by endtime desc")
+	stmt, err = Db0.Prepare("select eventid, event_name from event where endtime IS not null and nobasis = ? order by endtime desc")
 	if err != nil {
 		log.Printf("err=[%s]\n", err.Error())
 		status = -1

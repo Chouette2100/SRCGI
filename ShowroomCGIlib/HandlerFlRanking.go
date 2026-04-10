@@ -29,7 +29,6 @@ import (
 	//	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 /*
@@ -112,7 +111,7 @@ func SelectFromNoOfFan(eventid string) (eventandrankinginf EventAndRankingInf, s
 
 	var maxts time.Time
 	sql := "select max(ts) from nooffan where eventid = ? "
-	Err := srdblib.Db.QueryRow(sql, eventid).Scan(&maxts)
+	Err := Db0.QueryRow(sql, eventid).Scan(&maxts)
 	if Err != nil {
 		log.Printf("%s\n", sql)
 		log.Printf("** SelectFromNoOfFan() err=[%s]\n", Err.Error())
@@ -138,7 +137,7 @@ func SelectFromNoOfFan(eventid string) (eventandrankinginf EventAndRankingInf, s
 	eventandrankinginf.Period = eventinf.Period
 
 	sql = "select roomid, roomname, irank, srank, iorder, fans, fans_lst from nooffan where ts = ? and eventid = ? order by irank desc, fans desc"
-	stmt, Err = srdblib.Db.Prepare(sql)
+	stmt, Err = Db0.Prepare(sql)
 	if Err != nil {
 		log.Printf("** SelectFromNoOfFan() err=[%s]\n", Err.Error())
 		status = -1

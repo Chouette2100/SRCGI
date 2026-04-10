@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/dustin/go-humanize"
 )
 
@@ -65,7 +65,7 @@ func handleEditToDoGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// データベースから該当のToDoを取得
-	obj, err := srdblib.Dbmap.Get(srdblib.Todo{}, id)
+	obj, err := Dbmap0.Get(srdblib.Todo{}, id)
 	if err != nil {
 		log.Printf("EditToDoHandler: DB get error: %s\n", err.Error())
 		http.Error(w, "データベースエラーが発生しました", http.StatusInternalServerError)
@@ -108,7 +108,7 @@ func handleEditToDoPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// データベースから該当のToDoを取得
-	obj, err := srdblib.Dbmap.Get(srdblib.Todo{}, id)
+	obj, err := Dbmap0.Get(srdblib.Todo{}, id)
 	if err != nil {
 		log.Printf("EditToDoHandler: DB get error: %s\n", err.Error())
 		http.Error(w, "データベースエラーが発生しました", http.StatusInternalServerError)
@@ -161,7 +161,7 @@ func handleEditToDoPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// データベースを更新
-	_, err = srdblib.Dbmap.Update(todo)
+	_, err = Dbmap0.Update(todo)
 	if err != nil {
 		log.Printf("EditToDoHandler: DB update error: %s\n", err.Error())
 		data := TodoEditData{

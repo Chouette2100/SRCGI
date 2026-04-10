@@ -10,8 +10,6 @@ import (
 
 	"html/template"
 	"net/http"
-
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 // AccessStatsHandler はアクセス統計を表示するハンドラー
@@ -90,7 +88,7 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 	nextDay := endDateTime.AddDate(0, 0, 1).Format("2006-01-02")
 
 	// データベースからアクセス統計を取得
-	_, err = srdblib.Dbmap.Select(&stats, sql, startDate, nextDay)
+	_, err = Dbmap0.Select(&stats, sql, startDate, nextDay)
 	if err != nil {
 		log.Printf("AccessStatsHandler() database error: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)

@@ -28,9 +28,11 @@ import (
 	"html/template"
 	"net/http"
 
-	//	"database/sql"
+	"database/sql"
 
-	//	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/go-gorp/gorp"
 
 	// "github.com/PuerkitoBio/goquery"
 
@@ -44,7 +46,7 @@ import (
 
 	// "github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 /*
@@ -329,13 +331,17 @@ import (
 201217 LogWorker()のDB書き込みでロックが発生したときはタイムアウトする。
 201218 Chlogチャンネルの長さが1以上MaxChlog未満のときはログ出力を行うようにする。
 201219 showrank.gtplでのSHOWランクの説明を追加する。bots.ymlを更新する。
+201300 srdblib/v3に対応する
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201218"
+const Version = "201300"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
+
+var Db0 *sql.DB
+var Dbmap0 *gorp.DbMap
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
@@ -788,7 +794,7 @@ func GetRoomInfoAndPoint(
 
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1

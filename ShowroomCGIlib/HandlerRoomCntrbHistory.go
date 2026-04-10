@@ -14,7 +14,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/dustin/go-humanize"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 // RoomCntrbHistoryData はルーム別貢献ポイント履歴の1レコード
@@ -70,7 +70,7 @@ func RoomCntrbHistoryHandler(w http.ResponseWriter, req *http.Request) {
 
 	// ルーム名を取得
 	var itrf interface{}
-	itrf, err = srdblib.Dbmap.Get(&srdblib.User{}, param.Userid)
+	itrf, err = Dbmap0.Get(&srdblib.User{}, param.Userid)
 	if err != nil {
 		param.ErrMsg = fmt.Sprintf("ルーム情報の取得に失敗しました: %v", err)
 		log.Printf("Get User error: %v\n", err)
@@ -176,7 +176,7 @@ FROM eventrank er
      LIMIT ?
 `
 
-	_, err = srdblib.Dbmap.Select(
+	_, err = Dbmap0.Select(
 		&dataList,
 		sqlst,
 		minpoint,

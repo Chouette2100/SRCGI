@@ -26,7 +26,7 @@ import (
 	//	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type OldEvents struct {
@@ -80,7 +80,7 @@ func OldEventsHandler(
 		twuser.Userno = oe.User.Userno
 		oe.User = twuser
 
-		ru, err := srdblib.UpinsUser(client, time.Now().Truncate(time.Second), twuser)
+		ru, err := srdblib.UpinsUser(Dbmap0, client, time.Now().Truncate(time.Second), twuser)
 		if err != nil {
 			err = fmt.Errorf("UpinsUser(): %s", err.Error())
 			log.Printf("err=%s\n", err.Error())
@@ -161,7 +161,7 @@ func GetAndSaveOldEvents(
 		// すでにデータがあるかどうかを確認する
 		is_exist := false
 		var itrf []interface{}
-		itrf, err = srdblib.Dbmap.Select(&wevent, "SELECT eventid, ieventid, event_name, starttime FROM wevent WHERE ieventid = ?", pe.EventID)
+		itrf, err = Dbmap0.Select(&wevent, "SELECT eventid, ieventid, event_name, starttime FROM wevent WHERE ieventid = ?", pe.EventID)
 		if err != nil {
 			err = fmt.Errorf("Select(): %w", err)
 			return
@@ -172,7 +172,7 @@ func GetAndSaveOldEvents(
 		} else {
 			sqlst := "SELECT eventid, ieventid, event_name, starttime FROM wevent "
 			sqlst += " WHERE event_name = ? and starttime = ? "
-			itrf, err = srdblib.Dbmap.Select(&wevent, sqlst, pe.EventName, time.Unix(int64(pe.StartedAt), 0))
+			itrf, err = Dbmap0.Select(&wevent, sqlst, pe.EventName, time.Unix(int64(pe.StartedAt), 0))
 			if err != nil {
 				err = fmt.Errorf("Select(): %w", err)
 				return
@@ -182,14 +182,14 @@ func GetAndSaveOldEvents(
 				if len(itrf) == 1 {
 					wevent = *(itrf[0].(*srdblib.Wevent))
 					var itrf1 interface{}
-					itrf1, err = srdblib.Dbmap.Get(&srdblib.Wevent{}, wevent.Eventid)
+					itrf1, err = Dbmap0.Get(&srdblib.Wevent{}, wevent.Eventid)
 					if err != nil {
 						err = fmt.Errorf("Get(): %w", err)
 						return
 					}
 					wevent = *(itrf1.(*srdblib.Wevent))
 					wevent.Ieventid = pe.EventID
-					_, err = srdblib.Dbmap.Update(&wevent)
+					_, err = Dbmap0.Update(&wevent)
 					if err != nil {
 						err = fmt.Errorf("Update(): %w", err)
 						return
@@ -208,7 +208,7 @@ func GetAndSaveOldEvents(
 			}
 			// イベント参加者として登録されているか？
 			var weventuser srdblib.Weventuser
-			itrf, err = srdblib.Dbmap.Select(&weventuser,
+			itrf, err = Dbmap0.Select(&weventuser,
 				"SELECT "+clmlist["weventuser"]+" FROM weventuser WHERE eventid like ? AND userno = ?", wevent.Eventid+"%", roomid)
 			if err != nil {
 				err = fmt.Errorf("Select(): %w", err)
@@ -227,7 +227,7 @@ func GetAndSaveOldEvents(
 					},
 					Status: 0,
 				}
-				srdblib.UpinsEventuserG(&weventuser, time.Now().Truncate(time.Second))
+				srdblib.UpinsEventuserG(Dbmap0, &weventuser, time.Now().Truncate(time.Second))
 			}
 
 		} else {
@@ -256,7 +256,7 @@ func GetAndSaveOldEvents(
 					Cmap:        2,
 				},
 			}
-			if err = srdblib.Dbmap.Insert(&wevent); err != nil {
+			if err = Dbmap0.Insert(&wevent); err != nil {
 				err = fmt.Errorf("Insert(): %w", err)
 				return
 			}
@@ -277,7 +277,7 @@ func GetAndSaveOldEvents(
 			Status: 0,
 		}
 
-		srdblib.UpinsEventuserG(&weventuser, time.Now().Truncate(time.Second))
+		srdblib.UpinsEventuserG(Dbmap0, &weventuser, time.Now().Truncate(time.Second))
 		// テストのため、格納は一回だけにする
 		// if i == 0 {
 		// 	break

@@ -4,18 +4,18 @@ import (
 	"fmt"
 
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/Chouette2100/srdblib/v2"
+	_ "github.com/go-sql-driver/mysql"
 )
+
 func SelectUsernoAndName(
-	Keywordrm	string,
-	limit		int,
-	offset		int,
+	Keywordrm string,
+	limit int,
+	offset int,
 ) (
 	roomlist *[]Room,
 	err error,
-){
+) {
 
 	roomlist = new([]Room)
 
@@ -23,13 +23,13 @@ func SelectUsernoAndName(
 
 	sqlsrl := "select userno, user_name from showroom.user where userno in "
 	sqlsrl += " (select userno from showroom.user where user_name like ? "
-	sqlsrl += " union select userno from showroom.userhistory where user_name like ? ) "  
+	sqlsrl += " union select userno from showroom.userhistory where user_name like ? ) "
 	sqlsrl += " order by user_name limit ? offset ?  "
 
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	stmt, err = srdblib.Db.Prepare(sqlsrl)
+	stmt, err = Db0.Prepare(sqlsrl)
 	if err != nil {
 		err = fmt.Errorf("Prepare(): %w", err)
 		return
@@ -42,7 +42,6 @@ func SelectUsernoAndName(
 		return
 	}
 	defer rows.Close()
-
 
 	for rows.Next() {
 		var room Room

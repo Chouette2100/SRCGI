@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/dustin/go-humanize"
 )
 
@@ -128,7 +128,7 @@ func ListToDoHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("ListToDoHandler: query=%s, args=%v\n", query, args)
 
 	// データ取得
-	rows, err := srdblib.Dbmap.Select(srdblib.Todo{}, query, args...)
+	rows, err := Dbmap0.Select(srdblib.Todo{}, query, args...)
 	if err != nil {
 		log.Printf("ListToDoHandler: DB query error: %s\n", err.Error())
 		data := TodoListData{
@@ -181,7 +181,7 @@ func ListToDoHandler(w http.ResponseWriter, r *http.Request) {
 			checkQuery := "SELECT COUNT(*) FROM todo" + whereClause + " AND id > ?"
 			checkArgs := append(args, newMaxID)
 			var count int
-			err := srdblib.Dbmap.Db.QueryRow(checkQuery, checkArgs...).Scan(&count)
+			err := Dbmap0.Db.QueryRow(checkQuery, checkArgs...).Scan(&count)
 			if err == nil && count > 0 {
 				hasPrev = true
 			}

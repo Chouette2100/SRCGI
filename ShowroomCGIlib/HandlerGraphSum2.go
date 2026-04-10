@@ -14,7 +14,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type HGSinf struct {
@@ -74,7 +74,7 @@ func GraphSum2Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	roomid, _ := strconv.Atoi(sroomid)
 
-	intf, _ := srdblib.Dbmap.Get(srdblib.Event{}, eventid)
+	intf, _ := Dbmap0.Get(srdblib.Event{}, eventid)
 	if intf == nil {
 		log.Printf("Event ID %s not found\n", eventid)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -94,7 +94,7 @@ func GraphSum2Handler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	intf, _ = srdblib.Dbmap.Get(srdblib.User{}, roomid)
+	intf, _ = Dbmap0.Get(srdblib.User{}, roomid)
 	graphSum2Inf.Roomname = intf.(*srdblib.User).User_name
 
 	// Turnstile導入用(2) ------------------------
@@ -120,18 +120,18 @@ func GraphSum2Handler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", graphSum2Inf.RequestID, lastrequestid)
 	if lastrequestid == "" {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", graphSum2Inf.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
-		//srdblib.Dbmap.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
-		result, err := srdblib.Dbmap.Exec(
+		//Dbmap0.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", graphSum2Inf.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		// result, err = srdblib.Dbmap.Exec(
+		// result, err = Dbmap0.Exec(
 		//      "UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", lastrequestid)
 		// log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		result, err = srdblib.Dbmap.Exec(
+		result, err = Dbmap0.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
 		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
 			lastrequestid, result, err)
@@ -178,7 +178,7 @@ func GraphSumData1Handler(w http.ResponseWriter, r *http.Request) {
 
 	time.Sleep(1 * time.Second) // INSERTに時間がかかる場合があるため待機
 	requestid := r.Context().Value("requestid").(string)
-	result, err := srdblib.Dbmap.Exec(
+	result, err := Dbmap0.Exec(
 		"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", requestid)
 	log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 
@@ -204,7 +204,7 @@ func GraphSumData1Handler(w http.ResponseWriter, r *http.Request) {
 	roomid, _ := strconv.Atoi(sroomid)
 
 	sqlst := "select ts, point from points where eventid = ? and user_id = ? order by ts "
-	intc, err := srdblib.Dbmap.Select(srdblib.Points{}, sqlst, eventid, roomid)
+	intc, err := Dbmap0.Select(srdblib.Points{}, sqlst, eventid, roomid)
 	if err != nil {
 		err = fmt.Errorf("HandlerGraphSumData1() - select() Error: %w", err)
 		w.Write([]byte(err.Error()))
@@ -254,7 +254,7 @@ func GraphSumData2Handler(w http.ResponseWriter, r *http.Request) {
 
 	time.Sleep(1 * time.Second) // INSERTに時間がかかる場合があるため待機
 	requestid := r.Context().Value("requestid").(string)
-	result, err := srdblib.Dbmap.Exec(
+	result, err := Dbmap0.Exec(
 		"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", requestid)
 	log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 

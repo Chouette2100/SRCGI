@@ -39,7 +39,7 @@ import (
 	//	"github.com/goark/sshql/mysqldrv"
 	//	"github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func Jtruncate(t time.Time) time.Time {
@@ -316,9 +316,9 @@ func DrawLineGraph(
 		//		longname = fmt.Sprintf("%d", IDlist[j])
 		//	}
 		var intrfc interface{}
-		intrfc, err = srdblib.Dbmap.Get(srdblib.User{}, IDlist[j])
+		intrfc, err = Dbmap0.Get(srdblib.User{}, IDlist[j])
 		if err != nil {
-			err = fmt.Errorf("srdblib.Dbmap.Get(srdblib.User{}, %d) err=%w", IDlist[j], err)
+			err = fmt.Errorf("Dbmap0.Get(srdblib.User{}, %d) err=%w", IDlist[j], err)
 			return
 		}
 		longname := intrfc.(*srdblib.User).Longname

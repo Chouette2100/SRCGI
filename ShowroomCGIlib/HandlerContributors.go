@@ -25,7 +25,7 @@ import (
 	//	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 /*
@@ -102,9 +102,9 @@ func ContributorsHandler(
 	log.Printf("ContributorsHandler(): ieventid=%d requestid = %s\n", ieventid, requestid)
 
 	var intf []interface{}
-	intf, err = srdblib.Dbmap.Select(&srdblib.Wevent{}, "SELECT "+clmlist["wevent"]+" FROM wevent WHERE ieventid = ?", ieventid)
+	intf, err = Dbmap0.Select(&srdblib.Wevent{}, "SELECT "+clmlist["wevent"]+" FROM wevent WHERE ieventid = ?", ieventid)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(): %s", err.Error())
+		err = fmt.Errorf("Dbmap0.Select(): %s", err.Error())
 		log.Printf("err=%s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
@@ -143,18 +143,18 @@ func ContributorsHandler(
 
 	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", hcntrbinf.RequestID, lastrequestid)
 	if lastrequestid == "" {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", hcntrbinf.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
-		//srdblib.Dbmap.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
-		result, err := srdblib.Dbmap.Exec(
+		//Dbmap0.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", hcntrbinf.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		// result, err = srdblib.Dbmap.Exec(
+		// result, err = Dbmap0.Exec(
 		// 	"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", lastrequestid)
 		// log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		result, err = srdblib.Dbmap.Exec(
+		result, err = Dbmap0.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
 		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
 			lastrequestid, result, err)
@@ -209,7 +209,7 @@ func GetAndSaveContributors(
 	// すでにデータがあるかどうかを確認する
 	var count int64
 	sqlst := "SELECT COUNT(*) cnt FROM contribution WHERE ieventid = ? AND roomid = ? "
-	count, err = srdblib.Dbmap.SelectInt(sqlst, ieventid, roomid)
+	count, err = Dbmap0.SelectInt(sqlst, ieventid, roomid)
 	if err != nil {
 		err = fmt.Errorf("GetAndSaveContributors(): %w", err)
 		return
@@ -240,7 +240,7 @@ func GetAndSaveContributors(
 				Sname:    c.Name,
 				Ts:       tnow,
 			}
-			if err = srdblib.UpinsViewerSetProperty(client, tnow, &viewer); err != nil {
+			if err = srdblib.UpinsViewerSetProperty(Dbmap0, client, tnow, &viewer); err != nil {
 				err = fmt.Errorf("UpinsViewerSetProperty(): %w", err)
 				return
 			}
@@ -255,7 +255,7 @@ func GetAndSaveContributors(
 			// log.Printf("Insert(): %8d%8d%8d%4d%10d\n",
 			// 	ieventid, roomid, contribution.Viewerid, contribution.Irank, contribution.Point)
 
-			if err = srdblib.Dbmap.Insert(&contribution); err != nil {
+			if err = Dbmap0.Insert(&contribution); err != nil {
 				err = fmt.Errorf("Insert(): %w", err)
 				// log.Printf("Insert(): %s\n", err.Error())
 				return
@@ -270,7 +270,7 @@ func GetAndSaveContributors(
 	sqlst += " WHERE c.ieventid = ? and c.roomid = ? ORDER BY c.irank"
 
 	var intf []interface{}
-	intf, err = srdblib.Dbmap.Select(&Result{}, sqlst, ieventid, roomid)
+	intf, err = Dbmap0.Select(&Result{}, sqlst, ieventid, roomid)
 	if err != nil {
 		err = fmt.Errorf("GetAndSaveContributors(): %w", err)
 		return

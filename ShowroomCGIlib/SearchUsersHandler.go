@@ -21,7 +21,7 @@ import (
 	// "github.com/dustin/go-humanize"
 
 	// "github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 // searchUsersHandler はユーザー検索リクエストを処理します
@@ -53,10 +53,10 @@ func SearchUsersHandler(w http.ResponseWriter, r *http.Request) {
 	if query != "" {
 		// 検索条件がある場合、部分一致で検索
 		// gorp.Select は []interface{} を受け取るので、&user を渡す
-		_, err = srdblib.Dbmap.Select(&user, "SELECT userno, user_name FROM user WHERE user_name LIKE ? ORDER BY user_name ASC LIMIT 20", "%"+query+"%")
+		_, err = Dbmap0.Select(&user, "SELECT userno, user_name FROM user WHERE user_name LIKE ? ORDER BY user_name ASC LIMIT 20", "%"+query+"%")
 	} else {
 		// 検索条件がない場合、全件取得 (または空リストを返すなど)
-		_, err = srdblib.Dbmap.Select(&user, "SELECT userno, user_name FROM user ORDER BY user_name ASC LIMIT 20")
+		_, err = Dbmap0.Select(&user, "SELECT userno, user_name FROM user ORDER BY user_name ASC LIMIT 20")
 	}
 
 	if err != nil {

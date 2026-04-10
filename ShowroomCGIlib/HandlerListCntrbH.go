@@ -28,7 +28,6 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 type CntrbH_Header struct {
@@ -202,14 +201,14 @@ func ListCntrbHHandler(w http.ResponseWriter, req *http.Request) {
 
 	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", cntrbh_header.RequestID, lastrequestid)
 	if lastrequestid == "" {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbh_header.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbh_header.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		result, err = srdblib.Dbmap.Exec(
+		result, err = Dbmap0.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
 		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
 			lastrequestid, result, err)
@@ -250,7 +249,7 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	sql := "select norder, t_lsnid, listner from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 
 	if err != nil {
 		log.Printf("SelectCntrbNow() (5) err=%s\n", err.Error())
@@ -318,7 +317,7 @@ func SelectCntrbHistory(
 
 	sql_tt := "select stime, etime, target from timetable "
 	sql_tt += " where eventid = ? and userid =? and sampletm2 = ? "
-	stmt_tt, err = srdblib.Db.Prepare(sql_tt)
+	stmt_tt, err = Db0.Prepare(sql_tt)
 	if err != nil {
 		log.Printf("SelectCntrbHistory() (5) err=%s\n", err.Error())
 		status = -5
@@ -328,7 +327,7 @@ func SelectCntrbHistory(
 
 	sql_no := "select count(*) from eventrank "
 	sql_no += " where eventid = ? and userid =? and t_lsnid = ? and ts = ? "
-	stmt_no, err = srdblib.Db.Prepare(sql_no)
+	stmt_no, err = Db0.Prepare(sql_no)
 	if err != nil {
 		log.Printf("SelectCntrbHistory() (5) err=%s\n", err.Error())
 		status = -5
@@ -338,7 +337,7 @@ func SelectCntrbHistory(
 
 	sql_er := "select point, increment, listner, lastname from eventrank "
 	sql_er += " where eventid = ? and userid =? and t_lsnid = ? and ts = ? "
-	stmt_er, err = srdblib.Db.Prepare(sql_er)
+	stmt_er, err = Db0.Prepare(sql_er)
 	if err != nil {
 		log.Printf("SelectCntrbHistory() (5) err=%s\n", err.Error())
 		status = -5
@@ -445,7 +444,7 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 	sql_tg := "select increment,count(*) from eventrank "
 	sql_tg += " where eventid = ? and userid = ? and ts = ? "
 	sql_tg += " group by increment order by count(*) desc;"
-	stmt_tg, err = srdblib.Db.Prepare(sql_tg)
+	stmt_tg, err = Db0.Prepare(sql_tg)
 	if err != nil {
 		log.Printf("InsertIntoTimtableTarget() (1) err=%s\n", err.Error())
 		status = -1
@@ -491,7 +490,7 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 
 	if target != -1 {
 		sql_ud := "update timetable set target = ? where eventid = ? and userid = ? and sampletm2 = ?"
-		stmt, err := srdblib.Db.Prepare(sql_ud)
+		stmt, err := Db0.Prepare(sql_ud)
 		if err != nil {
 			log.Printf("InsertIntoTimtableTarget() Update/Prepare err=%s\n", err.Error())
 			status = -1

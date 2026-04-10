@@ -25,8 +25,6 @@ import (
 	"net/http"
 
 	"database/sql"
-
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 // 投稿の内容
@@ -199,10 +197,10 @@ func loadLogs(
 	if bbs.Cntr != 9 {
 		//	表示するコメント種別が指定されているとき
 		sqlnr += " where cnt = ? "
-		err = srdblib.Db.QueryRow(sqlnr, bbs.Cntr).Scan(&nrow)
+		err = Db0.QueryRow(sqlnr, bbs.Cntr).Scan(&nrow)
 	} else {
 		//	すべてのコメントを表示するとき
-		err = srdblib.Db.QueryRow(sqlnr).Scan(&nrow)
+		err = Db0.QueryRow(sqlnr).Scan(&nrow)
 	}
 	if err != nil {
 		err = fmt.Errorf("Db.QueryRow(): %w", err)
@@ -224,7 +222,7 @@ func loadLogs(
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	stmt, err = srdblib.Db.Prepare(sqltr)
+	stmt, err = Db0.Prepare(sqltr)
 	if err != nil {
 		err = fmt.Errorf("prepare(): %w", err)
 		return
@@ -268,7 +266,7 @@ func loadLogs(
 func saveLog(logm *Logm) (err error) {
 
 	nrow := 0
-	err = srdblib.Db.QueryRow("select max(id) from bbslog").Scan(&nrow)
+	err = Db0.QueryRow("select max(id) from bbslog").Scan(&nrow)
 	if err != nil {
 		if err.Error() == "sql: Scan error on column index 0, name \"max(id)\": converting NULL to int is unsupported" {
 			//	DBに1件も投稿がないときmax(id)がNULLとなることへの対策
@@ -285,7 +283,7 @@ func saveLog(logm *Logm) (err error) {
 	logm.ID = nrow + 1
 
 	sqlip := "insert into bbslog (id, cnt, title, name, body, ctime, color, ra, ua ) values(?,?,?,?,?,?,?,?,?)"
-	_, err = srdblib.Db.Exec(sqlip, logm.ID, logm.Cntw, logm.Title, logm.Name, logm.Body, logm.CTime, logm.Color, logm.Ra, logm.Ua)
+	_, err = Db0.Exec(sqlip, logm.ID, logm.Cntw, logm.Title, logm.Name, logm.Body, logm.CTime, logm.Color, logm.Ra, logm.Ua)
 	if err != nil {
 		err := fmt.Errorf("Db.Exec(sqlip,...): %w", err)
 		log.Printf("err=[%s]\n", err.Error())

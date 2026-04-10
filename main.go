@@ -38,7 +38,7 @@ import (
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
 	"github.com/Chouette2100/srcom"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/Chouette2100/srhandler/v2"
 
 	"SRCGI/ShowroomCGIlib"
@@ -105,7 +105,7 @@ import (
 	00AM01	メンテナンス用を取り込んだときbbs-1.gtplからbbs-1_org.gtplへの変更を忘れたところを修正する。
 	00AM02	通常とメンテナンスの切り替えを ShowroomCGIlib.Serverconfig.Maintenance で行う。
 	11BH00	HandlerGraphTotal()でグラフ線配色の初期化の機能を追加する。
-	11BL00	srdblib.UpinsUserSetProperty()に対する srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")を追加する
+	11BL00	srdblib.UpinsUserSetProperty()に対する ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")を追加する
 	11BM00	HandlerListGiftScore()を作成する
 	11BN00	HandlerListFanGiftScore()を作成する、HandlerGraphGiftScore()を準備する。
 	11BN01	HandlerListGiftScore()でGiftid（Grid）の選択を可能にする。
@@ -192,9 +192,10 @@ import (
 	201213 開催予定イベントの参加ルーム一覧を再作成する(完了)
 	201214 GWURLのデフォルト値を"http://localhost:8888/"に変更する。
 	201216 commonMiddleware()でチャンネルChlogがいっぱいになったらログはファイルに出力する。
+	201300 srdblib/v3に対応する
 */
 
-const version = "201216"
+const version = "201300"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -625,7 +626,7 @@ func main() {
 	//	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.DBhost, dbconfig.DBname, dbconfig.DBuser, dbconfig.DBpswd)
 
 	var dbconfig *srdblib.DBConfig
-	dbconfig, err = srdblib.OpenDb("DBConfig.yml")
+	ShowroomCGIlib.Db0, dbconfig, err = srdblib.OpenDb("DBConfig.yml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return
@@ -633,6 +634,15 @@ func main() {
 	if dbconfig.UseSSH {
 		defer srdblib.Dialer.Close()
 	}
+
+	/*
+		var rdbconfig *srdblib.DBConfig
+		rdbconfig, err = srdblib.OpenDb("RDBConfig.yml")
+		if err != nil {
+			log.Printf("RDatabase error. err = %v\n", err)
+			return
+		}
+	*/
 
 	//  =============================================
 	// 画像ファイル名の連番を発行する
@@ -654,44 +664,44 @@ func main() {
 	//	http://dsas.blog.klab.org/archives/pixiv-isucon2016-2.html
 	//	SetConnMaxLifetime()は必要ないとするものも
 	//	https://qiita.com/ichizero/items/36036dbd8a32ce23ca5b
-	//	srdblib.Db.SetMaxOpenConns(8)
-	//	srdblib.Db.SetMaxIdleConns(8)
-	//	srdblib.Db.SetConnMaxLifetime(time.Second * 20)
+	//	ShowroomCGIlib.Db0.SetMaxOpenConns(8)
+	//	ShowroomCGIlib.Db0.SetMaxIdleConns(8)
+	//	ShowroomCGIlib.Db0.SetConnMaxLifetime(time.Second * 20)
 
 	//	https://zenn.dev/kouhei_fujii/articles/72ac1f8d4e8a84
-	srdblib.Db.SetMaxOpenConns(8)
-	srdblib.Db.SetMaxIdleConns(12)
+	ShowroomCGIlib.Db0.SetMaxOpenConns(8)
+	ShowroomCGIlib.Db0.SetMaxIdleConns(12)
 
-	srdblib.Db.SetConnMaxLifetime(time.Minute * 5)
-	srdblib.Db.SetConnMaxIdleTime(time.Minute * 5)
+	ShowroomCGIlib.Db0.SetConnMaxLifetime(time.Minute * 5)
+	ShowroomCGIlib.Db0.SetConnMaxIdleTime(time.Minute * 5)
 
-	defer srdblib.Db.Close()
+	defer ShowroomCGIlib.Db0.Close()
 	log.Printf("%+v\n", dbconfig)
 
 	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
-	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db,
+	ShowroomCGIlib.Dbmap0 = &gorp.DbMap{Db: ShowroomCGIlib.Db0,
 		Dialect:         dial,
 		ExpandSliceArgs: true, //スライス引数展開オプションを有効化する
 	}
-	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
-	srdblib.Dbmap.AddTableWithName(srdblib.Wuser{}, "wuser").SetKeys(false, "Userno")
-	srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
-	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
-	srdblib.Dbmap.AddTableWithName(srdblib.Wevent{}, "wevent").SetKeys(false, "Eventid")
-	srdblib.Dbmap.AddTableWithName(srdblib.Eventuser{}, "eventuser").SetKeys(false, "Eventid", "Userno")
-	srdblib.Dbmap.AddTableWithName(srdblib.Weventuser{}, "weventuser").SetKeys(false, "Eventid", "Userno")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Wuser{}, "wuser").SetKeys(false, "Userno")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Wevent{}, "wevent").SetKeys(false, "Eventid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Eventuser{}, "eventuser").SetKeys(false, "Eventid", "Userno")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Weventuser{}, "weventuser").SetKeys(false, "Eventid", "Userno")
 
-	srdblib.Dbmap.AddTableWithName(srdblib.GiftScore{}, "giftscore").SetKeys(false, "Giftid", "Ts", "Userno")
-	srdblib.Dbmap.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
-	srdblib.Dbmap.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
-	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
-	srdblib.Dbmap.AddTableWithName(ShowroomCGIlib.Contribution{}, "contribution").SetKeys(false, "Ieventid", "Roomid", "Viewerid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.GiftScore{}, "giftscore").SetKeys(false, "Giftid", "Ts", "Userno")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(ShowroomCGIlib.Contribution{}, "contribution").SetKeys(false, "Ieventid", "Roomid", "Viewerid")
 
-	srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
-	srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
-	srdblib.Dbmap.AddTableWithName(srdblib.Accesslog{}, "accesslog").SetKeys(false, "Ts", "Eventid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.GiftRanking{}, "giftranking").SetKeys(false, "Campaignid", "Grid")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Accesslog{}, "accesslog").SetKeys(false, "Ts", "Eventid")
 
-	srdblib.Dbmap.AddTableWithName(srdblib.Todo{}, "todo").SetKeys(false, "ID")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Todo{}, "todo").SetKeys(false, "ID")
 
 	fileenv := "Env.yml"
 	err = exsrapi.LoadConfig(fileenv, &srdblib.Env)

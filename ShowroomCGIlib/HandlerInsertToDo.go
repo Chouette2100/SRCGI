@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 // InsertToDoHandler は新規ToDoの追加を行います
@@ -50,7 +50,7 @@ func InsertToDoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// データベースに挿入
-	err := srdblib.Dbmap.Insert(&todo)
+	err := Dbmap0.Insert(&todo)
 	if err != nil {
 		log.Printf("InsertToDoHandler: DB insert error: %s\n", err.Error())
 		http.Error(w, "データベースエラーが発生しました", http.StatusInternalServerError)

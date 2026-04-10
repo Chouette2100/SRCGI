@@ -25,7 +25,7 @@ import (
 
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/dustin/go-humanize"
 	//	"github.com/Chouette2100/exsrapi/v2"
 )
@@ -153,8 +153,8 @@ func ListGiftScoreCntrbHandler(w http.ResponseWriter, req *http.Request) {
 		maxacq = 10
 	}
 
-	ifgr, _ := srdblib.Dbmap.Get(srdblib.GiftRanking{}, gscheader.Campaignid, grid)
-	ifuser, _ := srdblib.Dbmap.Get(srdblib.User{}, userno)
+	ifgr, _ := Dbmap0.Get(srdblib.GiftRanking{}, gscheader.Campaignid, grid)
+	ifuser, _ := Dbmap0.Get(srdblib.User{}, userno)
 
 	//	err := GetGiftRanking(&gsheader, grid, "liver")
 	//	if err != nil {
@@ -297,7 +297,7 @@ func ListGiftScoreCntrbHandler(w http.ResponseWriter, req *http.Request) {
 		//	順位のないデータ（＝ボーナスポイント）の個数を求める。
 		sqlsc := "select count(*) from eventrank where eventid = ? and userid = ? and ts = ? and nrank = 0"
 		norow := 0
-		srdblib.Db.QueryRow(sqlsc, giftid, tsie).Scan(&norow)
+		Db0.QueryRow(sqlsc, giftid, tsie).Scan(&norow)
 		if norow != 0 {
 			//	ボーナスポイントのデータがある
 			for i := range gslist {
@@ -347,7 +347,7 @@ func SelectGscAcqTimeList(
 
 	//	ギフトランキングを取得した時刻の一覧を取得する。
 	sqlst := "select distinct ts from giftscorecntrb where giftid = ? and userno = ? order by ts "
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScoreCntrb{}, sqlst, grid, userno)
+	rows, err = Dbmap0.Select(srdblib.GiftScoreCntrb{}, sqlst, grid, userno)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScoreCntrb{}, grid=%d, userno=%d)  err=%w", grid, userno, err)
 		return
@@ -391,7 +391,7 @@ func SelectGsc(
 	//	指定した時刻のギフトランキングを取得する。
 	sqlst := "select viewerid, score from giftscorecntrb "
 	sqlst += " where giftid =? and userno = ? and ts = ? order by orderno "
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScoreCntrb{}, sqlst, grid, userno, ts)
+	rows, err = Dbmap0.Select(srdblib.GiftScoreCntrb{}, sqlst, grid, userno, ts)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScoreCntrb{}, grid=%d, ts=%+v)  err=%w", grid, ts, err)
 		return
@@ -440,7 +440,7 @@ func SelectGscHeader(
 	status = 0
 
 	//	sql := "select stime, etime, earnedpoint, totalpoint from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	//	srdblib.Dberr = srdblib.Db.QueryRow(sql, giftid, ts).Scan(&stime, &etime, &earned, &total)
+	//	srdblib.Dberr = Db0.QueryRow(sql, giftid, ts).Scan(&stime, &etime, &earned, &total)
 
 	//	if srdblib.Dberr != nil {
 	//		//	log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
@@ -497,7 +497,7 @@ func SelectViewer2Order(
 	var rows []interface{}
 	sqlst := "select v.viewerid, v.sname, gsc.orderno from viewer v join giftscorecntrb gsc on v.viewerid = gsc.viewerid "
 	sqlst += " where gsc.giftid = ? and gsc.userno = ? and gsc.ts = ? order by orderno limit ? "
-	rows, err = srdblib.Dbmap.Select(ViewerAndGsc{}, sqlst, grid, userno, ts, limit)
+	rows, err = Dbmap0.Select(ViewerAndGsc{}, sqlst, grid, userno, ts, limit)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(ViewerAndGsc{}, grid=%d)  err=%w", grid, err)
 		return
@@ -526,7 +526,7 @@ func GetGiftScoreCntrb(
 	sqlst := "select grid, grname, grtype from giftranking "
 	//	sqlst += " where campaignid = ? and grtype = ? order by norder "
 	sqlst += " where campaignid = ? and grtype = ? order by endedat desc, startedat desc, norder "
-	rows, err := srdblib.Dbmap.Select(srdblib.GiftRanking{}, sqlst, gscheader.Campaignid, grtype)
+	rows, err := Dbmap0.Select(srdblib.GiftRanking{}, sqlst, gscheader.Campaignid, grtype)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScore{}, campaignid=%s)  err=%w", gscheader.Campaignid, err)
 		return err

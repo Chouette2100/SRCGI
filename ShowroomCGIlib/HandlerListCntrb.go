@@ -25,7 +25,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/Chouette2100/srdblib/v2"
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
@@ -229,7 +228,7 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 	//	順位のないデータ（＝ボーナスポイント）の個数を求める。
 	sqlsc := "select count(*) from eventrank where eventid = ? and userid = ? and ts = ? and nrank = 0"
 	norow := 0
-	srdblib.Db.QueryRow(sqlsc, eventid, userno, tsie).Scan(&norow)
+	Db0.QueryRow(sqlsc, eventid, userno, tsie).Scan(&norow)
 	if norow != 0 {
 		//	ボーナスポイントのデータがある
 		for i := range cntrbinflist {
@@ -282,7 +281,7 @@ func SelectAcqTimeList(eventid string, userno int) (acqtimelist []time.Time, sta
 
 	//	貢献ポイントランキングを取得した時刻の一覧を取得する。
 	sql := "select sampletm2 from timetable where eventid = ? and userid = ? and status = 1 order by sampletm2"
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 
 	if err != nil {
 		log.Printf("SelectAcqTimeList() (5) err=%s\n", err.Error())
@@ -353,7 +352,7 @@ func SelectCntrb(
 	//	最後の貢献ポイントランキングを取得する。
 	sql := "select t_lsnid, lsnid, increment from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 
 	if err != nil {
 		log.Printf("SelectCntrb() (5) err=%s\n", err.Error())
@@ -435,7 +434,7 @@ func SelectCntrbHeader(
 	status = 0
 
 	sql := "select stime, etime, earnedpoint, totalpoint from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	err = srdblib.Db.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime, &earned, &total)
+	err = Db0.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime, &earned, &total)
 
 	if err != nil {
 		log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
@@ -489,7 +488,7 @@ func SelectTlsnid2Order(
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	sql := "select norder, t_lsnid, point, listner, lastname from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 
 	if err != nil {
 		log.Printf("SelectCntrbNow() (5) err=%s\n", err.Error())

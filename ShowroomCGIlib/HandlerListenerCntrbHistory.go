@@ -14,7 +14,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/dustin/go-humanize"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 // ListenerCntrbHistoryData は貢献ポイント履歴の1レコード
@@ -67,7 +67,7 @@ func ListenerCntrbHistoryHandler(w http.ResponseWriter, req *http.Request) {
 
 	// イベント名を取得
 	var itrf1 interface{}
-	itrf1, err = srdblib.Dbmap.Get(&srdblib.Event{}, param.EventID)
+	itrf1, err = Dbmap0.Get(&srdblib.Event{}, param.EventID)
 	if err != nil {
 		param.ErrMsg = fmt.Sprintf("イベント情報の取得に失敗しました: %v", err)
 		log.Printf("Get Event error: %v\n", err)
@@ -193,7 +193,7 @@ SELECT er.point, er.lsnid, v.name,
      LIMIT ?                                                 -- LIMIT
 	`
 
-		_, err = srdblib.Dbmap.Select(
+		_, err = Dbmap0.Select(
 			&dataList,
 			sqlst,
 			minpoint,
@@ -227,7 +227,7 @@ SELECT er.point, er.lsnid, v.name,
      LIMIT ?
 `
 
-		_, err = srdblib.Dbmap.Select(
+		_, err = Dbmap0.Select(
 			&dataList,
 			sqlst,
 			minpoint,

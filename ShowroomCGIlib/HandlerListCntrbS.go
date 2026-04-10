@@ -28,27 +28,26 @@ import (
 	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 type CntrbS_Header struct {
-	Eventid   string
-	Eventname string
-	Period    string
-	Target    int
-	Maxpoint  int
-	Gscale    int
-	Userno    int
-	Username  string
-	ShortURL  string
-	S_stime   string
-	S_etime   string
-	Srt       int
-	Ie        int
-	Ifrm      int
-	Ifrm1     int
-	Ifrm_b    int
-	Ifrm_f    int
+	Eventid        string
+	Eventname      string
+	Period         string
+	Target         int
+	Maxpoint       int
+	Gscale         int
+	Userno         int
+	Username       string
+	ShortURL       string
+	S_stime        string
+	S_etime        string
+	Srt            int
+	Ie             int
+	Ifrm           int
+	Ifrm1          int
+	Ifrm_b         int
+	Ifrm_f         int
 	Pcntrbinfslist *[]CntrbInfS
 }
 
@@ -72,7 +71,7 @@ func SelectTargetfromTimetable(
 	err error,
 ) {
 	sqls := "SELECT target FROM timetable WHERE eventid = ? AND userid = ? AND sampletm2 = ?"
-	err = srdblib.Db.QueryRow(sqls, eventid, userno, ts).Scan(&target)
+	err = Db0.QueryRow(sqls, eventid, userno, ts).Scan(&target)
 	if err != nil {
 		err = fmt.Errorf("QueryRow().Scan()  error: %v", err)
 	}
@@ -88,7 +87,7 @@ func UpdateTimetableSetTarget(
 	err error,
 ) {
 	sqlu := "UPDATE timetable SET target = ? WHERE eventid = ? AND userid = ? AND sampletm2 = ?"
-	_, err = srdblib.Db.Exec(sqlu, target, eventid, userno, ts)
+	_, err = Db0.Exec(sqlu, target, eventid, userno, ts)
 	if err != nil {
 		err = fmt.Errorf("Exec()  error: %v", err)
 	}
@@ -126,11 +125,11 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h.gtpl", "templates/list-cntrb.gtpl"))
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
 	/*
-	funcMap := template.FuncMap{
-		"sub":   func(i, j int) int { return i - j },
-		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-	}
-		*/
+		funcMap := template.FuncMap{
+			"sub":   func(i, j int) int { return i - j },
+			"Comma": func(i int) string { return humanize.Comma(int64(i)) },
+		}
+	*/
 
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
@@ -162,7 +161,6 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
 
-
 	cntrbs_header.Eventid = eventid
 	cntrbs_header.Eventname = eventinf.Event_name
 	cntrbs_header.Maxpoint = eventinf.Maxpoint
@@ -192,7 +190,7 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 
 	var stime, etime time.Time
 	sql := "select stime, etime from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	err = srdblib.Db.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime)
+	err = Db0.QueryRow(sql, eventid, userno, ts).Scan(&stime, &etime)
 	if err != nil {
 		log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
 		log.Printf("err=[%s]\n", err.Error())
@@ -263,7 +261,7 @@ func SelectCntrbSingle(
 	} else {
 		sql += " where eventid = ? and userid =? and ts = ? order by norder"
 	}
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 
 	if err != nil {
 		log.Printf("SelectCntrbSingle() (5) err=%s\n", err.Error())

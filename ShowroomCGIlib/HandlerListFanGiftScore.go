@@ -25,7 +25,7 @@ import (
 
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/dustin/go-humanize"
 	//	"github.com/Chouette2100/exsrapi/v2"
 )
@@ -268,7 +268,7 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 		//	順位のないデータ（＝ボーナスポイント）の個数を求める。
 		sqlsc := "select count(*) from eventrank where eventid = ? and userid = ? and ts = ? and nrank = 0"
 		norow := 0
-		srdblib.Db.QueryRow(sqlsc, giftid, tsie).Scan(&norow)
+		Db0.QueryRow(sqlsc, giftid, tsie).Scan(&norow)
 		if norow != 0 {
 			//	ボーナスポイントのデータがある
 			for i := range gslist {
@@ -322,7 +322,7 @@ func SelectVgsAcqTimeList(
 
 	//	ギフトランキングを取得した時刻の一覧を取得する。
 	sqlst := "select distinct ts from viewergiftscore where giftid = ? order by ts "
-	rows, err = srdblib.Dbmap.Select(srdblib.ViewerGiftScore{}, sqlst, giftid)
+	rows, err = Dbmap0.Select(srdblib.ViewerGiftScore{}, sqlst, giftid)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(ViewerGiftScore{}, giftid=%d)  err=%w", giftid, err)
 		return
@@ -365,7 +365,7 @@ func SelectVgs(
 	//	指定した時刻のギフトランキングを取得する。
 	sqlst := "select viewerid, score from viewergiftscore "
 	sqlst += " where giftid =? and ts = ? order by orderno "
-	rows, err = srdblib.Dbmap.Select(srdblib.ViewerGiftScore{}, sqlst, giftid, ts)
+	rows, err = Dbmap0.Select(srdblib.ViewerGiftScore{}, sqlst, giftid, ts)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(ViewerGiftScore{}, giftid=%d, ts=%+v)  err=%w", giftid, ts, err)
 		return
@@ -438,7 +438,7 @@ func SelectVgsHeader(
 	status = 0
 
 	//	sql := "select stime, etime, earnedpoint, totalpoint from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	//	srdblib.Dberr = srdblib.Db.QueryRow(sql, giftid, ts).Scan(&stime, &etime, &earned, &total)
+	//	srdblib.Dberr = Db0.QueryRow(sql, giftid, ts).Scan(&stime, &etime, &earned, &total)
 
 	//	if srdblib.Dberr != nil {
 	//		//	log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
@@ -495,7 +495,7 @@ func SelectViewerid2Order(
 	sqlst := "select v.viewerid, v.sname, vgs.orderno "
 	sqlst += " from viewer v join viewergiftscore vgs on v.viewerid = vgs.viewerid "
 	sqlst += " where vgs.giftid = ? and vgs.ts = ? order by vgs.orderno limit ? "
-	rows, err = srdblib.Dbmap.Select(ViewerAndOrderno{}, sqlst, giftid, ts, limit)
+	rows, err = Dbmap0.Select(ViewerAndOrderno{}, sqlst, giftid, ts, limit)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(Viewer{}, giftid=%d)  err=%w", giftid, err)
 		return
@@ -513,7 +513,7 @@ func SelectViewerid2Order(
 	/*
 		sqlst := "select userno, orderno from giftscore "
 		sqlst += " where giftid = ? and ts = ? order by orderno limit 10 "
-		rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, giftid, ts)
+		rows, err = Dbmap0.Select(srdblib.GiftScore{}, sqlst, giftid, ts)
 		if err != nil {
 			err = fmt.Errorf("Dbmap.Select(GiftScore{}, giftid=%d)  err=%w", giftid, err)
 			return
@@ -523,7 +523,7 @@ func SelectViewerid2Order(
 		for i, v := range rows {
 			gs := v.(*srdblib.GiftScore)
 			userno2order[gs.Userno] = i
-			row, err = srdblib.Dbmap.Get(srdblib.User{}, gs.Userno)
+			row, err = Dbmap0.Get(srdblib.User{}, gs.Userno)
 			if err != nil {
 				err = fmt.Errorf("Dbmap.Get(User{}, userno=%d)  err=%w", gs.Userno, err)
 				return

@@ -35,7 +35,7 @@ import (
 	//	"github.com/goark/sshql/mysqldrv"
 	//	"github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func GraphGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
@@ -85,18 +85,18 @@ func GraphGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	*/
 
-	intrf, err := srdblib.Dbmap.Get(srdblib.Campaign{}, campaignid)
+	intrf, err := Dbmap0.Get(srdblib.Campaign{}, campaignid)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Get(srdblib.Campaign{}, %s) err = %w", campaignid, err)
+		err = fmt.Errorf("Dbmap0.Get(srdblib.Campaign{}, %s) err = %w", campaignid, err)
 		log.Printf("%s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
 	campaign := intrf.(*srdblib.Campaign)
 
-	intrf, err = srdblib.Dbmap.Get(srdblib.GiftRanking{}, campaignid, giftid)
+	intrf, err = Dbmap0.Get(srdblib.GiftRanking{}, campaignid, giftid)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Get(srdblib.GiftRanking{}, %d) err = %w", giftid, err)
+		err = fmt.Errorf("Dbmap0.Get(srdblib.GiftRanking{}, %d) err = %w", giftid, err)
 		log.Printf("%s\n", err.Error())
 		w.Write([]byte(err.Error()))
 		return
@@ -186,9 +186,9 @@ func GraphGiftScore(
 	sqlst := "select userno from giftscore "
 	sqlst += " where giftid = ? "
 	sqlst += " and ts = (select max(ts) from giftscore where giftid = ?) order by score desc limit ? "
-	_, err = srdblib.Dbmap.Select(&giftscore, sqlst, giftranking.Grid, giftranking.Grid, nroom)
+	_, err = Dbmap0.Select(&giftscore, sqlst, giftranking.Grid, giftranking.Grid, nroom)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(&giftscore, %d)(1) err = %w", giftranking.Grid, err)
+		err = fmt.Errorf("Dbmap0.Select(&giftscore, %d)(1) err = %w", giftranking.Grid, err)
 		return
 	}
 
@@ -198,9 +198,9 @@ func GraphGiftScore(
 
 		giftscore = make([]srdblib.GiftScore, 0)
 		sqlst = "select ts, score from giftscore where giftid = ? and userno = ? and ts < ? order by ts "
-		_, err = srdblib.Dbmap.Select(&giftscore, sqlst, giftranking.Grid, v.Userno, giftranking.Endedat.Add(2*time.Hour))
+		_, err = Dbmap0.Select(&giftscore, sqlst, giftranking.Grid, v.Userno, giftranking.Endedat.Add(2*time.Hour))
 		if err != nil {
-			err = fmt.Errorf("srdblib.Dbmap.Select(&giftscore, %d, %d,%s)(2) err = %w",
+			err = fmt.Errorf("Dbmap0.Select(&giftscore, %d, %d,%s)(2) err = %w",
 				giftranking.Grid, v.Userno, giftranking.Endedat.Add(2*time.Hour).Format("2006-01-02 15:04"), err)
 			return
 		}

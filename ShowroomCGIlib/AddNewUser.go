@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"time" // time.Duration のために追加
 
-	"github.com/Chouette2100/srdblib/v2" // srdblibパッケージのパスは適宜修正
+	"github.com/Chouette2100/srdblib/v3" // srdblibパッケージのパスは適宜修正
 )
 
 // Version はこのクライアントライブラリのバージョン

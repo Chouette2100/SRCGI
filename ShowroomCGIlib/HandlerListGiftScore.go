@@ -25,7 +25,7 @@ import (
 
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	"github.com/dustin/go-humanize"
 	//	"github.com/Chouette2100/exsrapi/v2"
 )
@@ -295,7 +295,7 @@ func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 		//	順位のないデータ（＝ボーナスポイント）の個数を求める。
 		sqlsc := "select count(*) from eventrank where eventid = ? and userid = ? and ts = ? and nrank = 0"
 		norow := 0
-		srdblib.Db.QueryRow(sqlsc, giftid, tsie).Scan(&norow)
+		Db0.QueryRow(sqlsc, giftid, tsie).Scan(&norow)
 		if norow != 0 {
 			//	ボーナスポイントのデータがある
 			for i := range gslist {
@@ -349,7 +349,7 @@ func SelectGsAcqTimeList(
 
 	//	ギフトランキングを取得した時刻の一覧を取得する。
 	sqlst := "select distinct ts from giftscore where giftid = ? order by ts "
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, grid)
+	rows, err = Dbmap0.Select(srdblib.GiftScore{}, sqlst, grid)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScore{}, grid=%d)  err=%w", grid, err)
 		return
@@ -392,7 +392,7 @@ func SelectGs(
 	//	指定した時刻のギフトランキングを取得する。
 	sqlst := "select userno, score, orderno from giftscore "
 	sqlst += " where giftid =? and ts = ? order by orderno "
-	rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, grid, ts)
+	rows, err = Dbmap0.Select(srdblib.GiftScore{}, sqlst, grid, ts)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScore{}, grid=%d, ts=%+v)  err=%w", grid, ts, err)
 		return
@@ -473,7 +473,7 @@ func SelectGsHeader(
 	status = 0
 
 	//	sql := "select stime, etime, earnedpoint, totalpoint from timetable where eventid = ? and userid = ? and sampletm2 = ? "
-	//	srdblib.Dberr = srdblib.Db.QueryRow(sql, giftid, ts).Scan(&stime, &etime, &earned, &total)
+	//	srdblib.Dberr = Db0.QueryRow(sql, giftid, ts).Scan(&stime, &etime, &earned, &total)
 
 	//	if srdblib.Dberr != nil {
 	//		//	log.Printf("select stime, etime from timetable where eventid = %s and userid = %d and sampletm2 = %+v\n", eventid, userno, ts)
@@ -524,7 +524,7 @@ func SelectUserno2Order(
 	var rows []interface{}
 	sqlst := "select u.userno, u.longname, u.`rank`, u.userid, gs.orderno itrank from user u join giftscore gs on u.userno = gs.userno "
 	sqlst += " where gs.giftid = ? and gs.ts = ? order by orderno limit ? "
-	rows, err = srdblib.Dbmap.Select(srdblib.User{}, sqlst, grid, ts, limit)
+	rows, err = Dbmap0.Select(srdblib.User{}, sqlst, grid, ts, limit)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(User{}, grid=%d)  err=%w", grid, err)
 		return
@@ -544,7 +544,7 @@ func SelectUserno2Order(
 	/*
 		sqlst := "select userno, orderno from giftscore "
 		sqlst += " where giftid = ? and ts = ? order by orderno limit 10 "
-		rows, err = srdblib.Dbmap.Select(srdblib.GiftScore{}, sqlst, giftid, ts)
+		rows, err = Dbmap0.Select(srdblib.GiftScore{}, sqlst, giftid, ts)
 		if err != nil {
 			err = fmt.Errorf("Dbmap.Select(GiftScore{}, giftid=%d)  err=%w", giftid, err)
 			return
@@ -554,7 +554,7 @@ func SelectUserno2Order(
 		for i, v := range rows {
 			gs := v.(*srdblib.GiftScore)
 			userno2order[gs.Userno] = i
-			row, err = srdblib.Dbmap.Get(srdblib.User{}, gs.Userno)
+			row, err = Dbmap0.Get(srdblib.User{}, gs.Userno)
 			if err != nil {
 				err = fmt.Errorf("Dbmap.Get(User{}, userno=%d)  err=%w", gs.Userno, err)
 				return
@@ -589,7 +589,7 @@ func GetGiftRanking(
 	sqlst := "select grid, grname, grtype, cntrblst from giftranking "
 	//	sqlst += " where campaignid = ? and grtype = ? order by norder "
 	sqlst += " where campaignid = ? and grtype = ? order by endedat desc, startedat desc, norder "
-	rows, err := srdblib.Dbmap.Select(srdblib.GiftRanking{}, sqlst, gsheader.Campaignid, grtype)
+	rows, err := Dbmap0.Select(srdblib.GiftRanking{}, sqlst, gsheader.Campaignid, grtype)
 	if err != nil {
 		err = fmt.Errorf("Dbmap.Select(GiftScore{}, campaignid=%s)  err=%w", gsheader.Campaignid, err)
 		return err

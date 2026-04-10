@@ -40,7 +40,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func GraphTotalHandler(w http.ResponseWriter, req *http.Request) {
@@ -141,7 +141,7 @@ func Resetcolor(
 ) error {
 
 	if cmap < 0 {
-		erow, err := srdblib.Dbmap.Get(srdblib.Event{}, eventid)
+		erow, err := Dbmap0.Get(srdblib.Event{}, eventid)
 		if err != nil {
 			err = fmt.Errorf("Resetcolor(): %w", err)
 			return err
@@ -154,7 +154,7 @@ func Resetcolor(
 	log.Printf("      Resetcolor(): eventid=%s cmap=%d\n", eventid, cmap)
 	clm := Colormaplist[cmap]
 	lclm := len(clm)
-	rows, err := srdblib.Dbmap.Select(srdblib.Eventuser{},
+	rows, err := Dbmap0.Select(srdblib.Eventuser{},
 		"select "+clmlist["eventuser"]+" from eventuser where eventid = ? order by point desc", eventid)
 	if err != nil {
 		err = fmt.Errorf("Resetcolor(): %w", err)
@@ -163,7 +163,7 @@ func Resetcolor(
 	for i, row := range rows {
 		eu := row.(*srdblib.Eventuser)
 		eu.Color = clm[i%lclm].Name
-		_, err = srdblib.Dbmap.Update(eu)
+		_, err = Dbmap0.Update(eu)
 		if err != nil {
 			err = fmt.Errorf("Resetcolor(): %w", err)
 			return err
@@ -180,7 +180,7 @@ func GraphTotalPoints(eventid string, maxpoint int, gscale int) (filename string
 	status = 0
 
 	// eventinf.Event_ID = eventid
-	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	eventinf, err = srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		log.Printf("MakePointPerSlot() srdblib.SelectFromEvent() err=%s\n", err.Error())
@@ -517,7 +517,7 @@ func GraphScore01(
 
 func SelectScoreList(eventinf *exsrapi.Event_Inf, user_id int) (x *[]float64, y *[]float64) {
 
-	stmt1, err := srdblib.Db.Prepare("SELECT count(*) FROM points where user_id = ? and eventid = ?")
+	stmt1, err := Db0.Prepare("SELECT count(*) FROM points where user_id = ? and eventid = ?")
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -544,7 +544,7 @@ func SelectScoreList(eventinf *exsrapi.Event_Inf, user_id int) (x *[]float64, y 
 	//	----------------------------------------------------
 
 	//	stmt2, err := Db.Prepare("select t.t, p.point from points p join timeacq t on t.idx = p.idx where user_id = ? and event_id = ? order by t.t")
-	stmt2, err := srdblib.Db.Prepare("select ts, point from points where user_id = ? and eventid = ? order by ts")
+	stmt2, err := Db0.Prepare("select ts, point from points where user_id = ? and eventid = ? order by ts")
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())

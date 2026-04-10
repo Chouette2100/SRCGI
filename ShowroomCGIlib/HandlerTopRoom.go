@@ -24,7 +24,6 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 type TopRoom struct {
@@ -114,7 +113,7 @@ func SelectTopRoom(
 	var stmt *sql.Stmt
 	var rows *sql.Rows
 
-	stmt, err = srdblib.Db.Prepare(sqltr)
+	stmt, err = Db0.Prepare(sqltr)
 	if err != nil {
 		err = fmt.Errorf("prepare(): %w", err)
 		return

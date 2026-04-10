@@ -17,9 +17,7 @@ import (
 	"net/http"
 
 	"database/sql"
-
 	//	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 type RoomLevel struct {
@@ -72,7 +70,7 @@ func SelectRoomLevel(userno int, levelonly int) (roomlevelinf RoomLevelInf, stat
 	status = 0
 
 	sqlstmt := "select user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, ts from userhistory where userno = ? order by ts desc"
-	stmt, err = srdblib.Db.Prepare(sqlstmt)
+	stmt, err = Db0.Prepare(sqlstmt)
 	if err != nil {
 		log.Printf("SelectRoomLevel() (3) err=%s\n", err.Error())
 		status = -3

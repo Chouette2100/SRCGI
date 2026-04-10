@@ -8,6 +8,7 @@ import (
 	//	"bufio"
 	"bytes"
 	"fmt"
+
 	// "html"
 	"log"
 
@@ -16,8 +17,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	//	"os"
 
+	//	"os"
 
 	// "runtime"
 
@@ -41,8 +42,8 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
+
 func GetEventInfAndRoomListBR(
 	client *http.Client,
 	eventid string,
@@ -295,7 +296,7 @@ func GetUserInfForHistory(client *http.Client) (status int) {
 	status = 0
 
 	//	select distinct(nobasis) from event
-	stmt, err := srdblib.Db.Prepare("select distinct(nobasis) from event")
+	stmt, err := Db0.Prepare("select distinct(nobasis) from event")
 	if err != nil {
 		//	log.Fatal(err)
 		log.Printf("err=[%s]\n", err.Error())
@@ -342,7 +343,7 @@ func GetUserInfForHistory(client *http.Client) (status int) {
 	for _, roominf := range roominflist {
 
 		sql := "select currentevent from user where userno = ?"
-		err := srdblib.Db.QueryRow(sql, roominf.Userno).Scan(&eventid)
+		err := Db0.QueryRow(sql, roominf.Userno).Scan(&eventid)
 		if err != nil {
 			log.Printf("err=[%s]\n", err.Error())
 			status = -1
@@ -355,4 +356,3 @@ func GetUserInfForHistory(client *http.Client) (status int) {
 
 	return
 }
-

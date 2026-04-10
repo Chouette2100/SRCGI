@@ -40,7 +40,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type Point struct {
@@ -81,7 +81,7 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 
 	eventid := r.FormValue("eventid")
 	var eventinf *exsrapi.Event_Inf
-	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	eventinf, err = srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		err = fmt.Errorf("GraphPerdayHandler: %w", err)
@@ -147,7 +147,7 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	eventid := r.FormValue("eventid")
 
 	var eventinf *exsrapi.Event_Inf
-	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	eventinf, err = srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		err = fmt.Errorf("GraphPerdayHandler: %w", err)
@@ -300,7 +300,7 @@ func GraphPerDay(
 
 	//	Event_inf, status = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1

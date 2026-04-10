@@ -40,7 +40,7 @@ import (
 
 	//	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func ParamEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +64,7 @@ func ParamEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	//	eventinf, _ := SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
+	eventinf, _ := srdblib.SelectFromEvent(Db0, "event", eventid)
 	// Event_inf = *eventinf
 
 	userlist, _ := SelectEventuserList(eventid)
@@ -103,7 +103,7 @@ func ParamEventCHandler(w http.ResponseWriter, r *http.Request) {
 
 	//	eventinf, _ := SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, _ := srdblib.SelectFromEvent("event", eventid)
+	eventinf, _ := srdblib.SelectFromEvent(Db0, "event", eventid)
 	// Event_inf = *eventinf
 
 	//	log.Println(eventinf)
@@ -152,7 +152,7 @@ func SelectEventuserList(eventid string) (userlist []User, status int) {
 	sql += " where e.eventid = ? "
 	sql += " order by e.userno"
 
-	stmt, err := srdblib.Db.Prepare(sql)
+	stmt, err := Db0.Prepare(sql)
 	if err != nil {
 		log.Printf("err=[%s]\n", err.Error())
 		status = -1

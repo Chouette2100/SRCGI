@@ -29,9 +29,7 @@ import (
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/dustin/go-humanize"
-
 	// "github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 type MonthlyCntrbRank struct {
@@ -384,7 +382,7 @@ SELECT er.lsnid, SUBSTRING(v.name,1,20) listener,
 	startTime := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	endTime := startTime.AddDate(0, 1, 0)
 
-	_, err = srdblib.Dbmap.Select(&monthlyCntrbRankList, sqlst, startTime, endTime, thpoint)
+	_, err = Dbmap0.Select(&monthlyCntrbRankList, sqlst, startTime, endTime, thpoint)
 	if err != nil {
 		err = fmt.Errorf("SelectCntrbHistoryEx() error: %w", err)
 		log.Printf("%s\n", err.Error())
@@ -470,7 +468,7 @@ SELECT rs.sump spoint, rs.lsnid , v.name listener, sum(er.point) point, er.useri
 	startTime := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	endTime := startTime.AddDate(0, 1, 0)
 
-	_, err = srdblib.Dbmap.Select(&monthlyCntrbRankList, sqlst,
+	_, err = Dbmap0.Select(&monthlyCntrbRankList, sqlst,
 		startTime, endTime, thpoint, thpoint, limit, startTime, endTime)
 	if err != nil {
 		err = fmt.Errorf("SelectCntrbHistoryEx() error: %w", err)

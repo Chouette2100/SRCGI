@@ -9,8 +9,6 @@ import (
 	"reflect"
 	"strings"
 	"time"
-
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 // GetAccessByHandler はハンドラーごとの日別アクセス数を取得する
@@ -39,7 +37,7 @@ func GetAccessByHandler(endDate time.Time, days int) ([]AccessTableRow, []string
 	}
 
 	var rows []AccessRow
-	_, err := srdblib.Dbmap.Select(&rows, sql,
+	_, err := Dbmap0.Select(&rows, sql,
 		startDate.Format("2006-01-02"),
 		endDate.Format("2006-01-02"))
 	if err != nil {
@@ -75,7 +73,7 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 	}
 
 	var topIPs []TopIP
-	_, err := srdblib.Dbmap.Select(&topIPs, sqlTop,
+	_, err := Dbmap0.Select(&topIPs, sqlTop,
 		startDate.Format("2006-01-02"),
 		endDate.Format("2006-01-02"))
 	if err != nil {
@@ -116,7 +114,7 @@ func GetAccessByIP(endDate time.Time, days int, dkey string) ([]AccessTableRow, 
 	}
 
 	var rows []AccessRow
-	_, err = srdblib.Dbmap.Select(&rows, sql,
+	_, err = Dbmap0.Select(&rows, sql,
 		// startDate.Format("2006-01-02"),
 		// endDate.Format("2006-01-02"),
 		//	ipList)
@@ -174,7 +172,7 @@ func GetAccessByUserAgent(endDate time.Time, days int) ([]AccessTableRow, []stri
 	}
 
 	var topUAs []TopUA
-	_, err := srdblib.Dbmap.Select(&topUAs, sqlTop,
+	_, err := Dbmap0.Select(&topUAs, sqlTop,
 		startDate.Format("2006-01-02"),
 		endDate.Format("2006-01-02"))
 	if err != nil {
@@ -214,7 +212,7 @@ func GetAccessByUserAgent(endDate time.Time, days int) ([]AccessTableRow, []stri
 	}
 
 	var rows []AccessRow
-	_, err = srdblib.Dbmap.Select(&rows, sql,
+	_, err = Dbmap0.Select(&rows, sql,
 		// startDate.Format("2006-01-02"),
 		// endDate.Format("2006-01-02"),
 		// uaList)

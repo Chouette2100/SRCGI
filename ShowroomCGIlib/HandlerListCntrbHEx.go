@@ -28,7 +28,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type CntrbHEx_Header struct {
@@ -197,14 +197,14 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 
 	log.Printf(" cntrbhex_header.RequestID = %s, lastrequestid = %s\n", cntrbhex_header.RequestID, lastrequestid)
 	if lastrequestid == "" {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbhex_header.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbhex_header.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		result, err = srdblib.Dbmap.Exec(
+		result, err = Dbmap0.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
 		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
 			lastrequestid, result, err)
@@ -216,7 +216,7 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		// _, _, _, _, _, _, _, _, roomname, roomurlkey, _, _ := GetRoomInfoByAPI(fmt.Sprintf("%d", userno))
 		pu := &srdblib.User{}
 		var intf interface{}
-		intf, err = srdblib.Dbmap.Get(pu, userno)
+		intf, err = Dbmap0.Get(pu, userno)
 		if err != nil {
 			err = fmt.Errorf("GetUserInf() error: %w", err)
 			log.Printf("%s\n", err.Error())
@@ -235,7 +235,7 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 		cntrbhex_header.Tlsnid = tlsnid
 		// cntrbhex_header.Listener = tlsnidinflist[1].Listener
 		var intrf interface{}
-		intrf, err = srdblib.Dbmap.Get(&srdblib.Viewer{}, tlsnid)
+		intrf, err = Dbmap0.Get(&srdblib.Viewer{}, tlsnid)
 		if err != nil {
 			err = fmt.Errorf("ListCntrbHExHandler() error: %w", err)
 			log.Printf("%s\n", err.Error())
@@ -317,7 +317,7 @@ func SelectTlsnidList(eventid string, userno int, tlsnid int, smplt time.Time) (
 	//	指定された時刻の貢献ポイントランキングを取得する。
 	sql := "select norder, t_lsnid, listner from eventrank "
 	sql += " where eventid = ? and userid =? and ts = ? order by norder"
-	stmt, srdblib.Dberr = srdblib.Db.Prepare(sql)
+	stmt, srdblib.Dberr = Db0.Prepare(sql)
 
 	if srdblib.Dberr != nil {
 		log.Printf("SelectCntrbNow() (5) err=%s\n", srdblib.Dberr.Error())
@@ -389,7 +389,7 @@ func SelectCntrbHistoryEx(
 	sqlst += " ORDER BY endtime desc, roomno " // 最後にイベント終了日で、終了日が同じ時はユーザー番号順にソートする
 
 	cntrbhistoryEx = &CntrbHistoryEx{}
-	_, err = srdblib.Dbmap.Select(cntrbhistoryEx, sqlst, tlsnid)
+	_, err = Dbmap0.Select(cntrbhistoryEx, sqlst, tlsnid)
 	if err != nil {
 		err = fmt.Errorf("SelectCntrbHistoryEx() error: %w", err)
 		log.Printf("%s\n", err.Error())
@@ -432,7 +432,7 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 	sql_tg := "select increment,count(*) from eventrank "
 	sql_tg += " where eventid = ? and userid = ? and ts = ? "
 	sql_tg += " group by increment order by count(*) desc;"
-	stmt_tg, srdblib.Dberr = srdblib.Db.Prepare(sql_tg)
+	stmt_tg, srdblib.Dberr = Db0.Prepare(sql_tg)
 	if srdblib.Dberr != nil {
 		log.Printf("InsertIntoTimtableTarget() (1) err=%s\n", srdblib.Dberr.Error())
 		status = -1
@@ -478,7 +478,7 @@ func InsertTargetIntoTimtable(eventid string, userno int, ts time.Time, nfr int)
 
 	if target != -1 {
 		sql_ud := "update timetable set target = ? where eventid = ? and userid = ? and sampletm2 = ?"
-		stmt, err := srdblib.Db.Prepare(sql_ud)
+		stmt, err := Db0.Prepare(sql_ud)
 		if err != nil {
 			log.Printf("InsertIntoTimtableTarget() Update/Prepare err=%s\n", err.Error())
 			status = -1

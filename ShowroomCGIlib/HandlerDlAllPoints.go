@@ -22,7 +22,7 @@ import (
 	//	"database/sql"
 
 	//	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type FapHeader struct {
@@ -88,13 +88,13 @@ func MakeFileOfAllPoints(
 
 	//	イベント情報を取得する
 	var itfc interface{}
-	itfc, err = srdblib.Dbmap.Get(srdblib.Event{}, eventid)
+	itfc, err = Dbmap0.Get(srdblib.Event{}, eventid)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Get(Event{}, %s) err=%w", eventid, err)
+		err = fmt.Errorf("Dbmap0.Get(Event{}, %s) err=%w", eventid, err)
 		return
 	}
 	if itfc.(*srdblib.Event) == nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(Eventuser{}, %s) no data", eventid)
+		err = fmt.Errorf("Dbmap0.Select(Eventuser{}, %s) no data", eventid)
 		return
 	}
 
@@ -105,13 +105,13 @@ func MakeFileOfAllPoints(
 	//	type MfapUserlist struct {
 	//		Userno int
 	//	}
-	itfc, err = srdblib.Dbmap.Select(srdblib.Eventuser{}, sqlstmt, eventid, toorder-fromorder+1, fromorder-1)
+	itfc, err = Dbmap0.Select(srdblib.Eventuser{}, sqlstmt, eventid, toorder-fromorder+1, fromorder-1)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(Eventuser{}, %s) err=%w", eventid, err)
+		err = fmt.Errorf("Dbmap0.Select(Eventuser{}, %s) err=%w", eventid, err)
 		return
 	}
 	if itfc.([]interface{}) == nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(Eventuser{}, %s) no data", eventid)
+		err = fmt.Errorf("Dbmap0.Select(Eventuser{}, %s) no data", eventid)
 		return
 	}
 	//	ul := itfc.([]srdblib.Eventuser)
@@ -129,12 +129,12 @@ func MakeFileOfAllPoints(
 	//	Eventid := hd.Eventinf.Eventid
 	//	argmap := map[string]interface{}{"Users": []int{429729,431217,417115}, "Eventid": "mattari_fireworks201"}
 	//	log.Printf("argmap = %+v\n", argmap)
-	//	itfc, err = srdblib.Dbmap.Select(timelist{}, sqlstmt,
+	//	itfc, err = Dbmap0.Select(timelist{}, sqlstmt,
 	//	map[string]interface{}{"Users": []int{429729,431217,417115}, "Eventid": "mattari_fireworks201"})
-	itfctl, err := srdblib.Dbmap.Select(Timelist{}, sqlstmt, map[string]interface{}{"Users": Ul, "Eventid": hd.Eventinf.Eventid})
-	//	itfctl, err := srdblib.Dbmap.Select(Timelist{}, sqlstmt)
+	itfctl, err := Dbmap0.Select(Timelist{}, sqlstmt, map[string]interface{}{"Users": Ul, "Eventid": hd.Eventinf.Eventid})
+	//	itfctl, err := Dbmap0.Select(Timelist{}, sqlstmt)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(timelist{}, %s) err=%w", eventid, err)
+		err = fmt.Errorf("Dbmap0.Select(timelist{}, %s) err=%w", eventid, err)
 		return nil, err
 	}
 	// tl := itfctl.([]timelist)
@@ -166,9 +166,9 @@ func MakeFileOfAllPoints(
 		}
 
 		sqlstmt = "SELECT ts, `rank`, point FROM points WHERE eventid = ? AND user_id = ? ORDER BY ts "
-		itfcpd, err := srdblib.Dbmap.Select(Pointdata{}, sqlstmt, eventid, u)
+		itfcpd, err := Dbmap0.Select(Pointdata{}, sqlstmt, eventid, u)
 		if err != nil {
-			err = fmt.Errorf("srdblib.Dbmap.Select(pointdata{}, %s, %d) err=%w", eventid, u, err)
+			err = fmt.Errorf("Dbmap0.Select(pointdata{}, %s, %d) err=%w", eventid, u, err)
 			return nil, err
 		}
 		for _, tpd := range itfcpd {
@@ -220,10 +220,10 @@ func MakeFileOfAllPoints(
 		for j := 0; j < len(Ul); j++ {
 			ebuf += ","
 
-			itfc, err = srdblib.Dbmap.Get(srdblib.User{}, Ul[j])
+			itfc, err = Dbmap0.Get(srdblib.User{}, Ul[j])
 
 			if err != nil {
-				err = fmt.Errorf("srdblib.Dbmap.Get(User{}, %d) err=%w", Ul[j], err)
+				err = fmt.Errorf("Dbmap0.Get(User{}, %d) err=%w", Ul[j], err)
 				return
 			}
 			ubufnm += ",\"" + itfc.(*srdblib.User).Longname + "\""

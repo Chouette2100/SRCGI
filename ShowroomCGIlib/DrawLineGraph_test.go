@@ -13,7 +13,7 @@ import (
 
 	"github.com/go-gorp/gorp"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func TestJtruncate(t *testing.T) {
@@ -93,7 +93,7 @@ func TestDrawLineGraph(t *testing.T) {
 
 	var dbconfig *srdblib.DBConfig
 	var err error
-	dbconfig, err = srdblib.OpenDb("DBConfig.yml")
+	Db0, dbconfig, err = srdblib.OpenDb("DBConfig.yml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return
@@ -102,28 +102,28 @@ func TestDrawLineGraph(t *testing.T) {
 		defer srdblib.Dialer.Close()
 	}
 
-	srdblib.Db.SetMaxOpenConns(8)
-	srdblib.Db.SetMaxIdleConns(12)
-	srdblib.Db.SetConnMaxLifetime(time.Minute * 5)
-	srdblib.Db.SetConnMaxIdleTime(time.Minute * 5)
+	Db0.SetMaxOpenConns(8)
+	Db0.SetMaxIdleConns(12)
+	Db0.SetConnMaxLifetime(time.Minute * 5)
+	Db0.SetConnMaxIdleTime(time.Minute * 5)
 
-	defer srdblib.Db.Close()
+	defer Db0.Close()
 	log.Printf("%+v\n", dbconfig)
 
 	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
-	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db, Dialect: dial, ExpandSliceArgs: true}
-	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
-	// srdblib.Dbmap.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
-	// srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
-	// srdblib.Dbmap.AddTableWithName(srdblib.Eventuser{}, "eventuser").SetKeys(false, "Eventid", "Userno")
+	Dbmap0 = &gorp.DbMap{Db: Db0, Dialect: dial, ExpandSliceArgs: true}
+	Dbmap0.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+	// Dbmap0.AddTableWithName(srdblib.Userhistory{}, "userhistory").SetKeys(false, "Userno", "Ts")
+	// Dbmap0.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
+	// Dbmap0.AddTableWithName(srdblib.Eventuser{}, "eventuser").SetKeys(false, "Eventid", "Userno")
 
-	// srdblib.Dbmap.AddTableWithName(srdblib.GiftScore{}, "giftscore").SetKeys(false, "Giftid", "Ts", "Userno")
-	// srdblib.Dbmap.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
-	// srdblib.Dbmap.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
-	// srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
+	// Dbmap0.AddTableWithName(srdblib.GiftScore{}, "giftscore").SetKeys(false, "Giftid", "Ts", "Userno")
+	// Dbmap0.AddTableWithName(srdblib.ViewerGiftScore{}, "viewergiftscore").SetKeys(false, "Giftid", "Ts", "Viewerid")
+	// Dbmap0.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
+	// Dbmap0.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
 
-	// srdblib.Dbmap.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
-	// srdblib.Dbmap.AddTableWithName(srdblib.GiftRanking{}, "giftRanking").SetKeys(false, "Campaignid", "Grid")
+	// Dbmap0.AddTableWithName(srdblib.Campaign{}, "campaign").SetKeys(false, "Campaignid")
+	// Dbmap0.AddTableWithName(srdblib.GiftRanking{}, "giftRanking").SetKeys(false, "Campaignid", "Grid")
 
 	tests := []struct {
 		name    string

@@ -23,7 +23,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srapi/v2"
 )
 
@@ -193,18 +193,18 @@ func ClosedEventsHandler(
 
 	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", top.RequestID, lastrequestid)
 	if lastrequestid == "" {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
-		//srdblib.Dbmap.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
-		result, err := srdblib.Dbmap.Exec(
+		//Dbmap0.Exec("DELETE FROM accesslog WHERE requestid = ?", requestid)
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		// result, err = srdblib.Dbmap.Exec(
+		// result, err = Dbmap0.Exec(
 		//      "UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", lastrequestid)
 		// log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		result, err = srdblib.Dbmap.Exec(
+		result, err = Dbmap0.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
 		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
 			lastrequestid, result, err)
@@ -324,7 +324,7 @@ func ClosedEventsHandler(
 
 	// 参照回数の多いイベントを取得する
 	var emap map[string]int
-	emap, err = srdblib.GetFeaturedEvents("closed", 72, 16, 6)
+	emap, err = srdblib.GetFeaturedEvents(Dbmap0, "closed", 72, 16, 6)
 	if err != nil {
 		err = fmt.Errorf("GetFeaturedEvents(): %w", err)
 		log.Printf("%s\n", err.Error())
@@ -383,7 +383,7 @@ func SelectRoomInf(
 	//	sql += " where u.userno = e.userno and u.userno = " + fmt.Sprintf("%d", userno)
 	sql += " where u.userno = e.userno and u.userno = ? "
 
-	stmt, err := srdblib.Db.Prepare(sql)
+	stmt, err := Db0.Prepare(sql)
 	if err != nil {
 		log.Printf("SelectRoomInf() Prepare() err=%s\n", err.Error())
 		status = -5

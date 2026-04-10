@@ -41,7 +41,7 @@ import (
 
 	//	"github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type ListLastC struct {
@@ -155,7 +155,7 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("      eventid=%s, detail=%s, page=%d\n", eventid, list_last.Detail, list_last.Ipage)
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -275,7 +275,7 @@ func SelectCurrentScorec(
 
 	//	Event_inf, status = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -297,7 +297,7 @@ func SelectCurrentScorec(
 	sql0 := "select count(*) from points where eventid = ?"
 	// sql0 += " and ts = (select max(ts) from points where eventid = ? and ts > ?)" ? // TODO: 最後の条件は？
 	sql0 += " and ts = (select max(ts) from points where eventid = ? ) "
-	err = srdblib.Db.QueryRow(sql0, eventid, eventid).Scan(&totalCount)
+	err = Db0.QueryRow(sql0, eventid, eventid).Scan(&totalCount)
 
 	if err != nil {
 		log.Printf("select max(point) from eventuser where eventid = '%s'\n", eventinf.Event_ID)
@@ -316,7 +316,7 @@ func SelectCurrentScorec(
 	//	sql := "select distinct t.idx, t.t from timeacq t join points p where t.idx = p.idx and t.t = ( select max(t) from points p join timeacq t where p.idx = t.idx and event_id = ? )"
 	sql1 := "select distinct max(ts) from points where eventid = ?"
 	//	sql := "select distinct COALESCE(max(ts), ?) from points where eventid = ?"
-	stmt1, err := srdblib.Db.Prepare(sql1)
+	stmt1, err := Db0.Prepare(sql1)
 	if err != nil {
 		log.Printf("GetCurrentScore() (3) err=%s\n", err.Error())
 		status = -3
@@ -363,7 +363,7 @@ func SelectCurrentScorec(
 		sql2 += " LIMIT " + strconv.Itoa(offset) + ", " + strconv.Itoa(limit)
 	}
 
-	stmt2, err := srdblib.Db.Prepare(sql2)
+	stmt2, err := Db0.Prepare(sql2)
 
 	if err != nil {
 		log.Printf("GetCurrentScore() (5) err=%s\n", err.Error())

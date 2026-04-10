@@ -25,7 +25,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 // イベントを獲得ポイントデータ取得の対象としてeventテーブルに登録する。
@@ -68,7 +68,7 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 		bnew = false
 		//	eventinf, _ = SelectEventInf(eventid)
 		//	srdblib.Tevent = "event"
-		eventinf, _ = srdblib.SelectFromEvent("event", eventid)
+		eventinf, _ = srdblib.SelectFromEvent(Db0, "event", eventid)
 
 		//	w.Write([]byte("Called. not 'from new-event'\n"))
 		log.Printf("  Called. not 'from new-event'\n")
@@ -85,7 +85,7 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 		//	新規にイベントを登録するとき
 		//	eventinf = &exsrapi.Event_Inf{}
 		//	srdblib.Tevent = "wevent"
-		eventinf, _ = srdblib.SelectFromEvent("wevent", eventid)
+		eventinf, _ = srdblib.SelectFromEvent(Db0, "wevent", eventid)
 		if eventinf == nil {
 			log.Printf("[%s] is not found in wevent table\n", eventid)
 			values := map[string]string{
@@ -215,7 +215,7 @@ func InsertEventInf(localhot bool, eventinf *exsrapi.Event_Inf) (
 		sql += " Fromorder, Toorder, Resethh, Resetmm, Nobasis, Maxdsp, Cmap, target, maxpoint, thinit, thdelta "
 		sql += ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 		log.Printf("db.Prepare(sql)\n")
-		stmt, err := srdblib.Db.Prepare(sql)
+		stmt, err := Db0.Prepare(sql)
 		if err != nil {
 			log.Printf("error InsertEventInf() (INSERT/Prepare) err=%s\n", err.Error())
 			status = -1
@@ -288,9 +288,9 @@ func GetAndInsertEventRoomInfo(
 	lenpr := 0
 	eid := eventid
 	//	ランキングイベントの1〜50位の結果を取得する。
-	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
-	pranking, err := srdblib.GetEventsRankingByApi(client, eid, 2)
-	srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
+	Dbmap0.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
+	pranking, err := srdblib.GetEventsRankingByApi(Dbmap0, client, eid, 2)
+	Dbmap0.AddTableWithName(srdblib.Event{}, "event").SetKeys(false, "Eventid")
 	//	if err != nil && !localhost {
 	bnoroom := false
 	if err != nil {
@@ -454,7 +454,7 @@ func GetAndInsertEventRoomInfo(
 	log.Printf(" GetEventRoomInfo() len(*roominfolist)=%d\n", len(*roominfolist))
 
 	//	srdblib.Tevent = "wevent"
-	weventinf, _ := srdblib.SelectFromEvent("wevent", eventid)
+	weventinf, _ := srdblib.SelectFromEvent(Db0, "wevent", eventid)
 
 	eventinfo.Event_name = weventinf.Event_name
 
@@ -484,7 +484,7 @@ func GetAndInsertEventRoomInfo(
 		//	InsertRoomInf(eventno, eventid, roominfolist)
 		InsertRoomInf(client, eventinfo, roominfolist)
 		for i, rinf := range *roominfolist {
-			ifc, _ := srdblib.Dbmap.Get(srdblib.User{}, rinf.Userno)
+			ifc, _ := Dbmap0.Get(srdblib.User{}, rinf.Userno)
 			if ifc != nil {
 				user := ifc.(*srdblib.User)
 				(*roominfolist)[i].Account = user.Userid
@@ -504,7 +504,7 @@ func GetAndInsertEventRoomInfo(
 func InsertRoomInf(client *http.Client, eventinf *exsrapi.Event_Inf, roominfolist *RoomInfoList) {
 
 	log.Printf("  *** InsertRoomInf() ***********  NoRoom=%d\n", len(*roominfolist))
-	//	srdblib.Dbmap.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
+	//	Dbmap0.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	tnow := time.Now().Truncate(time.Second)
 	for i := 0; i < len(*roominfolist); i++ {
 		//	log.Printf("   ** InsertRoomInf() ***********  i=%d\n", i)
@@ -512,7 +512,7 @@ func InsertRoomInf(client *http.Client, eventinf *exsrapi.Event_Inf, roominfolis
 		user.Userno = (*roominfolist)[i].Userno
 		// err := srdblib.UpinsUserSetProperty(client, tnow, user, 1440*5, 200)
 		srdblib.Env.Waitmsec = 200 // FIXME: 危険
-		_, err := srdblib.UpinsUser(client, tnow, user)
+		_, err := srdblib.UpinsUser(Dbmap0, client, tnow, user)
 		srdblib.Env.Waitmsec = 5000
 		if err != nil {
 			log.Printf("srdblib.UpinsUserSetProperty(): err=%v\n", err)
@@ -532,7 +532,7 @@ func InsertRoomInf(client *http.Client, eventinf *exsrapi.Event_Inf, roominfolis
 			userno, _ := strconv.Atoi((*roominfolist)[i].ID)
 			eventinf, _ := srdblib.SelectFromEvent("event", eventid)
 			sqlip := "insert into points (ts, user_id, eventid, point, `rank`, gap, pstatus) values(?,?,?,?,?,?,?)"
-			_, srdblib.Dberr = srdblib.Db.Exec(
+			_, srdblib.Dberr = Db0.Exec(
 				sqlip,
 				eventinf.Start_time.Truncate(time.Second),
 				userno,

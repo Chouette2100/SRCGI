@@ -24,12 +24,9 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
-
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	//	"github.com/dustin/go-humanize"
-
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 /*
@@ -153,9 +150,9 @@ func SelectFromFluser(userid int) (userinflist []UserInf, status int) {
 	userinflist = make([]UserInf, 0)
 
 	if userid == 0 {
-		stmt, err = srdblib.Db.Prepare("select user_id, user_name from fluser")
+		stmt, err = Db0.Prepare("select user_id, user_name from fluser")
 	} else {
-		stmt, err = srdblib.Db.Prepare("select user_id, user_name from fluser where user_id = ?")
+		stmt, err = Db0.Prepare("select user_id, user_name from fluser where user_id = ?")
 	}
 	if err != nil {
 		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
@@ -212,9 +209,9 @@ func SelectFromFlroom(roomid int) (roominflist []RoomInf, status int) {
 	roominflist = make([]RoomInf, 0)
 
 	if roomid == 0 {
-		stmt, err = srdblib.Db.Prepare("select room_id, room_name from flroom")
+		stmt, err = Db0.Prepare("select room_id, room_name from flroom")
 	} else {
-		stmt, err = srdblib.Db.Prepare("select room_id, room_name from flroom where room_id = ?")
+		stmt, err = Db0.Prepare("select room_id, room_name from flroom where room_id = ?")
 	}
 	if err != nil {
 		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
@@ -302,7 +299,7 @@ func SelectLevelForUser(userid int, yyyy int, mm int) (lfuw LevelForUserW, statu
 	sqlstmt += " join flroom r "
 	sqlstmt += " where c.user_id = ? and c.yyyymm = ? and c.room_id = r.room_id order by c.level desc, p.level_lst desc"
 
-	stmt, err = srdblib.Db.Prepare(sqlstmt)
+	stmt, err = Db0.Prepare(sqlstmt)
 	if err != nil {
 		log.Printf("** SelectFromFlroom() err=[%s]\n", err.Error())
 		status = -1
@@ -398,7 +395,7 @@ func SelectLevelForRoom(roomid int, yyyy int, mm int) (lfrw LevelForRoomW, statu
 	sqlstmt += " join fluser u "
 	sqlstmt += " where c.room_id = ? and c.yyyymm = ? and c.user_id = u.user_id order by c.level desc, p.level_lst desc"
 
-	stmt, err = srdblib.Db.Prepare(sqlstmt)
+	stmt, err = Db0.Prepare(sqlstmt)
 	if err != nil {
 		log.Printf("** SelectLevelForRoom() err=[%s]\n", err.Error())
 		status = -1

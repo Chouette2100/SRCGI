@@ -17,7 +17,7 @@ import (
 	//	"database/sql"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func NewEventHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +70,7 @@ func NewEventHandler(w http.ResponseWriter, r *http.Request) {
 		values["Msgcolor"] = "red"
 		//	Event_inf, _ = SelectEventInf(eventid)
 		//	srdblib.Tevent = "event"
-		eventinf, _ := srdblib.SelectFromEvent("event", eventid)
+		eventinf, _ := srdblib.SelectFromEvent(Db0, "event", eventid)
 		// Event_inf = *eventinf
 
 		values["Eventname"] = eventinf.Event_name

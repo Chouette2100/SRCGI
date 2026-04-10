@@ -23,8 +23,8 @@ import (
 	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
-	//	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
+	//	"github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srapi/v2"
 )
 
@@ -173,14 +173,14 @@ func CurrentEventsHandler(
 
 	log.Printf(" hcntbinf.RequestID = %s, lastrequestid = %s\n", top.RequestID, lastrequestid)
 	if lastrequestid == "" {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
 	} else {
-		result, err := srdblib.Dbmap.Exec(
+		result, err := Dbmap0.Exec(
 			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", top.RequestID)
 		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
-		result, err = srdblib.Dbmap.Exec(
+		result, err = Dbmap0.Exec(
 			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
 		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
 			lastrequestid, result, err)
@@ -199,7 +199,7 @@ func CurrentEventsHandler(
 
 	// 参照回数の多いイベントを取得する
 	var emap map[string]int
-	emap, err = srdblib.GetFeaturedEvents("current", 48, 18, 14)
+	emap, err = srdblib.GetFeaturedEvents(Dbmap0, "current", 48, 18, 14)
 	if err != nil {
 		err = fmt.Errorf("GetFeaturedEvents(): %w", err)
 		log.Printf("%s\n", err.Error())

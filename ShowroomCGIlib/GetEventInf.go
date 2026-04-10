@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func GetEventInf(
@@ -20,13 +20,13 @@ func GetEventInf(
 	status = 0
 
 	//	イベント情報を取得します。
-	intf, err = srdblib.Dbmap.Get(&srdblib.Wevent{}, eventid)
+	intf, err = Dbmap0.Get(&srdblib.Wevent{}, eventid)
 	if err != nil || intf == nil {
 		//	イベント情報が取得できなかった場合
 		if err != nil {
-			log.Printf("GetEventInf() srdblib.Dbmap.Get() returned %s\n", err.Error())
+			log.Printf("GetEventInf() Dbmap0.Get() returned %s\n", err.Error())
 		} else {
-			log.Printf("GetEventInf() srdblib.Dbmap.Get() returned intf is nil\n")
+			log.Printf("GetEventInf() Dbmap0.Get() returned intf is nil\n")
 		}
 		status = -1
 		return

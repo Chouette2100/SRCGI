@@ -27,7 +27,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func EditUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +68,7 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		return
@@ -169,7 +169,7 @@ func UpdateRoomInf(eventid, suserno, longname, shortname, istarget, graph, color
 
 	sql := "update user set longname=?, shortname=? where userno = ?"
 
-	stmt, err := srdblib.Db.Prepare(sql)
+	stmt, err := Db0.Prepare(sql)
 	if err != nil {
 		log.Printf("UpdateRoomInf() error(Update/Prepare) err=%s\n", err.Error())
 		status = -1
@@ -216,7 +216,7 @@ func UpdateRoomInf(eventid, suserno, longname, shortname, istarget, graph, color
 	}
 	sql += " where eventid=? and userno=?"
 
-	stmt, err = srdblib.Db.Prepare(sql)
+	stmt, err = Db0.Prepare(sql)
 	if err != nil {
 		log.Printf("UpdateRoomInf() error(Update/Prepare) err=%s\n", err.Error())
 		status = -1
@@ -239,7 +239,7 @@ func GetAllCntrb(eventid string) (err error) {
 
 	var event srdblib.Event
 	var itfc interface{}
-	itfc, err = srdblib.Dbmap.Get(&event, eventid)
+	itfc, err = Dbmap0.Get(&event, eventid)
 	if err != nil {
 		log.Printf("GetAllCntrb() Dbmap.Get() error=%s\n", err.Error())
 		return
@@ -256,9 +256,9 @@ func GetAllCntrb(eventid string) (err error) {
 	}
 
 	event.Cmode |= 0x01
-	srdblib.Dbmap.Update(&event)
+	Dbmap0.Update(&event)
 
-	srdblib.Dbmap.Exec("update eventuser set iscntrbpoints='Y' where eventid=?", eventid)
+	Dbmap0.Exec("update eventuser set iscntrbpoints='Y' where eventid=?", eventid)
 
 	return
 }

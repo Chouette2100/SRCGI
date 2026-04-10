@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 // 指定した条件に該当するイベントのリストを作る。
@@ -50,7 +50,7 @@ func SelectEventinflistFromEventByRoom(
 
 	//	log.Printf("sql=[%s]\n", sqls)
 	var stmts *sql.Stmt
-	stmts, err = srdblib.Db.Prepare(sqls)
+	stmts, err = Db0.Prepare(sqls)
 	if err != nil {
 		err = fmt.Errorf("Prepare(sqls): %w", err)
 		return

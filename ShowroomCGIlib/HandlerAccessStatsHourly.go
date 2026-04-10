@@ -10,8 +10,6 @@ import (
 
 	"html/template"
 	"net/http"
-
-	"github.com/Chouette2100/srdblib/v2"
 )
 
 // AccessStatsHourlyHandler は時刻単位のアクセス統計を表示するハンドラー
@@ -114,7 +112,7 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 	`
 
 	// データベースからアクセス統計を取得
-	_, err = srdblib.Dbmap.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
+	_, err = Dbmap0.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
 	if err != nil {
 		log.Printf("AccessStatsHourlyHandler() database error: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)

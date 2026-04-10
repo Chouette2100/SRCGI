@@ -14,7 +14,7 @@ import (
 
 	"github.com/Chouette2100/srapi/v2"
 	// "github.com/Chouette2100/exsrapi/v2"
-	// "github.com/Chouette2100/srdblib/v2"
+	// "github.com/Chouette2100/srdblib/v3"
 )
 
 func GetEventRoomlist(

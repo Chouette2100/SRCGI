@@ -13,7 +13,7 @@ import (
 	"github.com/go-gorp/gorp"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 func TestGetAndSaveContributors(t *testing.T) {
@@ -26,7 +26,7 @@ func TestGetAndSaveContributors(t *testing.T) {
 	defer cookiejar.Save()
 
 	//      データベースとの接続をオープンする。
-	dbconfig, err := srdblib.OpenDb("DBConfig.yml")
+	Db0, dbconfig, err := srdblib.OpenDb("DBConfig.yml")
 	if err != nil {
 		log.Printf("srdblib.OpenDb() error. err=%s.\n", err.Error())
 		return
@@ -34,15 +34,15 @@ func TestGetAndSaveContributors(t *testing.T) {
 	if dbconfig.UseSSH {
 		defer srdblib.Dialer.Close()
 	}
-	defer srdblib.Db.Close()
+	defer Db0.Close()
 
 	dial := gorp.MySQLDialect{Engine: "InnoDB", Encoding: "utf8mb4"}
-	srdblib.Dbmap = &gorp.DbMap{Db: srdblib.Db, Dialect: dial, ExpandSliceArgs: true}
-	srdblib.Dbmap.AddTableWithName(Contribution{}, "contribution").SetKeys(false, "Ieventid", "Roomid", "Viewerid")
-	srdblib.Dbmap.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
-	srdblib.Dbmap.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
-	// srdblib.Dbmap.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
-	// srdblib.Dbmap.AddTableWithName(srdblib.Eventuser{}, "weventuser").SetKeys(false, "Eventid", "Userno")
+	Dbmap0 = &gorp.DbMap{Db: Db0, Dialect: dial, ExpandSliceArgs: true}
+	Dbmap0.AddTableWithName(Contribution{}, "contribution").SetKeys(false, "Ieventid", "Roomid", "Viewerid")
+	Dbmap0.AddTableWithName(srdblib.Viewer{}, "viewer").SetKeys(false, "Viewerid")
+	Dbmap0.AddTableWithName(srdblib.ViewerHistory{}, "viewerhistory").SetKeys(false, "Viewerid", "Ts")
+	// Dbmap0.AddTableWithName(srdblib.Event{}, "wevent").SetKeys(false, "Eventid")
+	// Dbmap0.AddTableWithName(srdblib.Eventuser{}, "weventuser").SetKeys(false, "Eventid", "Userno")
 
 	type args struct {
 		client   *http.Client

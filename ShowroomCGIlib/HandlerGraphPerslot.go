@@ -41,7 +41,7 @@ import (
 
 	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type PerSlot struct {
@@ -126,7 +126,7 @@ func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 	eventid := r.FormValue("eventid")
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		return
@@ -159,7 +159,7 @@ func MakePointPerSlot(eventid string, roomid int) (eventinf *exsrapi.Event_Inf, 
 
 	eventinf = &exsrapi.Event_Inf{}
 	// eventinf.Event_ID = eventid
-	eventinf, err = srdblib.SelectFromEvent("event", eventid)
+	eventinf, err = srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		log.Printf("MakePointPerSlot() srdblib.SelectFromEvent() err=%s\n", err.Error())
@@ -181,7 +181,7 @@ func MakePointPerSlot(eventid string, roomid int) (eventinf *exsrapi.Event_Inf, 
 		}
 	} else {
 		roominfolist = make(RoomInfoList, 1)
-		intf, _ := srdblib.Dbmap.Get(srdblib.User{}, roomid)
+		intf, _ := Dbmap0.Get(srdblib.User{}, roomid)
 		roominfolist[0] = RoomInfo{
 			Userno: roomid,
 			Name:   intf.(*srdblib.User).User_name,
@@ -314,7 +314,7 @@ func GraphPerSlot(
 
 	//	Event_inf, status = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent("event", eventid)
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
 		//	DBの処理でエラーが発生した。
 		status = -1
@@ -519,7 +519,7 @@ func UpdatePointsSetQstatus(
 	nrow := 0
 	//	err := Db.QueryRow("select count(*) from points where eventid = ? and user_id = ? and pstatus = 'Conf.'", eventid, userno).Scan(&nrow)
 	sql := "select count(*) from points where eventid = ? and user_id = ? and ( pstatus = 'Conf.' or pstatus = 'Prov.' )"
-	err := srdblib.Db.QueryRow(sql, eventid, userno).Scan(&nrow)
+	err := Db0.QueryRow(sql, eventid, userno).Scan(&nrow)
 
 	if err != nil {
 		log.Printf("select count(*) from user ... err=[%s]\n", err.Error())
@@ -537,7 +537,7 @@ func UpdatePointsSetQstatus(
 	sql += "qtime=? "
 	//	sql += "where user_id=? and eventid = ? and pstatus = 'Conf.'"
 	sql += "where user_id=? and eventid = ? and ( pstatus = 'Conf.' or pstatus = 'Prov.' )"
-	stmt, err := srdblib.Db.Prepare(sql)
+	stmt, err := Db0.Prepare(sql)
 	if err != nil {
 		log.Printf("UpdatePointsSetQstatus() Update/Prepare err=%s\n", err.Error())
 		status = -1

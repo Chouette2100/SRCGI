@@ -18,7 +18,6 @@ import (
 	//	"time"
 	//	"os"
 
-
 	// "runtime"
 
 	// "encoding/json"
@@ -33,15 +32,12 @@ import (
 	// "github.com/PuerkitoBio/goquery"
 
 	svg "github.com/ajstarks/svgo/float"
-
 	//	"github.com/dustin/go-humanize"
-
 	//	"github.com/goark/sshql"
 	//	"github.com/goark/sshql/mysqldrv"
-
 	//	"github.com/Chouette2100/exsrapi/v2"
 	// "github.com/Chouette2100/srapi/v2"
-	//	"github.com/Chouette2100/srdblib/v2"
+	//	"github.com/Chouette2100/srdblib/v3"
 )
 
 func DetYaxScale(
@@ -130,7 +126,6 @@ func DetXaxScale(
 	return
 }
 
-
 func Mark(j int, canvas *svg.SVG, x0, y0, d float64, color string) {
 
 	switch j % 4 {
@@ -178,4 +173,3 @@ func Mark(j int, canvas *svg.SVG, x0, y0, d float64, color string) {
 	}
 
 }
-

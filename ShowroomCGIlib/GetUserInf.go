@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 /*
@@ -125,7 +125,7 @@ func GetUserInf(r *http.Request) (
 
 		Chlog <- &al
 
-		err = srdblib.Dbmap.Insert(&al)
+		err = Dbmap0.Insert(&al)
 		if err != nil {
 			log.Printf(" GetUserInf(): %s\n", err.Error())
 		}
@@ -242,7 +242,7 @@ func LogWorker() {
 					alts.Format("2006-01-02 15:04:05.000"))
 			}
 			lt = al.Ts
-			if err := srdblib.Dbmap.Insert(al); err != nil {
+			if err := Dbmap0.Insert(al); err != nil {
 				log.Printf(" GetUserInf(): Dbmap.Insert(al): %s\n", err.Error())
 			} else {
 				// log.Printf("==C== %6.1f(%s) %s %s %s %s\n", time.Now().Sub(al.Ts).Seconds(), al.Ts.Format("2006-01-02 15:04:05.000"), al.Handler, al.Remoteaddress, al.Useragent, al.Formvalues)
@@ -277,7 +277,7 @@ func processLog(al *srdblib.Accesslog, lt time.Time) (ltn time.Time) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cw)*time.Millisecond)
 	defer cancel() // 関数終了時にContextをキャンセルし、リソースを解放
 
-	if err := srdblib.Dbmap.WithContext(ctx).Insert(al); err != nil {
+	if err := Dbmap0.WithContext(ctx).Insert(al); err != nil {
 		// タイムアウトエラーのチェック
 		if errors.Is(err, context.DeadlineExceeded) {
 			log.Printf("ERROR: INSERT query timed out after %d ms for data: %+v", cw, al)

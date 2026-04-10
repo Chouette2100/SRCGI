@@ -20,13 +20,15 @@ import (
 	// "net/http/cookiejar"
 	"github.com/juju/persistent-cookiejar"
 
+	// "net/http/cookiejar"
+
 	//	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v2"
+	"github.com/Chouette2100/srdblib/v3"
 )
 
 type ShowRank struct {
@@ -51,9 +53,9 @@ func SelectShowRank(
 	sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? order by irank "
 
 	var ul []interface{}
-	ul, err = srdblib.Dbmap.Select(srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour*25))
+	ul, err = Dbmap0.Select(srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour*25))
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(): %w", err)
+		err = fmt.Errorf("Dbmap0.Select(): %w", err)
 		return
 	}
 
@@ -72,10 +74,10 @@ func SelectAddedRooms(nolist []int) (
 	pul = new([]srdblib.User)
 	// var intf []interface{}
 	sqltr := " select " + clmlist["user"] + " from user where userno in (:Users) "
-	// intf, err = srdblib.Dbmap.Select(srdblib.User{}, sqltr, map[string]interface{}{"Users": nolist})
-	_, err = srdblib.Dbmap.Select(pul, sqltr, map[string]interface{}{"Users": nolist})
+	// intf, err = Dbmap0.Select(srdblib.User{}, sqltr, map[string]interface{}{"Users": nolist})
+	_, err = Dbmap0.Select(pul, sqltr, map[string]interface{}{"Users": nolist})
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.Select(): %w", err)
+		err = fmt.Errorf("Dbmap0.Select(): %w", err)
 		log.Printf("SelectAddedRooms(): %s\n", err.Error())
 		return
 	}
@@ -141,7 +143,7 @@ func ShowRankHandler(
 			continue
 		}
 		user.Userno = un
-		_, err = srdblib.UpinsUser(client, time.Now(), &user)
+		_, err = srdblib.UpinsUser(Dbmap0, client, time.Now(), &user)
 		if err != nil {
 			log.Printf("srdblib.UpinsUser() returned error %s\n", err.Error())
 			continue
@@ -171,9 +173,9 @@ func ShowRankHandler(
 	var user1 srdblib.User
 	// FIXME: irank != 0 の条件が必要な理由を明確にすること(2025-05-14)
 	sqlst := "select " + clmlist["user"] + " from user where irank = (select min(irank) from user where `rank` = 'B-5' and irank != 0) "
-	err = srdblib.Dbmap.SelectOne(&user1, sqlst)
+	err = Dbmap0.SelectOne(&user1, sqlst)
 	if err != nil {
-		err = fmt.Errorf("srdblib.Dbmap.SelectOne(): %w", err)
+		err = fmt.Errorf("Dbmap0.SelectOne(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
 		return
 	}

@@ -21,7 +21,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	//	"github.com/Chouette2100/exsrapi/v2"
-	//	"github.com/Chouette2100/srdblib/v2"
+	//	"github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srapi/v2"
 )
 
