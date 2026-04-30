@@ -34,3 +34,4 @@ bots:
   - "Brightbot"
   - "ClaudeBot"
   - "OAI-SearchBot"
+  - "SERankingBacklinksBot"

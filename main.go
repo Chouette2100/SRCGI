@@ -193,9 +193,10 @@ import (
 	201214 GWURLのデフォルト値を"http://localhost:8888/"に変更する。
 	201216 commonMiddleware()でチャンネルChlogがいっぱいになったらログはファイルに出力する。
 	201300 srdblib/v3に対応する
+	201301 第二のDBサーバーを導入する(AccessStatsHourlyHandler())
 */
 
-const version = "201300"
+const version = "201301"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -206,15 +207,7 @@ func NewLogfileName(logfile *os.File) {
 
 		tnow := time.Now()
 
-		//	今日の午前9時
-		// today := tnow.Truncate(24 * time.Hour)
-
-		//	今日の午前0時
-		// today = today.Add(-9 * time.Hour)
-		//	test	today := tnow.Truncate(5 * time.Minute)
-
 		//	次の日の午前0時
-		// nextday := today.AddDate(0, 0, 1)
 		nextday := time.Date(tnow.Year(), tnow.Month(), tnow.Day()+1, 0, 0, 0, 0, tnow.Location())
 		//	test	nextday := today.Add(5 * time.Minute)
 
@@ -703,10 +696,17 @@ func main() {
 
 	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Todo{}, "todo").SetKeys(false, "ID")
 
+	// 深堀り検索用データベースサーバーをオープンする
+	ShowroomCGIlib.Db1, ShowroomCGIlib.Dbmap1, err = newDB("DBConfig1.yml")
+	if err != nil {
+		log.Printf("Database error. err = %v\n", err)
+		return
+	}
+	defer ShowroomCGIlib.Db1.Close()
+
 	fileenv := "Env.yml"
 	err = exsrapi.LoadConfig(fileenv, &srdblib.Env)
 	if err != nil {
-		err = fmt.Errorf("exsrapi.Loadconfig(): %w", err)
 		log.Printf("%s\n", err.Error())
 		return
 	}

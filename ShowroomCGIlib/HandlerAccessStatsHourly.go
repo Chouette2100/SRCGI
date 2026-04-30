@@ -112,7 +112,9 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 	`
 
 	// データベースからアクセス統計を取得
-	_, err = Dbmap0.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
+	// TEST
+	// _, err = Dbmap0.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
+	_, err = Dbmap1.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
 	if err != nil {
 		log.Printf("AccessStatsHourlyHandler() database error: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)

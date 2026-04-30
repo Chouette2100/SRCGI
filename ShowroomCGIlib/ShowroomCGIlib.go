@@ -332,16 +332,20 @@ import (
 201218 Chlogチャンネルの長さが1以上MaxChlog未満のときはログ出力を行うようにする。
 201219 showrank.gtplでのSHOWランクの説明を追加する。bots.ymlを更新する。
 201300 srdblib/v3に対応する
+201301 第二のDBサーバーを導入する(AccessStatsHourlyHandler())
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201300"
+const Version = "201301"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
 var Db0 *sql.DB
 var Dbmap0 *gorp.DbMap
+
+var Db1 *sql.DB
+var Dbmap1 *gorp.DbMap
 
 var Chimgfn chan int
 var Chlog chan *srdblib.Accesslog
