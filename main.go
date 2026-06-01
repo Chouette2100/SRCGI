@@ -194,9 +194,10 @@ import (
 	201216 commonMiddleware()でチャンネルChlogがいっぱいになったらログはファイルに出力する。
 	201300 srdblib/v3に対応する
 	201301 第二のDBサーバーを導入する(AccessStatsHourlyHandler())
+	201500 Showランクの表示に月初の値の表示を追加する
 */
 
-const version = "201301"
+const version = "201500"
 
 func NewLogfileName(logfile *os.File) {
 
