@@ -333,11 +333,13 @@ import (
 201219 showrank.gtplでのSHOWランクの説明を追加する。bots.ymlを更新する。
 201300 srdblib/v3に対応する
 201301 第二のDBサーバーを導入する(AccessStatsHourlyHandler())
+201400 SHOWランクの一覧に月初の確定値を表示する
+201500 Showランクの表示に月初の値の表示を追加する
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201301"
+const Version = "201500"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

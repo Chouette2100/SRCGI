@@ -31,10 +31,20 @@ import (
 	"github.com/Chouette2100/srdblib/v3"
 )
 
+type Eruser struct {
+	srdblib.User
+	Tmrank string
+	Tminrank int
+	Tmiprank int
+	Tmts time.Time
+}
+
 type ShowRank struct {
 	HdrMsg    string
-	Userlist  *[]srdblib.User
-	UserlistA *[]srdblib.User
+	// Userlist  *[]srdblib.User
+	
+	Userlist  *[]Eruser
+	UserlistA *[]Eruser
 	ErrMsg    string
 }
 
@@ -43,35 +53,72 @@ func SelectShowRank(
 	client *http.Client,
 	limit int,
 ) (
-	userlist *[]srdblib.User,
+	// userlist *[]srdblib.User,
+	userlist *[]Eruser,
 	err error,
 ) {
 
-	userlist = new([]srdblib.User)
+	userlist = new([]Eruser)
 
 	// sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "
 	sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? order by irank "
 
+	Dbmap0.AddTableWithName(Eruser{}, "user").SetKeys(false, "Userno")
 	var ul []interface{}
-	ul, err = Dbmap0.Select(srdblib.User{}, sqltr, limit, time.Now().Add(-time.Hour*25))
+	ul, err = Dbmap0.Select(Eruser{}, sqltr, limit, time.Now().Add(-time.Hour*25))
+	Dbmap0.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	if err != nil {
 		err = fmt.Errorf("Dbmap0.Select(): %w", err)
 		return
 	}
 
 	for _, v := range ul {
-		*userlist = append(*userlist, *(v.(*srdblib.User)))
+		*userlist = append(*userlist, *(v.(*Eruser)))
 	}
 
 	return
 }
 
+// SHOWランク上位ルームを抽出する
+func SelectTmShowRank(
+	client *http.Client,
+) (
+	// userlist *[]srdblib.User,
+	usermap map[int]*srdblib.Userhistory, // usernoに対するuserhistory
+	err error,
+) {
+	// 現在時から年月を求める
+	yy, mm, _ := time.Now().Date()
+	// 現在の年月の初日を求める
+	tmfirst := time.Date(yy, mm, 1, 0, 0, 0, 0, time.Local)
+	// データ取得の開始、終了をそれぞれ年月所持つの00時30分、00時35分とする
+	tb := tmfirst.Add(30 * time.Minute)
+	te := tmfirst.Add(35 * time.Minute)
+
+	usermap = make(map[int]*srdblib.Userhistory)
+	// sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "
+	sqltr := " select userno, `rank`,nrank, prank, ts from userhistory where ts between ? and ? order by ts desc "
+
+	var ul []interface{}
+	ul, err = Dbmap0.Select(srdblib.Userhistory{}, sqltr, tb, te)
+	if err != nil {
+		err = fmt.Errorf("Dbmap0.Select(): %w", err)
+		return
+	}
+
+	for _, v := range ul {
+		user := v.(*srdblib.Userhistory)
+		usermap [user.Userno] = user
+	}
+	return
+}
+
 func SelectAddedRooms(nolist []int) (
-	pul *[]srdblib.User,
+	pul *[]Eruser,
 	err error,
 ) {
 
-	pul = new([]srdblib.User)
+	pul = new([]Eruser)
 	// var intf []interface{}
 	sqltr := " select " + clmlist["user"] + " from user where userno in (:Users) "
 	// intf, err = Dbmap0.Select(srdblib.User{}, sqltr, map[string]interface{}{"Users": nolist})
@@ -83,7 +130,7 @@ func SelectAddedRooms(nolist []int) (
 	}
 
 	// for _, v := range intf {
-	// 	addedlist = append(addedlist, *(v.(*srdblib.User)))
+	// 	addedlist = append(addedlist, *(v.(*Eruser)))
 	// }
 
 	return
@@ -170,7 +217,7 @@ func ShowRankHandler(
 
 	//	showrank.Userlist, err = SelectShowRank(client, 260000000)	//	SS-5〜A-5
 	//	showrank.Userlist, err = SelectShowRank(client, 300000000)	//	SS-5〜A-1
-	var user1 srdblib.User
+	var user1 Eruser
 	// FIXME: irank != 0 の条件が必要な理由を明確にすること(2025-05-14)
 	sqlst := "select " + clmlist["user"] + " from user where irank = (select min(irank) from user where `rank` = 'B-5' and irank != 0) "
 	err = Dbmap0.SelectOne(&user1, sqlst)
@@ -186,6 +233,33 @@ func ShowRankHandler(
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
 		return
 	}
+	usermap , err := SelectTmShowRank(client)
+	if err != nil {
+		err = fmt.Errorf("SelectTmShowRank(): %w", err)
+		log.Printf("HandlerShowRank(): %s\n", err.Error())
+		return
+	}
+	for i := range *showrank.Userlist {
+		user := &(*showrank.Userlist)[i]
+		if uh, ok := usermap[user.Userno]; ok {
+			user.Tmrank = uh.Rank
+			// 9,999,999形式のランクを整数に変換する
+			irank, err := strconv.Atoi(strings.ReplaceAll(uh.Nrank, ",", ""))
+			if err != nil {
+				log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+				continue
+			}
+			user.Tminrank = irank
+			iprank, err := strconv.Atoi(strings.ReplaceAll(uh.Prank, ",", ""))
+			if err != nil {
+				log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+				continue
+			}
+			user.Tmiprank = iprank	
+			user.Tmts = uh.Ts
+		}
+	}
+
 
 	if len(nolist) != 0 {
 		showrank.UserlistA, err = SelectAddedRooms(nolist)

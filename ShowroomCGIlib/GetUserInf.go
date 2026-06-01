@@ -277,20 +277,23 @@ func processLog(al *srdblib.Accesslog, lt time.Time) (ltn time.Time) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cw)*time.Millisecond)
 	defer cancel() // 関数終了時にContextをキャンセルし、リソースを解放
 
-	if err := Dbmap0.WithContext(ctx).Insert(al); err != nil {
-		// タイムアウトエラーのチェック
-		if errors.Is(err, context.DeadlineExceeded) {
-			log.Printf("ERROR: INSERT query timed out after %d ms for data: %+v", cw, al)
+	if Serverconfig.HTTPport == "8080" {
+		// 本番環境のサーバーのみがログを残す
+		if err := Dbmap0.WithContext(ctx).Insert(al); err != nil {
+			// タイムアウトエラーのチェック
+			if errors.Is(err, context.DeadlineExceeded) {
+				log.Printf("ERROR: INSERT query timed out after %d ms for data: %+v", cw, al)
+			} else {
+				log.Printf("Dbmap.Insert error: %s", err.Error())
+			}
 		} else {
-			log.Printf("Dbmap.Insert error: %s", err.Error())
+			log.Printf("==C== %6.1f(%s) %s %s",
+				time.Since(al.Ts).Seconds(),
+				al.Ts.Format("2006-01-02 15:04:05.000"),
+				al.Handler, al.Remoteaddress)
+			// DEBUG: データベースの応答が遅い場合のテスト用に、意図的に遅延を入れる
+			// time.Sleep(5 * time.Second) // デバッグ用の遅延
 		}
-	} else {
-		log.Printf("==C== %6.1f(%s) %s %s",
-			time.Since(al.Ts).Seconds(),
-			al.Ts.Format("2006-01-02 15:04:05.000"),
-			al.Handler, al.Remoteaddress)
-		// DEBUG: データベースの応答が遅い場合のテスト用に、意図的に遅延を入れる
-		// time.Sleep(5 * time.Second) // デバッグ用の遅延
 	}
 	return ltn
 }

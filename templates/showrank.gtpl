@@ -60,10 +60,27 @@
     <br>もし、○○ルームが抜けている、とわかる場合は掲示板等で教えていただけると助かります(データ取得方法の改善ができるかもしれません)
     <br>なお配信者さんのアカウントが削除された場合、そのルームのSHOWランクを含めてランキングが算出されるが、
     <br>ランキングリストには表示されない、とのご指摘がありました（掲示板 No.1445）
+    <p style="color: red;">
+    今月(2026年6月)からこれまでのデータの右側に月初のSHOWランクを表示するようにしました<br>
+    「月初のSHOWランク」というのは1日の0時30分から15分ほどかけて取得したデータをいいます<br>
+    （上の表の「DBに登録済みの配信者のうちSHOWランク上位220ルーム」に相当します<br>
+    　これらはすべて同一のタイムスタンプ（＝00:30）になります<br>
+    これを表示するようにしたのは月初のSHOWランクが本来のというか現実的な意味でのSHOWランクになると思うからです<BR>
+    ただ今月のデータを見るとなにかの間違いじゃないのかと思ってしまうようなデータが散見されます<br>
+    「なにかの間違い」と思うことはいろいろあるのですが、例えば"A-3のルームが存在しない"というのがあります<br>
+    これについては<br>
+    1. データの取得タイミングが早すぎる？<br>
+    2. データの取得タイミングが遅すぎる？<br>
+    3. SHOWランクの意味を誤解している？<br>
+    4. そもそもデータの取得方法が間違っている？<br>
+    いろいろ考えられるのですが、この分野に詳しい方のご意見がいただけるかもしれないと思いそのまま公開することにしました。
+    </p>
     <br>
     <br>
     {{ $l := "SS-5" }}
     {{ $n := "SS-5" }}
+    {{ $tmn := "SS-5" }}
+    {{ $tmts := "0001-01-01 00:00" }}
     {{ $c := "lightyellow" }}
     {{ $i := 1 }}
     <table>
@@ -84,9 +101,15 @@
             <td>next_score</td>
             <td>prev_score</td>
             <td>データ取得日時</td>
+            <td>SHOWランク<br>(月初)</td>
+            <td>next_score<br>(月初)</td>
+            <td>prev_score<br>(月初)</td>
+            <td>データ取得日時<br>(月初)</td>
         </tr>
         {{ range .Userlist }}
         {{ $n = Showrank .Rank }}
+        {{ $tmn = Showrank .Tmrank }}
+        {{ $tmts = FormatTime .Tmts "2006-01-02 15:04" }}
         {{ if ne $n $l }}
             {{ $l = $n }}
             {{ if eq $c "lightyellow" }}
@@ -120,6 +143,22 @@
             <td align="right">{{ Comma .Inrank }}</td>
             <td align="right">{{ Comma .Iprank }}</td>
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
+            <td align="right">{{ $tmn }}</td>
+            {{ if gt .Tminrank 0 }}
+            <td align="right">{{ Comma .Tminrank }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
+            {{ if gt .Tmiprank 0 }}
+            <td align="right">{{ Comma .Tmiprank }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
+            {{ if ne $tmts "0001-01-01 00:00" }}
+            <td>{{ $tmts }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
         </tr>
         {{ $i = Add $i 1 }}
         {{ end }}
@@ -141,6 +180,10 @@
             <td>next_score</td>
             <td>prev_score</td>
             <td>データ取得日時</td>
+            <td>SHOWランク<br>(月初)</td>
+            <td>next_score<br>(月初)</td>
+            <td>prev_score<br>(月初)</td>
+            <td>データ取得日時<br>(月初)</td>
         </tr>
 
         {{ range .UserlistA }}
@@ -175,9 +218,21 @@
             <td></td>
             {{ end }}
             */}}
-            <td align="right">{{ Comma .Inrank }}</td>
-            <td align="right">{{ Comma .Iprank }}</td>
+            {{ if gt .Tminrank 0 }}
+            <td align="right">{{ Comma .Tminrank }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
+            {{ if gt .Tmiprank 0 }}
+            <td align="right">{{ Comma .Tmiprank }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
+            {{ if ne .Tmrank "0001-01-01 00:00" }}
             <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
+            {{ else }}
+            <td></td>
+            {{ end }}
         </tr>
         {{ end }}
     </table>
