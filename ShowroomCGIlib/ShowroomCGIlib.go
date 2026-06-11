@@ -336,11 +336,12 @@ import (
 201400 SHOWランクの一覧に月初の確定値を表示する
 201500 Showランクの表示に月初の値の表示を追加する
 201600 HandlerTmShowrank.go(月始めのSHOWランクを表示する)を作成する
+201601 tmshowrank.gtplで改行の抜けを補う
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201600"
+const Version = "201601"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
