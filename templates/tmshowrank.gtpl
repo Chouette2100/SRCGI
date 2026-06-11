@@ -41,39 +41,20 @@
     <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
     <br>
     <br>
-    <p>SHOWランク上位のルーム</p>
-    昨日〜今日あたりの特定の時点でのSHOWランク上位ルームの一覧です。
-    <br>各ランクの「定員」は現時点では以下のようになっていると思われます。
-    <br>
-    <br>SSランク 10名（SS-5 1名、SS-4〜SS-2 各2名、SS-1 3名）
-    <br>Sランク　30名（S-5〜S-1 各6名）
-    <br>Aランク　100名（A-5〜A-2 各12名、A-1 52名）
-    <br>
-    <br>次のような方法でデータを集めているのですが、該当者全員を確実に把握できるとは限らないので、
-    <br>以下のリストに表示されているルームが140に満たないこともありえます。
-    <br>○○位以内とか○○pt以上、とありますが、これは必ずしも固定されたものではありません。
-    <br>このことも含め、どういう条件で探すか、いつ探すはかなり弾力的に変更可能です。
-    <table border="1">
-    <tr align="center"><td>SHOWランクデータ獲得対象ルーム</td><td>月曜日 00:30</td><td>火曜日〜日曜日 00:30</td><td>1日 02:00</td><td>毎日 13:30</td><td>随時</td></tr>
-<tr align="center"><td>DBに登録済みの配信者のうちSHOWランク上位220ルーム</td><td>○</td><td>○</td><td></td><td>○</td><td></td></tr>
-<tr align="center"><td>データ取得対象となっているイベントで100000pt以上獲得しているルーム</td><td>○</td><td>○</td><td></td><td>○</td><td></td></tr>
-<tr align="center"><td>前日または前々日に終了したイベントで500000pt以上獲得したルーム</td><td></td><td></td><td></td><td>○</td><td></td></tr>
-<tr align="center"><td>dailyランキング上位100位以内だったルーム</td><td>○</td><td>○</td><td></td><td></td><td></td></tr>
-<tr align="center"><td>weeklyランキング上位200位以内だったルーム</td><td>○</td><td></td><td></td><td></td><td></td></tr>
-<tr align="center"><td>monthlyランキング上位300位以内だったルーム</td><td></td><td></td><td>○</td><td></td><td></td></tr>
-<tr align="center"><td>指定したルーム</td><td></td><td></td><td></td><td></td><td>○</td></tr>
-</table>
-    <br>もし、○○ルームが抜けている、とわかる場合は掲示板等で教えていただけると助かります(データ取得方法の改善ができるかもしれません)
-    <br>なお配信者さんのアカウントが削除された場合、そのルームのSHOWランクを含めてランキングが算出されるが、
-    <br>ランキングリストには表示されない、とのご指摘がありました（掲示板 No.1445）
+    <p>月初めのSHOWランク上位のルーム</p>
     <p style="color: red;">
-    今月(2026年6月)からこれまでのデータの右側に月初のSHOWランクを表示するようにしました<br>
+    こちらは月始めのデータです。<br>
+    こういういい加減にも思えるデータを公開するのは（もしそういうのがあれば）このサイトの信用を傷つけることになりそうです<br>
+    ただ一人で悩んでいてもこれ以上の進展はないと思うのであえて公開する次第です。<br>
     「月初のSHOWランク」というのは1日の0時30分から15分ほどかけて取得したデータをいいます<br>
-    （上の表の「DBに登録済みの配信者のうちSHOWランク上位220ルーム」に相当します<br>
+    （「SHOWランク上位のルーム」の表の「DBに登録済みの配信者のうちSHOWランク上位220ルーム」に相当します<br>
     　これらはすべて同一のタイムスタンプ（＝00:30）になります<br>
-    これを表示するようにしたのは月初のSHOWランクが本来のというか現実的な意味でのSHOWランクになると思うからです<BR>
-    ただ今月のデータを見るとなにかの間違いじゃないのかと思ってしまうようなデータが散見されます<br>
-    「なにかの間違い」と思うことはいろいろあるのですが、例えば"A-3"のルームが存在しない"というのがあります<br>
+    この表を作ったのは月初のSHOWランクが本来のというか現実的な意味でのSHOWランクになると思うからです<BR>
+    ただ今月(=2026年6月)のデータを見るとなにかの間違いじゃないのかと思ってしまうようなデータが散見されます<br>
+    例えば
+    A. ランクごとの人数が予想しているルールとまったく違う、とくにA-3ランクは1ルームもない、総ルーム数も異常に少ない<br>
+    B. next_scoreとprev_scoreにキリのいい値とそうでないものが混じっている<br>
+    C. ランク間のnext_scoreとprev_scoreの整合性がとれていない<br>
     これについては<br>
     1. データの取得タイミングが早すぎる？<br>
     2. データの取得タイミングが遅すぎる？<br>
@@ -82,7 +63,13 @@
     5. 1日未明に配信しているルームがあった場合、どう扱われるのかわからない。<br>
     いろいろ考えられるのですが、この分野に詳しい方のご意見がいただけるかもしれないと思いそのまま公開することにしました。
     </p>
-    「<a href="https://debug36.chouette2100.com/tmshowrank">月始めのSHOWランクが上位のルーム</a>」
+    <br>各ランクの「定員」は現時点では以下のようになっていると思われます。
+    <br>
+    <br>SSランク 10名（SS-5 1名、SS-4〜SS-2 各2名、SS-1 3名）
+    <br>Sランク　30名（S-5〜S-1 各6名）
+    <br>Aランク　100名（A-5〜A-2 各12名、A-1 52名）
+    <br>
+    「<a href="https://debug36.chouette2100.com/showrank">SHOWランクが上位のルーム</a>」
     <br>
     <br>
     {{ $l := "SS-5" }}
@@ -93,14 +80,13 @@
     {{ $i := 1 }}
     <table>
         <tr style="text-align: center">
-
-            <td></td>
+            <td>No.</td>
             <td>SHOWランク</td>
             <td class="no-border-right">ルーム名（イベント履歴へのリンク）</td>
             <td class="no-border-left"></td>
-            <td>ルームレベル</td>
-            <td>フォロワー数</td>
-            <td>ファン数<br>（今月）</td>
+            <td>ルームレベル<br>(月初)</td>
+            <td>フォロワー数<br>(月初)</td>
+            <td>ファン数<br>(月初)</td>
             {{/*
             <td>ファンパワー<br>（〃）</td>
             */}}
@@ -111,10 +97,10 @@
             <td>next_score</td>
             <td>prev_score</td>
             <td>データ取得日時</td>
-            <td>SHOWランク<br>(月初)</td>
-            <td>next_score<br>(月初)</td>
-            <td>prev_score<br>(月初)</td>
-            <td>データ取得日時<br>(月初)</td>
+            <td>SHOWランク<br>(最新)</td>
+            <td>next_score<br>(最新)</td>
+            <td>prev_score<br>(最新)</td>
+            <td>データ取得日時<br>(最新)</td>
         </tr>
         {{ range .Userlist }}
         {{ $n = Showrank .Rank }}
@@ -131,9 +117,12 @@
         <tr bgcolor="{{$c}}" >
             <td align="right">{{ $i }}</td>
             <td align="center">{{ $n }}</td>
-            <td class="no-border-right"><a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a></td>
+            <td class="no-border-right">
+            <a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a>
+            </td>
             <td class="no-border-left">
-             <a href="https://www.showroom-live.com/room/profile?room_id={{ .Userno }}">prof.</a></td>
+            <a href="https://www.showroom-live.com/room/profile?room_id={{ .Userno }}">prof.</a>
+            </td>
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
@@ -174,15 +163,14 @@
         </tr>
         {{ $i = Add $i 1 }}
         {{ end }}
-
         <tr style="text-align: center">
-            <td></td>
+            <td>No.</td>
             <td>SHOWランク</td>
             <td class="no-border-right">ルーム名（イベント履歴へのリンク）</td>
             <td class="no-border-left"></td>
-            <td>ルームレベル</td>
-            <td>フォロワー数</td>
-            <td>ファン数<br>（今月）</td>
+            <td>ルームレベル<br>(月初)</td>
+            <td>フォロワー数<br>(月初)</td>
+            <td>ファン数<br>(月初)</td>
             {{/*
             <td>ファンパワー<br>（〃）</td>
             */}}
@@ -193,16 +181,14 @@
             <td>next_score</td>
             <td>prev_score</td>
             <td>データ取得日時</td>
-            <td>SHOWランク<br>(月初)</td>
-            <td>next_score<br>(月初)</td>
-            <td>prev_score<br>(月初)</td>
-            <td>データ取得日時<br>(月初)</td>
+            <td>SHOWランク<br>(最新)</td>
+            <td>next_score<br>(最新)</td>
+            <td>prev_score<br>(最新)</td>
+            <td>データ取得日時<br>(最新)</td>
         </tr>
 
         {{ range .UserlistA }}
         {{ $n = Showrank .Rank }}
-        {{ $tmn = Showrank .Tmrank }}
-        {{ $tmts = FormatTime .Tmts "2006-01-02 15:04" }}
         {{ if ne $n $l }}
             {{ $l = $n }}
             {{ if eq $c "lightyellow" }}
@@ -215,8 +201,7 @@
             <td align="right"></td>
             <td align="center">{{ $n }}</td>
             <td class="no-border-right"><a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a></td>
-            <td class="no-border-left">
-              <a href="https://www.showroom-live.com/room/profile?room_id={{ .Userno }}">prof.</a></td>
+            <td class="no-border-left"></td>
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
@@ -235,23 +220,6 @@
             <td></td>
             {{ end }}
             */}}
-            {{ if gt .Inrank 0 }}
-            <td align="right">{{ Comma .Inrank }}</td>
-            {{ else }}
-            <td></td>
-            {{ end }}
-            {{ if gt .Iprank 0 }}
-            <td align="right">{{ Comma .Iprank }}</td>
-            {{ else }}
-            <td></td>
-            {{ end }}
-            {{ if ne .Tmrank "0001-01-01 00:00" }}
-            <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
-            {{ else }}
-            <td></td>
-            {{ end }}
-            
-            <td align="right">{{ $tmn }}</td>
             {{ if gt .Tminrank 0 }}
             <td align="right">{{ Comma .Tminrank }}</td>
             {{ else }}
@@ -262,8 +230,8 @@
             {{ else }}
             <td></td>
             {{ end }}
-            {{ if ne $tmts "0001-01-01 00:00" }}
-            <td>{{ $tmts }}</td>
+            {{ if ne .Tmrank "0001-01-01 00:00" }}
+            <td>{{ FormatTime .Ts "2006-01-02 15:04" }}</td>
             {{ else }}
             <td></td>
             {{ end }}

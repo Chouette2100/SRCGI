@@ -11,6 +11,7 @@ import (
 	//	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -33,16 +34,16 @@ import (
 
 type Eruser struct {
 	srdblib.User
-	Tmrank string
+	Tmrank   string
 	Tminrank int
 	Tmiprank int
-	Tmts time.Time
+	Tmts     time.Time
 }
 
 type ShowRank struct {
-	HdrMsg    string
+	HdrMsg string
 	// Userlist  *[]srdblib.User
-	
+
 	Userlist  *[]Eruser
 	UserlistA *[]Eruser
 	ErrMsg    string
@@ -53,8 +54,9 @@ func SelectShowRank(
 	client *http.Client,
 	limit int,
 ) (
-	// userlist *[]srdblib.User,
 	userlist *[]Eruser,
+	usermap map[int]*Eruser,
+
 	err error,
 ) {
 
@@ -64,51 +66,63 @@ func SelectShowRank(
 	sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? order by irank "
 
 	Dbmap0.AddTableWithName(Eruser{}, "user").SetKeys(false, "Userno")
+	defer Dbmap0.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	var ul []interface{}
 	ul, err = Dbmap0.Select(Eruser{}, sqltr, limit, time.Now().Add(-time.Hour*25))
-	Dbmap0.AddTableWithName(srdblib.User{}, "user").SetKeys(false, "Userno")
 	if err != nil {
 		err = fmt.Errorf("Dbmap0.Select(): %w", err)
 		return
 	}
 
+	usermap = make(map[int]*Eruser)
 	for _, v := range ul {
-		*userlist = append(*userlist, *(v.(*Eruser)))
+		user := v.(*Eruser)
+		*userlist = append(*userlist, *user)
+		usermap[user.Userno] = user
 	}
 
 	return
 }
 
-// SHOWランク上位ルームを抽出する
+// 月始めのSHOWランク上位ルームを抽出する
 func SelectTmShowRank(
 	client *http.Client,
 ) (
-	// userlist *[]srdblib.User,
-	usermap map[int]*srdblib.Userhistory, // usernoに対するuserhistory
+	userlist *[]Eruser,
+	usermap map[int]*Eruser, // usernoに対するuserhistory
 	err error,
 ) {
+	userlist = new([]Eruser)
+
 	// 現在時から年月を求める
 	yy, mm, _ := time.Now().Date()
 	// 現在の年月の初日を求める
 	tmfirst := time.Date(yy, mm, 1, 0, 0, 0, 0, time.Local)
-	// データ取得の開始、終了をそれぞれ年月所持つの00時30分、00時35分とする
-	tb := tmfirst.Add(30 * time.Minute)
+	// データ取得の開始、終了をそれぞれ年月所持つの00時29分、00時35分とする
+	// ※ 取得の開始時刻はカテゴリー単位のもので、個別のデータ取得時刻とは異なる
+	tb := tmfirst.Add(29 * time.Minute)
 	te := tmfirst.Add(35 * time.Minute)
 
-	usermap = make(map[int]*srdblib.Userhistory)
+	usermap = make(map[int]*Eruser)
 	// sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "
-	sqltr := " select userno, `rank`,nrank, prank, ts from userhistory where ts between ? and ? order by ts desc "
+	// sqltr := " select userno, `rank`,nrank, prank, ts from userhistory "
+	sqltr := " select "
+	sqltr += " userno, user_name, genre, `rank`, nrank, prank, level, followers, fans, fans_lst, "
+	sqltr += "ts from userhistory where ts between ? and ? order by ts desc "
 
+	Dbmap0.AddTableWithName(Eruser{}, "userhistory").SetKeys(false, "Userno")
+	defer Dbmap0.AddTableWithName(Eruser{}, "userhistory").SetKeys(false, "Userno")
 	var ul []interface{}
-	ul, err = Dbmap0.Select(srdblib.Userhistory{}, sqltr, tb, te)
+	ul, err = Dbmap0.Select(Eruser{}, sqltr, tb, te)
 	if err != nil {
 		err = fmt.Errorf("Dbmap0.Select(): %w", err)
 		return
 	}
 
 	for _, v := range ul {
-		user := v.(*srdblib.Userhistory)
-		usermap [user.Userno] = user
+		user := v.(*Eruser)
+		*userlist = append(*userlist, *user)
+		usermap[user.Userno] = user
 	}
 	return
 }
@@ -227,13 +241,13 @@ func ShowRankHandler(
 		return
 	}
 
-	showrank.Userlist, err = SelectShowRank(client, user1.Irank+1) //	SS-5〜A-1とB-5のトップ
+	showrank.Userlist, _, err = SelectShowRank(client, user1.Irank+1) //	SS-5〜A-1とB-5のトップ
 	if err != nil {
 		err = fmt.Errorf("SelectShowRank(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
 		return
 	}
-	usermap , err := SelectTmShowRank(client)
+	_, usermap, err := SelectTmShowRank(client)
 	if err != nil {
 		err = fmt.Errorf("SelectTmShowRank(): %w", err)
 		log.Printf("HandlerShowRank(): %s\n", err.Error())
@@ -241,6 +255,11 @@ func ShowRankHandler(
 	}
 	for i := range *showrank.Userlist {
 		user := &(*showrank.Userlist)[i]
+		tirank := MakeSortKeyOfRank(user.Rank, user.Inrank)
+		if tirank != user.Irank {
+			log.Printf("WARNING: userno=%d rank=%s nrank=%s irank=%d tirank=%d\n", user.Userno, user.Rank, user.Nrank, user.Irank, tirank)
+			user.Irank = tirank
+		}
 		if uh, ok := usermap[user.Userno]; ok {
 			user.Tmrank = uh.Rank
 			// 9,999,999形式のランクを整数に変換する
@@ -255,11 +274,15 @@ func ShowRankHandler(
 				log.Printf("strconv.Atoi() returned error %s\n", err.Error())
 				continue
 			}
-			user.Tmiprank = iprank	
+			user.Tmiprank = iprank
 			user.Tmts = uh.Ts
 		}
 	}
 
+	// showrank.UserlistをIrankの降順にソートする
+	sort.Slice(*showrank.Userlist, func(i, j int) bool {
+		return (*showrank.Userlist)[j].Irank > (*showrank.Userlist)[i].Irank
+	})
 
 	if len(nolist) != 0 {
 		showrank.UserlistA, err = SelectAddedRooms(nolist)
@@ -269,6 +292,33 @@ func ShowRankHandler(
 			w.Write([]byte(fmt.Sprintf("SelectAddedRooms() error=%s\n", err.Error())))
 			return
 		}
+
+		for i := range *showrank.UserlistA {
+			user := &(*showrank.UserlistA)[i]
+			tirank := MakeSortKeyOfRank(user.Rank, user.Inrank)
+			if tirank != user.Irank {
+				log.Printf("WARNING: userno=%d rank=%s nrank=%s irank=%d tirank=%d\n", user.Userno, user.Rank, user.Nrank, user.Irank, tirank)
+				user.Irank = tirank
+			}
+			if uh, ok := usermap[user.Userno]; ok {
+				user.Tmrank = uh.Rank
+				// 9,999,999形式のランクを整数に変換する
+				irank, err := strconv.Atoi(strings.ReplaceAll(uh.Nrank, ",", ""))
+				if err != nil {
+					log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+					continue
+				}
+				user.Tminrank = irank
+				iprank, err := strconv.Atoi(strings.ReplaceAll(uh.Prank, ",", ""))
+				if err != nil {
+					log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+					continue
+				}
+				user.Tmiprank = iprank
+				user.Tmts = uh.Ts
+			}
+		}
+
 	}
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "showrank.gtpl", showrank); err != nil {

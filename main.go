@@ -195,9 +195,10 @@ import (
 	201300 srdblib/v3に対応する
 	201301 第二のDBサーバーを導入する(AccessStatsHourlyHandler())
 	201500 Showランクの表示に月初の値の表示を追加する
+	201600 HandlerTmShowrank.go(月始めのSHOWランクを表示する)を作成する
 */
 
-const version = "201500"
+const version = "201600"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -859,6 +860,8 @@ func main() {
 
 		//	SHOWランク上位配信者一覧表
 		http.HandleFunc(rootPath+"/showrank", commonMiddleware(rateLimiter, ShowroomCGIlib.ShowRankHandler))
+		//	月始めSHOWランク上位配信者一覧表
+		http.HandleFunc(rootPath+"/tmshowrank", commonMiddleware(rateLimiter, ShowroomCGIlib.TmShowRankHandler))
 
 		//	アクセス統計
 		http.HandleFunc(rootPath+"/accessstats", commonMiddleware(rateLimiter, ShowroomCGIlib.AccessStatsHandler))

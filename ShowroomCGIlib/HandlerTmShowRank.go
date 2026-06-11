@@ -1,0 +1,193 @@
+/*!
+Copyright © 2022 chouette.21.00@gmail.com
+Released under the MIT license
+https://opensource.org/licenses/mit-license.php
+
+*/
+
+package ShowroomCGIlib
+
+import (
+	//	"errors"
+	"fmt"
+	"log"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
+	"html/template"
+	"net/http"
+	// "net/http/cookiejar"
+
+	// "net/http/cookiejar"
+
+	// "net/http/cookiejar"
+
+	//	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/dustin/go-humanize"
+
+	"github.com/Chouette2100/exsrapi/v2"
+	"github.com/Chouette2100/srdblib/v3"
+)
+
+// HandlerTmShowRank()
+//
+//	月始めのSHOWランク上位配信者を表示する
+func TmShowRankHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	_, _, isallow := GetUserInf(r)
+	if !isallow {
+		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+	showrank := &ShowRank{}
+
+	//	cookiejarがセットされたHTTPクライアントを作る
+	var err error
+	// var client *http.Client
+	// var jar *cookiejar.Jar
+	client, jar, errt := exsrapi.CreateNewClient("XXXXXX")
+	if err != nil {
+		err = fmt.Errorf("exsrapi.CreateNewClient(): %w", errt)
+		log.Printf("%s\n", err.Error())
+		return
+	}
+	//	すべての処理が終了したらcookiejarを保存する。
+	defer jar.Save()
+
+	// SHOWランクとは無関係にランク状況を知りたいルームを追加したとき
+	unlist := r.FormValue("unlist")
+	unla := strings.Split(unlist, ",")
+
+	lmin := srdblib.Env.Lmin
+	waitmsec := srdblib.Env.Waitmsec
+	srdblib.Env.Lmin = 60
+	srdblib.Env.Waitmsec = 1000
+
+	// userlist := make([]srdblib.User, 0, len(unla))
+	nolist := make([]int, 0, len(unla))
+	user := srdblib.User{}
+	for _, v := range unla {
+		un, err := strconv.Atoi(v)
+		if err != nil {
+			log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+			continue
+		}
+		user.Userno = un
+		_, err = srdblib.UpinsUser(Dbmap0, client, time.Now(), &user)
+		if err != nil {
+			log.Printf("srdblib.UpinsUser() returned error %s\n", err.Error())
+			continue
+		}
+		// userlist = append(userlist, user)
+		nolist = append(nolist, un)
+	}
+	srdblib.Env.Lmin = lmin
+	srdblib.Env.Waitmsec = waitmsec
+
+	//	テンプレートで使用する関数を定義する
+	funcMap := template.FuncMap{
+		"Comma":      func(i int) string { return humanize.Comma(int64(i)) }, //	3桁ごとに","を入れる関数。
+		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
+		"Add":        func(a int, b int) int { return a + b },
+		"Showrank": func(s string) string {
+			sa := strings.Split(s, " | ")
+			return sa[len(sa)-1]
+		},
+	}
+
+	// テンプレートをパースする
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/tmshowrank.gtpl"))
+
+	//	showrank.Userlist, err = SelectShowRank(client, 260000000)	//	SS-5〜A-5
+	//	showrank.Userlist, err = SelectShowRank(client, 300000000)	//	SS-5〜A-1
+	var user1 Eruser
+	// FIXME: irank != 0 の条件が必要な理由を明確にすること(2025-05-14)
+	sqlst := "select " + clmlist["user"] + " from user where irank = (select min(irank) from user where `rank` = 'B-5' and irank != 0) "
+	err = Dbmap0.SelectOne(&user1, sqlst)
+	if err != nil {
+		err = fmt.Errorf("Dbmap0.SelectOne(): %w", err)
+		log.Printf("HandlerShowRank(): %s\n", err.Error())
+		return
+	}
+
+	// 現時点のSHOWランク上位者の一覧を作成する
+	var usermap map[int]*Eruser
+	_, usermap, err = SelectShowRank(client, user1.Irank+1) //	SS-5〜A-1とB-5のトップ
+	if err != nil {
+		err = fmt.Errorf("SelectShowRank(): %w", err)
+		log.Printf("HandlerShowRank(): %s\n", err.Error())
+		return
+	}
+
+	// 月始めのSHOWランク上位者の一覧を作成する
+	showrank.Userlist, _, err = SelectTmShowRank(client)
+	if err != nil {
+		err = fmt.Errorf("SelectTmShowRank(): %w", err)
+		log.Printf("HandlerTmShowRank(): %s\n", err.Error())
+		return
+	}
+	for i := range *showrank.Userlist {
+		user := &(*showrank.Userlist)[i]
+		user.Iprank, err = strconv.Atoi(strings.ReplaceAll(user.Prank, ",", ""))
+		user.Inrank, err = strconv.Atoi(strings.ReplaceAll(user.Nrank, ",", ""))
+		user.Irank = MakeSortKeyOfRank(user.Rank, user.Inrank)
+		if uh, ok := usermap[user.Userno]; ok {
+			user.Tmrank = uh.Rank
+			// 9,999,999形式のランクを整数に変換する
+			// irank, err := strconv.Atoi(strings.ReplaceAll(uh.Nrank, ",", ""))
+			// if err != nil {
+			// 	log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+			// 	continue
+			// }
+			user.Tminrank = uh.Inrank
+			// iprank, err := strconv.Atoi(strings.ReplaceAll(uh.Prank, ",", ""))
+			// if err != nil {
+			// 	log.Printf("strconv.Atoi() returned error %s\n", err.Error())
+			// 	continue
+			// }
+			user.Tmiprank = uh.Iprank
+
+			user.Tmts = uh.Ts
+			// log.Printf("%10d%10d%10s%10d\n", user.Userno, user.Irank, user.Rank, user.Inrank)
+		}
+	}
+
+	// showrank.UserlistをIrankの降順にソートする
+	sort.Slice(*showrank.Userlist, func(i, j int) bool {
+		return (*showrank.Userlist)[j].Irank > (*showrank.Userlist)[i].Irank
+	})
+
+	l := 0
+	for _, v := range *showrank.Userlist {
+		if v.Irank >= 660000000 {
+			break
+		}
+		l++
+	}
+	*showrank.Userlist = (*showrank.Userlist)[:l+1]
+
+	if len(nolist) != 0 {
+		showrank.UserlistA, err = SelectAddedRooms(nolist)
+		if err != nil {
+			err = fmt.Errorf("SelectAddedRooms(): %w", err)
+			log.Printf("HandlerShowRank(): %s\n", err.Error())
+			w.Write([]byte(fmt.Sprintf("SelectAddedRooms() error=%s\n", err.Error())))
+			return
+		}
+
+	}
+	// テンプレートへのデータの埋め込みを行う
+	if err = tpl.ExecuteTemplate(w, "tmshowrank.gtpl", showrank); err != nil {
+		err = fmt.Errorf("Handler(): %w", err)
+		log.Printf("%s\n", err.Error())
+	}
+
+}

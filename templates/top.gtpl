@@ -57,6 +57,9 @@
         </form>
     </p>
     <p style="padding-left:2em; width:54em;">
+        <a href="/tmshowrank">月始めのSHOWランクが上位のルーム</a>　（作りかけ、というかデータ自体があやしい）
+    </p>
+    <p style="padding-left:2em; width:54em;">
     <a href="m-cntrbrank-listener">月別イベント・リスナー貢献ポイントランキング</a>）
     </p>
     {{/*
