@@ -69,7 +69,7 @@
     <br>Sランク　30名（S-5〜S-1 各6名）
     <br>Aランク　100名（A-5〜A-2 各12名、A-1 52名）
     <br>
-    「<a href="https://debug36.chouette2100.com/showrank">SHOWランクが上位のルーム</a>」
+    「<a href="https://chouette2100.com/showrank">SHOWランクが上位のルーム</a>」
     <br>
     <br>
     {{ $l := "SS-5" }}

@@ -82,7 +82,7 @@
     5. 1日未明に配信しているルームがあった場合、どう扱われるのかわからない。<br>
     いろいろ考えられるのですが、この分野に詳しい方のご意見がいただけるかもしれないと思いそのまま公開することにしました。
     </p>
-    「<a href="https://debug36.chouette2100.com/tmshowrank">月始めのSHOWランクが上位のルーム</a>」
+    「<a href="https://chouette2100.com/tmshowrank">月始めのSHOWランクが上位のルーム</a>」
     <br>
     <br>
     {{ $l := "SS-5" }}
