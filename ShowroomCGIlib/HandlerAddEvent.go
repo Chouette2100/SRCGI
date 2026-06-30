@@ -88,11 +88,11 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 		eventinf, _ = srdblib.SelectFromEvent(Db0, "wevent", eventid)
 		if eventinf == nil {
 			log.Printf("[%s] is not found in wevent table\n", eventid)
-			values := map[string]string{
-				"Msg001":   "入力したイベントID( ",
-				"Msg002":   " )をもつイベントは存在しません！",
-				"ReturnTo": "top",
-				"Eventid":  eventid,
+			values := ErrorPageData{
+				Msg001:   "入力したイベントID( ",
+				Msg002:   " )をもつイベントは存在しません！",
+				ReturnTo: "top",
+				Eventid:  eventid,
 			}
 			if err := tpl.ExecuteTemplate(w, "error.gtpl", values); err != nil {
 				log.Println(err)
@@ -177,11 +177,11 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if status != 0 {
 
-		values := map[string]string{
-			"Msg001":   "入力したイベントID( ",
-			"Msg002":   " )をもつイベントが存在しないか、開催前イベントか、参加ルームがありません！",
-			"ReturnTo": "top",
-			"Eventid":  eventid,
+		values := ErrorPageData{
+			Msg001:   "入力したイベントID( ",
+			Msg002:   " )をもつイベントが存在しないか、開催前イベントか、参加ルームがありません！",
+			ReturnTo: "top",
+			Eventid:  eventid,
 		}
 		if err := tpl.ExecuteTemplate(w, "error.gtpl", values); err != nil {
 			log.Println(err)

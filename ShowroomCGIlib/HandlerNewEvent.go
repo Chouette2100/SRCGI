@@ -43,17 +43,15 @@ func NewEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	stm, sts := exsrapi.MakeSampleTime(240, 40)
 
-	values := map[string]string{
-		"Eventid":   r.FormValue("eventid"),
-		"Eventname": "",
-		"Period":    "",
-		"Noroom":    "",
-		"Msgcolor":  "blue",
-
-		"Stm": fmt.Sprintf("%d", stm),
-		"Sts": fmt.Sprintf("%d", sts),
-
-		"Maxcmap": strconv.Itoa(len(Colormaplist)),
+	values := NewEventPageData{
+		Eventid:   r.FormValue("eventid"),
+		Eventname: "",
+		Period:    "",
+		Noroom:    "",
+		Msgcolor:  "blue",
+		Stm:       fmt.Sprintf("%d", stm),
+		Sts:       fmt.Sprintf("%d", sts),
+		Maxcmap:   strconv.Itoa(len(Colormaplist)),
 	}
 
 	var eventinf exsrapi.Event_Inf
@@ -65,30 +63,30 @@ func NewEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	status := GetEventInf(eventid, &eventinf)
 	if status == -1 {
-		values["Msg"] = "このイベントはすでに登録されています。"
-		values["Submit"] = "hidden"
-		values["Msgcolor"] = "red"
+		values.Msg = "このイベントはすでに登録されています。"
+		values.Submit = "hidden"
+		values.Msgcolor = "red"
 		//	Event_inf, _ = SelectEventInf(eventid)
 		//	srdblib.Tevent = "event"
 		eventinf, _ := srdblib.SelectFromEvent(Db0, "event", eventid)
 		// Event_inf = *eventinf
 
-		values["Eventname"] = eventinf.Event_name
-		values["Period"] = eventinf.Period
+		values.Eventname = eventinf.Event_name
+		values.Period = eventinf.Period
 	} else if status == -2 {
-		values["Msg"] = "指定したIDのイベントは存在しません"
-		values["Submit"] = "hidden"
-		values["Msgcolor"] = "red"
+		values.Msg = "指定したIDのイベントは存在しません"
+		values.Submit = "hidden"
+		values.Msgcolor = "red"
 	} else if status < -2 {
-		values["Msg"] = "イベント情報を取得できませんでした（エラーコード＝" + fmt.Sprintf("%d", status) + "）"
-		values["Submit"] = "hidden"
-		values["Msgcolor"] = "red"
+		values.Msg = "イベント情報を取得できませんでした（エラーコード＝" + fmt.Sprintf("%d", status) + "）"
+		values.Submit = "hidden"
+		values.Msgcolor = "red"
 	} else {
-		values["Msg"] = "このイベントを登録しますか？"
-		values["Submit"] = "submit"
-		values["Eventname"] = eventinf.Event_name
-		values["Period"] = eventinf.Period
-		values["Noroom"] = "　" + humanize.Comma(int64(eventinf.NoEntry))
+		values.Msg = "このイベントを登録しますか？"
+		values.Submit = "submit"
+		values.Eventname = eventinf.Event_name
+		values.Period = eventinf.Period
+		values.Noroom = "　" + humanize.Comma(int64(eventinf.NoEntry))
 	}
 	/*
 		var Eventinflist []Event_Inf

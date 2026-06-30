@@ -115,19 +115,14 @@ func GraphTotalHandler(w http.ResponseWriter, req *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/graph-total.gtpl"))
 
 	// テンプレートに出力する値をマップにセット
-	/*
-		values := map[string]string{
-			"filename": req.FormValue("FileName"),
-		}
-	*/
-	values := map[string]string{
-		"filename": filename,
-		"eventid":  eventid,
-		"maxpoint": smaxpoint,
-		"gscale":   sgscale,
+	values := GraphPageData{
+		Filename: filename,
+		Eventid:  eventid,
+		Maxpoint: smaxpoint,
+		Gscale:   sgscale,
 	}
 
-	// マップを展開してテンプレートを出力する
+	// 構造体を渡してテンプレートを出力する
 	if err := tpl.ExecuteTemplate(w, "graph-total.gtpl", values); err != nil {
 		log.Println(err)
 	}

@@ -104,36 +104,36 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	//	eventuserから色割当を取得する　=> 取得できなければ未登録、取得できればイベントに登録済み
 	_, _, status_col = SelectUserColor(userno, eventinf)
 
-	values := map[string]string{
-		"Event_ID":   eventid,
-		"Event_name": eventinf.Event_name,
-		"Period":     eventinf.Period,
-		"Roomid":     roomid,
-		"Roomname":   user.User_name,
-		"Longname":   user.Longname,
-		"Shortname":  user.Shortname,
-		"Roomurlkey": user.Userid,
-		"Genre":      user.Genre,
-		"Rank":       user.Rank,
-		"Nrank":      user.Nrank,
-		"Prank":      user.Prank,
-		"Level":      fmt.Sprintf("%d", user.Level),
-		"Followers":  fmt.Sprintf("%d", user.Followers),
-		"Fans":       fmt.Sprintf("%d", user.Fans),
-		"Fans_lst":   fmt.Sprintf("%d", user.Fans_lst),
-		"Submit":     "submit",
-		"Label":      "登録しない",
-		"Msg1":       "の参加ルームとして",
-		"Msg2":       "を登録しますか？（（実害はありませんが）ブロックイベントはblock_idが違っていても登録されるので注意してください）",
-		"Msg2color":  "black",
+	values := NewUserPageData{
+		Event_ID:   eventid,
+		Event_name: eventinf.Event_name,
+		Period:     eventinf.Period,
+		Roomid:     roomid,
+		Roomname:   user.User_name,
+		Longname:   user.Longname,
+		Shortname:  user.Shortname,
+		Roomurlkey: user.Userid,
+		Genre:      user.Genre,
+		Rank:       user.Rank,
+		Nrank:      user.Nrank,
+		Prank:      user.Prank,
+		Level:      fmt.Sprintf("%d", user.Level),
+		Followers:  fmt.Sprintf("%d", user.Followers),
+		Fans:       fmt.Sprintf("%d", user.Fans),
+		Fans_lst:   fmt.Sprintf("%d", user.Fans_lst),
+		Submit:     "submit",
+		Label:      "登録しない",
+		Msg1:       "の参加ルームとして",
+		Msg2:       "を登録しますか？（（実害はありませんが）ブロックイベントはblock_idが違っていても登録されるので注意してください）",
+		Msg2color:  "black",
 	}
 
 	if status_col == 0 {
-		values["Submit"] = "hidden"
-		values["Label"] = "戻る"
-		values["Msg1"] = "の参加ルームとして"
-		values["Msg2"] = "すでに登録されています"
-		values["Msg2color"] = "red"
+		values.Submit = "hidden"
+		values.Label = "戻る"
+		values.Msg1 = "の参加ルームとして"
+		values.Msg2 = "すでに登録されています"
+		values.Msg2color = "red"
 		//	} else if status_room != 0 {
 		//		values["Submit"] = "hidden"
 		//		values["Label"] = "戻る"
@@ -143,20 +143,20 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		if status_db != 0 && status_api != 0 {
-			values["Roomname"] = ""
-			values["Roomurlkey"] = ""
-			values["Genre"] = ""
-			values["Nrank"] = ""
-			values["Prank"] = ""
-			values["Level"] = ""
-			values["Followers"] = ""
-			values["Fans"] = ""
-			values["Fans_lst"] = ""
-			values["Submit"] = "hidden"
-			values["Label"] = "戻る"
-			values["Msg1"] = ""
-			values["Msg2"] = "指定したルームIDのルームは存在しないか、ルーム情報の取得ができません"
-			values["Msg2color"] = "red"
+			values.Roomname = ""
+			values.Roomurlkey = ""
+			values.Genre = ""
+			values.Nrank = ""
+			values.Prank = ""
+			values.Level = ""
+			values.Followers = ""
+			values.Fans = ""
+			values.Fans_lst = ""
+			values.Submit = "hidden"
+			values.Label = "戻る"
+			values.Msg1 = ""
+			values.Msg2 = "指定したルームIDのルームは存在しないか、ルーム情報の取得ができません"
+			values.Msg2color = "red"
 		} else {
 			_, _, _, peventid := GetPointsByAPI(roomid)
 			if strings.Contains(eventid, "?block_id=") {
@@ -169,11 +169,11 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 
 			//	if peventid != eventid && time.Now().After(Event_inf.Start_time) && time.Now().Before(Event_inf.End_time) {
 			if peventid != eventid {
-				values["Submit"] = "hidden"
-				values["Label"] = "戻る"
-				values["Msg1"] = ""
-				values["Msg2"] = "指定したルームはこのイベントに参加していません(あるいはイベントが始まっていません)"
-				values["Msg2color"] = "red"
+				values.Submit = "hidden"
+				values.Label = "戻る"
+				values.Msg1 = ""
+				values.Msg2 = "指定したルームはこのイベントに参加していません(あるいはイベントが始まっていません)"
+				values.Msg2color = "red"
 				log.Printf("GetPointsByAPI() returned %s as eventid and eventid = %s\n", peventid, eventid)
 			}
 		}

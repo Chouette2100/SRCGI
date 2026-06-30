@@ -54,18 +54,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 
 	status := 0
 
-	var list_last struct {
-		Eventid   string
-		Ieventid  string
-		Userno    string
-		Detail    string
-		Isover    string
-		Page      int
-		Maxrooms  int
-		NoRooms   int
-		Roomid    int
-		Scorelist []CurrentScore
-	}
+	var list_last ListLastPageData
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
@@ -164,20 +153,20 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 	//	treload := tnext.Add(5 * time.Second)
 	treload := tnext.Add(10 * time.Second)
 
-	values := map[string]string{
-		"Eventid":         eventid,
-		"Ieventid":        list_last.Ieventid,
-		"userno":          userno,
-		"UpdateTime":      "データ取得時刻：　" + tdata.Format("2006/01/02 15:04:05"),
-		"NextTime":        "次のデータ取得は　" + tnext.Format("15:04:05") + "　に予定されています。",
-		"ReloadTime":      "画面のリロードが　" + treload.Format("15:04:05") + "　頃に行われます。",
-		"SecondsToReload": fmt.Sprintf("%d", int(time.Until(treload).Seconds()+5)),
-		"EventName":       eventname,
-		"Period":          period,
-		"Detail":          list_last.Detail,
-		"Page":            fmt.Sprintf("%d", list_last.Page),
-		"Maxpoint":        fmt.Sprintf("%d", eventinf.Maxpoint),
-		"Gscale":          fmt.Sprintf("%d", eventinf.Gscale),
+	values := ListLastPageData{
+		Eventid:         eventid,
+		Ieventid:        list_last.Ieventid,
+		Userno:          userno,
+		UpdateTime:      "データ取得時刻：　" + tdata.Format("2006/01/02 15:04:05"),
+		NextTime:        "次のデータ取得は　" + tnext.Format("15:04:05") + "　に予定されています。",
+		ReloadTime:      "画面のリロードが　" + treload.Format("15:04:05") + "　頃に行われます。",
+		SecondsToReload: fmt.Sprintf("%d", int(time.Until(treload).Seconds()+5)),
+		EventName:       eventname,
+		Period:          period,
+		Detail:          list_last.Detail,
+		Page:            list_last.Page,
+		Maxpoint:        fmt.Sprintf("%d", eventinf.Maxpoint),
+		Gscale:          fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	// if time.Since(tdata) > 5*time.Minute {
@@ -188,30 +177,30 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 	// }
 	if status != 0 {
 		log.Printf("GetCurrentScore() returned %d.\n", status)
-		values["UpdateTime"] = "データが取得できませんでした。"
-		values["NextTime"] = "もうしわけありませんがしばらくお待ち下さい。"
-		values["ReloadTime"] = ""
-		values["SecondsToReload"] = "300"
+		values.UpdateTime = "データが取得できませんでした。"
+		values.NextTime = "もうしわけありませんがしばらくお待ち下さい。"
+		values.ReloadTime = ""
+		values.SecondsToReload = "300"
 	}
 	if time.Now().After(eventinf.End_time) {
 		// log.Printf("Application stopped or the event is over. status = %d\n", status)
 		switch eventinf.Rstatus {
 		case "Confirmed":
-			values["UpdateTime"] = "最終結果(結果は確定しました）"
+			values.UpdateTime = "最終結果(結果は確定しました）"
 		case "ProvisionalC":
-			values["UpdateTime"] = "暫定結果(結果確定による変更の可能性があります)"
+			values.UpdateTime = "暫定結果(結果確定による変更の可能性があります)"
 		default:
-			values["UpdateTime"] = "結果取得準備中"
+			values.UpdateTime = "結果取得準備中"
 		}
-		values["NextTime"] = "イベントは終了しています。"
-		values["ReloadTime"] = ""
-		values["SecondsToReload"] = "3600"
+		values.NextTime = "イベントは終了しています。"
+		values.ReloadTime = ""
+		values.SecondsToReload = "3600"
 
 		list_last.Isover = "1"
 	}
 	if time.Now().Before(eventinf.Start_time) {
-		values["NextTime"] = "イベントはまだ始まっていません。"
-		values["ReloadTime"] = ""
+		values.NextTime = "イベントはまだ始まっていません。"
+		values.ReloadTime = ""
 	}
 	//	log.Printf("Values=%v", values)
 	if err := tpl.ExecuteTemplate(w, "list-last_h", values); err != nil {

@@ -11,10 +11,10 @@
       <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
     </tr>
     <tr>
-      <td><button type="button" onclick="location.href='eventtop?eventid={{.eventid}}'">イベントトップ</button></td>
-      <td><button type="button" onclick="location.href='list-last?eventid={{.eventid}}'">直近の獲得ポイント</button></td>
+        <td><button type="button" onclick="location.href='eventtop?eventid={{.Eventid}}'">イベントトップ</button></td>
+        <td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
       <td><button type="button"
-          onclick="location.href='graph-total?eventid={{.eventid}}&maxpoint={{.maxpoint}}&gscale={{.gscale}}'">獲得ポイントグラフ</button>
+          onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button>
       </td>
       <td></td>
     </tr>
@@ -22,7 +22,7 @@
   <br>
 
   <h2>配信毎獲得ポイントグラフ</h2>
-  <img src="{{.filename}}" alt="" width="100%">
+  <img src="{{.Filename}}" alt="" width="100%">
 </body>
 
 </html>

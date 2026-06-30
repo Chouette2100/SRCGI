@@ -124,7 +124,7 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	list_last := ListLastC{}
+	list_last := ListLastPageData{}
 
 	status := 0
 
@@ -138,11 +138,11 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	// ページ番号を取得（デフォルトは1）
 	pageStr := req.FormValue("page")
 	if pageStr == "" {
-		list_last.Ipage = 1
+		list_last.Page = 1
 	} else {
-		list_last.Ipage, _ = strconv.Atoi(pageStr)
-		if list_last.Ipage < 1 {
-			list_last.Ipage = 1
+		list_last.Page, _ = strconv.Atoi(pageStr)
+		if list_last.Page < 1 {
+			list_last.Page = 1
 		}
 	}
 
@@ -150,9 +150,9 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	list_last.Maxrooms = 20
 
 	// データ取得のオフセットを計算
-	offset := (list_last.Ipage - 1) * list_last.Maxrooms
+	offset := (list_last.Page - 1) * list_last.Maxrooms
 
-	log.Printf("      eventid=%s, detail=%s, page=%d\n", eventid, list_last.Detail, list_last.Ipage)
+	log.Printf("      eventid=%s, detail=%s, page=%d\n", eventid, list_last.Detail, list_last.Page)
 	//	Event_inf, _ = SelectEventInf(eventid)
 	//	srdblib.Tevent = "event"
 	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
@@ -173,9 +173,9 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	list_last.Scorelist = scorelist
 
 	// 結果が0件の場合、前のページに戻る（ただしページ1より小さくならないようにする）
-	if len(scorelist) == 0 && list_last.Ipage > 1 {
-		list_last.Ipage--
-		offset = (list_last.Ipage - 1) * list_last.Maxrooms
+	if len(scorelist) == 0 && list_last.Page > 1 {
+		list_last.Page--
+		offset = (list_last.Page - 1) * list_last.Maxrooms
 		// tdata, eventname, period, scorelist, totalCount, status = SelectCurrentScoreP(eventid, list_last.Maxrooms, offset)
 		tdata, eventname, period, scorelist, totalCount, status = SelectCurrentScoreP(eventid, list_last.Maxrooms, offset)
 		list_last.Scorelist = scorelist
@@ -199,20 +199,20 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	//	treload := tnext.Add(5 * time.Second)
 	treload := tnext.Add(10 * time.Second)
 
-	values := map[string]string{
-		"Eventid":         eventid,
-		"Ieventid":        list_last.Ieventid,
-		"userno":          userno,
-		"UpdateTime":      "データ取得時刻：　" + tdata.Format("2006/01/02 15:04:05"),
-		"NextTime":        "次のデータ取得は　" + tnext.Format("15:04:05") + "　に予定されています。",
-		"ReloadTime":      "画面のリロードが　" + treload.Format("15:04:05") + "　頃に行われます。",
-		"SecondsToReload": fmt.Sprintf("%d", int(time.Until(treload).Seconds()+5)),
-		"EventName":       eventname,
-		"Period":          period,
-		"Detail":          list_last.Detail,
-		"Page":            fmt.Sprintf("%d", list_last.Ipage),
-		"Maxpoint":        fmt.Sprintf("%d", eventinf.Maxpoint),
-		"Gscale":          fmt.Sprintf("%d", eventinf.Gscale),
+	values := ListLastPageData{
+		Eventid:         eventid,
+		Ieventid:        list_last.Ieventid,
+		Userno:          userno,
+		UpdateTime:      "データ取得時刻：　" + tdata.Format("2006/01/02 15:04:05"),
+		NextTime:        "次のデータ取得は　" + tnext.Format("15:04:05") + "　に予定されています。",
+		ReloadTime:      "画面のリロードが　" + treload.Format("15:04:05") + "　頃に行われます。",
+		SecondsToReload: fmt.Sprintf("%d", int(time.Until(treload).Seconds()+5)),
+		EventName:       eventname,
+		Period:          period,
+		Detail:          list_last.Detail,
+		Page:            list_last.Page,
+		Maxpoint:        fmt.Sprintf("%d", eventinf.Maxpoint),
+		Gscale:          fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	// if time.Since(tdata) > 5*time.Minute {
@@ -223,22 +223,22 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	// }
 	if status != 0 {
 		log.Printf("GetCurrentScore() returned %d.\n", status)
-		values["UpdateTime"] = "データが取得できませんでした。"
-		values["NextTime"] = "もうしわけありませんがしばらくお待ち下さい。"
-		values["ReloadTime"] = ""
-		values["SecondsToReload"] = "300"
+		values.UpdateTime = "データが取得できませんでした。"
+		values.NextTime = "もうしわけありませんがしばらくお待ち下さい。"
+		values.ReloadTime = ""
+		values.SecondsToReload = "300"
 	}
 	if time.Now().After(eventinf.End_time) {
 		// log.Printf("Application stopped or the event is over. status = %d\n", status)
-		values["NextTime"] = "イベントは終了しています。"
-		values["ReloadTime"] = ""
-		values["SecondsToReload"] = "3600"
+		values.NextTime = "イベントは終了しています。"
+		values.ReloadTime = ""
+		values.SecondsToReload = "3600"
 
 		list_last.Isover = "1"
 	}
 	if time.Now().Before(eventinf.Start_time) {
-		values["NextTime"] = "イベントはまだ始まっていません。"
-		values["ReloadTime"] = ""
+		values.NextTime = "イベントはまだ始まっていません。"
+		values.ReloadTime = ""
 	}
 	//	log.Printf("Values=%v", values)
 	// if err := tpl.ExecuteTemplate(w, "list-last_h", values); err != nil {

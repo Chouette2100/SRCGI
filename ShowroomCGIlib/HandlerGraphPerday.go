@@ -118,11 +118,11 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 		filename = "/public/" + filename
 	}
 
-	values := map[string]string{
-		"filename": filename,
-		"eventid":  eventid,
-		"maxpoint": fmt.Sprintf("%d", eventinf.Maxpoint),
-		"gscale":   fmt.Sprintf("%d", eventinf.Gscale),
+	values := GraphPageData{
+		Filename: filename,
+		Eventid:  eventid,
+		Maxpoint: fmt.Sprintf("%d", eventinf.Maxpoint),
+		Gscale:   fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	if err := tpl.ExecuteTemplate(w, "graph-perday.gtpl", values); err != nil {

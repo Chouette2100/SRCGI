@@ -141,10 +141,10 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	values := map[string]string{
-		"Eventid":   eventid,
-		"Eventname": eventname,
-		"Period":    eventinf.Period,
+	values := EditUserPageData{
+		Eventid:   eventid,
+		Eventname: eventname,
+		Period:    eventinf.Period,
 	}
 
 	if err := tpl.ExecuteTemplate(w, "edit-user1.gtpl", values); err != nil {

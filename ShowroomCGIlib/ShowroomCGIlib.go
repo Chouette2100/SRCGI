@@ -338,11 +338,12 @@ import (
 201600 HandlerTmShowrank.go(月始めのSHOWランクを表示する)を作成する
 201601 tmshowrank.gtplで改行の抜けを補う
 201602 showrank.gtplとtmshowrank.gtpの注意書きを修正する。
+201700 gtplは各ハンドラーにつき一つにする。データの受け渡しも単一の構造体とする。
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201602"
+const Version = "201700"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

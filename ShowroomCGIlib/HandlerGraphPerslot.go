@@ -90,11 +90,11 @@ func GraphPerslotHandler(w http.ResponseWriter, r *http.Request) {
 		filename = "/public/" + filename
 	}
 
-	values := map[string]string{
-		"filename": filename,
-		"eventid":  eventid,
-		"maxpoint": fmt.Sprintf("%d", eventinf.Maxpoint),
-		"gscale":   fmt.Sprintf("%d", eventinf.Gscale),
+	values := GraphPageData{
+		Filename: filename,
+		Eventid:  eventid,
+		Maxpoint: fmt.Sprintf("%d", eventinf.Maxpoint),
+		Gscale:   fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	if err := tpl.ExecuteTemplate(w, "graph-perslot.gtpl", values); err != nil {
@@ -124,7 +124,7 @@ func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventid := r.FormValue("eventid")
-	//	Event_inf, _ = SelectEventInf(eventid)
+	//	Event_inf, _ = SelectEventInf(eventid201602 showrank.gtplとtmshowrank.gtpの注意書きを修正する。)
 	//	srdblib.Tevent = "event"
 	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
