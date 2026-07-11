@@ -100,8 +100,14 @@ func SelectTmShowRank(
 	tmfirst := time.Date(yy, mm, 1, 0, 0, 0, 0, time.Local)
 	// データ取得の開始、終了をそれぞれ年月所持つの00時29分、00時35分とする
 	// ※ 取得の開始時刻はカテゴリー単位のもので、個別のデータ取得時刻とは異なる
-	tb := tmfirst.Add(29 * time.Minute)
-	te := tmfirst.Add(35 * time.Minute)
+	var tb, te time.Time
+	if yy == 2026 && mm == 6 {
+		tb = tmfirst.Add(29 * time.Minute)
+		te = tmfirst.Add(35 * time.Minute)
+	} else {
+		tb = tmfirst.Add(44 * time.Minute)
+		te = tmfirst.Add(50 * time.Minute)
+	}
 
 	usermap = make(map[int]*Eruser)
 	// sqltr := " select " + clmlist["user"] + " from user where irank between 0 and ? and ts > ? and fanpower > 0 order by irank "

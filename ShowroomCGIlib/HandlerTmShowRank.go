@@ -54,7 +54,7 @@ func TmShowRankHandler(
 	// var client *http.Client
 	// var jar *cookiejar.Jar
 	client, jar, errt := exsrapi.CreateNewClient("XXXXXX")
-	if err != nil {
+	if errt != nil {
 		err = fmt.Errorf("exsrapi.CreateNewClient(): %w", errt)
 		log.Printf("%s\n", err.Error())
 		return

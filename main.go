@@ -196,9 +196,10 @@ import (
 	201301 第二のDBサーバーを導入する(AccessStatsHourlyHandler())
 	201500 Showランクの表示に月初の値の表示を追加する
 	201600 HandlerTmShowrank.go(月始めのSHOWランクを表示する)を作成する
+	201603 showrank.gtpl, tmshowrank.gtpl, top.gtpl	の表示を改善する
 */
 
-const version = "201600"
+const version = "201603"
 
 func NewLogfileName(logfile *os.File) {
 
