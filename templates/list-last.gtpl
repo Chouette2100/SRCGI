@@ -1,7 +1,89 @@
-{{define "list-last"}}
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"  charset="UTF-8">
+<meta http-equiv="refresh" content="{{.SecondsToReload}}; URL=list-last?eventid={{.Eventid}}&userno={{.Userno}}&limit={{.Limit}}&detail={{.Detail}}">
 {{ $Detail := .Detail }}
 {{ $Isover := .Isover }}
 {{ $r := .Roomid }}
+<html>
+<head>
+	<style type="text/css">
+		.bgct {
+			background-color: paleturquoise;
+		}
+	</style>
+
+	<style>
+		.hilight input[type="submit"]{
+			background: #007f7f;
+			border: none;
+			color: #FFFFFF;
+		}
+	</style>
+
+</head>
+<body>
+	<table>
+		<tr>
+	  <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
+	  <td><button type="button" onclick="location.href='currentevents'">開催中イベント一覧</button></td>
+	  <td><button type="button" onclick="location.href='scheduledevents'">開催予定イベント一覧</button></td>
+	  <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
+		</tr>
+		<tr>
+	<td><button type="button" onclick="location.href='eventtop?eventid={{.Eventid}}'">イベントトップ</button></td>
+	<td><button type="button" onclick="location.href='list-last?eventid={{.Eventid}}'">直近の獲得ポイント</button></td>
+	<td><button type="button" onclick="location.href='graph-total?eventid={{.Eventid}}&maxpoint={{.Maxpoint}}&gscale={{.Gscale}}'">獲得ポイントグラフ</button></td>
+	  <td></td>
+		</tr>
+	  </table>
+<p>直近の獲得ポイント一覧　　<span style="color:red;">初めて使うときは表の後にある注意事項を読んでください！</span>　このページはブックマーク可能です。</p>
+<p style="padding-left:2em">
+{{.UpdateTime}}
+</p>
+<p style="padding-left:4em">
+{{.NextTime}}
+<br>
+{{ if ne .NextTime "イベントは終了しています。" }}
+{{.ReloadTime}}
+{{ else }}
+<span style="color: red;">最終結果の反映はイベント終了日翌日の12時過ぎです。<span>
+{{ end }}
+</p>
+<table>
+<tr><td align="center"><a href="https://www.showroom-live.com/event/{{.Eventid}}">{{.EventName}}</a>（{{.Eventid}}）</td></tr>
+<tr><td align="center">{{.Period}}</td></tr>
+</table>
+<table>
+<tr>
+<td>
+{{ if eq .Detail "1" }}
+<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.Userno}}&limit={{.Limit}}&detail=0'">ルーム詳細情報を表示しない</button>
+{{ else }}
+<button type="button" onclick="location.href='list-last?eventid={{.Eventid}}&userno={{.Userno}}&limit={{.Limit}}&detail=1'">ルーム詳細情報を表示する</button>
+{{ end }}
+</td>
+<td>
+　　　　　　 
+</td>
+<td>
+<form class='hilight'>
+	<input type="hidden" id="eventid" name="eventid" value="{{ .Eventid }}" />
+	<input type="submit" formaction='/listener-cntrb-history?eventid={{.Eventid}}' color='yellow' value="イベント参加ルームのリスナーの貢献ポイント履歴" />
+</form>
+</td>
+<td>
+　　　　　　　　　　　 
+</td>
+<td>
+<form class='hilight'>
+	<input type="hidden" id="eventid" name="eventid" value="{{ .Eventid }}" />
+	<input type="number" name="breg" id="breg" value="1" size='3' min='1' required />番目から
+	<input type="number" name="ereg" id="ereg" value="10" size='3' min='1' required />番目まで
+	<input type="submit" formaction='dl-all-points' color='yellow' value="獲得ポイントデータをダウンロードする" />
+</form>
+</td>
+</tr>
+</table>
 {{/*
 <table border="1" style="font-family: monospace,serif;">
 */}}
@@ -58,7 +140,7 @@
 
 
 
-	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a></td>
+	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}} <a href="/onlives?roomid={{.Userno}}">.</a></a></td>
 	<td align="right">{{.Spoint}}</td>
 	<td align="right">{{.Sdfr}}</td>
 	<td align="left" style="border-right-style:none;">{{.Ptime}}</td>
@@ -173,4 +255,3 @@
 </p>
 </body>
 </html>
-{{end}}

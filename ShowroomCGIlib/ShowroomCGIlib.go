@@ -339,11 +339,13 @@ import (
 201601 tmshowrank.gtplで改行の抜けを補う
 201602 showrank.gtplとtmshowrank.gtpの注意書きを修正する。
 201700 gtplは各ハンドラーにつき一つにする。データの受け渡しも単一の構造体とする。
+201701 gtpl及び構造体の単一化の不備を修正する。
+201800 配信履歴のハンドラー(OnLivesHandler())を追加する
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201700"
+const Version = "201800"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

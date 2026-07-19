@@ -99,7 +99,7 @@ func ListLastHandler(w http.ResponseWriter, req *http.Request) {
 		},
 		"Add": func(a1, a2 int) int { return a1 + a2 },
 	}
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-last.gtpl", "templates/list-last_h.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-last.gtpl"))
 
 	eventid := req.FormValue("eventid")
 	list_last.Eventid = eventid
@@ -156,60 +156,46 @@ func ListLastHandler(w http.ResponseWriter, req *http.Request) {
 	//	treload := tnext.Add(5 * time.Second)
 	treload := tnext.Add(10 * time.Second)
 
-	values := ListLastPageData{
-		Eventid:         eventid,
-		Userno:          userno,
-		UpdateTime:      "データ取得時刻：　" + tdata.Format("2006/01/02 15:04:05"),
-		NextTime:        "次のデータ取得は　" + tnext.Format("15:04:05") + "　に予定されています。",
-		ReloadTime:      "画面のリロードが　" + treload.Format("15:04:05") + "　頃に行われます。",
-		SecondsToReload: fmt.Sprintf("%d", int(time.Until(treload).Seconds()+5)),
-		EventName:       eventname,
-		Period:          period,
-		Detail:          list_last.Detail,
-		Limit:           list_last.Limit,
-		Maxpoint:        fmt.Sprintf("%d", eventinf.Maxpoint),
-		Gscale:          fmt.Sprintf("%d", eventinf.Gscale),
-	}
+	list_last.UpdateTime = "データ取得時刻：　" + tdata.Format("2006/01/02 15:04:05")
+	list_last.NextTime = "次のデータ取得は　" + tnext.Format("15:04:05") + "　に予定されています。"
+	list_last.ReloadTime = "画面のリロードが　" + treload.Format("15:04:05") + "　頃に行われます。"
+	list_last.SecondsToReload = fmt.Sprintf("%d", int(time.Until(treload).Seconds()+5))
+	list_last.EventName = eventname
+	list_last.Period = period
+	list_last.Maxpoint = fmt.Sprintf("%d", eventinf.Maxpoint)
+	list_last.Gscale = fmt.Sprintf("%d", eventinf.Gscale)
 
 	if time.Since(tdata) > 5*time.Minute {
 		log.Printf("Application stopped or the event is over. status = %d\n", status)
-		values.NextTime = "表示されているデータは最新ではありません。"
-		values.ReloadTime = "もうしわけありませんがデータ取得が復旧するまでしばらくお待ちください。"
-		values.SecondsToReload = "300"
+		list_last.NextTime = "表示されているデータは最新ではありません。"
+		list_last.ReloadTime = "もうしわけありませんがデータ取得が復旧するまでしばらくお待ちください。"
+		list_last.SecondsToReload = "300"
 	}
 	if status != 0 {
 		log.Printf("GetCurrentScore() returned %d.\n", status)
-		values.UpdateTime = "データが取得できませんでした。"
-		values.NextTime = "もうしわけありませんがしばらくお待ち下さい。"
-		values.ReloadTime = ""
-		values.SecondsToReload = "300"
+		list_last.UpdateTime = "データが取得できませんでした。"
+		list_last.NextTime = "もうしわけありませんがしばらくお待ち下さい。"
+		list_last.ReloadTime = ""
+		list_last.SecondsToReload = "300"
 	}
 	if time.Now().After(eventinf.End_time) {
 		log.Printf("Application stopped or the event is over. status = %d\n", status)
 		if eventinf.Rstatus == "ProvisionalC" {
-			values.UpdateTime = "暫定結果(確定結果による変更の可能性があります)"
+			list_last.UpdateTime = "暫定結果(確定結果による変更の可能性があります)"
 		} else {
-			values.UpdateTime = "最終結果(結果は確定しました"
+			list_last.UpdateTime = "最終結果(結果は確定しました"
 		}
-		values.NextTime = "イベントは終了しています。"
-		values.ReloadTime = ""
-		values.SecondsToReload = "3600"
+		list_last.NextTime = "イベントは終了しています。"
+		list_last.ReloadTime = ""
+		list_last.SecondsToReload = "3600"
 
 		list_last.Isover = "1"
 	}
 	if time.Now().Before(eventinf.Start_time) {
-		values.NextTime = "イベントはまだ始まっていません。"
-		values.ReloadTime = ""
+		list_last.NextTime = "イベントはまだ始まっていません。"
+		list_last.ReloadTime = ""
 	}
-	//	log.Printf("Values=%v", values)
-	if err := tpl.ExecuteTemplate(w, "list-last_h", values); err != nil {
-		log.Println(err)
-	}
-	if status != 0 {
-		fmt.Fprintf(w, "</body>\n</html>\n")
-		return
-	}
-	if err := tpl.ExecuteTemplate(w, "list-last", list_last); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-last.gtpl", list_last); err != nil {
 		log.Println(err)
 	}
 }

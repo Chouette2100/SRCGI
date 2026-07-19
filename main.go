@@ -197,9 +197,10 @@ import (
 	201500 Showランクの表示に月初の値の表示を追加する
 	201600 HandlerTmShowrank.go(月始めのSHOWランクを表示する)を作成する
 	201603 showrank.gtpl, tmshowrank.gtpl, top.gtpl	の表示を改善する
+	201800 配信履歴のハンドラー(OnLivesHandler())を追加する
 */
 
-const version = "201603"
+const version = "201800"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -881,6 +882,9 @@ func main() {
 		http.HandleFunc(rootPath+"/list-todo", commonMiddleware(rateLimiter, ShowroomCGIlib.ListToDoHandler))
 		http.HandleFunc(rootPath+"/insert-todo", commonMiddleware(rateLimiter, ShowroomCGIlib.InsertToDoHandler))
 		http.HandleFunc(rootPath+"/edit-todo", commonMiddleware(rateLimiter, ShowroomCGIlib.EditToDoHandler))
+
+		// 配信履歴
+		http.HandleFunc(rootPath+"/onlives", commonMiddleware(rateLimiter, ShowroomCGIlib.OnLivesHandler))
 
 		http.HandleFunc(rootPath+"/t008top", commonMiddleware(rateLimiter, srhandler.HandlerT008topForm)) //	http://....../t008top で呼び出される。
 		http.HandleFunc(rootPath+"/t009top", commonMiddleware(rateLimiter, srhandler.HandlerT009topForm)) //	http://....../t009top で呼び出される。

@@ -7,8 +7,11 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 	// "testing"
 )
+
+var jst *time.Location
 
 // IPRegion は地域コードとネットワークアドレスのペアを表す
 type IPRegion struct {
@@ -55,6 +58,12 @@ func loadIPRegionList(filename string) ([]IPRegion, error) {
 }
 
 func init() {
+	var err error
+	jst, err = time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		log.Fatalf("JST location load failed: %v", err)
+	}
+
 	// ベンチマーク実行前に一度だけIPRegionListをロード
 	// 実際のファイル名に合わせて変更してください
 	list, err := loadIPRegionList("cidr.txt")
