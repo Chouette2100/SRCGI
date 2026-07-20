@@ -37,6 +37,8 @@ type ServerConfig struct {
 	TurnstileSessionMaxUses  int    `yaml:"TurnstileSessionMaxUses"`  //	Turnstileセッション内の最大利用回数
 	DenyNonJP                bool   `yaml:"DenyNonJP"`                //	日本国外からのアクセスを拒否するかどうか
 	GWURL                    string `yaml:"GWURL"`                    //  AddNewUserの GatewayのURL
+	IPEncryptionKeyHex       string `yaml:"IPEncryptionKeyHex"`
+	Sops                     any    `yaml:"sops"` // sops暗号化された設定ファイルのメタデータを保持するフィールド
 }
 
 type SSHConfig struct {

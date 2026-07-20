@@ -198,9 +198,10 @@ import (
 	201600 HandlerTmShowrank.go(月始めのSHOWランクを表示する)を作成する
 	201603 showrank.gtpl, tmshowrank.gtpl, top.gtpl	の表示を改善する
 	201800 配信履歴のハンドラー(OnLivesHandler())を追加する
+	201900 設定ファイルをsops暗号化する
 */
 
-const version = "201800"
+const version = "201900"
 
 func NewLogfileName(logfile *os.File) {
 
@@ -552,11 +553,13 @@ func main() {
 		// GWURL: "https://gwuu.chouette2100.com/",
 	}
 	ShowroomCGIlib.Serverconfig = &svconfig
-	err = exsrapi.LoadConfig("ServerConfig.yml", ShowroomCGIlib.Serverconfig)
+	err = exsrapi.LoadConfig("ServerConfig.enc.yaml", ShowroomCGIlib.Serverconfig)
 	if err != nil {
 		log.Printf("err=%s.\n", err.Error())
 		os.Exit(1)
 	}
+	ShowroomCGIlib.InitIpEncryptionKeyHex()
+
 	if svconfig.NoEvent == 0 {
 		svconfig.NoEvent = 30
 	}
@@ -623,7 +626,7 @@ func main() {
 	//	log.Printf("********** Dbhost=<%s> Dbname = <%s> Dbuser = <%s> Dbpw = <%s>\n", dbconfig.DBhost, dbconfig.DBname, dbconfig.DBuser, dbconfig.DBpswd)
 
 	var dbconfig *srdblib.DBConfig
-	ShowroomCGIlib.Db0, dbconfig, err = srdblib.OpenDb("DBConfig.yml")
+	ShowroomCGIlib.Db0, dbconfig, err = srdblib.OpenDb("DBConfig.enc.yaml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return
@@ -701,7 +704,7 @@ func main() {
 	ShowroomCGIlib.Dbmap0.AddTableWithName(srdblib.Todo{}, "todo").SetKeys(false, "ID")
 
 	// 深堀り検索用データベースサーバーをオープンする
-	ShowroomCGIlib.Db1, ShowroomCGIlib.Dbmap1, err = newDB("DBConfig1.yml")
+	ShowroomCGIlib.Db1, ShowroomCGIlib.Dbmap1, err = newDB("DBConfig1.enc.yaml")
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return

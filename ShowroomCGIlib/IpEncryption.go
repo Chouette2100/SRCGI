@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
+	// "os"
 
 	"crypto/aes"
 	"crypto/cipher"
@@ -21,8 +21,9 @@ import (
 //	暗号化キー（32バイト = AES-256）を環境変数から64桁の16進数文字列として取得し、バイト列に変換する
 var encryptionKey []byte
 
-func init() {
-	keyHex := os.Getenv("IP_ENCRYPTION_KEY_HEX")
+func InitIpEncryptionKeyHex() {
+	// keyHex := os.Getenv("IP_ENCRYPTION_KEY_HEX")
+	keyHex := Serverconfig.IPEncryptionKeyHex
 	if len(keyHex) != 64 {
 		panic("IP_ENCRYPTION_KEY_HEX must be a 64-character hexadecimal string")
 	}

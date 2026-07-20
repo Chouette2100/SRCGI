@@ -2,6 +2,8 @@ module SRCGI
 
 go 1.26.1
 
+replace github.com/Chouette2100/exsrapi/v2 => ../srlib/exsrapi
+
 require (
 	github.com/Chouette2100/exsrapi/v2 v2.3.4
 	github.com/Chouette2100/srapi/v2 v2.4.0
