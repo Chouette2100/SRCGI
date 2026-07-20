@@ -166,7 +166,7 @@
         */}}
         {{ range .Qrooms }}
         <tr>
-            <td>{{ .User_name }} ({{.Userid}} | {{.Userno}})</td>
+            <td>{{ .User_name }} ({{.Userid}} | {{.Userno}}) <a href="/onlives?roomid={{.Userno}}">.</a></td>
             <td style="text-align: center;"><a href="/closedevents?mode=0&limit=51&offset=0&userno={{.Userno}}&path=5">表示</a></td>
             <td style="text-align: center;"><a href="/room-cntrb-history?userid={{ .Userno }}" target="_blank" rel="noopener noreferrer">表示</a></td>
             {{ if ne .Rank "" }}

@@ -140,7 +140,7 @@
 
 
 
-	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}} <a href="/onlives?roomid={{.Userno}}">.</a></a></td>
+	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a> <a href="/onlives?roomid={{.Userno}}">.</a></td>
 	<td align="right">{{.Spoint}}</td>
 	<td align="right">{{.Sdfr}}</td>
 	<td align="left" style="border-right-style:none;">{{.Ptime}}</td>

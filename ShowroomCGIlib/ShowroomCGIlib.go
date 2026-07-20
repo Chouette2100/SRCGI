@@ -341,11 +341,12 @@ import (
 201700 gtplは各ハンドラーにつき一つにする。データの受け渡しも単一の構造体とする。
 201701 gtpl及び構造体の単一化の不備を修正する。
 201800 配信履歴のハンドラー(OnLivesHandler())を追加する
+201801 配信履歴を利用できるハンドラを追加する
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201800"
+const Version = "201801"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
