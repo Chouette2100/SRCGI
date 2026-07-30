@@ -12,6 +12,11 @@
 </head>
 
 <body>
+    {{if (HasAnnouncement)}}
+    <div style="padding: 15px; margin: 0 0 20px 0; border-radius: 6px; background-color: {{(GetAnnouncement).BgColor}}; color: {{(GetAnnouncement).TextColor}}; font-size: 16px; font-weight: bold; text-align: center; border: 2px solid {{(GetAnnouncement).TextColor}}; word-wrap: break-word;">
+      {{(GetAnnouncement).Message}}
+    </div>
+    {{end}}
     <H2>SHOWROOM イベント 獲得ポイント一覧</H2>
 
     <p style="color:green;">更新や障害の状況については<a
@@ -45,6 +50,8 @@
         <a href="scheduledeventssvr">開催予定イベント一覧（内容詳細）</a> （開催が予定されているイベントの詳細が表示されます）
     </p>
     <p style="padding-left:2em"> -----------------------------------<br>
+    {{/*
+    */}}
     <p style="padding-left:2em">
     <a href="/listgs">「SHOWROOMライバー王決定戦」ギフトランキング </a>  （新規機能・テスト中）
     </p>

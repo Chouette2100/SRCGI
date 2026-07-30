@@ -49,6 +49,8 @@ type ClosedEventsInf struct {
 }
 
 // テンプレートで使用する関数を定義する
+var ClosedEventsfuncMap = &CommonFuncMap
+/*
 var ClosedEventsfuncMap = &template.FuncMap{
 	"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                          //	3桁ごとに","を入れる関数。
 	"UnixTimeToStr":  func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") },    //	UnixTimeを月日時分に変換する関数。
@@ -78,6 +80,7 @@ var ClosedEventsfuncMap = &template.FuncMap{
 		return a % b
 	},
 }
+*/
 
 // TurnstileChallengeDataインターフェースの実装
 func (h *ClosedEventsInf) SetTurnstileInfo(siteKey string, errorMsg string) {

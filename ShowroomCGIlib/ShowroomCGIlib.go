@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"regexp"
 
-	//	"html"
+	"html"
 	"log"
 
 	//	"math/rand"
@@ -342,11 +342,12 @@ import (
 201701 gtpl及び構造体の単一化の不備を修正する。
 201800 配信履歴のハンドラー(OnLivesHandler())を追加する
 201801 配信履歴を利用できるハンドラを追加する
+202000 全ページに告知を表示する機能を追加する(1 goテンプレートの修正)
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "201801"
+const Version = "202000"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -508,6 +509,21 @@ var OS string
 
 var clmlist map[string]string
 
+// ===== 告知機能用グローバル変数 =====
+// AnnouncementData は告知の内容と表示設定を保持する構造体
+type AnnouncementData struct {
+	Enabled   bool   // 表示の有効/無効
+	Message   string // 告知文本体
+	TextColor string // 文字色（hex形式: #RRGGBB）
+	BgColor   string // 背景色（hex形式: #RRGGBB）
+}
+
+// CurrentAnnouncement は現在の告知データをメモリに保持するグローバル変数
+var CurrentAnnouncement AnnouncementData
+
+// AnnouncementFormURL は告知入力フォームへアクセスするための乱数URL
+var AnnouncementFormURL string
+
 var CommonFuncMap template.FuncMap
 
 func init() {
@@ -518,19 +534,21 @@ func init() {
 	clmlist["user"] = srdblib.ExtractStructColumns(&srdblib.User{})
 
 	CommonFuncMap = sprig.FuncMap() // https://masterminds.github.io/sprig/
-	CommonFuncMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
+	CommonFuncMap["Add"] = func(n int, m int) int { return n + m }
 	CommonFuncMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
-	CommonFuncMap["TimeToString"] =
-		func(t time.Time, tfmt string) string { return t.Format(tfmt) } //	time.Timeを時分に変換する関数。
-	CommonFuncMap["UnixtimeToTime"] =
-		func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) } //	UnixTimeを時分に変換する関数。
-	// CurrentEvnetsHandler() などで使う
-	// CommonFuncMap["UnixTimeToStr"] = func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") } //	UnixTimeを年月日時分に変換する関数。
-	// CommonFuncMap["TimeToString"] =  func(t time.Time) string { return t.Format("01-02 15:04") }
-
-	// ListCntrbSHandler() で使う
-	CommonFuncMap["sub"] = func(i, j int) int { return i - j }
-
+	CommonFuncMap["CntToName"] = func(c int) string {
+			cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
+			return cntname[c]
+		}
+	CommonFuncMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
+	CommonFuncMap["DelBlockID"] = func(eid string) string {
+		eia := strings.Split(eid, "?")
+		if len(eia) == 2 {
+			return eia[0]
+		} else {
+			return eid
+		}
+	}
 	// CurrentEvnetsHandler() で使う
 	CommonFuncMap["Divide"] = func(a, b int) int {
 		if b == 0 {
@@ -538,11 +556,48 @@ func init() {
 		}
 		return a / b
 	}
+	CommonFuncMap["FormatTime"] = func(t time.Time, tfmt string) string { return t.Format(tfmt) }
+	CommonFuncMap["htmlEscapeString"] = func(s string) string { return html.EscapeString(s) }
+	CommonFuncMap["IsTempID"] = func(s string) bool { return strings.HasPrefix(s, "@@@@") }
 	CommonFuncMap["Mod"] = func(a, b int) int {
 		if b == 0 {
 			return 0 // ゼロ除算を避ける
 		}
 		return a % b
+	}
+	// ListCntrbSHandler() で使う
+	CommonFuncMap["sub"] = func(i, j int) int { return i - j }
+	CommonFuncMap["TimeToString"] =
+		func(t time.Time, tfmt string) string { return t.Format(tfmt) } //	time.Timeを時分に変換する関数。
+	CommonFuncMap["TimeToStringY"] = func(t time.Time) string { return t.Format("06-01-02 15:04") }
+	CommonFuncMap["UnixtimeToTime"] =
+		func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) } //	UnixTimeを時分に変換する関数。
+	CommonFuncMap["UnixTimeToStr"] =  func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") }    //	UnixTimeを月日時分に変換する関数。
+	CommonFuncMap["UnixTimeToStrY"] = func(i int64) string { return time.Unix(int64(i), 0).Format("06-01-02 15:04") } //	UnixTimeを年月日時分に変換する関数。
+	// CurrentEvnetsHandler() などで使う
+	// CommonFuncMap["UnixTimeToStr"] = func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") } //	UnixTimeを年月日時分に変換する関数。
+	// CommonFuncMap["TimeToString"] =  func(t time.Time) string { return t.Format("01-02 15:04") }
+
+
+
+	// ===== 告知機能用テンプレート関数 =====
+	CommonFuncMap["GetAnnouncement"] = func() AnnouncementData {
+		return CurrentAnnouncement
+	}
+	CommonFuncMap["HasAnnouncement"] = func() bool {
+		return CurrentAnnouncement.Enabled && CurrentAnnouncement.Message != ""
+	}
+	CommonFuncMap["SafeColor"] = func(color string) string {
+		// 簡易的なカラーバリデーション（#RRGGBB形式のみ許可）
+		if len(color) == 7 && color[0] == '#' {
+			for _, c := range color[1:] {
+				if (c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F') {
+					return "#cccccc" // フォールバック色
+				}
+			}
+			return color
+		}
+		return "#cccccc" // デフォルト色
 	}
 }
 

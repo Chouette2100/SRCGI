@@ -24,6 +24,12 @@
 </head>
 
 <body>
+    {{if (HasAnnouncement)}}
+    <div style="padding: 15px; margin: 0 0 20px 0; border-radius: 6px; background-color: {{(GetAnnouncement).BgColor}}; color: {{(GetAnnouncement).TextColor}}; font-size: 16px; font-weight: bold; text-align: center; border: 2px solid {{(GetAnnouncement).TextColor}}; word-wrap: break-word;">
+      {{(GetAnnouncement).Message}}
+    </div>
+    {{end}}
+
     <p>
     {{/*}}
     (外部リンク)<br>
@@ -105,7 +111,7 @@
             <td align="right">{{/* {{ $i }} */}}</td>
             <td align="center">{{ $n }}</td>
             <td class="no-border-right">
-            <a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a>
+            <a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }} <a href="/onlives?roomid={{.Userno}}">.</a></a>
             </td>
             <td class="no-border-left">
             <a href="https://www.showroom-live.com/room/profile?room_id={{ .Userno }}">prof.</a>

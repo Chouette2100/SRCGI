@@ -235,9 +235,11 @@ func CurrentEventsHandler(
 			}
 		})
 	*/
+	funcMap := CommonFuncMap
+	funcMap["TimeToString"] = func(t time.Time) string { return t.Format("01-02 15:04") }
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(CommonFuncMap).ParseFiles("templates/currentevents.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/currentevents.gtpl"))
 
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "currentevents.gtpl", top); err != nil {

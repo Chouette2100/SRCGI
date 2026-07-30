@@ -1,27 +1,20 @@
 package main
 
 import (
+	"context"
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
-	"strings"
-	"time"
-
-	"encoding/json"
-
-	//	"io"
-
-	// "golang.org/x/crypto/ssh/terminal"
-
-	// "golang.org/x/term"
-
-	"context"
-	// "io"
 	"os"
 	"os/signal"
 	"reflect"
 	"runtime"
+	"strconv"
+	"strings"
 	"syscall"
+	"time"
 
 	"crypto/tls"
 
@@ -199,9 +192,24 @@ import (
 	201603 showrank.gtpl, tmshowrank.gtpl, top.gtpl	の表示を改善する
 	201800 配信履歴のハンドラー(OnLivesHandler())を追加する
 	201900 設定ファイルをsops暗号化する
+	202000 全ページに告知を表示する機能を追加する(1 goテンプレートの修正)
 */
 
-const version = "201900"
+const version = "202000"
+
+// generateRandomURLToken は32文字のランダムトークンを生成する
+func generateRandomURLToken() string {
+	b := make([]byte, 24) // 24バイト = base64で32文字
+	if _, err := rand.Read(b); err != nil {
+		log.Fatalf("Failed to generate random token: %v", err)
+	}
+	token := base64.URLEncoding.EncodeToString(b)
+	// URLエンコードで使用不可の文字を除去し、最初の32文字を返す
+	if len(token) > 32 {
+		return token[:32]
+	}
+	return token
+}
 
 func NewLogfileName(logfile *os.File) {
 
@@ -568,6 +576,11 @@ func main() {
 	ShowroomCGIlib.Regexpbots = ReadBots()
 	ReadEntry()
 
+	// ===== 告知入力ページの乱数URL生成 =====
+	ShowroomCGIlib.AnnouncementFormURL = generateRandomURLToken()
+	log.Printf("[IMPORTANT] Announcement form URL: http://localhost:%s/ann/%s\n",
+		svconfig.HTTPport, ShowroomCGIlib.AnnouncementFormURL)
+
 	ShowroomCGIlib.LoadDenyIp("DenyIp.txt")
 	//	log.Printf("DenyIp.txt = %v\n", ShowroomCGIlib.DenyIpList)
 
@@ -734,7 +747,7 @@ func main() {
 				# systemctl restart apache2
 			とインストールしてCGIを使えるようにした環境だと
 				/usr/lib/cgi-bin/
-			にCGI（ShorroomCGI）を配置するわけですが、このディレクトリはCGI専用なので/usr/lib/cgi-bin/publicに作成したグラフが表示されません。
+			にCGI（ShowroomCGI）を配置するわけですが、このディレクトリはCGI専用なので/usr/lib/cgi-bin/publicに作成したグラフが表示されません。
 			グラフを表示するためには
 				# cd /var/www/html
 				# ln -s /usr/lib/cg-bin/public
@@ -760,6 +773,9 @@ func main() {
 	// =============================================
 
 	if !ShowroomCGIlib.Serverconfig.Maintenance {
+
+		// 告知入力ページ（認証なし、middleware経由しない）
+		http.HandleFunc("/ann/"+ShowroomCGIlib.AnnouncementFormURL, ShowroomCGIlib.AnnouncementHandler)
 
 		// http.HandleFunc(rootPath+"/top", commonMiddleware(rateLimiter, ShowroomCGIlib.TopFormHandler))
 		http.HandleFunc(rootPath+"/top", commonMiddleware(rateLimiter, ShowroomCGIlib.TopHandler))

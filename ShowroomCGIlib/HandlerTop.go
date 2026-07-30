@@ -8,7 +8,7 @@ import (
 	//	"bufio"
 	// "bytes"
 	"fmt"
-	"html"
+	// "html"
 	"log"
 
 	//	"math/rand"
@@ -117,6 +117,8 @@ func TopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//      テンプレートで使用する関数を定義する
+	funcmap := CommonFuncMap
+	/*
 	funcMap := template.FuncMap{
 		"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
 		"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
@@ -126,9 +128,10 @@ func TopHandler(w http.ResponseWriter, r *http.Request) {
 		},
 		"Add": func(n int, m int) int { return n + m },
 	}
+	*/
 	// テンプレートをパースする
 	// tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl", "templates/top1.gtpl", "templates/top2.gtpl"))
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcmap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl"))
 
 	// ログを読み出してHTMLを生成 --- (*7)r
 	err := loadLogs(&bbs) // データを読み出す

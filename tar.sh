@@ -10,8 +10,7 @@ run.sh \
 chgLM.sh \
 my_script.env \
 DBConfig.yml \
-DBConfig1.yml \
-ServerConfig.yml \
+*.enc.yml \
 bots.yml \
 nontargetentry.yml \
 Env.yml \

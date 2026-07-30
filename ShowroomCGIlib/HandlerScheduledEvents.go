@@ -19,7 +19,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/dustin/go-humanize"
+	// "github.com/dustin/go-humanize"
 	//	"github.com/Chouette2100/exsrapi/v2"
 	//	"github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srapi/v2"
@@ -78,12 +78,17 @@ func ScheduledEventsHandler(
 	//	srdblib.Tuser = "wuser"
 	//	srdblib.Tuserhistory = "wuserhistory"
 
+	/*
 	//	テンプレートで使用する関数を定義する
 	funcMap := template.FuncMap{
 		"Comma":         func(i int) string { return humanize.Comma(int64(i)) },                       //	3桁ごとに","を入れる関数。
 		"UnixTimeToStr": func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
 		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
 	}
+	*/
+
+	funcMap := CommonFuncMap
+	funcMap["TimeToString"] = func(t time.Time) string { return t.Format("01-02 15:04") }
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/scheduled-events.gtpl"))
