@@ -232,10 +232,10 @@
                     */}}
                 </td>
                 <td>
-                    {{ TimeToString .Start_time }}
+                    {{ TimeToString .Start_time "01-02 15:04" }}
                 </td>
                 <td>
-                    {{ TimeToString .End_time }}
+                    {{ TimeToString .End_time "01-02 15:04" }}
                 </td>
                 {{/*
                 <td style="text-align: center;">

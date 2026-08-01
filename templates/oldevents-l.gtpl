@@ -108,7 +108,7 @@
                     {{ TimeToStringY .Starttime }}
                 </td>
                 <td>
-                    {{ TimeToString .Endtime }}
+                    {{ TimeToString .Endtime "01-02 15:04" }}
                 </td>
                 <td>{{/* 最終結果<br>(30位まで) */}}</td>
                 <td>{{/* 表示項目<br>選択画面 */}}</td>

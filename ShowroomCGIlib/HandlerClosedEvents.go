@@ -158,7 +158,8 @@ func ClosedEventsHandler(
 	*/
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(*ClosedEventsfuncMap).ParseFiles("templates/closedevents.gtpl"))
+	tpl := template.Must(template.New("").Funcs(*ClosedEventsfuncMap).ParseFiles(
+		"templates/closedevents.gtpl"))
 
 	// テンプレートに埋め込むデータ（ポイントやランク）を作成する
 	top := new(ClosedEventsInf)

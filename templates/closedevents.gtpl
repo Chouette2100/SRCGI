@@ -577,7 +577,7 @@
                     {{ TimeToStringY .Start_time }}
                 </td>
                 <td>
-                    {{ TimeToString .End_time }}
+                    {{ TimeToString .End_time "01-02 15:04"}}
                 </td>
                 <td style="text-align: center;">
                     {{/* {{ if and (ne .I_Event_ID 0) ( ne .Aclr 0 ) }} */}}
