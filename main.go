@@ -193,9 +193,10 @@ import (
 	201800 配信履歴のハンドラー(OnLivesHandler())を追加する
 	201900 設定ファイルをsops暗号化する
 	202000 全ページに告知を表示する機能を追加する(1 goテンプレートの修正)
+	202001 全ページに告知を表示する機能を追加する(2 CloneCommmonFuncMap, MergeCommonFuncMapを利用する)
 */
 
-const version = "202000"
+const version = "202001"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {

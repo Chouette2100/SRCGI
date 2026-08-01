@@ -11,9 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Masterminds/sprig/v3"
-	"github.com/dustin/go-humanize"
-
 	"github.com/Chouette2100/srdblib/v3"
 )
 
@@ -249,14 +246,7 @@ SELECT er.point, er.lsnid, v.name,
 
 // renderTemplate はテンプレートを実行してレスポンスを返す
 func renderTemplate(w http.ResponseWriter, param ListenerCntrbHistoryParam) {
-	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
-
-	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
-	funcMap["FormatTime"] = func(t time.Time, layout string) string {
-		return t.Format(layout)
-	}
-	// funcMap["now"] = time.Now
-	funcMap["iscurrent"] = func(t time.Time) bool { return t.After(time.Now()) }
+	funcMap := CloneCommonFuncMap()
 
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/listener-cntrb-history.gtpl"))
 

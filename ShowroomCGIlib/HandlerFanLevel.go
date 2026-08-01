@@ -57,7 +57,7 @@ func FanLevelHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/fanlevel-user.gtpl",
 		"templates/fanlevel-room.gtpl",
 		"templates/fanlevel-lfu.gtpl",

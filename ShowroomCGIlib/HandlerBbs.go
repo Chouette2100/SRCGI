@@ -137,7 +137,7 @@ func DispBbsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//      テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"htmlEscapeString": func(s string) string { return html.EscapeString(s) }, //	必要か（もっとかんたんな方法がないか）確認のこと
 		"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 		"CntToName": func(c int) string {
@@ -145,7 +145,7 @@ func DispBbsHandler(w http.ResponseWriter, r *http.Request) {
 			return cntname[c]
 		},
 		"Add": func(n int, m int) int { return n + m },
-	}
+	})
 	// テンプレートをパースする
 	var tpl *template.Template
 	if !Serverconfig.Maintenance {

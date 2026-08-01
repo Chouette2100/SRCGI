@@ -18,6 +18,7 @@ import (
 
 	"html/template"
 	"net/http"
+
 	// "net/http/cookiejar"
 
 	// "net/http/cookiejar"
@@ -93,7 +94,7 @@ func TmShowRankHandler(
 	srdblib.Env.Waitmsec = waitmsec
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma":      func(i int) string { return humanize.Comma(int64(i)) }, //	3桁ごとに","を入れる関数。
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 		"Add":        func(a int, b int) int { return a + b },
@@ -101,7 +102,7 @@ func TmShowRankHandler(
 			sa := strings.Split(s, " | ")
 			return sa[len(sa)-1]
 		},
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/tmshowrank.gtpl"))

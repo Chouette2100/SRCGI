@@ -60,10 +60,10 @@ func ScheduledEventsSvrHandler(
 	defer cookiejar.Save()
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma":         func(i int) string { return humanize.Comma(int64(i)) },                       //	3桁ごとに","を入れる関数。
 		"UnixTimeToStr": func(i int64) string { return time.Unix(int64(i), 0).Format("01-02 15:04") }, //	UnixTimeを年月日時分に変換する関数。
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/scheduled-event-svr.gtpl"))

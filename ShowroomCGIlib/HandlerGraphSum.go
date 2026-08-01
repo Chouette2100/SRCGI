@@ -138,15 +138,8 @@ func GraphSumHandler(w http.ResponseWriter, r *http.Request) {
 	// -------------------------------------------
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-sum.gtpl"))
-
-	/*
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			// 外部のHTMLテンプレートを読み込む
-			tmpl := template.Must(template.ParseFiles("template.gtpl"))
-			tmpl.Execute(w, nil)
-		})
-	*/
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/graph-sum.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "graph-sum.gtpl", &top); err != nil {
 		// if err := tpl.Execute(w, nil); err != nil {

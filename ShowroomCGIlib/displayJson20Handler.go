@@ -7,10 +7,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/Masterminds/sprig/v3"
-	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/srapi/v2"
 )
@@ -92,9 +88,7 @@ func DisplayJSON20Handler(w http.ResponseWriter, r *http.Request) {
 		tmpl.Execute(w, data)
 	*/
 
-	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
-	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
-	funcMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
+	funcMap := CloneCommonFuncMap()
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/json20withC.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "json20withC.gtpl", data); err != nil {

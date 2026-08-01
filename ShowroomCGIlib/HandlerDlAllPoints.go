@@ -43,7 +43,7 @@ func DlAllPointsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/dl-all-points.gtpl",
 	))
 

@@ -59,7 +59,7 @@ func FlRankingHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/flranking.gtpl",
 	))
 

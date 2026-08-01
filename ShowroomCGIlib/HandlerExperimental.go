@@ -10,7 +10,6 @@ import (
 	"log"
 	//	"os"
 	//	"sort"
-	"strings"
 	"time"
 
 	//	"github.com/PuerkitoBio/goquery"
@@ -19,10 +18,7 @@ import (
 
 	"html/template"
 	"net/http"
-
 	// "database/sql"
-	"github.com/Masterminds/sprig/v3"
-	"github.com/dustin/go-humanize"
 )
 
 // ExperimentalHandler は枠別リスナー別貢献ポイントの取得対象ルームの編集を行います
@@ -34,9 +30,7 @@ func ExperimentalHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	experimental := Experimentl{}
 
-	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
-	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
-	funcMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
+	funcMap := CloneCommonFuncMap()
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/experimental.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "experimental.gtpl", experimental); err != nil {

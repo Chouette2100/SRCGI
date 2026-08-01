@@ -124,7 +124,8 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 	accessStatsHourlyData.Stats = stats
 
 	// テンプレートを実行
-	tpl := template.Must(template.ParseFiles("templates/accessstatshourly.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).
+		ParseFiles("templates/accessstatshourly.gtpl"))
 	err = tpl.Execute(w, accessStatsHourlyData)
 	if err != nil {
 		log.Printf("AccessStatsHourlyHandler() template error: %v", err)

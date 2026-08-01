@@ -54,7 +54,8 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/new-user.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/new-user.gtpl"))
 
 	eventid := r.FormValue("eventid")
 

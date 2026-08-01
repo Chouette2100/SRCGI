@@ -154,7 +154,7 @@ func EventTopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// -------------------------------------------
 
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/eventtop.gtpl",
 	))
 

@@ -109,11 +109,11 @@ func ListGiftScoreCntrbHandler(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 		"t2s":   func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-	}
+	})
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-gsc.gtpl"))
 
 	//	var eventinf exsrapi.Event_Inf

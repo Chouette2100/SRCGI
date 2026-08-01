@@ -29,7 +29,7 @@ func NewEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/new-event0.gtpl",
 		"templates/new-event1.gtpl",
 		"templates/new-event2.gtpl",

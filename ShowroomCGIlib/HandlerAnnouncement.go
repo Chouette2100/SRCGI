@@ -12,7 +12,8 @@ func AnnouncementHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		// フォーム表示
-		displayAnnouncementForm(w, r)
+		// displayAnnouncementForm(w, r)
+		displayAnnouncementForm(w)
 	case http.MethodPost:
 		// 告知内容の受け取り・保存
 		saveAnnouncement(w, r)
@@ -22,7 +23,8 @@ func AnnouncementHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // displayAnnouncementForm は告知入力フォームを表示する
-func displayAnnouncementForm(w http.ResponseWriter, r *http.Request) {
+func displayAnnouncementForm(w http.ResponseWriter) {
+// func displayAnnouncementForm(w http.ResponseWriter, r *http.Request) {
 	tpl := template.Must(template.ParseFiles("templates/announcement-form.gtpl"))
 
 	data := struct {

@@ -46,7 +46,8 @@ func AddEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).
+			ParseFiles(
 		"templates/add-event1.gtpl",
 		"templates/add-event2.gtpl",
 		"templates/error.gtpl",

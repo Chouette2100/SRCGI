@@ -215,7 +215,7 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 		cntrbs_header.Ifrm_f = -1
 	}
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(CommonFuncMap).ParseFiles("templates/list-cntrbS.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/list-cntrbS.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "list-cntrbS.gtpl", cntrbs_header); err != nil {
 		log.Println(err)

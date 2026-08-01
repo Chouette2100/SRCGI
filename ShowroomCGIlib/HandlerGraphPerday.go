@@ -77,7 +77,8 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-perday.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/graph-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
 	var eventinf *exsrapi.Event_Inf
@@ -142,7 +143,8 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/list-perday.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/list-perday.gtpl"))
 
 	eventid := r.FormValue("eventid")
 

@@ -18,8 +18,9 @@ import (
 
 	"html/template"
 	"net/http"
+	//	"net/http/cookiejar"
+
 	// "net/http/cookiejar"
-	"github.com/juju/persistent-cookiejar"
 
 	// "net/http/cookiejar"
 
@@ -182,12 +183,14 @@ func ShowRankHandler(
 	//	cookiejarがセットされたHTTPクライアントを作る
 	var err error
 	var client *http.Client
-	var jar *cookiejar.Jar
-	client, jar, err = exsrapi.CreateNewClient("XXXXXX")
-	if err != nil {
+	// var jar *cookiejar.Jar
+	tclient, jar, terr := exsrapi.CreateNewClient("XXXXXX")
+	if terr != nil {
+		err = fmt.Errorf("exsrapi.CreateNewClient(): %w", terr)
 		log.Printf("CreateNewClient: %s\n", err.Error())
 		return
 	}
+	client = tclient
 	//	すべての処理が終了したらcookiejarを保存する。
 	defer jar.Save()
 
@@ -222,7 +225,7 @@ func ShowRankHandler(
 	srdblib.Env.Waitmsec = waitmsec
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma":      func(i int) string { return humanize.Comma(int64(i)) }, //	3桁ごとに","を入れる関数。
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 		"Add":        func(a int, b int) int { return a + b },
@@ -230,7 +233,7 @@ func ShowRankHandler(
 			sa := strings.Split(s, " | ")
 			return sa[len(sa)-1]
 		},
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/showrank.gtpl"))

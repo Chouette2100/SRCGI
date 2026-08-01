@@ -145,12 +145,12 @@ func MonthlyCntrbRankOfListenerHandler(w http.ResponseWriter, req *http.Request)
 	}
 
 	// テンプレートをパースする
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":        func(i, j int) int { return i - j },
 		"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 		"FormatInt":  func(i int, tfmt string) string { return fmt.Sprintf(tfmt, i) },
-	}
+	})
 
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/m-cntrbrank-listener.gtpl"))
 
@@ -264,12 +264,12 @@ func MonthlyCntrbRankLgHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":        func(i, j int) int { return i - j },
 		"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 		"FormatInt":  func(i int, tfmt string) string { return fmt.Sprintf(tfmt, i) },
-	}
+	})
 
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/m-cntrbrank-Lg.gtpl"))
 

@@ -71,7 +71,7 @@ func AccessTableHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートを実行
-	tpl := template.Must(template.ParseFiles("templates/accesstable.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/accesstable.gtpl"))
 	err = tpl.Execute(w, data)
 	if err != nil {
 		log.Printf("AccessTableHandler() template error: %v", err)

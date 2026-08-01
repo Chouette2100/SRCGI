@@ -112,7 +112,8 @@ func GraphTotalHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-total.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/graph-total.gtpl"))
 
 	// テンプレートに出力する値をマップにセット
 	values := GraphPageData{

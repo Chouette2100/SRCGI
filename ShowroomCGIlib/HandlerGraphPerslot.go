@@ -72,7 +72,8 @@ func GraphPerslotHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-perslot.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/graph-perslot.gtpl"))
 
 	eventid := r.FormValue("eventid")
 	log.Printf("      eventid=%s\n", eventid)
@@ -112,7 +113,7 @@ func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/list-perslot1.gtpl",
 		"templates/list-perslot2.gtpl",
 	))

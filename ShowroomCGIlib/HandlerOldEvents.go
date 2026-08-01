@@ -91,11 +91,11 @@ func OldEventsHandler(
 	}
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"TimeToString":  func(t time.Time) string { return t.Format("01-02 15:04") },
 		"TimeToStringY": func(t time.Time) string { return t.Format("06-01-02 15:04") },
 		"IsTempID":      func(s string) bool { return strings.HasPrefix(s, "@@@@") },
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(

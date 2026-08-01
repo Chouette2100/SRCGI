@@ -88,10 +88,10 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-	}
+	})
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrb-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
 	/*
 		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex.gtpl"))

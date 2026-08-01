@@ -88,7 +88,7 @@ func CurrentDistributorsHandler(
 	defer jar.Save()
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma":                  func(i int) string { return humanize.Comma(int64(i)) },                            //	3桁ごとに","を入れる関数。
 		"UnixTimeToYYYYMMDDHHMM": func(i int64) string { return time.Unix(int64(i), 0).Format("2006-01-02 15:04") }, //	UnixTimeを時分に変換する関数。
 		"UnixTimeToHHMM":         func(i int64) string { return time.Unix(int64(i), 0).Format("15:04") },            //	UnixTimeを時分に変換する関数。
@@ -100,7 +100,7 @@ func CurrentDistributorsHandler(
 			}
 			return "n/a"
 		}, //	ジャンルIDをジャンル名に変換する関数
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/current-distrb.gtpl"))

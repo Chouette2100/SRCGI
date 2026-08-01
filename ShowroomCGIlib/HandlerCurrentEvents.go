@@ -235,8 +235,7 @@ func CurrentEventsHandler(
 			}
 		})
 	*/
-	funcMap := CommonFuncMap
-	funcMap["TimeToString"] = func(t time.Time) string { return t.Format("01-02 15:04") }
+	funcMap := CloneCommonFuncMap()
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/currentevents.gtpl"))

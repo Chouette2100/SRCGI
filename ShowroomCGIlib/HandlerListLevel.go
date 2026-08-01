@@ -49,7 +49,8 @@ func ListLevelHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/list-level.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/list-level.gtpl"))
 
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	levelonly, _ := strconv.Atoi(req.FormValue("levelonly"))

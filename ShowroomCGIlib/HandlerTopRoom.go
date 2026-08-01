@@ -244,10 +244,10 @@ func TopRoomHandler(
 	}
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma":      func(i int) string { return humanize.Comma(int64(i)) }, //	3桁ごとに","を入れる関数。
 		"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/toproom.gtpl"))

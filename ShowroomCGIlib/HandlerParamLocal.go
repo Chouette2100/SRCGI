@@ -16,7 +16,8 @@ func HandlerParamLocal(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/param-local.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/param-local.gtpl"))
 	values := SimpleMessagePageData{
 		Function: "イベントパラメータの設定",
 		Comment:  "この機能は現在作成中です。",
@@ -36,7 +37,8 @@ func ParamGlobalHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/param-global.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/param-global.gtpl"))
 	values := SimpleMessagePageData{
 		Function: "共通パラメータの設定",
 		Comment:  "この機能は現在作成中です。",
@@ -56,7 +58,8 @@ func CsvTotalHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/csv-total.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/csv-total.gtpl"))
 	values := SimpleMessagePageData{
 		Function: "獲得ポイントの推移（CSV）",
 		Comment:  "この機能は現在作成中です。",
@@ -76,7 +79,8 @@ func GraphDfrHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-dfr.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/graph-dfr.gtpl"))
 	values := SimpleMessagePageData{
 		Function: "獲得ポイントの差の推移（グラフ）",
 		Comment:  "この機能は現在作成中です。",

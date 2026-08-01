@@ -343,7 +343,7 @@ func EventRoomListHandler(
 	*/
 
 	// テンプレートをパースする
-	tpl := template.Must(template.New("").Funcs(CommonFuncMap).ParseFiles("templates/eventroomlist.gtpl", "templates/footer.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/eventroomlist.gtpl", "templates/footer.gtpl"))
 
 	// テンプレートへのデータの埋め込みを行う
 	if err = tpl.ExecuteTemplate(w, "eventroomlist.gtpl", erl); err != nil {

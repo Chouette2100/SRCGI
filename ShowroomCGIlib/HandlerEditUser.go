@@ -20,12 +20,8 @@ import (
 
 	"html/template"
 	"net/http"
-	"strings"
 
 	//	"database/sql"
-	"github.com/Masterminds/sprig/v3"
-	"github.com/dustin/go-humanize"
-
 	"github.com/Chouette2100/exsrapi/v2"
 	"github.com/Chouette2100/srdblib/v3"
 )
@@ -39,9 +35,7 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
-	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
-	funcMap["baseOfEventid"] = func(s string) string { ida := strings.Split(s, "?"); return ida[0] }
+	funcMap := CloneCommonFuncMap()
 	/*
 		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
 			"templates/edit-user1.gtpl",

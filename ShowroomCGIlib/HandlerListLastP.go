@@ -58,7 +58,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		//	3桁ごとに","を挿入する
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 		//	イベントIDがブロックIDを含む場合はそれを取り除く。
@@ -79,7 +79,7 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 			// return (a + b - 1) / b
 			return a / b
 		},
-	}
+	})
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-lastP.gtpl"))
 
 	eventid := req.FormValue("eventid")

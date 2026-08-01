@@ -127,10 +127,10 @@ func ClosedEventRoomListHandler(
 	defer jar.Save()
 
 	//	テンプレートで使用する関数を定義する
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma":          func(i int) string { return humanize.Comma(int64(i)) },                           //	3桁ごとに","を入れる関数。
 		"UnixtimeToTime": func(i int64, tfmt string) string { return time.Unix(int64(i), 0).Format(tfmt) }, //	UnixTimeを時分に変換する関数。
-	}
+	})
 
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/closedeventroomlist.gtpl", "templates/footer.gtpl"))

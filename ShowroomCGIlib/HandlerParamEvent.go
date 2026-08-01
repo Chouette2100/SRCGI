@@ -52,7 +52,7 @@ func ParamEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/param-event0.gtpl",
 		"templates/param-event1.gtpl",
 		"templates/param-event2.gtpl",
@@ -97,7 +97,8 @@ func ParamEventCHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/param-eventc.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/param-eventc.gtpl"))
 	eventid := r.FormValue("eventid")
 	log.Printf("      eventid=%s\n", eventid)
 

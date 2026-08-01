@@ -209,7 +209,7 @@ func handleEditToDoPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderEditToDo(w http.ResponseWriter, data TodoEditData) {
-	funcMap := template.FuncMap{
+	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 		"FormatTime": func(t time.Time) string {
 			return t.Format("2006-01-02 15:04")
@@ -220,7 +220,7 @@ func renderEditToDo(w http.ResponseWriter, data TodoEditData) {
 			}
 			return t.Format("2006-01-02 15:04")
 		},
-	}
+	})
 
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/edit-todo.gtpl"))
 

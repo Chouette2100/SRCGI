@@ -526,6 +526,25 @@ var AnnouncementFormURL string
 
 var CommonFuncMap template.FuncMap
 
+// CloneCommonFuncMap returns a shallow copy of CommonFuncMap.
+// Handlers must use a copy when they need to append/override template funcs.
+func CloneCommonFuncMap() template.FuncMap {
+	fm := make(template.FuncMap, len(CommonFuncMap))
+	for k, v := range CommonFuncMap {
+		fm[k] = v
+	}
+	return fm
+}
+
+// MergeCommonFuncMap returns a copied CommonFuncMap with extra funcs merged.
+func MergeCommonFuncMap(extra template.FuncMap) template.FuncMap {
+	fm := CloneCommonFuncMap()
+	for k, v := range extra {
+		fm[k] = v
+	}
+	return fm
+}
+
 func init() {
 	clmlist = make(map[string]string)
 	clmlist["wevent"] = srdblib.ExtractStructColumns(&srdblib.Wevent{})

@@ -122,7 +122,8 @@ func GraphGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	tpl := template.Must(template.ParseFiles("templates/graph-gs.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
+		"templates/graph-gs.gtpl"))
 
 	type Ggsheader struct {
 		Filename     string

@@ -117,17 +117,17 @@ func TopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//      テンプレートで使用する関数を定義する
-	funcmap := CommonFuncMap
+	funcmap := CloneCommonFuncMap()
 	/*
-	funcMap := template.FuncMap{
-		"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
-		"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-		"CntToName": func(c int) string {
-			cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
-			return cntname[c]
-		},
-		"Add": func(n int, m int) int { return n + m },
-	}
+		funcMap := template.FuncMap{
+			"htmlEscapeString": func(s string) string { return html.EscapeString(s) },
+			"FormatTime":       func(t time.Time, tfmt string) string { return t.Format(tfmt) },
+			"CntToName": func(c int) string {
+				cntname := []string{"不具合", "要望", "質問", "その他", "お知らせ", "すべて"}
+				return cntname[c]
+			},
+			"Add": func(n int, m int) int { return n + m },
+		}
 	*/
 	// テンプレートをパースする
 	// tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/top.gtpl", "templates/bbs-2.gtpl", "templates/top1.gtpl", "templates/top2.gtpl"))

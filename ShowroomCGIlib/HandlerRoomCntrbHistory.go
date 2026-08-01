@@ -11,9 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Masterminds/sprig/v3"
-	"github.com/dustin/go-humanize"
-
 	"github.com/Chouette2100/srdblib/v3"
 )
 
@@ -197,13 +194,7 @@ FROM eventrank er
 
 // renderRoomCntrbTemplate はテンプレートを実行してレスポンスを返す
 func renderRoomCntrbTemplate(w http.ResponseWriter, param RoomCntrbHistoryParam) {
-	funcMap := sprig.FuncMap() // https://masterminds.github.io/sprig/
-
-	funcMap["Comma"] = func(i int) string { return humanize.Comma(int64(i)) }
-	funcMap["FormatTime"] = func(t time.Time, layout string) string {
-		return t.Format(layout)
-	}
-	funcMap["iscurrent"] = func(t time.Time) bool { return t.After(time.Now()) }
+	funcMap := CloneCommonFuncMap()
 
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/room-cntrb-history.gtpl"))
 

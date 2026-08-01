@@ -205,18 +205,16 @@ func ListToDoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTodoList(w http.ResponseWriter, data TodoListData) {
-	funcMap := template.FuncMap{
-		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-		"FormatTime": func(t time.Time) string {
-			return t.Format("2006-01-02 15:04")
-		},
+	funcMap := MergeCommonFuncMap(template.FuncMap{
+		"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
+		"FormatTime": func(t time.Time) string { return t.Format("2006-01-02 15:04") },
 		"FormatTimePtr": func(t *time.Time) string {
 			if t == nil {
 				return "-"
 			}
 			return t.Format("2006-01-02 15:04")
 		},
-	}
+	})
 
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-todo.gtpl"))
 
