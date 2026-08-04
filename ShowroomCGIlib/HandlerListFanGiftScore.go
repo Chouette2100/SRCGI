@@ -117,14 +117,24 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	gsheader.Campaignid = req.FormValue("campaignid")
 	if gsheader.Campaignid == "" {
+		gsheader.Campaignid = "omatsuri2026(plelim.)"
+		gsheader.Campaignname = "おまつりライバー決定戦[2026]予選"
+		gsheader.Url = "https://campaign.showroom-live.com/omatsuri2026/"
+		// 1226,1227
+		// 1230,1231,1232,1233,1234,1235,1236,1237,1238,1239,1240
+		// 281,235
+	}
+	/*
+	if gsheader.Campaignid == "" {
 		gsheader.Campaignid = "kingofliver2024summer-autumn"
 		gsheader.Campaignname = "SHOWROOMライバー王決定戦summer/autumn"
 		gsheader.Url = "https://campaign.showroom-live.com/kingofliver2024/"
 	}
+	*/
 
 	grid, _ := strconv.Atoi(req.FormValue("giftid"))
 	if grid == 0 {
-		grid = 206
+		grid = 281
 	}
 
 	limit, _ := strconv.Atoi(req.FormValue("limit"))

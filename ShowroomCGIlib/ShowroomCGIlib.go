@@ -345,11 +345,12 @@ import (
 202000 全ページに告知を表示する機能を追加する(1 goテンプレートの修正)
 202001 全ページに告知を表示する機能を追加する(2 CloneCommmonFuncMap, MergeCommonFuncMapを利用する)
 202002 全ページに告知を表示する機能を追加する(2 名前が同じで仕様が違うFuncMapに関してgtplを修正する)
+202100 ギフトスコアの2026年(予選)対応を行う
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202002"
+const Version = "202100"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
