@@ -16,10 +16,10 @@
 <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
   </tr>
   <tr>
-  <td><button type="button" onclick="location.href='listvgs'">ファンランキング</button></td>
+  <td><button type="button" onclick="location.href='listvgs?campaignid={{.Campaignid}}&giftid={{.Grid}}'">ファンランキング</button></td>
 <td></td>
 <td></td>
-<td><button type="button" onclick="location.href='listgs?giftid={{.Grid}}'">ギフトランキングリスト</button></td>
+<td><button type="button" onclick="location.href='listgs?campaignid={{.Campaignid}}&giftid={{.Grid}}'">ギフトランキングリスト</button></td>
   </tr>
 </table>
   <h2>{{.Grname}}</h2>

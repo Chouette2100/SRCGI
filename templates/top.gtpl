@@ -53,8 +53,8 @@
     {{/*
     */}}
     <p style="padding-left:2em">
-    <a href="/listgs?campaignid=omatsuri2026(plelim.)">おまつりライバー決定戦[2006]　予選</a>
-    {{/* <a href="/listgs">おまつりライバー決定戦[2006]　決勝</a> */}}
+    <a href="/listgs?campaignid=omatsuri2026(plelim.)">おまつりライバー決定戦[2006]　予選</a> /
+    <a href="/listgs?campaignid=omatsuri2026(final)">おまつりライバー決定戦[2006]　決勝</a>
     </p>
     <form action="/showrank" method="get" >
         <p style="padding-left:2em">

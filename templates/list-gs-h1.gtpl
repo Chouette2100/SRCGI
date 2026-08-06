@@ -8,6 +8,8 @@
     </div>
     {{end}}
 
+<form>
+<input type="hidden" name="campaignid" value="{{.Campaignid}}">
 <table>
     <tr>
      <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
@@ -16,18 +18,24 @@
      <td><button type="button" onclick="location.href='closedevents'">終了イベント一覧</button></td>
     </tr>
     <tr>
-     <td><button type="button" onclick="location.href='listvgs'">ファンランキング</button></td>
+     {{/*
+     <td><button type="button" onclick="location.href='listvgs?campaignid={{.Campaignid}}'">ファンランキング</button></td>
+     */}}
+    <td><button type="submit" formaction="listvgs">ファンランキンググラフ</button></td>
      <td></td>
      <td></td>
-     <td><button type="button" onclick="location.href='graphgs?campaignid={{.Campaignid}}&giftid={{.Grid}}'">ギフトランキンググラフ</button>　<== 注 現在表示されているジャンルのグラフです</td>
-    </tr>
+     {{/*
+     <td><button type="button" onclick="location.href='graphgs?campaignid={{.Campaignid}}'">ギフトランキンググラフ</button>　<== 注 現在表示されているジャンルのグラフです</td>
+     */}}
+    <td><button type="submit" formaction="graphgs">ギフトランキンググラフ</button></td>
+</tr>
 
 </table>
 <br>
 <p><a href="{{ .Url }}">{{ .Campaignname }}</a>（{{ .Campaignid }}）</p>
 <p>　　{{ .Grname }}（{{ .Grid }}）</p>
 <br>
-<form>
+{{/* <form> */}}
 　　　　ギフト種別を選択する
 {{ $grid :=  .Grid }}
 <select name="giftid" type="text">

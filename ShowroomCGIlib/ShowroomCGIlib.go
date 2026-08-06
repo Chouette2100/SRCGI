@@ -351,11 +351,13 @@ import (
 202203 TurnstimeHandler()のFuncMapwをCloneCommonFuncMap()に変更する(1 if側)
 202205 TurnstimeHandler()のFuncMapwをCloneCommonFuncMap()に変更する(2 else側)
 202206 template.goのNewUserPageDataにMaxpoint, Gscaleを追加する（new-user.gtplで使用する）
+202207 ListCntrbHExHandler()でのテンプレートをlist-cntrb-h1.gtplをlist-cntrbex-h1.gtplに変更する
+       ギフトスコアの遷移を再調整する。
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202206"
+const Version = "202207"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

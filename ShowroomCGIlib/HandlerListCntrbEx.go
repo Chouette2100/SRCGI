@@ -95,7 +95,7 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 	})
 	*/
 	funcMap := CloneCommonFuncMap()
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrb-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
 	/*
 		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex.gtpl"))
 	*/
@@ -164,7 +164,7 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 
 	/*
 	 */
-	if err := tpl.ExecuteTemplate(w, "list-cntrb-h1.gtpl", cntrbheaderex); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-cntrbex-h1.gtpl", cntrbheaderex); err != nil {
 		log.Println(err)
 	}
 	if err := tpl.ExecuteTemplate(w, "list-cntrbex-h2.gtpl", cntrbheaderex); err != nil {

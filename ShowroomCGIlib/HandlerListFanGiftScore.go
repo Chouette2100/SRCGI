@@ -26,7 +26,7 @@ import (
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/Chouette2100/srdblib/v3"
-	"github.com/dustin/go-humanize"
+	// "github.com/dustin/go-humanize"
 	//	"github.com/Chouette2100/exsrapi/v2"
 )
 
@@ -104,12 +104,15 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
+	/*
 	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 		"t2s":   func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 	})
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
+	*/
+	// tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/list-vgs-h1.gtpl", "templates/list-vgs-h2.gtpl", "templates/list-vgs.gtpl"))
 
 	//	var eventinf exsrapi.Event_Inf
@@ -132,10 +135,12 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	*/
 
-	grid, _ := strconv.Atoi(req.FormValue("giftid"))
-	if grid == 0 {
-		grid = 281
+	gsheader.Grid, _ = strconv.Atoi(req.FormValue("giftid"))
+	vgrid := gsheader.Grid
+	if vgrid == 0 || vgrid > 1000 {
+		vgrid = 281
 	}
+	gsheader.Vgrid = vgrid
 
 	limit, _ := strconv.Atoi(req.FormValue("limit"))
 	if limit == 0 {
@@ -147,18 +152,18 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 		maxacq = 10
 	}
 
-	err := GetGiftRanking(&gsheader, grid, "fan")
+	err := GetGiftRanking(&gsheader, vgrid, "fan")
 	if err != nil {
 		err = fmt.Errorf("GetGiftRanking(): error %w", err)
 		log.Printf("%s", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
-	if grid == 0 {
-		grid = gsheader.GiftRanking[0].Grid
+	if vgrid == 0 {
+		vgrid = gsheader.GiftRanking[0].Grid
 	}
 
-	acqtimelist, _ := SelectVgsAcqTimeList(grid)
+	acqtimelist, _ := SelectVgsAcqTimeList(vgrid)
 	if len(acqtimelist) == 0 {
 		fmt.Fprintf(w, "HandlerFanGiftScore() No AcqTimeList\n")
 		fmt.Fprintf(w, "Check eventid and userno\n")
@@ -186,7 +191,7 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//	gsheader.Eventid = eventid
-	gsheader.Grid = grid
+	// gsheader.Grid = grid
 	gsheader.Maxacq = maxacq
 	gsheader.Limit = limit
 	//	gsheader.Eventname = eventinf.Event_name
@@ -232,7 +237,7 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	tsie := acqtimelist[ie]
 
-	vgslist, viewerid2order, err := SelectViewerid2Order(grid, tsie, limit)
+	vgslist, viewerid2order, err := SelectViewerid2Order(vgrid, tsie, limit)
 	if err != nil {
 		err = fmt.Errorf("SelectUserno2Order() returned %w", err)
 		log.Printf("HandlerListGiftScore(): err = %+v", err)
@@ -244,14 +249,14 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 		ts := acqtimelist[i]
 		gsheader.Stime = append(gsheader.Stime, ts)
 		//	log.Printf(" i=%d ts=%+v\n", i, ts)
-		err = SelectVgs(grid, ts, &vgslist, viewerid2order)
+		err = SelectVgs(vgrid, ts, &vgslist, viewerid2order)
 		if err != nil {
 			err = fmt.Errorf("SelectGs() returned %w", err)
 			log.Printf("HandlerListGiftScore(): err = %+v", err)
 			fmt.Fprintf(w, "HandlerListGiftScore(): err = %+v", err)
 			return
 		}
-		SelectVgsHeader(grid, ts, &gsheader)
+		SelectVgsHeader(vgrid, ts, &gsheader)
 		gsheader.Ifrm[i-ib] = i
 		gsheader.Nof[i-ib] = i + 1
 	}

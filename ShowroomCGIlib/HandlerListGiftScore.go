@@ -38,6 +38,7 @@ type GsHeader struct {
 	Url          string
 	Grid         int
 	Grname       string
+	Vgrid        int
 	Grtype       string
 	Cntrblst     int
 	Eventname    string
