@@ -26,7 +26,7 @@ import (
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
 	"github.com/Chouette2100/srapi/v2"
-	"github.com/dustin/go-humanize"
+	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 )
@@ -88,10 +88,13 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 
 	// テンプレートをパースする
 	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
+	/*
 	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":   func(i, j int) int { return i - j },
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
 	})
+	*/
+	funcMap := CloneCommonFuncMap()
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrb-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
 	/*
 		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex.gtpl"))

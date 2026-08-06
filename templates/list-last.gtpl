@@ -19,6 +19,15 @@
 			color: #FFFFFF;
 		}
 	</style>
+	<style>
+  		/* 縦線を消したい箇所の指定 */
+  		.no-right-border {
+    		border-right: none;
+  		}
+  		.no-left-border {
+    		border-left: none;
+  		}
+	</style>
 
 </head>
 <body>
@@ -102,16 +111,19 @@
 */}}
 <tr align="center">
 	<td>順位/<br>レベル</td>
-	<td>配信者<br>(プロフィール)<br>
-	<a  href="/edit-user?eventid={{.Eventid}}">一覧にないルームの追加<br>表示名・枠別貢献pt取得の設定</a></td>
+	<td colspan="2">配信者<br>(プロフィール)<br>
+		<a  href="/edit-user?eventid={{.Eventid}}">一覧にないルームの追加<br>表示名・枠別貢献pt取得の設定</a><br>
+		TL 配信タイムライン　直近2週間配信実績<br>
+		LR リスナー貢献ランキング　直近2ヶ月間<br>
+		CE ルームの参加した終了イベントの履歴</td>
 	<td>獲得<br>ポイント</td>
-	<td>ポイントの差</td><td style="border-right-style:none;">現配信開始</td>
+	<td>ポイント<br>の差</td><td style="border-right-style:none;">現配信開始</td>
 	<td style="border-left-style:none;">獲得<br>ポイント</td>
 	<td style="border-right-style:none;">前配信期間</td>
 	<td style="border-left-style:none;">獲得<br>ポイント</td>
 	<td>Next Live</td>
-	<td>LIVE(配信画面)<br>FC(ファンルーム)<br>Ctn1.(貢献）<br>Graph2(グラフ)<br>Graph（グラフ旧)<br>LPS(枠別獲得pt.)
-		<br>Cnt2.(枠別貢献)(<a href="/edit-user?eventid={{.Eventid}}">取得設定</a>)
+	<td>LIVE(配信画面)<br>FC(ファンルーム)<br>C1(貢献）<br>G2(グラフ)<br>G（グラフ旧)<br>LPS(枠別獲得pt.)
+		<br>C2(枠別貢献)(<a href="/edit-user?eventid={{.Eventid}}">取得設定</a>)
 		<br>※ イベント貢献履歴</td>
 	{{ if and (eq $Detail "1") (ne $Isover "1") }}
 	<td style="border-right-style:none;">ジャンル</td>
@@ -146,7 +158,12 @@
 
 
 
-	<td><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a> <a href="/onlives?roomid={{.Userno}}">.</a></td>
+	<td class="no-right-border"><a href="https://www.showroom-live.com/room/profile?room_id={{.Userno}}">{{.Username}}</a></td>
+	<td class="no-left-border">
+		<a href="/onlives?roomid={{.Userno}}">TL</a>
+		<a href="room-cntrb-history?userid={{.Userno}}">LR</a>
+		<a href="closedevents?userno={{.Userno}}&mode=0&path=5">CE</a>
+	</td>
 	<td align="right">{{.Spoint}}</td>
 	<td align="right">{{.Sdfr}}</td>
 	<td align="left" style="border-right-style:none;">{{.Ptime}}</td>
@@ -158,16 +175,16 @@
 		{{ if ne .Userno 0 }}
 			<a href="https://www.showroom-live.com/{{.Shorturl}}">LIVE</a>/
 			<a href="https://www.showroom-live.com/room/fan_club?room_id={{.Userno}}">FC</a>/
-			<a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Eventid }}?room_id={{.Userno}}">Cnt1.</a>/
+			<a href="https://www.showroom-live.com/event/contribution/{{ DelBlockID .Eventid }}?room_id={{.Userno}}">C1</a>/
 			{{ if ne .Nperslot 0 }}
-				<a href="graph-sum2?eventid={{.Eventid}}&roomid={{.Userno}}">GSum2</a>/
-				<a href="graph-sum?eventid={{.Eventid}}&roomid={{.Userno}}">GSum.</a>/
+				<a href="graph-sum2?eventid={{.Eventid}}&roomid={{.Userno}}">G2</a>/
+				<a href="graph-sum?eventid={{.Eventid}}&roomid={{.Userno}}">G</a>/
 				<a href="list-perslot?eventid={{.Eventid}}&roomid={{.Userno}}">LPS</a>/
 			{{ else }}
-				GSum2/&nbsp;GSum./&nbsp;LPS/
+				G2/&nbsp;G/&nbsp;LPS/
 			{{ end }}
 			{{ if ge .Ncntrb 1 }}
-				<a href="list-cntrb?eventid={{.Eventid}}&userno={{.Userno}}">Cnt2.</a>
+				<a href="list-cntrb?eventid={{.Eventid}}&userno={{.Userno}}">C2</a>
 			{{ else if ne .Spoint "0" }}
 				<a href="list-cntrbex?eventid={{.Eventid}}&userno={{.Userno}}">※</a>
 			{{ else }}
@@ -217,6 +234,9 @@
 		{{ end }}
 	</form>
 {{ end }}
+<p style="padding-left:2em">
+
+</pr>
 <p style="padding-left:2em"><span style="color:red;">レベルイベントは最終レベルを達成したあとは正しい獲得ポイントは（取得できないので）表示されません。</span><br>
 イベント終盤になると表示される順位も正確ではなくなります。これについては今後改善予定です。
 <p style="padding-left:2em"><span style="color:red;">表に空白行があるとき</span><br>

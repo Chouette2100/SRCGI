@@ -127,6 +127,8 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 		Msg1:       "の参加ルームとして",
 		Msg2:       "を登録しますか？（（実害はありませんが）ブロックイベントはblock_idが違っていても登録されるので注意してください）",
 		Msg2color:  "black",
+		Maxpoint:   fmt.Sprintf("%d", eventinf.Maxpoint),
+		Gscale:     fmt.Sprintf("%d", eventinf.Gscale),
 	}
 
 	if status_col == 0 {

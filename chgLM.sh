@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nfn=`ls -tr SRCGI.2025*|tail -1`; echo $nfn
+nfn=`ls -tr SRCGI.202*|tail -1`; echo $nfn
 nbe=$(basename "$nfn");echo $nbe
 
 systemctl --user stop SRCGI

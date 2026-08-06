@@ -53,7 +53,8 @@
     {{/*
     */}}
     <p style="padding-left:2em">
-    <a href="/listgs">「SHOWROOMライバー王決定戦」ギフトランキング </a>  （新規機能・テスト中）
+    <a href="/listgs?campaignid=omatsuri2026(plelim.)">おまつりライバー決定戦[2006]　予選</a>
+    {{/* <a href="/listgs">おまつりライバー決定戦[2006]　決勝</a> */}}
     </p>
     <form action="/showrank" method="get" >
         <p style="padding-left:2em">

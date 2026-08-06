@@ -194,9 +194,11 @@ import (
 	201900 設定ファイルをsops暗号化する
 	202000 全ページに告知を表示する機能を追加する(1 goテンプレートの修正)
 	202001 全ページに告知を表示する機能を追加する(2 CloneCommmonFuncMap, MergeCommonFuncMapを利用する)
+	202202 一時的にTurnstileの検証を行わないようにする
+	202204 Turnstileの検証を行うようにする
 */
 
-const version = "202001"
+const version = "202204"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {

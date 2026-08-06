@@ -346,11 +346,16 @@ import (
 202001 全ページに告知を表示する機能を追加する(2 CloneCommmonFuncMap, MergeCommonFuncMapを利用する)
 202002 全ページに告知を表示する機能を追加する(2 名前が同じで仕様が違うFuncMapに関してgtplを修正する)
 202100 ギフトスコアの2026年(予選)対応を行う
+202200 配信ルームの情報に関するリンクを増やし選択しやすくする。
+202201 HandlerListCntrbH.goでのFuncMapをCloneCommonFuncMap()に変更する
+202203 TurnstimeHandler()のFuncMapwをCloneCommonFuncMap()に変更する(1 if側)
+202205 TurnstimeHandler()のFuncMapwをCloneCommonFuncMap()に変更する(2 else側)
+202206 template.goのNewUserPageDataにMaxpoint, Gscaleを追加する（new-user.gtplで使用する）
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202100"
+const Version = "202206"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -580,6 +585,7 @@ func init() {
 	}
 	CommonFuncMap["FormatTime"] = func(t time.Time, tfmt string) string { return t.Format(tfmt) }
 	CommonFuncMap["htmlEscapeString"] = func(s string) string { return html.EscapeString(s) }
+	CommonFuncMap["iscurrent"] = func(t time.Time) bool { return t.After(time.Now()) }
 	CommonFuncMap["IsTempID"] = func(s string) bool { return strings.HasPrefix(s, "@@@@") }
 	CommonFuncMap["Mod"] = func(a, b int) int {
 		if b == 0 {

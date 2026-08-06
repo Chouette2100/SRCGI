@@ -21,6 +21,7 @@ type ListenerCntrbHistoryData struct {
 	Name      string    // リスナー名
 	Userid    int       // リスナーID
 	UserName  string    `db:"user_name"` // ルーム名
+	Longname  string    `db:"longname"` // ルーム名
 	Eventid   string    // イベントID
 	Ieventid  int       // イベントID
 	EventName string    `db:"event_name"` // イベント名
@@ -169,7 +170,7 @@ func selectListenerCntrbHistory(
 		// このイベントに参加するルームに対する貢献のみ表示
 		sqlst = `
 SELECT er.point, er.lsnid, v.name,
-	   er.userid, u.user_name,
+	   er.userid, u.user_name, u.longname,
 	   er.eventid, e.ieventid, e.event_name, e.starttime, e.endtime
 	FROM eventrank er
     JOIN event e ON e.eventid = er.eventid
@@ -203,7 +204,7 @@ SELECT er.point, er.lsnid, v.name,
 		// このイベントに参加していないルームに対する貢献も表示
 		sqlst = `
 SELECT er.point, er.lsnid, v.name,
-	   er.userid, u.user_name,
+	   er.userid, u.user_name, u.longname,
 	   er.eventid, e.ieventid, e.event_name, e.starttime, e.endtime
 	FROM eventrank er
   JOIN event e ON e.eventid = er.eventid

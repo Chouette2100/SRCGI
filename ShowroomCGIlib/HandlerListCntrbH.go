@@ -25,7 +25,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//	"github.com/PuerkitoBio/goquery"
 	//	svg "github.com/ajstarks/svgo/float"
-	"github.com/dustin/go-humanize"
+	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
 )
@@ -83,11 +83,14 @@ type CntrbHistory []CntrbHistoryInf
 
 */
 // TurnstileChallengeDataインターフェースの実装
+/*
 var ListCntrbHfuncMap = &template.FuncMap{
 	"sub":        func(i, j int) int { return i - j },
 	"Comma":      func(i int) string { return humanize.Comma(int64(i)) },
 	"FormatTime": func(t time.Time, tfmt string) string { return t.Format(tfmt) },
 }
+*/
+var ListCntrbHfuncMap = CloneCommonFuncMap()
 
 func (h *CntrbH_Header) SetTurnstileInfo(siteKey string, errorMsg string) {
 	h.TurnstileSiteKey = siteKey
@@ -103,7 +106,7 @@ func (h *CntrbH_Header) GetTemplateName() string {
 }
 
 func (h *CntrbH_Header) GetFuncMap() *template.FuncMap {
-	return ListCntrbHfuncMap
+	return &ListCntrbHfuncMap
 }
 
 // -------------------------------------------
@@ -221,7 +224,7 @@ func ListCntrbHHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpl := template.Must(template.New("").Funcs(*ListCntrbHfuncMap).ParseFiles("templates/list-cntrbH.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/list-cntrbH.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "list-cntrbH.gtpl", cntrbh_header); err != nil {
 		log.Println(err)

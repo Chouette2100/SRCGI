@@ -1,0 +1,54 @@
+## CGIとして動作させるときのWebサーバを指定する。
+## WebServer nginxSakura, Apache2Ubuntu or None
+## NoneはこのプログラムをWebサーバとして動作させる。
+## この設定はグラフを作るときSVGファイルをどこに置くかということに関係する。
+## グラフを出力しないケースではどのような設定にしても問題ないでしょう。
+WebServer: None
+# HTTPport: 8080
+HTTPport: 8000
+# Cloudflare Turnstile設定
+TurnstileSiteKey: ENC[AES256_GCM,data:4Gfy96nrAAJTJGIUb0VwTSP+7tuZkbO/,iv:pM9z1sF9PPkyJHu4lG7pIcd6eAC4yOejiJ1w7oksQfU=,tag:ZWmJUAIDMGc8J/+3LK7Fkw==,type:str]
+TurnstileSecretKey: ENC[AES256_GCM,data:hB0sg47C5AX1z2Oym9KZ8NQ1XYnpwzABMzUdy/AIXE+7SJQ=,iv:wb5NsCO7fnXLREImWEYx4mEiVi4sEjGuEDIgacOTUbI=,tag:GLyeHLZZ5HZsEOls8wtETw==,type:str]
+# Turnstileセッション管理
+TurnstileUseSession: true # セッション機能の有効/無効
+TurnstileSessionDuration: 28800 # セッション有効期間（秒）デフォルト1時間
+TurnstileSessionMaxUses: 0 # セッション内の最大利用回数（0=無制限）
+# SSLに関する設定は環境変数で渡す。
+## CGIとして実行するときあるいはSSLを使用せずWebServerとして実行するときは設定しない。
+## SSL証明書関連のファイルはふつうrootしか参照できない形でおかれているので
+## その対策が必要です。
+## 今は~/.letsencrypt にコピーしてきて使っていますが...
+SSLcrt: null
+SSLkey: null
+# イベント一覧に表示するイベントの数（緊急対応でここに）
+NoEvent: 30
+# メンテナンスに際して機能を停止し、メンテナンス中であることを表示する
+#Maintenance: true
+#
+# ボットの排除レベル
+LvlBots: 3
+# 時間枠のアクセス回数上限
+AccessLimit: 3
+# アクセス回数制限の時間枠(秒単位)
+TimeWindow: 1
+# IPアドレス暗号化キー
+IPEncryptionKeyHex: ENC[AES256_GCM,data:I5P6vKwscGWVt1sgmW4mMnspL9wij6aam2KBrweqS5hv2lkKw2+SrVi3/vmNS5tTqiZvq6T3Bc5rotLilHKPDw==,iv:hkPscJDnS1M662ghgk10PHJAW9LHfERMDhVmi2RLM6k=,tag:FK260eCSKcD9QbXfpKhXhg==,type:str]
+# IPアドレスによるアクセス制限を行うか？
+DenyNonJP: false
+# ユーザー情報登録のエンドポイント
+GWURL: http://localhost:8888/
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBrVGxOb1Faam5yT3RQdFlX
+            YlhtTXIzNHBjMS9HR0IzWHZSZFpCQy90djA0CkNqYjBCcWhvanJObWpGWm5lcUtu
+            N2czUVB5WjZNOHZEWmxHZXR6dWRRZVUKLS0tIDJwZmhCVzBJZWRkNG5Bb2lCRnBm
+            S2dBVFZRSU1KWjR3REg0K1FXMXdzM2cK6TKcW9j3M9KjpZRmK8umfcM9fOq3bor8
+            bRFZ9C17L7LTHnIkxA1NBmh4rlxdccEuDpC06PYoxA+pE5iyjgD48w==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
+    encrypted_regex: ^(SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex)$
+    lastmodified: "2026-08-05T01:55:45Z"
+    mac: ENC[AES256_GCM,data:c0DBirbPp6tkhuiHmYY0BI1eBQUcs/NZmAj53WDP1N4tEY+p27ApeLQli2FmSN0euR583kLL8GN0hIPwNNl7a6yK9YstkKcb/WiX3URHpNYjl4Q0iwCTr2O5hNSHsY39aytvQCVKhltvL0tEOCEDPLbnwsWNE5vQoD4iJftAsP0=,iv:714MhBXaV1aDea81tjY3vnXVH6kC5WWA6T6nBnkIDSA=,tag:pOQ9vEaI+5wYZ8d8IvkNIw==,type:str]
+    version: 3.13.2

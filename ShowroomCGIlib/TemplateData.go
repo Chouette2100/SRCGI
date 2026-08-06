@@ -43,6 +43,8 @@ type NewUserPageData struct {
 	Msg1       string
 	Msg2       string
 	Msg2color  string
+	Maxpoint   string
+	Gscale   string
 }
 
 type NewEventPageData struct {

@@ -8,9 +8,7 @@ tar zcvf SRCGI_$filename.tar.gz \
 SRCGI \
 run.sh \
 chgLM.sh \
-my_script.env \
-DBConfig.yml \
-*.enc.yml \
+*.enc.yaml \
 bots.yml \
 nontargetentry.yml \
 Env.yml \

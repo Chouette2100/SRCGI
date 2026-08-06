@@ -99,8 +99,9 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 
 	// テンプレートを実行
 	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/accessstats.gtpl"))
-	err = tpl.Execute(w, accessStatsData)
-	if err != nil {
+	// 構造体を渡してテンプレートを出力する
+	//	err = tpl.Execute(w, accessStatsData)
+	if err := tpl.ExecuteTemplate(w, "accessstats.gtpl", accessStatsData); err != nil {
 		log.Printf("AccessStatsHandler() template error: %v", err)
 		http.Error(w, "Template error", http.StatusInternalServerError)
 		return

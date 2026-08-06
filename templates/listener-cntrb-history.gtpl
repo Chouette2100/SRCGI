@@ -257,7 +257,7 @@
             {{ end }}
                 <td>{{ Comma .Point }}</td>
                 <td><a href="/list-cntrbHEx?eventid={{.Eventid}}&userno={{.Userid}}&tlsnid={{.Lsnid}}">{{.Name }}</td>
-                <td>{{ .UserName }}</td>
+                <td>{{ .Longname }}</td>
                 <td>{{ .EventName }}</td>
                 <td>{{ FormatTime .Starttime "2006-01-02 15:04" }}</td>
                 <td>{{ FormatTime .Endtime "2006-01-02 15:04" }}</td>

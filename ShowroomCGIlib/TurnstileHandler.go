@@ -125,10 +125,13 @@ func showTurnstileChallenge(
 	var tpl *template.Template
 	var err error
 	if challengeData.GetFuncMap() != nil {
-		tpl = template.Must(template.New("").Funcs(*challengeData.GetFuncMap()).
+		// tpl = template.Must(template.New("").Funcs(*challengeData.GetFuncMap()).
+		tpl = template.Must(template.New("").Funcs(CloneCommonFuncMap()).
 			ParseFiles(challengeData.GetTemplatePath(), "templates/turnstilechallenge.gtpl"))
 	} else {
-		tpl, err = template.ParseFiles(challengeData.GetTemplatePath(), "templates/turnstilechallenge.gtpl")
+		// tpl, err = template.ParseFiles(challengeData.GetTemplatePath(), "templates/turnstilechallenge.gtpl")
+		tpl, err = template.New("").Funcs(CloneCommonFuncMap()).
+			ParseFiles(challengeData.GetTemplatePath(), "templates/turnstilechallenge.gtpl")
 		if err != nil {
 			log.Printf("Template parse error: %s\n", err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

@@ -104,6 +104,7 @@ type GsInf struct {
 func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
 	var gsheader GsHeader
+	var err error
 
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
@@ -138,24 +139,32 @@ func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	gsheader.Campaignid = req.FormValue("campaignid")
 	if gsheader.Campaignid == "" {
 		gsheader.Campaignid = "omatsuri2026(plelim.)"
-		gsheader.Campaignname = "おまつりライバー決定戦[2026]予選"
-		gsheader.Url = "https://campaign.showroom-live.com/omatsuri2026/"
 		// 1226,1227
 		// 1230,1231,1232,1233,1234,1235,1236,1237,1238,1239,1240
 		// 281,235
 	}
-	/*
-		gsheader.Campaignid = req.FormValue("campaignid")
-		if gsheader.Campaignid == "" {
-			gsheader.Campaignid = "kingofliver2024summer-autumn"
-			gsheader.Campaignname = "SHOWROOMライバー王決定戦summer/autumn"
-			gsheader.Url = "https://campaign.showroom-live.com/kingofliver2024/"
-		}
-	*/
+	var intrf any
+	intrf, err = Dbmap0.Get(srdblib.Campaign{}, gsheader.Campaignid)
+	if err != nil {
+		err = fmt.Errorf("Dbmap0.Get(srdblib.Campaign{}, %s) err = %w", gsheader.Campaignid, err)
+		log.Printf("%s\n", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+	campaign := intrf.(*srdblib.Campaign)
+	gsheader.Campaignname = campaign.Campaignname
+	gsheader.Url = campaign.Url
 
 	grid, _ := strconv.Atoi(req.FormValue("giftid"))
 	if grid == 0 {
-		grid = 1226
+		sqlst := "select min(grid) from giftranking where campaignid = ? and grtype = ? "
+		err = Dbmap0.SelectOne(&grid, sqlst, gsheader.Campaignid, "liver")
+		if err != nil {
+			err = fmt.Errorf("GetGiftRanking(): error %w", err)
+			log.Printf("%s", err.Error())
+			w.Write([]byte(err.Error()))
+			return
+		}
 	}
 	limit, _ := strconv.Atoi(req.FormValue("limit"))
 	if limit == 0 {
@@ -167,16 +176,15 @@ func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 		maxacq = 10
 	}
 
-	err := GetGiftRanking(&gsheader, grid, "liver")
+	sqlst := "select grid, grname from giftranking where campaignid = ? and grtype = ? "
+	_, err = Dbmap0.Select(&gsheader.GiftRanking, sqlst, gsheader.Campaignid, "liver")
 	if err != nil {
-		err = fmt.Errorf("GetGiftRanking(): error %w", err)
+		err = fmt.Errorf("Dbmap0.Select() error %w", err)
 		log.Printf("%s", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
-	if grid == 0 {
-		grid = gsheader.GiftRanking[0].Grid
-	}
+
 	//	for i := 0; i < len(gsheader.GiftRanking); i++ {
 	//		if gsheader.GiftRanking[i].Grid == grid {
 	//			gsheader.Grtype =gsheader.GiftRanking[i].Grtype
@@ -215,6 +223,12 @@ func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	//	gsheader.Eventid = eventid
 	//	gsheader.GiftRanking = giftranking
 	gsheader.Grid = grid
+	for i := 0; i < len(gsheader.GiftRanking); i++ {
+		if gsheader.GiftRanking[i].Grid == grid {
+			gsheader.Grname = gsheader.GiftRanking[i].Grname
+			break
+		}
+	}
 	gsheader.Maxacq = maxacq
 	gsheader.Limit = limit
 	//	gsheader.Eventname = eventinf.Event_name

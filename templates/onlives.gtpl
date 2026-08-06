@@ -184,7 +184,16 @@
     <button type="button" onclick="location.href='closedevents'">終了イベント一覧表</button>　
     </p>
     <div class="panel">
-        <h1>配信タイムライン roomid={{.RoomID}}</h1>
+        {{/* <h1>配信タイムライン roomid={{.RoomID}}</h1> */}}
+        <h1>配信タイムライン</h1>
+        <h2>{{.RoomName}}</h2>
+        <p>
+        <a href="https://www.showroom-live.com/room/profile?room_id={{.RoomID}}">Prof.</a>/{{.RoomID}}
+        <a href="https://www.showroom-live.com/r/{{.RoomURL}}">Live</a>/{{.RoomURL}}
+        <a href="room-cntrb-history?userid={{.RoomID}}">リスナーランキング</a>
+        <a href="closedevents?userno={{.RoomID}}&mode=0&path=5">終了イベント</a>
+        <a href="onlives?roomid={{.RoomID}}">配信タイムライン</a>
+        </p>
         <p class="meta">期間: {{.WindowStart.Format "2006-01-02"}} から {{.WindowEnd.AddDate 0 0 -1 | date "2006-01-02"}} (JST)
             <span class="order-chip">表示順: {{.SortOrderLabel}}</span>
             <a href="/onlives?roomid={{.RoomID}}&days={{.Days}}&order={{.ToggleSortOrder}}">{{.ToggleSortOrderLabel}}</a>
