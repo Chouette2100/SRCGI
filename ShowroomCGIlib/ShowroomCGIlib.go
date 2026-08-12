@@ -353,11 +353,12 @@ import (
 202206 template.goのNewUserPageDataにMaxpoint, Gscaleを追加する（new-user.gtplで使用する）
 202207 ListCntrbHExHandler()でのテンプレートをlist-cntrb-h1.gtplをlist-cntrbex-h1.gtplに変更する
        ギフトスコアの遷移を再調整する。
+202208 GraphGiftScore()の最大表示ルーム数の上限を25とする
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202207"
+const Version = "202208"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

@@ -51,9 +51,9 @@ func GraphGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	campaignid := req.FormValue("campaignid")
 	giftid, _ := strconv.Atoi(req.FormValue("giftid"))
 	target, _ := strconv.Atoi(req.FormValue("target"))
-	nroom, _ := strconv.Atoi(req.FormValue("nroom"))
-	if nroom == 0 {
-		nroom = 10
+	nroom, _ := strconv.Atoi(req.FormValue("limit"))
+	if nroom == 0 || nroom > 25 {
+		nroom = 25
 	}
 	smaxpoint := req.FormValue("maxpoint")
 	maxpoint, _ := strconv.Atoi(smaxpoint)
