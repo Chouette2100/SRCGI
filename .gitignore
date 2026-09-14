@@ -1,5 +1,6 @@
 tmp/
 my_script.env
+ServerConfig.enc.yaml
 .node_modules
 node_modules
 settings.json

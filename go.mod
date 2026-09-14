@@ -4,16 +4,16 @@ go 1.26.3
 
 require (
 	github.com/Chouette2100/exsrapi/v2 v2.4.0
-	github.com/Chouette2100/srapi/v2 v2.6.0
+	github.com/Chouette2100/srapi/v2 v2.8.1
 	github.com/Chouette2100/srcom v0.0.2
-	github.com/Chouette2100/srdblib/v3 v3.1.0
+	github.com/Chouette2100/srdblib/v3 v3.3.1
 	github.com/Chouette2100/srhandler/v2 v2.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
-	github.com/PuerkitoBio/goquery v1.12.0
+	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-gorp/gorp v2.2.0+incompatible
-	github.com/go-sql-driver/mysql v1.10.0
+	github.com/go-sql-driver/mysql v1.10.1
 	github.com/google/uuid v1.6.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -23,7 +23,7 @@ require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.3.0 // indirect
-	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/andybalholm/cascadia v1.3.4 // indirect
 	github.com/goark/errs v1.1.0 // indirect
 	github.com/goark/sshql v0.2.0 // indirect
 	github.com/goark/sshql/mysqldrv v0.4.0 // indirect
@@ -35,10 +35,10 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	golang.org/x/crypto v0.49.0 // indirect
-	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
 	gopkg.in/errgo.v1 v1.0.1 // indirect
 	gopkg.in/retry.v1 v1.0.3 // indirect
 )

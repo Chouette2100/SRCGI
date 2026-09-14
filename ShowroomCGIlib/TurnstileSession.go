@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -116,10 +117,13 @@ func VerifyTurnstileSessionCookie(r *http.Request) (bool, *http.Cookie, error) {
 
 	// IPアドレスを取得
 	currentIP := RemoteAddr(r)
+	sessionIP := cookieIP
 
-	// IPアドレスが一致するか確認
+	// IPアドレス不一致は当面エラーにせず、監視ログに記録する
 	if cookieIP != currentIP {
-		return false, nil, fmt.Errorf("IP mismatch: cookie=%s, current=%s", cookieIP, currentIP)
+		log.Printf("Turnstile session IP mismatch (allowed): cookie=%s, current=%s, ua=%q", cookieIP, currentIP, r.UserAgent())
+		// 次回以降の不要なミスマッチを減らすため、セッションIPは現在IPへ更新する
+		sessionIP = currentIP
 	}
 
 	// 有効期限を確認
@@ -136,7 +140,7 @@ func VerifyTurnstileSessionCookie(r *http.Request) (bool, *http.Cookie, error) {
 
 	// カウンターをインクリメント
 	newCounter := counter + 1
-	newData := fmt.Sprintf("%s|%d|%d", cookieIP, timestamp, newCounter)
+	newData := fmt.Sprintf("%s|%d|%d", sessionIP, timestamp, newCounter)
 	newSignature := generateHMAC(newData)
 	newCookieValue := base64.StdEncoding.EncodeToString([]byte(newData + "|" + newSignature))
 

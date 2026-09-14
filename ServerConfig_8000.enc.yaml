@@ -7,11 +7,11 @@ WebServer: None
 # HTTPport: 8080
 HTTPport: 8000
 # Cloudflare Turnstile設定
-TurnstileSiteKey: ENC[AES256_GCM,data:4Gfy96nrAAJTJGIUb0VwTSP+7tuZkbO/,iv:pM9z1sF9PPkyJHu4lG7pIcd6eAC4yOejiJ1w7oksQfU=,tag:ZWmJUAIDMGc8J/+3LK7Fkw==,type:str]
-TurnstileSecretKey: ENC[AES256_GCM,data:hB0sg47C5AX1z2Oym9KZ8NQ1XYnpwzABMzUdy/AIXE+7SJQ=,iv:wb5NsCO7fnXLREImWEYx4mEiVi4sEjGuEDIgacOTUbI=,tag:GLyeHLZZ5HZsEOls8wtETw==,type:str]
+TurnstileSiteKey: ENC[AES256_GCM,data:aul0P38ewYzmC1UScbovH2ktkYeAQK4Q,iv:xVrtSO+zQEdg5+X5EyQJAZOBS4vTBJMJQe5vz4ELPkI=,tag:tyBbDMXPwvY7If6VgBHZYg==,type:str]
+TurnstileSecretKey: ENC[AES256_GCM,data:905fiYbl+pRFkF4cc0rBCLY1rQYqLNBvD3OmcN/+Ol4na+Q=,iv:nvDqbd2X/RcCfYvDF3ANcVOZAXEFm+Gb9e+Lm3eU+r8=,tag:gvSRFb0pZ2xOkg7f3tDYig==,type:str]
 # Turnstileセッション管理
 TurnstileUseSession: true # セッション機能の有効/無効
-TurnstileSessionDuration: 28800 # セッション有効期間（秒）デフォルト1時間
+TurnstileSessionDuration: 1800 # セッション有効期間（秒）デフォルト1時間
 TurnstileSessionMaxUses: 0 # セッション内の最大利用回数（0=無制限）
 # SSLに関する設定は環境変数で渡す。
 ## CGIとして実行するときあるいはSSLを使用せずWebServerとして実行するときは設定しない。
@@ -32,7 +32,7 @@ AccessLimit: 3
 # アクセス回数制限の時間枠(秒単位)
 TimeWindow: 1
 # IPアドレス暗号化キー
-IPEncryptionKeyHex: ENC[AES256_GCM,data:I5P6vKwscGWVt1sgmW4mMnspL9wij6aam2KBrweqS5hv2lkKw2+SrVi3/vmNS5tTqiZvq6T3Bc5rotLilHKPDw==,iv:hkPscJDnS1M662ghgk10PHJAW9LHfERMDhVmi2RLM6k=,tag:FK260eCSKcD9QbXfpKhXhg==,type:str]
+IPEncryptionKeyHex: ENC[AES256_GCM,data:sOWcWUpPmY4h5qX21LPAPKRWIhdyt+7RAJtXPVRltt8sZc5zgTIRDi/gSzAS3nragIUg6c22ThzmIWZwDlbQ0Q==,iv:C4QHX8oulrXuCDjeBzsrD9qyVBJ2kmkI8EKda6Vn+b4=,tag:se3AEQRM/0YJ2w3jgLSJFg==,type:str]
 # IPアドレスによるアクセス制限を行うか？
 DenyNonJP: false
 # ユーザー情報登録のエンドポイント
@@ -41,14 +41,14 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBrVGxOb1Faam5yT3RQdFlX
-            YlhtTXIzNHBjMS9HR0IzWHZSZFpCQy90djA0CkNqYjBCcWhvanJObWpGWm5lcUtu
-            N2czUVB5WjZNOHZEWmxHZXR6dWRRZVUKLS0tIDJwZmhCVzBJZWRkNG5Bb2lCRnBm
-            S2dBVFZRSU1KWjR3REg0K1FXMXdzM2cK6TKcW9j3M9KjpZRmK8umfcM9fOq3bor8
-            bRFZ9C17L7LTHnIkxA1NBmh4rlxdccEuDpC06PYoxA+pE5iyjgD48w==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBxQU5ZUitkTWlnTFpMS0lt
+            UzhIR1JLQlVZdUdQaHBEVlVxYVFNL1BUUzE4CmtqcHRHYU9PM1N2d2R0N2pSWWRl
+            Zy9uQVFkbWh5VnFPWnZzNVcrOXNMWjgKLS0tIC8rKzFMVDhLek1GN3o2K01iS3Bv
+            U1NXZzVXYjFPZ2VxQmpmRGhDTkxCelkKo6OyhunmpN3wZdGw5Y7JtYayFu1zojGX
+            K9LhxdlHPRBOdMF2bDuwDO6pRRH24InvXMpLGxTtFeL/sDXeqi1KPA==
             -----END AGE ENCRYPTED FILE-----
           recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
-    encrypted_regex: ^(SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex)$
-    lastmodified: "2026-08-05T01:55:45Z"
-    mac: ENC[AES256_GCM,data:c0DBirbPp6tkhuiHmYY0BI1eBQUcs/NZmAj53WDP1N4tEY+p27ApeLQli2FmSN0euR583kLL8GN0hIPwNNl7a6yK9YstkKcb/WiX3URHpNYjl4Q0iwCTr2O5hNSHsY39aytvQCVKhltvL0tEOCEDPLbnwsWNE5vQoD4iJftAsP0=,iv:714MhBXaV1aDea81tjY3vnXVH6kC5WWA6T6nBnkIDSA=,tag:pOQ9vEaI+5wYZ8d8IvkNIw==,type:str]
-    version: 3.13.2
+    encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex|sr_acct|sr_pswd)$
+    lastmodified: "2026-09-14T05:26:10Z"
+    mac: ENC[AES256_GCM,data:qJQrPuWi0IEwlfJ8Og9b5qdriRlCEjnhBbIV4uf4/2URxnF4dftEZYF6PqEnieWV2HSUxH9vMMmMWChN/egw+kAc2QpgtJrtiIowOQltBX3TPtU+2IDaFrCRXsJDFTjVr/cO+mYoWmbzSbf98ML8N+vssSCGi7/IulJ8l+N6bSI=,iv:XCJeQZpI9mJ5lMlBwrozWhbcNgl9F6cBQRUq8AhSFTE=,tag:Hj5WBm+Bb6oH+eVLEJ1oXw==,type:str]
+    version: 3.13.1
