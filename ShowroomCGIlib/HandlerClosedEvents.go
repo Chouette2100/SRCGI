@@ -23,7 +23,7 @@ import (
 	"github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v3"
+	// "github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srapi/v2"
 )
 
@@ -327,6 +327,7 @@ func ClosedEventsHandler(
 	// top.Totalcount = len(top.Eventinflist)
 
 	// 参照回数の多いイベントを取得する
+	/*
 	var emap map[string]int
 	emap, err = srdblib.GetFeaturedEvents(Dbmap0, "closed", 72, 16, 6)
 	if err != nil {
@@ -343,6 +344,7 @@ func ClosedEventsHandler(
 			top.Eventinflist[i].Highlighted = 0
 		}
 	}
+	*/
 
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {

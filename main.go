@@ -194,11 +194,13 @@ import (
 	201900 設定ファイルをsops暗号化する
 	202000 全ページに告知を表示する機能を追加する(1 goテンプレートの修正)
 	202001 全ページに告知を表示する機能を追加する(2 CloneCommmonFuncMap, MergeCommonFuncMapを利用する)
-	202202 一時的にTurnstileの検証を行わないようにする
+	202202 一時的にTurnstileの検証を行わないよListCntrbHExうにする
 	202204 Turnstileの検証を行うようにする
+	202211 ListCntrbHExHandler()へのアクセスをTopHandler()に変更する(202204)
+	202212 ListCntrbHExHandler(),ListCntrbHHandler()へのアクセスをBadRequestHandler()に変更する
 */
 
-const version = "202204"
+const version = "202212"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {
@@ -825,8 +827,10 @@ func main() {
 
 		http.HandleFunc(rootPath+"/list-cntrbS", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbSHandler))
 
-		http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHHandler))
-		http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHExHandler))
+		// http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHHandler))
+		http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(rateLimiter, ShowroomCGIlib.BadRequestHandler))
+		// http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHExHandler))
+		http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.BadRequestHandler))
 
 		http.HandleFunc(rootPath+"/m-cntrbrank-listener", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankOfListenerHandler))
 		http.HandleFunc(rootPath+"/m-cntrbrank-Lg", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankLgHandler))

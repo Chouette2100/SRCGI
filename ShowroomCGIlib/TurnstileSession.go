@@ -124,6 +124,7 @@ func VerifyTurnstileSessionCookie(r *http.Request) (bool, *http.Cookie, error) {
 		log.Printf("Turnstile session IP mismatch (allowed): cookie=%s, current=%s, ua=%q", cookieIP, currentIP, r.UserAgent())
 		// 次回以降の不要なミスマッチを減らすため、セッションIPは現在IPへ更新する
 		sessionIP = currentIP
+		// return false, nil, fmt.Errorf("IP mismatch: cookie=%s, current=%s", cookieIP, currentIP)
 	}
 
 	// 有効期限を確認

@@ -23,7 +23,7 @@ import (
 	// "github.com/dustin/go-humanize"
 
 	"github.com/Chouette2100/exsrapi/v2"
-	"github.com/Chouette2100/srdblib/v3"
+	// "github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srdblib/v3"
 	//	"github.com/Chouette2100/srapi/v2"
 )
@@ -198,7 +198,9 @@ func CurrentEventsHandler(
 	top.Totalcount = len(top.Eventinflist)
 
 	// 参照回数の多いイベントを取得する
+	/*
 	var emap map[string]int
+	emap = make(map[string]int)
 	emap, err = srdblib.GetFeaturedEvents(Dbmap0, "current", 48, 18, 14)
 	if err != nil {
 		err = fmt.Errorf("GetFeaturedEvents(): %w", err)
@@ -214,6 +216,8 @@ func CurrentEventsHandler(
 			top.Eventinflist[i].Highlighted = 0
 		}
 	}
+	*/
+
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {
 		err = fmt.Errorf("FindHistoricalData(): %w", err)
