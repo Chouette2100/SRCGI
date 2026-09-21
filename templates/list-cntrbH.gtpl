@@ -51,7 +51,7 @@
                                 {{end}}
                                 <p>処理を続行するには、セキュリティチェックを完了してください。</p>
                                 <p>「確認して続行」ボタンを押すとクッキーが保存されます</p>
-                                <form method="POST" action="list-cntrbH">
+                                <form method="POST" action="list-cntrbHED">
                                         <input type="hidden" name="eventid" value="{{.Eventid}}">
                                         <input type="hidden" name="userno" value="{{.Userno}}">
                                         <input type="hidden" name="tlsnid" value="{{.Tlsnid}}">
@@ -93,7 +93,7 @@
             <td width="400" align="left">
                 {{ if ne .Tlsnid_b -1 }}
                 <button type="button"
-                    onclick="location.href='list-cntrbH?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid_b}}'">{{
+                    onclick="location.href='list-cntrbHED?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid_b}}'">{{
                     .Listener_b }}</button>
                 {{ else }}
                 -----------
@@ -102,7 +102,7 @@
             <td width="400" align="right">
                 {{ if ne .Tlsnid_f -1 }}
                 <button type="button"
-                    onclick="location.href='list-cntrbH?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid_f}}'">{{
+                    onclick="location.href='list-cntrbHED?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid_f}}'">{{
                     .Listener_f }}</button>
                 {{ else }}
                 -----------

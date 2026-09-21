@@ -59,6 +59,11 @@ type CntrbHeader struct {
 	Npf          int
 	Nlt          int
 	Cntrbinflist *[]CntrbInf
+	// Turnstile導入用 ------------------------
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+	Ie               string
 }
 
 type CntrbInf struct {
@@ -71,6 +76,26 @@ type CntrbInf struct {
 	Lsnid        int
 	Eventid      string
 	Userno       int
+}
+
+var ListCntrbfuncMap = CloneCommonFuncMap()
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *CntrbHeader) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *CntrbHeader) GetTemplatePath() string {
+	return "templates/list-cntrb-h1.gtpl"
+}
+
+func (h *CntrbHeader) GetTemplateName() string {
+	return "list-cntrb-h1.gtpl"
+}
+
+func (h *CntrbHeader) GetFuncMap() *template.FuncMap {
+	return &ListCntrbfuncMap
 }
 
 //	type	CntrbInfList	[] CntrbInf
@@ -93,12 +118,50 @@ type CntrbInf struct {
 */
 
 func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
-
 	//	ファンクション名とリモートアドレス、ユーザーエージェントを表示する。
 	_, _, isallow := GetUserInf(req)
 	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
 		return
+	}
+
+	eventid := req.FormValue("eventid")
+	userno, _ := strconv.Atoi(req.FormValue("userno"))
+
+	var cntrbheader CntrbHeader
+	cntrbheader.Eventid = eventid
+	cntrbheader.Userno = userno
+	cntrbheader.Ie = req.FormValue("ie")
+
+	// Turnstile検証（セッション管理込み）
+	lastrequestid := ""
+	requestid := req.FormValue("requestid")
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	cntrbheader.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &cntrbheader)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" cntrbheader.RequestID = %s, lastrequestid = %s\n", cntrbheader.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbheader.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbheader.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
 	}
 
 	// テンプレートをパースする
@@ -109,12 +172,8 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 	})
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrb-h1.gtpl", "templates/list-cntrb-h2.gtpl", "templates/list-cntrb.gtpl"))
 
-	eventid := req.FormValue("eventid")
-
 	var eventinf exsrapi.Event_Inf
 	GetEventInf(eventid, &eventinf)
-
-	userno, _ := strconv.Atoi(req.FormValue("userno"))
 
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
 	if len(acqtimelist) == 0 {
@@ -142,9 +201,6 @@ func ListCntrbHandler(w http.ResponseWriter, req *http.Request) {
 		ib = 0
 	}
 
-	var cntrbheader CntrbHeader
-
-	cntrbheader.Eventid = eventid
 	cntrbheader.Eventname = eventinf.Event_name
 
 	cntrbheader.Maxpoint = eventinf.Maxpoint

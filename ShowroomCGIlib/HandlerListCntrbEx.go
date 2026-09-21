@@ -43,6 +43,10 @@ type CntrbHeaderEx struct {
 	Ier          int
 	Iel          int
 	Cntrbinflist *[]CntrbInfEx
+	// Turnstile導入用 ------------------------
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
 }
 
 type CntrbInfEx struct {
@@ -55,6 +59,26 @@ type CntrbInfEx struct {
 	Lsnid        int
 	Eventid      string
 	Userno       int
+}
+
+var ListCntrbExfuncMap = CloneCommonFuncMap()
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *CntrbHeaderEx) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *CntrbHeaderEx) GetTemplatePath() string {
+	return "templates/list-cntrbex-h1.gtpl"
+}
+
+func (h *CntrbHeaderEx) GetTemplateName() string {
+	return "list-cntrbex-h1.gtpl"
+}
+
+func (h *CntrbHeaderEx) GetFuncMap() *template.FuncMap {
+	return &ListCntrbExfuncMap
 }
 
 //	type	CntrbInfList	[] CntrbInf
@@ -86,26 +110,8 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// テンプレートをパースする
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
-	/*
-	funcMap := MergeCommonFuncMap(template.FuncMap{
-		"sub":   func(i, j int) int { return i - j },
-		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-	})
-	*/
-	funcMap := CloneCommonFuncMap()
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
-	/*
-		tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex.gtpl"))
-	*/
-
 	eventid := req.FormValue("eventid")
-
-	var eventinf exsrapi.Event_Inf
-	status := GetEventInf(eventid, &eventinf)
-	if status != 0 {
-		log.Printf("GetEventInf() failed eventid=%s status=%d", eventid, status)
+	if eventid == "" {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -116,11 +122,55 @@ func ListCntrbExHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	var cntrbheaderex CntrbHeaderEx
+	cntrbheaderex.Eventid = eventid
+	cntrbheaderex.Userno = userno
+
+	// Turnstile検証（セッション管理込み）
+	lastrequestid := ""
+	requestid := req.FormValue("requestid")
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	cntrbheaderex.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &cntrbheaderex)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" cntrbheaderex.RequestID = %s, lastrequestid = %s\n", cntrbheaderex.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbheaderex.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbheaderex.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
+	// テンプレートをパースする
+	funcMap := CloneCommonFuncMap()
+	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-cntrbex-h1.gtpl", "templates/list-cntrbex-h2.gtpl", "templates/list-cntrbex.gtpl"))
+
+	var eventinf exsrapi.Event_Inf
+	status := GetEventInf(eventid, &eventinf)
+	if status != 0 {
+		log.Printf("GetEventInf() failed eventid=%s status=%d", eventid, status)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
 	log.Printf(". eventid=%s, userno=%d\n", eventid, userno)
 
-	var cntrbheaderex CntrbHeaderEx
-
-	cntrbheaderex.Eventid = eventid
 	cntrbheaderex.Eventname = eventinf.Event_name
 
 	cntrbheaderex.Maxpoint = eventinf.Maxpoint

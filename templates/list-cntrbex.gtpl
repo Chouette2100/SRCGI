@@ -31,7 +31,7 @@
 	<td>{{.ListenerName}}</td>
 	<td align="right">
 		{{ if gt .Lsnid 0 }}
-		<a href="list-cntrbHEx?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid}}&name={{ .ListenerName }}">{{.Tlsnid}}</a>
+		<a href="list-cntrbHExED?eventid={{.Eventid}}&userno={{.Userno}}&tlsnid={{.Tlsnid}}&name={{ .ListenerName }}">{{.Tlsnid}}</a>
 		{{ end }}
 	</td>
 	</tr>

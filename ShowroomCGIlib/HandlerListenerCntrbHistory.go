@@ -21,7 +21,7 @@ type ListenerCntrbHistoryData struct {
 	Name      string    // リスナー名
 	Userid    int       // リスナーID
 	UserName  string    `db:"user_name"` // ルーム名
-	Longname  string    `db:"longname"` // ルーム名
+	Longname  string    `db:"longname"`  // ルーム名
 	Eventid   string    // イベントID
 	Ieventid  int       // イベントID
 	EventName string    `db:"event_name"` // イベント名
@@ -40,6 +40,30 @@ type ListenerCntrbHistoryParam struct {
 	Ext        int                        // 0: 参加ルームのみ, 1: 全ルーム
 	DataList   []ListenerCntrbHistoryData // 貢献ポイント履歴リスト
 	ErrMsg     string                     // エラーメッセージ
+	// Turnstile導入用 ------------------------
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+}
+
+var ListenerCntrbHistoryfuncMap = CloneCommonFuncMap()
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *ListenerCntrbHistoryParam) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *ListenerCntrbHistoryParam) GetTemplatePath() string {
+	return "templates/listener-cntrb-history.gtpl"
+}
+
+func (h *ListenerCntrbHistoryParam) GetTemplateName() string {
+	return "listener-cntrb-history.gtpl"
+}
+
+func (h *ListenerCntrbHistoryParam) GetFuncMap() *template.FuncMap {
+	return &ListenerCntrbHistoryfuncMap
 }
 
 // ListenerCntrbHistoryHandler はイベント参加ルームのリスナーの貢献ポイント履歴を表示する
@@ -127,6 +151,37 @@ func ListenerCntrbHistoryHandler(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			param.Ext = 1
 		}
+	}
+
+	// Turnstile検証（セッション管理込み）
+	lastrequestid := ""
+	requestid := req.FormValue("requestid")
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	param.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &param)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" listenerCntrbHistory.RequestID = %s, lastrequestid = %s\n", param.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", param.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", param.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
 	}
 
 	// データを取得
@@ -247,9 +302,7 @@ SELECT er.point, er.lsnid, v.name,
 
 // renderTemplate はテンプレートを実行してレスポンスを返す
 func renderTemplate(w http.ResponseWriter, param ListenerCntrbHistoryParam) {
-	funcMap := CloneCommonFuncMap()
-
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/listener-cntrb-history.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/listener-cntrb-history.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "listener-cntrb-history.gtpl", param); err != nil {
 		log.Printf("Template execution error: %v\n", err)

@@ -198,9 +198,11 @@ import (
 	202204 Turnstileの検証を行うようにする
 	202211 ListCntrbHExHandler()へのアクセスをTopHandler()に変更する(202204)
 	202212 ListCntrbHExHandler(),ListCntrbHHandler()へのアクセスをBadRequestHandler()に変更する
+	202214 ListCntrbHHandler(), ListCntrbHExHandler()のエンドポイントを変更した（ボットネット対策）
+	       貢献ポイント系にTurnstile検証を追加する
 */
 
-const version = "202212"
+const version = "202214"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {
@@ -435,17 +437,22 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		// }
 
 		switch entry {
-		case "BadRequestHandler",
+		case "ClosedEventsHandler",
 			"ContributorsHandler",
-			"ClosedEventsHandler",
+			"CurrentEventsHandler",
 			"EventTopHandler",
 			"GraphSumHandler",
 			"GraphSumDataHandler",
 			"GraphSum2Handler",
 			"GraphSumData1Handler",
 			"GraphSumData2Handler",
+			"ListCntrbHandler",
+			"ListCntrbExHandler",
 			"ListCntrbHHandler",
-			"ListCntrbHExHandler":
+			"ListCntrbHExHandler",
+			"ListLastCHandler",
+			"ListenerCntrbHistoryHandler",
+			"RoomCntrbHistoryHandler":
 			al.Turnstilestatus = 2 // pending => failed
 		default:
 			al.Turnstilestatus = 0 // success <= pending
@@ -827,10 +834,8 @@ func main() {
 
 		http.HandleFunc(rootPath+"/list-cntrbS", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbSHandler))
 
-		// http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHHandler))
-		http.HandleFunc(rootPath+"/list-cntrbH", commonMiddleware(rateLimiter, ShowroomCGIlib.BadRequestHandler))
-		// http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHExHandler))
-		http.HandleFunc(rootPath+"/list-cntrbHEx", commonMiddleware(rateLimiter, ShowroomCGIlib.BadRequestHandler))
+		http.HandleFunc(rootPath+"/list-cntrbHED", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHHandler))
+		http.HandleFunc(rootPath+"/list-cntrbHExED", commonMiddleware(rateLimiter, ShowroomCGIlib.ListCntrbHExHandler))
 
 		http.HandleFunc(rootPath+"/m-cntrbrank-listener", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankOfListenerHandler))
 		http.HandleFunc(rootPath+"/m-cntrbrank-Lg", commonMiddleware(rateLimiter, ShowroomCGIlib.MonthlyCntrbRankLgHandler))

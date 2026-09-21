@@ -3,6 +3,9 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
     <title>イベント参加ルームのリスナーの貢献ポイント履歴</title>
+    {{if .TurnstileSiteKey}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -157,6 +160,15 @@
             margin: 10px 0;
             color: #721c24;
         }
+
+        .turnstile-box {
+            border: 2px solid #4A90E2;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 720px;
+            background-color: #f9f9f9;
+            margin: 10px 0 30px;
+        }
     </style>
 </head>
 <body>
@@ -178,6 +190,28 @@
         </div>
         
         <h1>イベント参加ルームのリスナーの貢献ポイント履歴</h1>
+
+        {{if .TurnstileSiteKey}}
+        <div class="turnstile-box">
+            <h3>セキュリティチェック</h3>
+            {{if .TurnstileError}}
+            <p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+            {{end}}
+            <p>イベント参加ルームのリスナー貢献ポイント履歴を表示するには、セキュリティチェックを完了してください。</p>
+            <p>「確認して続行」ボタンを押すとクッキーが保存されます</p>
+            <form method="POST" action="listener-cntrb-history">
+                <input type="hidden" name="eventid" value="{{ .EventID }}">
+                <input type="hidden" name="nmonths" value="{{ .Nmonths }}">
+                <input type="hidden" name="minpoint" value="{{ .Minpoint }}">
+                <input type="hidden" name="maxnolines" value="{{ .Maxnolines }}">
+                <input type="hidden" name="ext" value="{{ .Ext }}">
+                <input type="hidden" name="requestid" value="{{ .RequestID }}">
+                <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+                <br>
+                <button type="submit" class="filter-btn active">確認して続行</button>
+            </form>
+        </div>
+        {{else}}
         
         <div class="params-section">
             <div class="param-row">
@@ -256,7 +290,7 @@
             <tr>
             {{ end }}
                 <td>{{ Comma .Point }}</td>
-                <td><a href="/list-cntrbHEx?eventid={{.Eventid}}&userno={{.Userid}}&tlsnid={{.Lsnid}}">{{.Name }}</td>
+                <td><a href="/list-cntrbHExED?eventid={{.Eventid}}&userno={{.Userid}}&tlsnid={{.Lsnid}}">{{.Name }}</td>
                 <td>{{ .Longname }}</td>
                 <td>{{ .EventName }}</td>
                 <td>{{ FormatTime .Starttime "2006-01-02 15:04" }}</td>
@@ -266,6 +300,7 @@
         </table>
         
         {{ end }}
+        {{end}}
     </div>
 </body>
 </html>

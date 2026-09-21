@@ -35,6 +35,30 @@ type RoomCntrbHistoryParam struct {
 	Maxnolines int                    // 最大表示数
 	DataList   []RoomCntrbHistoryData // 貢献ポイント履歴リスト
 	ErrMsg     string                 // エラーメッセージ
+	// Turnstile導入用 ------------------------
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+}
+
+var RoomCntrbHistoryfuncMap = CloneCommonFuncMap()
+
+// TurnstileChallengeDataインターフェースの実装
+func (h *RoomCntrbHistoryParam) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *RoomCntrbHistoryParam) GetTemplatePath() string {
+	return "templates/room-cntrb-history.gtpl"
+}
+
+func (h *RoomCntrbHistoryParam) GetTemplateName() string {
+	return "room-cntrb-history.gtpl"
+}
+
+func (h *RoomCntrbHistoryParam) GetFuncMap() *template.FuncMap {
+	return &RoomCntrbHistoryfuncMap
 }
 
 // RoomCntrbHistoryHandler はルーム別リスナーの貢献ポイント履歴を表示する
@@ -64,23 +88,6 @@ func RoomCntrbHistoryHandler(w http.ResponseWriter, req *http.Request) {
 		renderRoomCntrbTemplate(w, param)
 		return
 	}
-
-	// ルーム名を取得
-	var itrf interface{}
-	itrf, err = Dbmap0.Get(&srdblib.User{}, param.Userid)
-	if err != nil {
-		param.ErrMsg = fmt.Sprintf("ルーム情報の取得に失敗しました: %v", err)
-		log.Printf("Get User error: %v\n", err)
-		renderRoomCntrbTemplate(w, param)
-		return
-	}
-	if itrf == nil {
-		param.ErrMsg = fmt.Sprintf("ルームID %d が見つかりません", param.Userid)
-		renderRoomCntrbTemplate(w, param)
-		return
-	}
-	user := itrf.(*srdblib.User)
-	param.UserName = user.User_name
 
 	// nmonths (過去何ヶ月間)
 	nmonthsStr := req.FormValue("nmonths")
@@ -117,6 +124,54 @@ func RoomCntrbHistoryHandler(w http.ResponseWriter, req *http.Request) {
 			log.Printf("Invalid maxnolines: %s, using default: 100\n", maxnolinesStr)
 		}
 	}
+
+	// Turnstile検証（セッション管理込み）
+	lastrequestid := ""
+	requestid := req.FormValue("requestid")
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	param.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &param)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	log.Printf(" roomCntrbHistory.RequestID = %s, lastrequestid = %s\n", param.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", param.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", param.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
+	// ルーム名を取得
+	var itrf interface{}
+	itrf, err = Dbmap0.Get(&srdblib.User{}, param.Userid)
+	if err != nil {
+		param.ErrMsg = fmt.Sprintf("ルーム情報の取得に失敗しました: %v", err)
+		log.Printf("Get User error: %v\n", err)
+		renderRoomCntrbTemplate(w, param)
+		return
+	}
+	if itrf == nil {
+		param.ErrMsg = fmt.Sprintf("ルームID %d が見つかりません", param.Userid)
+		renderRoomCntrbTemplate(w, param)
+		return
+	}
+	user := itrf.(*srdblib.User)
+	param.UserName = user.User_name
 
 	// データを取得
 	param.DataList, err = selectRoomCntrbHistory(
@@ -194,9 +249,7 @@ FROM eventrank er
 
 // renderRoomCntrbTemplate はテンプレートを実行してレスポンスを返す
 func renderRoomCntrbTemplate(w http.ResponseWriter, param RoomCntrbHistoryParam) {
-	funcMap := CloneCommonFuncMap()
-
-	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/room-cntrb-history.gtpl"))
+	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles("templates/room-cntrb-history.gtpl"))
 
 	if err := tpl.ExecuteTemplate(w, "room-cntrb-history.gtpl", param); err != nil {
 		log.Printf("Template execution error: %v\n", err)
