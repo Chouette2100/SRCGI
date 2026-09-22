@@ -360,11 +360,12 @@ import (
 	   botnet対策で「アクセス数の多かったイベントの強調表示」をやめる。
 202214 ListCntrbHHandler(), ListCntrbHExHandler()のエンドポイントを変更した（ボットネット対策）
 	   貢献ポイント系にTurnstile検証を追加する
+202215 ハンドラーの構造理解に関するドキュメントを作成する、テンプレートに関する紛らわしいコメントを削除する
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202214"
+const Version = "202215"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

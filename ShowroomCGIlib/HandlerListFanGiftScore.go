@@ -103,15 +103,6 @@ func ListFanGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	var gsheader GsHeader
 
 	// テンプレートをパースする
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
-	/*
-	funcMap := MergeCommonFuncMap(template.FuncMap{
-		"sub":   func(i, j int) int { return i - j },
-		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-		"t2s":   func(t time.Time, tfmt string) string { return t.Format(tfmt) },
-	})
-	*/
-	// tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles(
 	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/list-vgs-h1.gtpl", "templates/list-vgs-h2.gtpl", "templates/list-vgs.gtpl"))
 

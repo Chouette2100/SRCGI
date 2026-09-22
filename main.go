@@ -200,9 +200,10 @@ import (
 	202212 ListCntrbHExHandler(),ListCntrbHHandler()へのアクセスをBadRequestHandler()に変更する
 	202214 ListCntrbHHandler(), ListCntrbHExHandler()のエンドポイントを変更した（ボットネット対策）
 	       貢献ポイント系にTurnstile検証を追加する
+	202215 ハンドラーの構造理解に関するドキュメントを作成する、テンプレートに関する紛らわしいコメントを削除する
 */
 
-const version = "202214"
+const version = "202215"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {

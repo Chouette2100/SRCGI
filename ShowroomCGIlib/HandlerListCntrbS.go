@@ -121,16 +121,6 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// テンプレートをパースする
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h.gtpl", "templates/list-cntrb.gtpl"))
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrbS-h.gtpl", "templates/list-cntrbS.gtpl"))
-	/*
-		funcMap := template.FuncMap{
-			"sub":   func(i, j int) int { return i - j },
-			"Comma": func(i int) string { return humanize.Comma(int64(i)) },
-		}
-	*/
-
 	eventid := req.FormValue("eventid")
 	userno, _ := strconv.Atoi(req.FormValue("userno"))
 	ifrm, _ := strconv.Atoi(req.FormValue("ifrm"))

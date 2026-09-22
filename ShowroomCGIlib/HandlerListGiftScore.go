@@ -115,7 +115,6 @@ func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// テンプレートをパースする
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
 	funcMap := MergeCommonFuncMap(template.FuncMap{
 		"sub":   func(i, j int) int { return i - j },
 		"add":   func(i, j int) int { return i + j },

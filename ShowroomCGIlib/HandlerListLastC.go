@@ -243,10 +243,7 @@ func ListLastcHandler(w http.ResponseWriter, req *http.Request) {
 	// }
 
 	// テンプレートをパースする
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
-
 	tpl := template.Must(template.New("").Funcs(*ListLastCFuncMap).ParseFiles("templates/list-lastp.gtpl"))
-
 	if err := tpl.ExecuteTemplate(w, "list-lastp.gtpl", list_last); err != nil {
 		log.Println(err)
 	}

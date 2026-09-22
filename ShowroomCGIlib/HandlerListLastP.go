@@ -57,7 +57,6 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 	var list_last ListLastPageData
 
 	// テンプレートをパースする
-	//	tpl := template.Must(template.ParseFiles("templates/list-cntrb-h1.gtpl","templates/list-cntrb-h2.gtpl","templates/list-cntrb.gtpl"))
 	funcMap := MergeCommonFuncMap(template.FuncMap{
 		//	3桁ごとに","を挿入する
 		"Comma": func(i int) string { return humanize.Comma(int64(i)) },
