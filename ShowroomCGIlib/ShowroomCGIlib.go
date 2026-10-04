@@ -362,11 +362,15 @@ import (
 	   貢献ポイント系にTurnstile検証を追加する
 202215 ハンドラーの構造理解に関するドキュメントを作成する、テンプレートに関する紛らわしいコメントを削除する
 202216 ListPerslotHandler, OnLivesHandlerHandler, ListCntrbSHandlerにTurnstile検証を追加する	
+202217 さらに25個のハンドラーにTurnstile検証を追加する
+202219 list-lastp.gtplをlist-lastC.gtplと変更する
+       (list-lasptp.gtplはgithubの圧縮でlist-lastP.gtplとファイル名が重複すると見られる）
+
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202216"
+const Version = "202219"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
