@@ -1,7 +1,7 @@
 package main
 
 import (
-	"SRCGI/ShowroomCGIlib"
+	"github.com/Chouette2100/SRCGI/v2/ShowroomCGIlib"
 	"fmt"
 	"log"
 	"os"

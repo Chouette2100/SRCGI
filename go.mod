@@ -1,4 +1,4 @@
-module SRCGI
+module github.com/Chouette2100/SRCGI/v2
 
 go 1.26.3
 

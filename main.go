@@ -34,7 +34,7 @@ import (
 	"github.com/Chouette2100/srdblib/v3"
 	"github.com/Chouette2100/srhandler/v2"
 
-	"SRCGI/ShowroomCGIlib"
+	"github.com/Chouette2100/SRCGI/v2/ShowroomCGIlib"
 )
 
 /*
@@ -203,9 +203,10 @@ import (
 	202215 ハンドラーの構造理解に関するドキュメントを作成する、テンプレートに関する紛らわしいコメントを削除する
 	202216 ListPerslotHandler, OnLivesHandlerHandler, ListCntrbSHandlerにTurnstile検証を追加する
 	202217 さらに25個のハンドラーにTurnstile検証を追加する
+	202218 モジュール名を`github.com/Chouette2100/SRCGI/v2`に変更する
 */
 
-const version = "202217"
+const version = "202218"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {
