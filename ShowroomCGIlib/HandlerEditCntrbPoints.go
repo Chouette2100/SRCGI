@@ -28,6 +28,15 @@ import (
 // EditCntrbPointsHandler は枠別リスナー別貢献ポイントの取得対象ルームの編集を行います
 func EditCntrbPointsHandler(w http.ResponseWriter, r *http.Request) {
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	type CntrbPointsInfo struct {
 		Eventid      string
 		Eventname    string

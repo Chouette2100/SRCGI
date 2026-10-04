@@ -48,6 +48,15 @@ func EventRoomListHandler(
 		return
 	}
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	// //	cookiejarがセットされたHTTPクライアントを作る
 	// client, jar, err := exsrapi.CreateNewClient("XXXXXX")
 	// if err != nil {

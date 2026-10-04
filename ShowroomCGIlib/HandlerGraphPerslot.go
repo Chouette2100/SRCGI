@@ -63,6 +63,31 @@ type PerSlotInf struct {
 	Perslotlist []PerSlot
 }
 
+type ListPerslotPage struct {
+	*exsrapi.Event_Inf
+	Roomid           int
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+}
+
+func (h *ListPerslotPage) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *ListPerslotPage) GetTemplatePath() string {
+	return "templates/list-perslot1.gtpl"
+}
+
+func (h *ListPerslotPage) GetTemplateName() string {
+	return "list-perslot1.gtpl"
+}
+
+func (h *ListPerslotPage) GetFuncMap() *template.FuncMap {
+	return nil
+}
+
 func GraphPerslotHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _, isallow := GetUserInf(r)
@@ -112,34 +137,64 @@ func ListPerslotHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	roomid := 0
+	sroomid := r.FormValue("roomid")
+	if sroomid != "" {
+		roomid, _ = strconv.Atoi(sroomid)
+	}
+	eventid := r.FormValue("eventid")
+
+	page := &ListPerslotPage{
+		Event_Inf: &exsrapi.Event_Inf{Event_ID: eventid},
+		Roomid:    roomid,
+	}
+	requestid := r.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	page.RequestID = r.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, r, page)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
+	if err != nil {
+		return
+	} else if eventinf == nil {
+		return
+	}
+	page.Event_Inf = eventinf
+
+	log.Printf(" ListPerslotHandler: eventid=%s roomid=%d requestid=%s lastrequestid=%s\n", eventid, roomid, page.RequestID, lastrequestid)
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", page.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", page.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/list-perslot1.gtpl",
 		"templates/list-perslot2.gtpl",
 	))
 
-	roomid := 0
-	sroomid := r.FormValue("roomid")
-	if sroomid != "" {
-		roomid, _ = strconv.Atoi(sroomid)
-	}
-
-	eventid := r.FormValue("eventid")
-	//	Event_inf, _ = SelectEventInf(eventid201602 showrank.gtplとtmshowrank.gtpの注意書きを修正する。)
-	//	srdblib.Tevent = "event"
-	eventinf, err := srdblib.SelectFromEvent(Db0, "event", eventid)
-	if err != nil {
-		//	DBの処理でエラーが発生した。
-		return
-	} else if eventinf == nil {
-		//	指定した eventid のイベントが存在しない。
-		return
-	}
-	// Event_inf = *eventinf
-
 	log.Printf("      eventid=%s\n", eventid)
 
-	if err := tpl.ExecuteTemplate(w, "list-perslot1.gtpl", eventinf); err != nil {
+	if err := tpl.ExecuteTemplate(w, "list-perslot1.gtpl", page); err != nil {
 		log.Println(err)
 	}
 

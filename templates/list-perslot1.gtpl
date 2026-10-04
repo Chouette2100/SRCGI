@@ -3,12 +3,32 @@
 <html>
 
 <body>
+    {{if .TurnstileSiteKey}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
     {{if (HasAnnouncement)}}
     <div style="padding: 15px; margin: 0 0 20px 0; border-radius: 6px; background-color: {{(GetAnnouncement).BgColor}}; color: {{(GetAnnouncement).TextColor}}; font-size: 16px; font-weight: bold; text-align: center; border: 2px solid {{(GetAnnouncement).TextColor}}; word-wrap: break-word;">
       {{(GetAnnouncement).Message}}
     </div>
     {{end}}
 
+    {{if .TurnstileSiteKey}}
+    <div style="border: 2px solid #4A90E2; padding: 20px; border-radius: 5px; max-width: 600px; background-color: #f9f9f9; margin: 20px 0;">
+        <h3>セキュリティチェック</h3>
+        {{if .TurnstileError}}
+        <p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+        {{end}}
+        <p>処理を続行するには、セキュリティチェックを完了してください。</p>
+        <form method="POST" action="list-perslot">
+            <input type="hidden" name="eventid" value="{{.Event_ID}}">
+            <input type="hidden" name="roomid" value="{{.Roomid}}">
+            <input type="hidden" name="requestid" value="{{.RequestID}}">
+            <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+            <br>
+            <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認して続行</button>
+        </form>
+    </div>
+    {{else}}
     <p id="Top">
         <br>
     </p>
@@ -46,3 +66,6 @@
         <a href="https://www.showroom-live.com/event/{{.Event_ID}}">{{ .Event_name }}</a>（{{.Event_ID}}）<br>
         {{ .Period }}<br>
     </p>
+{{end}}
+</body>
+</html>

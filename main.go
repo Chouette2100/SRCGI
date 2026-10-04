@@ -201,9 +201,11 @@ import (
 	202214 ListCntrbHHandler(), ListCntrbHExHandler()のエンドポイントを変更した（ボットネット対策）
 	       貢献ポイント系にTurnstile検証を追加する
 	202215 ハンドラーの構造理解に関するドキュメントを作成する、テンプレートに関する紛らわしいコメントを削除する
+	202216 ListPerslotHandler, OnLivesHandlerHandler, ListCntrbSHandlerにTurnstile検証を追加する
+	202217 さらに25個のハンドラーにTurnstile検証を追加する
 */
 
-const version = "202215"
+const version = "202217"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {
@@ -440,20 +442,49 @@ func commonMiddleware(limiter *SimpleRateLimiter, next http.HandlerFunc) http.Ha
 		switch entry {
 		case "ClosedEventsHandler",
 			"ContributorsHandler",
+			"CurrentDistributorsHandler",
 			"CurrentEventsHandler",
+			"DispBbsHandler",
+			"EditCntrbPointsHandler",
+			"EditToDoHandler",
+			"EditUserHandler",
+			"EventRoomListHandler",
 			"EventTopHandler",
+			"ExperimentalHandler",
+			"GraphPerdayHandler",
 			"GraphSumHandler",
 			"GraphSumDataHandler",
 			"GraphSum2Handler",
 			"GraphSumData1Handler",
 			"GraphSumData2Handler",
+			"GraphTotalHandler",
 			"ListCntrbHandler",
 			"ListCntrbExHandler",
 			"ListCntrbHHandler",
 			"ListCntrbHExHandler",
+			"ListCntrbSHandler",
+			"ListGiftScoreHandler",
 			"ListLastCHandler",
+			"ListLastHandler",
+			"ListLastPHandler",
+			"ListPerdayHandler",
+			"ListPerslotHandler",
+			"ListToDoHandler",
 			"ListenerCntrbHistoryHandler",
-			"RoomCntrbHistoryHandler":
+			"MonthlyCntrbRankLgHandler",
+			"MonthlyCntrbRankOfListenerHandler",
+			"NewEventHandler",
+			"NewUserHandler",
+			"OnLivesHandler",
+			"RoomCntrbHistoryHandler",
+			"ScheduledEventsHandler",
+			"ScheduledEventsSvrHandler",
+			"ShowRankHandler",
+			"TmShowRankHandler",
+			"TopRoomHandler",
+			"AccessTableHandler",
+			"AccessStatsHandler",
+			"AccessStatsHourlyHandler":
 			al.Turnstilestatus = 2 // pending => failed
 		default:
 			al.Turnstilestatus = 0 // success <= pending

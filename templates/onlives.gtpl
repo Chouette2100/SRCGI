@@ -2,6 +2,9 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
+    {{if .TurnstileSiteKey}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
     <title>配信履歴 roomid={{.RoomID}}</title>
     <style>
         :root {
@@ -177,6 +180,24 @@
     </div>
     {{end}}
 
+    {{if .TurnstileSiteKey}}
+    <div style="border: 2px solid #4A90E2; padding: 20px; border-radius: 5px; max-width: 600px; background-color: #f9f9f9; margin: 20px auto;">
+        <h3>セキュリティチェック</h3>
+        {{if .TurnstileError}}
+        <p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+        {{end}}
+        <p>処理を続行するには、セキュリティチェックを完了してください。</p>
+        <form method="POST" action="onlives">
+            <input type="hidden" name="roomid" value="{{.RoomID}}">
+            <input type="hidden" name="days" value="{{.Days}}">
+            <input type="hidden" name="order" value="{{.SortOrder}}">
+            <input type="hidden" name="requestid" value="{{.RequestID}}">
+            <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+            <br>
+            <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認して続行</button>
+        </form>
+    </div>
+    {{else}}
     <p>
     <button type="button" onclick="location.href='top'">Top</button>　
     <button type="button" onclick="location.href='currentevents'">開催中イベント一覧表</button>　
@@ -328,5 +349,6 @@
         });
     })();
     </script>
+    {{end}}
 </body>
 </html>

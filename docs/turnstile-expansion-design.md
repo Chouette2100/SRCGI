@@ -21,6 +21,7 @@ Turnstile 対応ハンドラーの処理は大まかに次の流れで動く。
 3. 対象ハンドラーが [ShowroomCGIlib/TurnstileHandler.go](../ShowroomCGIlib/TurnstileHandler.go) の `CheckTurnstileWithSession()` を呼ぶ。
 4. 共通関数は、セッションクッキーが有効なら challenge を省略し、無効なら `cf-turnstile-response` を検証する。
 5. challenge が必要なら、ハンドラー固有のテンプレートと [templates/turnstilechallenge.gtpl](../templates/turnstilechallenge.gtpl) を使って画面を返す。
+  共通 challenge テンプレートを使う場合は、Turnstile の script 読み込みと widget 描画をテンプレート側で完結させる。
 6. 検証成功後にハンドラー本体が継続し、`accesslog.turnstilestatus` を `0` に更新する。
 7. challenge 再送で不要になった旧 requestid の行があれば削除し、アクセス集計上の二重計上を避ける。
 
@@ -89,13 +90,41 @@ Turnstile 対象ハンドラーでは、重い DB 取得や API 呼び出しの�
 - bot に先に高コスト処理を踏ませないため。
 - challenge が必要なとき、後続処理の途中状態を抱えたまま分岐させないため。
 
+このとき、`days` や `order` のような一覧条件や表示条件は challenge 表示前に先に解釈しておく必要がある。なぜなら、challenge 画面の hidden フィールドへ再送する値がこの時点で決まっていないと、検証後に POST が再送されたときに条件が `0` や空文字へ戻ってしまうからである。
+
+つまり、Turnstile 対応時は「requestid だけを保持する」のではなく、「元の検索条件・表示条件も challenge で保持する」設計が必要になる。実際に `OnLivesHandler` では `days=7` / `order=desc` を challenge 画面へ保持しないと、認証完了後に条件が消える問題が起きた。
+
 代表例:
 
 - [ShowroomCGIlib/HandlerCurrentEvents.go](../ShowroomCGIlib/HandlerCurrentEvents.go)
 - [ShowroomCGIlib/HandlerContributors.go](../ShowroomCGIlib/HandlerContributors.go)
 - [ShowroomCGIlib/HandlerEventTop.go](../ShowroomCGIlib/HandlerEventTop.go)
 
-### 4. 検証成功後に `turnstilestatus = 0` へ更新する
+### 4. challenge 画面の hidden フィールドに元パラメータを残す
+
+Turnstile チャレンジ画面は「再送フォーム」であり、`requestid` だけでなく、`days` や `order` のような画面制御パラメータを正しく再送する必要がある。
+
+設計上の原則は次のとおりである。
+
+- 画面固有パラメータは `CheckTurnstileWithSession()` 呼び出し前に解析しておく
+- challenge 表示時の page オブジェクトにその値を保持しておく
+- challenge 画面の hidden フィールドへそのまま埋め直す
+- 認証後の POST で元の条件が再利用できるようにする
+
+この設計を守らないと、ユーザーは challenge を通過しても、一覧の期間や表示順がデフォルト値へ戻り、意図しない結果を見てしまう。
+
+### 4-2. 共通 challenge テンプレートは単体で完結させる
+
+[templates/turnstilechallenge.gtpl](../templates/turnstilechallenge.gtpl) のような共通 challenge テンプレートを使う場合は、テンプレート単体で次を満たす必要がある。
+
+- Cloudflare Turnstile の script を読み込む
+- `cf-turnstile` widget を描画する
+- `requestid` と元の検索条件・表示条件を hidden で再送する
+- `action` を元のハンドラーへ戻す
+
+これは見た目の話ではなく、widget が表示されるか、認証後に元の状態へ正しく戻れるかを左右する要件である。
+
+### 5. 検証成功後に `turnstilestatus = 0` へ更新する
 
 challenge を通過して本処理に入ったことをアクセスログへ反映する必要があるため、各ハンドラーは成功後に `accesslog` を更新する。
 
@@ -138,6 +167,8 @@ challenge を通過して本処理に入ったことをアクセスログへ反�
 - `TurnstileSiteKey` 条件がないと、通常画面と challenge 画面を分けられない。
 - `RequestID` がないと accesslog 上の旧 requestid を整理できない。
 - 元の入力値がないと、challenge 後に検索条件や表示条件が失われる。
+- 共有 challenge テンプレートを使う場合は、Cloudflare Turnstile の script を head で読み込むこと。
+  script がないと widget が出ず、確認行や状態表示も期待どおりに動かない。
 
 実務上は、challenge 再送の method を POST で統一するケースが多い。この場合でも、ハンドラーが `FormValue()` で値を読む実装なら、元が GET の画面でも問題なく状態を復元できる。
 
@@ -292,6 +323,8 @@ Turnstile 経由でテンプレートを描画するときは、通常の本処�
   理由: `turnstilestatus` を pending で開始しないとアクセス集計の意味が崩れる。
 - ページデータ構造体に `TurnstileSiteKey`、`TurnstileError`、`RequestID` を追加したか。
   理由: challenge 表示、エラー表示、再送追跡に必要。
+- 共通 challenge テンプレートを使う場合、Cloudflare Turnstile の script 読み込みと `cf-turnstile` widget がテンプレート側にあるか。
+  理由: script がないと widget が描画されず、challenge 行が表示されない。
 - `TurnstileChallengeData` を実装したか。
   理由: 共通検証処理がテンプレート情報へ到達するために必要。
 - 重い処理の前に `CheckTurnstileWithSession()` を呼んでいるか。

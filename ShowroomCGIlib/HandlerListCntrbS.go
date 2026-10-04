@@ -31,24 +31,44 @@ import (
 )
 
 type CntrbS_Header struct {
-	Eventid        string
-	Eventname      string
-	Period         string
-	Target         int
-	Maxpoint       int
-	Gscale         int
-	Userno         int
-	Username       string
-	ShortURL       string
-	S_stime        string
-	S_etime        string
-	Srt            int
-	Ie             int
-	Ifrm           int
-	Ifrm1          int
-	Ifrm_b         int
-	Ifrm_f         int
-	Pcntrbinfslist *[]CntrbInfS
+	Eventid          string
+	Eventname        string
+	Period           string
+	Target           int
+	Maxpoint         int
+	Gscale           int
+	Userno           int
+	Username         string
+	ShortURL         string
+	S_stime          string
+	S_etime          string
+	Srt              int
+	Ie               int
+	Ifrm             int
+	Ifrm1            int
+	Ifrm_b           int
+	Ifrm_f           int
+	Pcntrbinfslist   *[]CntrbInfS
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+}
+
+func (h *CntrbS_Header) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *CntrbS_Header) GetTemplatePath() string {
+	return "templates/list-cntrbS.gtpl"
+}
+
+func (h *CntrbS_Header) GetTemplateName() string {
+	return "list-cntrbS.gtpl"
+}
+
+func (h *CntrbS_Header) GetFuncMap() *template.FuncMap {
+	return nil
 }
 
 type CntrbInfS struct {
@@ -129,6 +149,43 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 	ie, _ := strconv.Atoi(req.FormValue("ie"))
 	log.Printf(" eventid=%s, userno=%d, ifrm=%d\n", eventid, userno, ifrm)
 
+	var cntrbs_header CntrbS_Header
+	cntrbs_header.Eventid = eventid
+	cntrbs_header.Userno = userno
+	cntrbs_header.Ifrm = ifrm
+	cntrbs_header.Ie = ie
+	cntrbs_header.Ifrm1 = ifrm + 1
+	cntrbs_header.Ifrm_b = ifrm - 1
+	cntrbs_header.Ifrm_f = ifrm + 1
+	requestid := req.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	cntrbs_header.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &cntrbs_header)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbs_header.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", cntrbs_header.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
 	acqtimelist, _ := SelectAcqTimeList(eventid, userno)
 	if len(acqtimelist) == 0 || ifrm >= len(acqtimelist) || ifrm < 0 {
 		fmt.Fprintf(w, "HandlerListCntrbS() No AcqTimeList\n")
@@ -137,7 +194,6 @@ func ListCntrbSHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var cntrbs_header CntrbS_Header
 	var status int
 
 	ts := acqtimelist[ifrm]

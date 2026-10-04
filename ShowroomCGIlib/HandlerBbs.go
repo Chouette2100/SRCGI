@@ -54,6 +54,15 @@ type BBS struct {
 // リクエストの内容によって投稿を書き込み、あるいは投稿一覧を表示する
 func DispBbsHandler(w http.ResponseWriter, r *http.Request) {
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	var bbs BBS
 	var logm Logm
 

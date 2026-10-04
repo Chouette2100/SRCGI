@@ -173,6 +173,15 @@ func TopRoomHandler(
 		return
 	}
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	top := &Top{}
 	top.TopRoomList = make([]TopRoom, 0)
 	top.Genrelist = []Genre{

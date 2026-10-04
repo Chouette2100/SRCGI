@@ -1,0 +1,35 @@
+# すでに存在するトンネルを使う
+#UseSSH: false
+#DBサーバーのホスト名、指定しなければlocalhost
+DBhost: 127.0.0.1
+DBport: 9901
+# データベース名
+DBname: ENC[AES256_GCM,data:7gpC/imIJVc=,iv:oRCr3dWldpmniDViRI5sua9YmP3sZhg0gRij++nWzsk=,tag:/wXuDqeHhvpjLOqC3c7ktA==,type:str]
+#
+# ログイン名とパスワードは環境変数で渡す
+DBuser: ENC[AES256_GCM,data:Muz6xfg83Q==,iv:LqnL1CZBavq8OkIdChqhui1VkQEPy5VEv6PFJmTU4b0=,tag:A+UaUPYU+KCQpXzXQUbSBw==,type:str]
+DBpswd: ENC[AES256_GCM,data:UXnDwIY74siD2yU=,iv:Y4krpxHYIsaLgolV28Ufand76u+7hQ0jEDlebuis3FA=,tag:LeGtP7mwcnqZ6H+TOx1KpQ==,type:str]
+# SSH接続を使わない
+UseSSH: false
+# SSH接続を使う
+#UseSSH: true
+SSHhost: ${SSHHOST}
+SSHport: ${SSHPORT}
+SSHuser: ${SSHUSER}
+#SSHpswd: ${SSHPSWD}
+SSHprvkey: ${SSHPRVKEY}
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4bG9XdFdhbUNsazVTTHo1
+            a0FzSDV1SklWc0VQSVJiNmtJMFhCNWdsT0E4CnhaQzdRK3FrMHhjQXZxampWNjVL
+            M24wSHFkOW5Ea1lRckNLbS9zaDZMSncKLS0tIDdsQ3ZOUk1FTGtMSE1TMUY1eUNu
+            VmtlWjFCb3F4cExxN0g3ZTdueFcxcFUK2XgNm6i0vw3Rx0ZgwXKSot7mO21/glrh
+            8BXTmY0BOFn9pyuUemzCrsUxDUTT7zYQq0XLnFwzosGrtgSZWuEJ8w==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
+    encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex|sr_acct|sr_pswd)$
+    lastmodified: "2026-09-30T11:21:25Z"
+    mac: ENC[AES256_GCM,data:Zqtf/zuie6MUgKei9Ed70EUUe//sgT+ipLg/KgvPwuyTOZL0EfukKf1sd5jryGMcRhepA+iNe9H1FQfd9y19NPW0CXzXILXCgUh1ZwHJ4FsJS5t6tvnVey6B+xOZB4NMOeP6xo8MtFkhSkXRSoi+ifIKiJyArJxB/YX5ISBPObw=,iv:AWHYz70Dhhyx+FHA0TyzU+gi2SpB99mO5K9DjHXeV+0=,tag:p2QYbIxpRWblXR79nWEa+g==,type:str]
+    version: 3.13.1

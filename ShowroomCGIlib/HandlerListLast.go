@@ -81,7 +81,49 @@ func ListLastHandler(w http.ResponseWriter, req *http.Request) {
 
 	status := 0
 
+	eventid := req.FormValue("eventid")
+	userno := req.FormValue("userno")
+	detail := req.FormValue("detail")
+	limit := req.FormValue("limit")
+	if limit == "" {
+		limit = "TopRooms"
+	}
+
+	roomid, _ := strconv.Atoi(req.FormValue("roomid"))
+	requestid := req.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+
 	var list_last ListLastPageData
+	list_last.Eventid = eventid
+	list_last.Userno = userno
+	list_last.Roomid = roomid
+	list_last.Detail = detail
+	list_last.Limit = limit
+	list_last.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &list_last)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", list_last.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", list_last.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
 
 	// テンプレートをパースする
 	funcMap := MergeCommonFuncMap(template.FuncMap{
@@ -100,13 +142,11 @@ func ListLastHandler(w http.ResponseWriter, req *http.Request) {
 	})
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-last.gtpl"))
 
-	eventid := req.FormValue("eventid")
 	list_last.Eventid = eventid
-	userno := req.FormValue("userno")
 	list_last.Userno = userno
 	list_last.Roomid, _ = strconv.Atoi(req.FormValue("roomid"))
-	list_last.Detail = req.FormValue("detail")
-	list_last.Limit = req.FormValue("limit")
+	list_last.Detail = detail
+	list_last.Limit = limit
 	if list_last.Limit == "" {
 		list_last.Limit = "TopRooms"
 	}

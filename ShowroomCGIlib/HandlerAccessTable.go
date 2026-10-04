@@ -12,6 +12,14 @@ import (
 
 // AccessTableHandler はハンドラー、IPアドレス、ユーザーエージェント別のアクセス数を集計表示するハンドラー
 func AccessTableHandler(w http.ResponseWriter, r *http.Request) {
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
 	var data AccessTableData
 
 	// 現在時刻を設定
@@ -48,7 +56,7 @@ func AccessTableHandler(w http.ResponseWriter, r *http.Request) {
 	data.EndDate = endDate.Format("2006-01-02")
 
 	// 固定で7日間のデータを取得
-	days := 7
+	days := 3
 
 	// タイプに応じてデータを取得
 	switch typeParam {

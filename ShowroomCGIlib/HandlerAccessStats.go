@@ -15,6 +15,15 @@ import (
 // AccessStatsHandler はアクセス統計を表示するハンドラー
 func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	var accessStatsData AccessStatsData
 	var stats []AccessStats
 
@@ -27,7 +36,7 @@ func AccessStatsHandler(w http.ResponseWriter, r *http.Request) {
 	period := r.FormValue("period")
 	iperiod, err := strconv.Atoi(period)
 	if err != nil || iperiod <= 0 {
-		iperiod = 31 // デフォルト31日
+		iperiod = 7 // デフォルト31日
 	}
 
 	// デフォルト値の設定（直近1ヶ月）

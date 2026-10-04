@@ -52,10 +52,43 @@ func GraphTotalHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	eventid := req.FormValue("eventid")
+	requestid := req.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+
+	values := GraphPageData{
+		Eventid:  eventid,
+		Maxpoint: req.FormValue("maxpoint"),
+		Gscale:   req.FormValue("gscale"),
+	}
+	values.RequestID = req.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &values)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", values.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", values.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
 	//	maxpoint, _ := strconv.Atoi(req.FormValue("maxpoint"))
 
 	//	描画するポイントの上限を指定する（0であれば制限しない）
-	smaxpoint := req.FormValue("maxpoint")
+	smaxpoint := values.Maxpoint
 	maxpoint, _ := strconv.Atoi(smaxpoint)
 	if maxpoint < 10000 {
 		maxpoint = 0
@@ -116,12 +149,9 @@ func GraphTotalHandler(w http.ResponseWriter, req *http.Request) {
 		"templates/graph-total.gtpl"))
 
 	// テンプレートに出力する値をマップにセット
-	values := GraphPageData{
-		Filename: filename,
-		Eventid:  eventid,
-		Maxpoint: smaxpoint,
-		Gscale:   sgscale,
-	}
+	values.Filename = filename
+	values.Maxpoint = smaxpoint
+	values.Gscale = sgscale
 
 	// 構造体を渡してテンプレートを出力する
 	if err := tpl.ExecuteTemplate(w, "graph-total.gtpl", values); err != nil {

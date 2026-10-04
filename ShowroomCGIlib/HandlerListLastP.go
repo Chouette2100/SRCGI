@@ -54,7 +54,42 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 
 	status := 0
 
+	eventid := req.FormValue("eventid")
+	userno := req.FormValue("userno")
+	detail := req.FormValue("detail")
+	requestid := req.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+
 	var list_last ListLastPageData
+	list_last.Eventid = eventid
+	list_last.Userno = userno
+	list_last.Detail = detail
+	list_last.RequestID = req.Context().Value("requestid").(string)
+	list_last.Roomid, _ = strconv.Atoi(req.FormValue("roomid"))
+
+	result, tsErr := CheckTurnstileWithSession(w, req, &list_last)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", list_last.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", list_last.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
 
 	// テンプレートをパースする
 	funcMap := MergeCommonFuncMap(template.FuncMap{
@@ -81,12 +116,10 @@ func ListLastPHandler(w http.ResponseWriter, req *http.Request) {
 	})
 	tpl := template.Must(template.New("").Funcs(funcMap).ParseFiles("templates/list-lastP.gtpl"))
 
-	eventid := req.FormValue("eventid")
 	list_last.Eventid = eventid
-	userno := req.FormValue("userno")
 	list_last.Userno = userno
 	list_last.Roomid, _ = strconv.Atoi(req.FormValue("roomid"))
-	list_last.Detail = req.FormValue("detail")
+	list_last.Detail = detail
 
 	// ページ番号を取得（デフォルトは1）
 	pageStr := req.FormValue("page")

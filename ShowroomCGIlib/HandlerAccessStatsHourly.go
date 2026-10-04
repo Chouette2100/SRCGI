@@ -15,6 +15,15 @@ import (
 // AccessStatsHourlyHandler は時刻単位のアクセス統計を表示するハンドラー
 func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	var accessStatsHourlyData AccessStatsHourlyData
 	var stats []AccessStatsHourly
 
@@ -27,7 +36,7 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 	speriod := r.FormValue("period")
 	period, _ := strconv.Atoi(speriod)
 	if period == 0 {
-		period = 72
+		period = 24
 	}
 
 	// デフォルト値の設定（直近72時間）
@@ -114,7 +123,7 @@ func AccessStatsHourlyHandler(w http.ResponseWriter, r *http.Request) {
 	// データベースからアクセス統計を取得
 	// TEST
 	// _, err = Dbmap0.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
-	_, err = Dbmap1.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
+	_, err = Dbmap0.Select(&stats, sql, startTime.Format("2006-01-02 15:04:05"), nextHour.Format("2006-01-02 15:04:05"))
 	if err != nil {
 		log.Printf("AccessStatsHourlyHandler() database error: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)

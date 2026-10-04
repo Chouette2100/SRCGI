@@ -34,6 +34,39 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	values := EditUserPageData{
+		Eventid:  r.FormValue("eventid"),
+		Maxpoint: "",
+		Gscale:   "",
+	}
+	requestid := r.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+	values.RequestID = r.Context().Value("requestid").(string)
+
+	result, tsErr := CheckTurnstileWithSession(w, r, &values)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", values.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", values.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
 	// テンプレートをパースする
 	funcMap := CloneCommonFuncMap()
 	/*
@@ -135,11 +168,9 @@ func EditUserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	values := EditUserPageData{
-		Eventid:   eventid,
-		Eventname: eventname,
-		Period:    eventinf.Period,
-	}
+	values.Eventid = eventid
+	values.Eventname = eventname
+	values.Period = eventinf.Period
 
 	if err := tpl.ExecuteTemplate(w, "edit-user1.gtpl", values); err != nil {
 		log.Println(err)

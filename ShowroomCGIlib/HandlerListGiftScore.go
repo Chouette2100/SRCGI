@@ -104,6 +104,15 @@ type GsInf struct {
 
 func ListGiftScoreHandler(w http.ResponseWriter, req *http.Request) {
 
+	challengeData := BuildTurnstileChallengePageData(req)
+	result, tsErr := CheckTurnstileWithSession(w, req, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	var gsheader GsHeader
 	var err error
 

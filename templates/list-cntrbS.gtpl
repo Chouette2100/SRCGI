@@ -2,6 +2,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8">
 <html>
 
+<head>
+    {{if .TurnstileSiteKey}}
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
+</head>
+
 <body>
     {{if (HasAnnouncement)}}
     <div style="padding: 15px; margin: 0 0 20px 0; border-radius: 6px; background-color: {{(GetAnnouncement).BgColor}}; color: {{(GetAnnouncement).TextColor}}; font-size: 16px; font-weight: bold; text-align: center; border: 2px solid {{(GetAnnouncement).TextColor}}; word-wrap: break-word;">
@@ -9,6 +15,26 @@
     </div>
     {{end}}
 
+    {{if .TurnstileSiteKey}}
+    <div style="border: 2px solid #4A90E2; padding: 20px; border-radius: 5px; max-width: 600px; background-color: #f9f9f9; margin: 20px 0;">
+        <h3>セキュリティチェック</h3>
+        {{if .TurnstileError}}
+        <p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+        {{end}}
+        <p>処理を続行するには、セキュリティチェックを完了してください。</p>
+        <form method="POST" action="list-cntrbS">
+            <input type="hidden" name="eventid" value="{{.Eventid}}">
+            <input type="hidden" name="userno" value="{{.Userno}}">
+            <input type="hidden" name="ifrm" value="{{.Ifrm}}">
+            <input type="hidden" name="sort" value="{{if eq .Srt 1}}D{{else}}{{end}}">
+            <input type="hidden" name="ie" value="{{.Ie}}">
+            <input type="hidden" name="requestid" value="{{.RequestID}}">
+            <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+            <br>
+            <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認して続行</button>
+        </form>
+    </div>
+    {{else}}
     <table>
         <tr>
             <td><button type="button" onclick="location.href='top'">トップ</button>　</td>
@@ -135,6 +161,7 @@
 	</tr>
 	{{end}}
 </table>
+{{end}}
 </body>
 
 </html>

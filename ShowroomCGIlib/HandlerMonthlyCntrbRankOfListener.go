@@ -60,6 +60,15 @@ type MonthlyCntrbRankData struct {
 // 指定した年月におけるイベント=ルームに対する貢献ポイントのランキングのリストを作成する
 func MonthlyCntrbRankOfListenerHandler(w http.ResponseWriter, req *http.Request) {
 
+	challengeData := BuildTurnstileChallengePageData(req)
+	result, tsErr := CheckTurnstileWithSession(w, req, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	var monthlyCntrbRank MonthlyCntrbRank
 	var err error
 
@@ -162,6 +171,15 @@ func MonthlyCntrbRankOfListenerHandler(w http.ResponseWriter, req *http.Request)
 
 // 指定した年月におけるリスナーの貢献ポイント合計のランキングのリストを作成する
 func MonthlyCntrbRankLgHandler(w http.ResponseWriter, req *http.Request) {
+
+	challengeData := BuildTurnstileChallengePageData(req)
+	result, tsErr := CheckTurnstileWithSession(w, req, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
 
 	var monthlyCntrbRank MonthlyCntrbRank
 	var err error

@@ -18,6 +18,7 @@ import (
 
 	"html/template"
 	"net/http"
+
 	//	"net/http/cookiejar"
 
 	// "net/http/cookiejar"
@@ -175,6 +176,15 @@ func ShowRankHandler(
 	_, _, isallow := GetUserInf(r)
 	if !isallow {
 		fmt.Fprintf(w, "Access Denied\n")
+		return
+	}
+
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
 		return
 	}
 

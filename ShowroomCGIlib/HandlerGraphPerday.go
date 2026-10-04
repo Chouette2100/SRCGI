@@ -56,14 +56,34 @@ type PointRecord struct {
 }
 
 type PointPerDay struct {
-	Eventid         string
-	Eventname       string
-	Period          string
-	Maxpoint        int
-	Gscale          int
-	Usernolist      []int
-	Longnamelist    []LongName
-	Pointrecordlist []PointRecord
+	Eventid          string
+	Eventname        string
+	Period           string
+	Maxpoint         int
+	Gscale           int
+	Usernolist       []int
+	Longnamelist     []LongName
+	Pointrecordlist  []PointRecord
+	TurnstileSiteKey string
+	TurnstileError   string
+	RequestID        string
+}
+
+func (h *PointPerDay) SetTurnstileInfo(siteKey string, errorMsg string) {
+	h.TurnstileSiteKey = siteKey
+	h.TurnstileError = errorMsg
+}
+
+func (h *PointPerDay) GetTemplatePath() string {
+	return "templates/list-perday.gtpl"
+}
+
+func (h *PointPerDay) GetTemplateName() string {
+	return "list-perday.gtpl"
+}
+
+func (h *PointPerDay) GetFuncMap() *template.FuncMap {
+	return nil
 }
 
 func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,11 +96,39 @@ func GraphPerdayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventid := r.FormValue("eventid")
+	requestid := r.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+
+	graphPageValues := GraphPageData{Eventid: eventid}
+	graphPageValues.RequestID = r.Context().Value("requestid").(string)
+	result, tsErr := CheckTurnstileWithSession(w, r, &graphPageValues)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", graphPageValues.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", graphPageValues.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/graph-perday.gtpl"))
-
-	eventid := r.FormValue("eventid")
 	var eventinf *exsrapi.Event_Inf
 	eventinf, err = srdblib.SelectFromEvent(Db0, "event", eventid)
 	if err != nil {
@@ -142,11 +190,39 @@ func ListPerdayHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	eventid := r.FormValue("eventid")
+	requestid := r.FormValue("requestid")
+	lastrequestid := ""
+	if requestid != "" {
+		lastrequestid = requestid
+	}
+
+	ppd := &PointPerDay{Eventid: eventid}
+	ppd.RequestID = r.Context().Value("requestid").(string)
+	result, tsErr := CheckTurnstileWithSession(w, r, ppd)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+	if lastrequestid == "" {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", ppd.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+	} else {
+		result, err := Dbmap0.Exec(
+			"UPDATE accesslog SET turnstilestatus= 0 WHERE requestid = ?", ppd.RequestID)
+		log.Printf("  Update accesslog turnstilestatus=0 result=%+v, err=%+v\n", result, err)
+		result, err = Dbmap0.Exec(
+			"DELETE FROM accesslog WHERE requestid = ?", lastrequestid)
+		log.Printf("  delete from accesslog where lastrequestid = %s result=%+v, err=%+v\n",
+			lastrequestid, result, err)
+	}
+
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/list-perday.gtpl"))
-
-	eventid := r.FormValue("eventid")
 
 	var eventinf *exsrapi.Event_Inf
 	eventinf, err = srdblib.SelectFromEvent(Db0, "event", eventid)

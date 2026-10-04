@@ -31,6 +31,26 @@
 
 </head>
 <body>
+{{if .TurnstileSiteKey}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <div style="border: 2px solid #4A90E2; padding: 20px; border-radius: 5px; max-width: 600px; background-color: #f9f9f9; margin: 20px auto;">
+        <h3>セキュリティチェック</h3>
+        {{if .TurnstileError}}
+        <p style="color: red; font-weight: bold;">{{.TurnstileError}}</p>
+        {{end}}
+        <p>処理を続行するには、セキュリティチェックを完了してください。</p>
+        <form method="POST" action="list-last">
+            <input type="hidden" name="eventid" value="{{.Eventid}}">
+            <input type="hidden" name="userno" value="{{.Userno}}">
+            <input type="hidden" name="limit" value="{{.Limit}}">
+            <input type="hidden" name="detail" value="{{.Detail}}">
+            <input type="hidden" name="requestid" value="{{.RequestID}}">
+            <div class="cf-turnstile" data-sitekey="{{.TurnstileSiteKey}}" data-theme="light"></div>
+            <br>
+            <button type="submit" style="padding: 10px 20px; background-color: #4A90E2; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">確認して続行</button>
+        </form>
+    </div>
+{{else}}
     {{if (HasAnnouncement)}}
     <div style="padding: 15px; margin: 0 0 20px 0; border-radius: 6px; background-color: {{(GetAnnouncement).BgColor}}; color: {{(GetAnnouncement).TextColor}}; font-size: 16px; font-weight: bold; text-align: center; border: 2px solid {{(GetAnnouncement).TextColor}}; word-wrap: break-word;">
       {{(GetAnnouncement).Message}}
@@ -279,5 +299,6 @@
 <p style="padding-left:2em">※　「(DB登録済み)イベント参加ルーム一覧（確認・編集）」の一覧にないルームでも確定値が発表されたルームはここに表示されます。<br>
 ※　「現配信開始 獲得ポイント」がProv.あるいはConf.のときはデータ取得時刻欄にはイベント終了直後の時刻が表示されます。
 </p>
+{{end}}
 </body>
 </html>

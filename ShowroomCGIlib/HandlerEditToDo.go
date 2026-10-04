@@ -37,6 +37,15 @@ func EditToDoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		// 編集画面の表示

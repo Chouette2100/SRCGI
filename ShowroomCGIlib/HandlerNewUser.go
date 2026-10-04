@@ -53,6 +53,15 @@ func NewUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	challengeData := BuildTurnstileChallengePageData(r)
+	result, tsErr := CheckTurnstileWithSession(w, r, challengeData)
+	if result != TurnstileOK {
+		if tsErr != nil {
+			log.Printf("Turnstile check error: %v\n", tsErr)
+		}
+		return
+	}
+
 	// テンプレートをパースする
 	tpl := template.Must(template.New("").Funcs(CloneCommonFuncMap()).ParseFiles(
 		"templates/new-user.gtpl"))
