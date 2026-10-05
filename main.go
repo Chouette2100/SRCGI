@@ -204,9 +204,10 @@ import (
 	202216 ListPerslotHandler, OnLivesHandlerHandler, ListCntrbSHandlerにTurnstile検証を追加する
 	202217 さらに25個のハンドラーにTurnstile検証を追加する
 	202218 モジュール名を`github.com/Chouette2100/SRCGI/v2`に変更する
+	202300 mariadbクライアントからMySQLサーバーへのLANを介した接続に対応する
 */
 
-const version = "202218"
+const version = "202300"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {

@@ -1,17 +1,17 @@
 module github.com/Chouette2100/SRCGI/v2
 
-go 1.26.3
+go 1.26.7
 
 require (
 	github.com/Chouette2100/exsrapi/v2 v2.4.0
 	github.com/Chouette2100/srapi/v2 v2.8.1
 	github.com/Chouette2100/srcom v0.0.2
-	github.com/Chouette2100/srdblib/v3 v3.3.1
+	github.com/Chouette2100/srdblib/v3 v3.4.0
 	github.com/Chouette2100/srhandler/v2 v2.1.0
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/PuerkitoBio/goquery v1.13.0
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/go-gorp/gorp v2.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/google/uuid v1.6.0

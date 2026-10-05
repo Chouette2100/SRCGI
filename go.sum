@@ -9,8 +9,8 @@ github.com/Chouette2100/srapi/v2 v2.8.1 h1:BE9gBpSJEq5oR93EnwejWOCbXxpU1FZboPgo8
 github.com/Chouette2100/srapi/v2 v2.8.1/go.mod h1:dQsSeSBEwC1O01A+EXSJGHo1buTYu1vhtud3/WYKMe8=
 github.com/Chouette2100/srcom v0.0.2 h1:cdoyABDuJYd9XP3Ii8Xk82rNFYx8kfeFS1P2iee34F8=
 github.com/Chouette2100/srcom v0.0.2/go.mod h1:dt0MWqsxTCZ1mlqeEsMRXiWpJKZeXrMp6tHrsbCul6Y=
-github.com/Chouette2100/srdblib/v3 v3.3.1 h1:/17MIF/Zm/b6Yx5wL9nMD8+HIabj62BDVKBY9NcJ+/8=
-github.com/Chouette2100/srdblib/v3 v3.3.1/go.mod h1:FOR1OwQb9hWUjZY7Cp0P16kzX3s8BTqoT5hq98TAaqA=
+github.com/Chouette2100/srdblib/v3 v3.4.0 h1:jAiy3msBULlwc+A/l3bIU9Ts6pVLGOdi1Gpd1oey0SI=
+github.com/Chouette2100/srdblib/v3 v3.4.0/go.mod h1:FOR1OwQb9hWUjZY7Cp0P16kzX3s8BTqoT5hq98TAaqA=
 github.com/Chouette2100/srhandler/v2 v2.1.0 h1:1nOgV5eOvIgut8WlrnR0yIF0IVzyBT1ownz6cXXIsGs=
 github.com/Chouette2100/srhandler/v2 v2.1.0/go.mod h1:wT5bqb3F/kCLiEqwfj8ydntcwYYbYJ08055hG1451Xw=
 github.com/Masterminds/goutils v1.1.1 h1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=
@@ -29,8 +29,8 @@ github.com/andybalholm/cascadia v1.3.4 h1:vM2lgh0Vru9Vwyfm4cQqWP2HHMW0u0+2PAW7Q3
 github.com/andybalholm/cascadia v1.3.4/go.mod h1:BLRmbRjpEtNKieZOCCvYj4RqN+KRA41GBe/5O+G93kM=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
-github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
+github.com/dustin/go-humanize v1.1.0 h1:dbKTrvD0klcbBV/h4AWJdMuZogJACoMlvWIWZ5b2xWg=
+github.com/dustin/go-humanize v1.1.0/go.mod h1:hc1CvRkJMsgxqjmjMQF3QNRAZBwY8AXBAzKYoSX9sFI=
 github.com/frankban/quicktest v1.2.2/go.mod h1:Qh/WofXFeiAFII1aEBu529AtJo6Zg2VHscnEsbBnJ20=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
