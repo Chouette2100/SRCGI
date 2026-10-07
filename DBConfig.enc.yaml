@@ -1,14 +1,14 @@
 # すでに存在するトンネルを使う
 #UseSSH: false
 #DBサーバーのホスト名、指定しなければlocalhost
-DBhost: 192.168.1.10
-DBport: 3306
+DBhost: ${DBHOST}
+DBport: ${DBPORT}
 # データベース名
-DBname: ENC[AES256_GCM,data:cDrq1ZIxqMU=,iv:dw0BIkYOQMvdtfPXszyZ6o5iz4XcrLBJLPhUOiUbUMI=,tag:DIJTlnFa9NcCjShG2O5fGw==,type:str]
+DBname: ENC[AES256_GCM,data:6IB7IqwmvJQ=,iv:NAwpuFx+qlIA+T72VvCMY/ZSLQYtc6CbYTXAX17RHjg=,tag:/xVH1RCNC+71dgzm1flzGw==,type:str]
 #
 # ログイン名とパスワードは環境変数で渡す
-DBuser: ENC[AES256_GCM,data:y527OgSb4A==,iv:KcQDzg3sdsiUdk6JRUjo51dYGrvMwJDo5wE+pxkclpE=,tag:VXfT3MC2EQ7WyVcVkpThCQ==,type:str]
-DBpswd: ENC[AES256_GCM,data:22tTs/R4qBmhjT0=,iv:imy+PnAz3FT8Z9oT/EBsAusYy0vhytX082y9aukc74I=,tag:8nYsFAz4fuS02hKfkALvZg==,type:str]
+DBuser: ENC[AES256_GCM,data:TRvj9xGm9g==,iv:ajHQsAzaHNhIICNjh0LMYk3QJR7PWcd6knoiMVezK5M=,tag:szUPeCHRG57iqr+ghQEfdQ==,type:str]
+DBpswd: ENC[AES256_GCM,data:Uaepzes1IhpB32U=,iv:019jVl/Upw8MQIvMrHTUujkcWkm2dD4OLv6dvmdD02M=,tag:eEgnHt4CVRyARaf6neucAQ==,type:str]
 # SSH接続を使わない
 UseSSH: false
 # SSH接続を使う
@@ -22,14 +22,14 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBxdkJtdVI5WkVWTC9HZjdI
-            cU5sRkx0WllidjE2ZE9wcUJ3dTkxUVRrNXdZCk9OYi90ZXVxbk1qOG0xNUV1NnRU
-            RXdDaFFDSnEwemFCNndTT1pYamJrNmMKLS0tIEhsTW9XRWZadUpweEVaMHdPZFJP
-            dXRnSW1GTDZqenF0dmF0VUcwY0N2OTQKfO+zg+b5EdEHYPSw3F/VNv2a5jvIwbQK
-            d/Ao4ZeON1hSpozmQsYuC62vX3kiDKBizuzcbYSZOoMnLt0DLdHTSg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA5RnV3TDRVSkFpUVR4TUd6
+            VjVPSXpoODVtT2c0WUZhdmR3SHlsVXJHQmhjCnFYdWJlM2ZvRjFoOFRDR1oyKzBC
+            YWFtanZFTXFzMnQramhZSXJhOHR1MUEKLS0tIGJJR3UvQTdHT3VSdVN3M3ZRQ3RR
+            Q0d3OHZIVzkwbDBFZkxPTnhCR2R5ZUkKewc3SLqnnT1e7nG/HR8IuxyBb1L8VUf1
+            paIIaEq5ywBhNM7Bxa705p1G/vCbqPNfWeRMtDBuoFS67/83Q/EdSA==
             -----END AGE ENCRYPTED FILE-----
           recipient: age13mlf945e3emk75ys348xttw048ufq7vpgw7l94g63tl5pt03mdrsfqra2l
     encrypted_regex: ^(apikey|SRuser|SRpswd|DBuser|DBpswd|DBname|TurnstileSiteKey|TurnstileSecretKey|IPEncryptionKeyHex|sr_acct|sr_pswd)$
-    lastmodified: "2026-10-05T14:31:42Z"
-    mac: ENC[AES256_GCM,data:cgyxcCEqw3/5SKgDLv41PJ3RFnUIdwyR43VROgItZeMFti0kNTivKAb3l7rXpA0y4Uo2tG+6nvGHVgleWqt7HIJ/x/8yselAYfs6qzN/4V4SypSisOhHmyMibzfzJY38/O3IRfkdzr5k0QxY2KzjEnqySWRCv92Q98VYYkoJozg=,iv:evvJtKFlLkWrxf7DItbbYpJJE++gnqmnwqr09iwTTB8=,tag:gq1jC84dFGGW7GOpTXhPMg==,type:str]
+    lastmodified: "2026-10-07T06:45:52Z"
+    mac: ENC[AES256_GCM,data:bHh5I3+EME4Iu87cQvFnlg9JN4JW1+wBwkwMiQC5flymve5pwm4QIO765Bw7ESm2flCcTMdFQr+P8agvYoGCwPDS77YBd9GHiS7FUteLpIoL35jJcgL9ZhXVY2znd4wG2qhoodwzt9czAzphuIXNDbKbmv5MCFdgfZsGm/uW07Y=,iv:lyBy9xxkoHAwhgvoULzxVgcFikmThFiCTwzKPc5gDFE=,tag:wSE0BNKKM+77XNEf6Z0gtw==,type:str]
     version: 3.13.3
