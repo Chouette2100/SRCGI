@@ -212,10 +212,10 @@
         <!-- イベント一覧テーブル -->
         <table class="events-table">
             <tr>
-                <th>イベント名とイベントページへのリンク</th>
                 <th>イベントID</th>
                 <th>開始日時</th>
                 <th>終了日時</th>
+                <th>イベント名とイベントページへのリンク</th>
                 <th>参加ルーム一覧</th>
                 <th>表示項目選択画面/<br>データ取得開始登録</th>
                 <th>直近獲得<br>ポイント表</th>
@@ -243,9 +243,6 @@
         {{ end }}
 
                 <td>
-                    <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
-                </td>
-                <td>
                     {{ .I_Event_ID }}
                 </td>
                 <td>
@@ -253,6 +250,9 @@
                 </td>
                 <td>
                     {{ TimeToString .End_time "01-02 15:04" }}
+                </td>
+                <td style="text-align: right;">
+                    <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
                 </td>
                 <td style="text-align: center;">
                     <a href="eventroomlist?eventid={{ .I_Event_ID }}&eventurlkey={{ .Event_ID }}">参加ルーム一覧</a>

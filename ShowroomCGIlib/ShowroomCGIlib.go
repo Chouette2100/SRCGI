@@ -365,12 +365,13 @@ import (
 202217 さらに25個のハンドラーにTurnstile検証を追加する
 202219 list-lastp.gtplをlist-lastC.gtplと変更する
        (list-lasptp.gtplはgithubの圧縮でlist-lastP.gtplとファイル名が重複すると見られる）
+202301 current-events.gtplの項目配置を変更する。
 
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202219"
+const Version = "202301"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
