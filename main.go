@@ -205,9 +205,10 @@ import (
 	202217 さらに25個のハンドラーにTurnstile検証を追加する
 	202218 モジュール名を`github.com/Chouette2100/SRCGI/v2`に変更する
 	202300 mariadbクライアントからMySQLサーバーへのLANを介した接続に対応する
+	202302 thpoint.txtをテスト用、thpoint.txt.VPSを本番用とする。
 */
 
-const version = "202300"
+const version = "202302"
 
 // generateRandomURLToken は32文字のランダムトークンを生成する
 func generateRandomURLToken() string {
