@@ -8,12 +8,15 @@ tar zcvf SRCGI_$filename.tar.gz \
 SRCGI \
 run.sh \
 chgLM.sh \
-*.enc.yaml \
+ServerConfig.enc.yaml \
+DBConfig.enc.yaml \
+DBConfig1.enc.yaml \
 bots.yml \
 nontargetentry.yml \
 Env.yml \
 excl.txt \
-thpoint.txt.ref \
+thpoint.txt \
+thpoint.txt.VPS \
 rvl.txt \
 DenyIp.txt \
 cidr.txt \

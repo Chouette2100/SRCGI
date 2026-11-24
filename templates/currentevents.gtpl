@@ -212,9 +212,6 @@
         <!-- イベント一覧テーブル -->
         <table class="events-table">
             <tr>
-                <th>イベントID</th>
-                <th>開始日時</th>
-                <th>終了日時</th>
                 <th>イベント名とイベントページへのリンク</th>
                 <th>参加ルーム一覧</th>
                 <th>表示項目選択画面/<br>データ取得開始登録</th>
@@ -222,6 +219,9 @@
                 <th>獲得ポイント<br>推移図</th>
                 <th>日々の<br>獲得pt</th>
                 <th>枠毎の<br>獲得pt</th>
+                <th>開始日時</th>
+                <th>終了日時</th>
+                <th>イベントID</th>
             </tr>
 
         {{ $i := 0 }}
@@ -242,15 +242,6 @@
             {{ $i = 1 }}
         {{ end }}
 
-                <td>
-                    {{ .I_Event_ID }}
-                </td>
-                <td>
-                    {{ TimeToString .Start_time "01-02 15:04" }}
-                </td>
-                <td>
-                    {{ TimeToString .End_time "01-02 15:04" }}
-                </td>
                 <td style="text-align: right;">
                     <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
                 </td>
@@ -286,6 +277,15 @@
                     {{ if eq .Target 1 }}
                     <a href="list-perslot?eventid={{ .Event_ID }}">枠毎pt</a>
                     {{ end }}
+                </td>
+                <td>
+                    {{ TimeToString .Start_time "01-02 15:04" }}
+                </td>
+                <td>
+                    {{ TimeToString .End_time "01-02 15:04" }}
+                </td>
+                <td>
+                    {{ .I_Event_ID }}
                 </td>
             </tr>
             {{ end }}

@@ -519,9 +519,6 @@
         <table class="events-table">
             <tr>
                 <th style="border-right: none;">イベント名とイベントページへのリンク</th>
-                <th style="border-left: none;">イベントID</th>
-                <th>開始日時</th>
-                <th>終了日時</th>
                 <th>最終結果</th>
                 <th>表示項目<br>選択画面</th>
                 <th>最終獲得<br>ポイント表</th>
@@ -529,6 +526,9 @@
                 <th>日々の<br>獲得pt</th>
                 <th>枠毎の<br>獲得pt</th>
                 <th>貢献<br>pt</th>
+                <th>開始日時</th>
+                <th>終了日時</th>
+                <th style="border-left: none;">イベントID</th>
             </tr>
             {{ $i := 0 }}
             {{ $userno := .Userno }}
@@ -561,23 +561,12 @@
             {{ $i = 1 }}
         {{ end }}
         
-                <td style="border-right: none;">
+                <td style="text-align: right; border-right: none;">
                     {{ if IsTempID .Event_ID }}
                         {{ .Event_name }}
                     {{ else }}
                         <a href="https://showroom-live.com/event/{{ .Event_ID }}">{{ .Event_name }}</a>
                     {{ end }}
-                </td>
-                <td style="border-left: none; text-align: right;">
-                    {{ if ne .I_Event_ID 0 }}
-                        {{ .I_Event_ID }}
-                    {{ end }}
-                </td>
-                <td>
-                    {{ TimeToStringY .Start_time }}
-                </td>
-                <td>
-                    {{ TimeToString .End_time "01-02 15:04"}}
                 </td>
                 <td style="text-align: center;">
                     {{/* {{ if and (ne .I_Event_ID 0) ( ne .Aclr 0 ) }} */}}
@@ -643,6 +632,17 @@
                     {{ else }}
                     ーー
                     {{ end }}
+                    {{ end }}
+                </td>
+                <td>
+                    {{ TimeToStringY .Start_time }}
+                </td>
+                <td>
+                    {{ TimeToString .End_time "01-02 15:04"}}
+                </td>
+                <td style="border-left: none; text-align: right;">
+                    {{ if ne .I_Event_ID 0 }}
+                        {{ .I_Event_ID }}
                     {{ end }}
                 </td>
             </tr>

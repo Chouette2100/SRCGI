@@ -366,12 +366,13 @@ import (
 202219 list-lastp.gtplをlist-lastC.gtplと変更する
        (list-lasptp.gtplはgithubの圧縮でlist-lastP.gtplとファイル名が重複すると見られる）
 202301 current-events.gtplの項目配置を変更する。
+202303 current-events.gtpl, closedevents.gtplの項目配置を変更する。注目のイベントの強調表示を復活する
 
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202301"
+const Version = "202303"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 
@@ -515,6 +516,14 @@ func (r RoomInfoList) Less(i, j int) bool {
 	} else {
 		return r[i].Point > r[j].Point
 	}
+}
+
+type FeaturedEvent struct {
+        Eventid   string
+        Tnow      time.Time
+        Starttime time.Time
+        Endtime   time.Time
+        Ct        int
 }
 
 var Serverconfig *ServerConfig

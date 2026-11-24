@@ -206,6 +206,7 @@ import (
 	202218 モジュール名を`github.com/Chouette2100/SRCGI/v2`に変更する
 	202300 mariadbクライアントからMySQLサーバーへのLANを介した接続に対応する
 	202302 thpoint.txtをテスト用、thpoint.txt.VPSを本番用とする。
+	202303 thpoint.txt=テスト用、thpoint.txt.VPS=本番用を共通にする。
 */
 
 const version = "202302"
@@ -765,6 +766,8 @@ func main() {
 
 	// 深堀り検索用データベースサーバーをオープンする
 	ShowroomCGIlib.Db1, ShowroomCGIlib.Dbmap1, err = newDB("DBConfig1.enc.yaml")
+	ShowroomCGIlib.Dbmap0.AddTableWithName(ShowroomCGIlib.FeaturedEvent{}, "featuredevent").SetKeys(false, "Eventid")
+
 	if err != nil {
 		log.Printf("Database error. err = %v\n", err)
 		return

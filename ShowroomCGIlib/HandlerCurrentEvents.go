@@ -198,10 +198,9 @@ func CurrentEventsHandler(
 	top.Totalcount = len(top.Eventinflist)
 
 	// 参照回数の多いイベントを取得する
-	/*
 	var emap map[string]int
 	emap = make(map[string]int)
-	emap, err = srdblib.GetFeaturedEvents(Dbmap0, "current", 48, 18, 14)
+	emap, err = GetFeaturedEvents(Dbmap0, "current", 10, 3)
 	if err != nil {
 		err = fmt.Errorf("GetFeaturedEvents(): %w", err)
 		log.Printf("%s\n", err.Error())
@@ -216,7 +215,6 @@ func CurrentEventsHandler(
 			top.Eventinflist[i].Highlighted = 0
 		}
 	}
-	*/
 
 	err = FindHistoricalData(&top.Eventinflist)
 	if err != nil {

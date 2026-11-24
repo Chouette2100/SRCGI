@@ -13,9 +13,10 @@
             "dlvFlags": ["--check-go-version=false"],
             "env": {
                 "CGO_ENABLED": "0",
-                "HTTPPORT": "8008",
-                "SOPS_AGE_KEY_FILE": "/home/chouette/.config/age/key.txt",
+                "HTTPPORT": "8000",
+                "SOPS_AGE_KEY_FILE": "/home/chouette/.config/age/key2.txt",
                 "DBHOST": "127.0.0.1",
+                "DBPORT": "9910",
                 "DBHOST1": "127.0.0.1",
 
                 "SSHHOST": "133.18.233.43",
