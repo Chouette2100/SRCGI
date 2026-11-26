@@ -367,12 +367,15 @@ import (
        (list-lasptp.gtplはgithubの圧縮でlist-lastP.gtplとファイル名が重複すると見られる）
 202301 current-events.gtplの項目配置を変更する。
 202303 current-events.gtpl, closedevents.gtplの項目配置を変更する。注目のイベントの強調表示を復活する
+202304 onlivesの時刻軸のラベルの誤りを正す。
+       リスナー貢献ポイント履歴の表示を上位160件に限定する。
+       SHOWランクにタイムライン・リスナー貢献ポイント履歴へのリンクを追加する。
 
 
 	EventRoomListHandler()で参照するイベント情報はeventではなくweventから取得する。
 	list-cntrbHEx.gtplでのlist-cntrbへのリンクをlist-cntrbexに変更した。
 */
-const Version = "202303"
+const Version = "202304"
 
 var VersionOfAll string // VersionOfAll は ShowroomCGIlib.Version と srdblib.Version を含むバージョン文字列
 

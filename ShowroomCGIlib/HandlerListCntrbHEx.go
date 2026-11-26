@@ -5,7 +5,7 @@ import (
 	"log"
 
 	//	"math"
-	// "sort"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -48,6 +48,7 @@ type CntrbHEx_Header struct {
 	Listener_b     string
 	Tlsnid_f       int
 	Listener_f     string
+	Bypoint        int
 	CntrbhistoryEx *CntrbHistoryEx
 	// Turnstile導入用(1) ------------------------
 	TurnstileSiteKey string
@@ -70,6 +71,7 @@ type CntrbHistoryEx []CntrbHistoryExInf
 
 // TurnstileChallengeDataインターフェースの実装
 var ListCntrbHExfuncMap = CloneCommonFuncMap()
+
 /*
 var ListCntrbHExfuncMap = &template.FuncMap{
 	"sub":        func(i, j int) int { return i - j },
@@ -137,6 +139,11 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	tlsnid, _ := strconv.Atoi(req.FormValue("tlsnid"))
 	name := req.FormValue("name")
 	ie, _ := strconv.Atoi(req.FormValue("ie"))
+	bypoint := 1
+	sbypoint := req.FormValue("bypoint")
+	if sbypoint != "" {
+		bypoint, _ = strconv.Atoi(sbypoint)
+	}
 	log.Printf(" eventid=%s, userno=%d, tlsnid=%d\n", eventid, userno, tlsnid)
 
 	/*
@@ -176,6 +183,7 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	cntrbhex_header.Userno = userno
 	cntrbhex_header.Tlsnid = tlsnid
 	cntrbhex_header.Name = name
+	cntrbhex_header.Bypoint = bypoint
 
 	// Turnstile導入用(2) ------------------------
 	// Turnstile検証（セッション管理込み）
@@ -262,7 +270,7 @@ func ListCntrbHExHandler(w http.ResponseWriter, req *http.Request) {
 	// 	log.Println(err)
 	// }
 	var cntrbhistoryEx *CntrbHistoryEx
-	cntrbhistoryEx, err = SelectCntrbHistoryEx(eventid, userno, tlsnid)
+	cntrbhistoryEx, err = SelectCntrbHistoryEx(eventid, userno, tlsnid, bypoint)
 	if err != nil {
 		err = fmt.Errorf("SelectCntrbHistoryEx() error: %w", err)
 		log.Printf("%s\n", err.Error())
@@ -373,6 +381,7 @@ func SelectCntrbHistoryEx(
 	eventid string,
 	userno int,
 	tlsnid int,
+	bypoint int,
 ) (
 	cntrbhistoryEx *CntrbHistoryEx,
 	err error,
@@ -388,8 +397,13 @@ func SelectCntrbHistoryEx(
 	sqlst += "   JOIN user u on u.userno = er.userid "
 	sqlst += "   WHERE lsnid = ? " // まずlsnidで絞り込む
 	sqlst += " ) AS ranked "
-	sqlst += " WHERE rn = 1 and point > 0 "    // ループの最新行（tsが最大）を選択する、pointが0または-1は無効なデータである
-	sqlst += " ORDER BY endtime desc, roomno " // 最後にイベント終了日で、終了日が同じ時はユーザー番号順にソートする
+	sqlst += " WHERE rn = 1 and point > 0 " // ループの最新行（tsが最大）を選択する、pointが0または-1は無効なデータである
+	if bypoint == 1 {
+		sqlst += " ORDER BY point desc"
+	} else {
+		sqlst += " ORDER BY endtime desc, roomno " // 最後にイベント終了日で、終了日が同じ時はユーザー番号順にソートする
+	}
+	sqlst += " LIMIT 150 "
 
 	cntrbhistoryEx = &CntrbHistoryEx{}
 	_, err = Dbmap0.Select(cntrbhistoryEx, sqlst, tlsnid)
@@ -397,6 +411,12 @@ func SelectCntrbHistoryEx(
 		err = fmt.Errorf("SelectCntrbHistoryEx() error: %w", err)
 		log.Printf("%s\n", err.Error())
 		return nil, err
+	}
+	if bypoint == 1 {
+		// cntrbhistoryExをCntrbHistoryExInf.Endtimeの降順にソートする
+		sort.Slice(*cntrbhistoryEx, func(i, j int) bool {
+			return (*cntrbhistoryEx)[i].Endtime.After((*cntrbhistoryEx)[j].Endtime)
+		})
 	}
 
 	return

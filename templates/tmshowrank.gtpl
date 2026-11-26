@@ -75,8 +75,9 @@
         <tr style="text-align: center">
             <td>No.</td>
             <td>SHOWランク</td>
-            <td class="no-border-right">ルーム名（イベント履歴へのリンク）</td>
-            <td class="no-border-left"></td>
+            <td style="border-right: none;">ルーム名（イベント履歴へのリンク）</td>
+            <td style="border-left: none; border-right: none;"></td>
+            <td style="border-left: none;"></td>
             <td>ルームレベル<br>(月初)</td>
             <td>フォロワー数<br>(月初)</td>
             <td>ファン数<br>(月初)</td>
@@ -110,12 +111,17 @@
         <tr bgcolor="{{$c}}" >
             <td align="right">{{/* {{ $i }} */}}</td>
             <td align="center">{{ $n }}</td>
-            <td class="no-border-right">
+            <td style="border-right: none;">
             <a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }} <a href="/onlives?roomid={{.Userno}}">.</a></a>
             </td>
-            <td class="no-border-left">
+            <td style="border-left: none; border-right: none;">
             <a href="https://www.showroom-live.com/room/profile?room_id={{ .Userno }}">prof.</a>
             </td>
+            <td style="border-left: none;">
+		        &nbsp; <a href="/onlives?roomid={{.Userno}}">TL</a>
+		        &nbsp; <a href="room-cntrb-history?userid={{.Userno}}">LR</a>
+		        &nbsp; <a href="closedevents?userno={{.Userno}}&mode=0&path=5">CE</a>
+	        </td>
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
@@ -160,7 +166,8 @@
             <td>No.</td>
             <td>SHOWランク</td>
             <td class="no-border-right">ルーム名（イベント履歴へのリンク）</td>
-            <td class="no-border-left"></td>
+            <td style="border-left; border-left: none;"></td>
+            <td style="border-left: none;"></td>
             <td>ルームレベル<br>(月初)</td>
             <td>フォロワー数<br>(月初)</td>
             <td>ファン数<br>(月初)</td>
@@ -193,8 +200,9 @@
         <tr bgcolor="{{$c}}" >
             <td align="right"></td>
             <td align="center">{{ $n }}</td>
-            <td class="no-border-right"><a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a></td>
-            <td class="no-border-left"></td>
+            <td style="border-right"><a href="closedevents?userno={{ .Userno }}&mode=0&path=5">{{ .User_name }}</a></td>
+            <td style="border-left; border-left: none;"></td>
+            <td style="border-left: none;"></td>
             <td align="right">{{ Comma .Level }}</td>
             <td align="right">{{ Comma .Followers }}</td>
             <td align="right">{{ Comma .Fans }}</td>
